@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import axios from "axios";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css"; // Don't forget to import the CSS for date picker
+// import DatePicker from "react-datepicker";
+// import "react-datepicker/dist/react-datepicker.css"
 
+import dynamic from "next/dynamic";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const ProjectForm = () => {
@@ -293,7 +293,7 @@ const ProjectForm = () => {
                 ...projectData,
                 assignedTrainers: [
                   ...projectData.assignedTrainers,
-                  { trainerName: "None", role: "None", trainerId: "" },
+                  { trainerName: "None", role: "Primary", trainerId: "" },
                 ],
               });
             }}

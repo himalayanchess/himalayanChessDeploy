@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const CourseSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  duration: { type: String, required: true }, // e.g., "3 months"
+  duration: { type: String, required: true },
+  skillLevel: { type: String },
   syllabus: {
     type: [
       {

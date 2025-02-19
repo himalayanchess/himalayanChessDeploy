@@ -8,9 +8,16 @@ const AddCourse = () => {
   const [courseData, setCourseData] = useState({
     name: "",
     duration: "",
+    skillLevel: "None",
     syllabus: [{ chapter: "", subChapters: [{ subChapter: "" }] }],
     nextCourseId: "None",
   });
+  const skillLevelOptions = [
+    { value: "None", label: "None" },
+    { value: "Beginner", label: "Beginner" },
+    { value: "Intermediate", label: "Intermediate" },
+    { value: "Advanced", label: "Advanced" },
+  ];
   const courseOptions = [
     { value: "None", label: "None" },
     { value: 1, label: "JavaScript for Beginners" },
@@ -106,7 +113,26 @@ const AddCourse = () => {
               required
             />
           </div>
-
+          {/* skill level */}
+          <div>
+            <label className="block text-sm font-medium text-gray-600">
+              Skill Level
+            </label>
+            <Select
+              options={skillLevelOptions}
+              value={skillLevelOptions.find(
+                (el) => el.value === courseData.skillLevel
+              )}
+              onChange={(selectedOption) =>
+                setCourseData({
+                  ...courseData,
+                  skillLevel: selectedOption.value,
+                })
+              }
+              className="mt-2"
+              placeholder="Select Next Course"
+            />
+          </div>
           {/* React Select Dropdown for Next Course */}
           <div>
             <label className="block text-sm font-medium text-gray-600">

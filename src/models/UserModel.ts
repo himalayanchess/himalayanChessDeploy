@@ -32,6 +32,9 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
     },
+    skillLevel: {
+      type: String,
+    },
     fideId: {
       type: Number,
     },

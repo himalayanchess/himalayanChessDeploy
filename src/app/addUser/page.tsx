@@ -3,6 +3,7 @@ import React, { ChangeEvent, ChangeEventHandler, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import dynamic from "next/dynamic";
+import Sidebar from "@/components/Sidebar";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const UserForm = () => {
@@ -19,12 +20,27 @@ const UserForm = () => {
     password: "",
     phone: "",
     role: "Student",
+    skillLevel: "None",
     fideId: "",
     guardianInfo: { name: "", relationship: "Father", phone: "", email: "" },
     emergencyContactName: "",
     emergencyContact: "",
     enrolledCourses: [],
   });
+
+  const roleOptions = [
+    { value: "Student", label: "Student" },
+    { value: "Trainer", label: "Trainer" },
+    { value: "Admin", label: "Admin" },
+    { value: "Superadmin", label: "Superadmin" },
+  ];
+
+  const skillLevelOptions = [
+    { value: "None", label: "None" },
+    { value: "Beginner", label: "Beginner" },
+    { value: "Intermediate", label: "Intermediate" },
+    { value: "Advanced", label: "Advanced" },
+  ];
 
   const titleOptions = [
     { value: "None", label: "None" },
@@ -98,11 +114,52 @@ const UserForm = () => {
   }
   return (
     <div className="w-1/2 mx-auto p-6 bg-white shadow-md rounded-lg">
+      {/* <Sidebar /> */}
       <h2 className="text-xl font-semibold mb-4">User Registration</h2>
       <form
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
         onSubmit={handleSubmit}
       >
+        {/* Role */}
+        <div className="col-span-2">
+          <label className="block text-sm font-medium">Role</label>
+          <Select
+            name="role"
+            value={{ label: formData.role, value: formData.role }}
+            onChange={(selected: any) => {
+              //reset form
+              if (formData.role !== selected.value) {
+                setFormData({
+                  name: "",
+                  title: "None",
+                  dob: "",
+                  trainerTitle: "None",
+                  gender: "None",
+                  rating: "",
+                  joinedDate: "",
+                  status: "Ongoing",
+                  email: "",
+                  password: "",
+                  phone: "",
+                  role: selected.value,
+                  skillLevel: "Beginner",
+                  fideId: "",
+                  guardianInfo: {
+                    name: "",
+                    relationship: "Father",
+                    phone: "",
+                    email: "",
+                  },
+                  emergencyContactName: "",
+                  emergencyContact: "",
+                  enrolledCourses: [],
+                });
+              }
+            }}
+            options={roleOptions}
+            className="w-full"
+          />
+        </div>
         {/* Name */}
         <div className="col-span-2">
           <label className="block text-sm font-medium">Name</label>
@@ -211,50 +268,22 @@ const UserForm = () => {
             className="w-full p-2 border rounded"
           />
         </div>
-        {/* Role */}
-        <div className="col-span-2">
-          <label className="block text-sm font-medium">Role</label>
-          <Select
-            name="role"
-            value={{ label: formData.role, value: formData.role }}
-            onChange={(selected: any) => {
-              //reset form
-              if (formData.role !== selected.value) {
-                setFormData({
-                  name: "",
-                  title: "None",
-                  dob: "",
-                  trainerTitle: "None",
-                  gender: "None",
-                  rating: "",
-                  joinedDate: "",
-                  status: "Ongoing",
-                  email: "",
-                  password: "",
-                  phone: "",
-                  role: selected.value,
-                  fideId: "",
-                  guardianInfo: {
-                    name: "",
-                    relationship: "Father",
-                    phone: "",
-                    email: "",
-                  },
-                  emergencyContactName: "",
-                  emergencyContact: "",
-                  enrolledCourses: [],
-                });
-              }
-            }}
-            options={["Student", "Trainer", "Admin", "Superadmin"].map(
-              (role) => ({
-                value: role,
-                label: role.charAt(0).toUpperCase() + role.slice(1),
-              })
-            )}
-            className="w-full"
-          />
-        </div>
+
+        {/* skill level for students */}
+        {formData.role == "Student" && (
+          <div className="col-span-2">
+            <label className="block text-sm font-medium">Skill Level</label>
+            <Select
+              name="skillLevel"
+              value={{ label: formData.skillLevel, value: formData.skillLevel }}
+              onChange={(selected: any) => {
+                setFormData({ ...formData, skillLevel: selected.value });
+              }}
+              options={skillLevelOptions}
+              className="w-full"
+            />
+          </div>
+        )}
         {/* FIDE ID (hidden for admin and superadmin) */}
         {formData.role !== "admin" && formData.role !== "superadmin" && (
           <div>
