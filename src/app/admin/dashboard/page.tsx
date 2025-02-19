@@ -16,7 +16,7 @@ const menuItems = [
 const page = () => {
   return (
     <>
-      <Sidebar menuItems={menuItems} />
+      <Sidebar menuItems={menuItems} role="Admin" />
       <div className="ml-[4rem]">admin</div>
     </>
   );
