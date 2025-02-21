@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
-import AddUser from "@/components/user/AddUser";
+import AddUser from "@/components/user/AddUserPageBased";
 import AddCourse from "@/components/course/AddCourse";
 import Header from "@/components/Header";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
@@ -20,9 +20,9 @@ const page = () => {
         role="superadmin"
         activeMenu="Dashboard"
       />
-      <main className="ml-[3rem] w-[96%]  min-h-[100dvh] ">
+      <main className="ml-[3rem] w-[96%]  min-h-[100dvh] bg-red-500 ">
         <Header />
-        dashboard
+        <div className="dashboard-container py-6 px-14">asd</div>
       </main>
     </div>
   );

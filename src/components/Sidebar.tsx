@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Home, Settings, User, ChevronDown } from "lucide-react";
-import AddUser from "./user/AddUser";
+import AddUser from "./user/AddUserPageBased";
 import Link from "next/link";
 
 const Sidebar = ({ menuItems, role, activeMenu }) => {
@@ -15,7 +15,7 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
 
   return (
     <motion.div
-      className="h-screen bg-gray-200 text-black fixed top-0 left-0 flex flex-col items-center py-16 shadow-lg"
+      className="h-screen z-50 bg-gray-200 text-black fixed top-0 left-0 flex flex-col items-center py-16 shadow-lg"
       initial={{ width: "3rem" }}
       animate={{ width: isExpanded ? "16rem" : "3rem" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}

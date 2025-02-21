@@ -7,7 +7,7 @@ const Header = () => {
   const { data } = useSession();
 
   return (
-    <div className="h-[9vh]  px-14 flex justify-between items-center">
+    <div className="h-[8dvh]  px-14 flex justify-between items-center">
       <div className="logo">
         <Image alt="hca" height={40} src={HCATransparent} />
       </div>

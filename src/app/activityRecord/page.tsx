@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { format } from "date-fns";
 
+import dynamic from "next/dynamic";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const lessonOptions = [

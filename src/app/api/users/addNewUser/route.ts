@@ -7,6 +7,13 @@ export async function POST(req: NextRequest) {
     await dbconnect();
     const reqBody = await req.json();
     console.log(reqBody);
+    // Check if user with the same name exists (case-insensitive)
+    const userExists = await User.findOne({
+      name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
+    });
+    if (userExists) {
+      return NextResponse.json({ msg: "User already exists", statusCode: 204 });
+    }
     const newUser = new User(reqBody);
     const savedNewUser = await newUser.save();
     // new user added success

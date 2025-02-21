@@ -235,7 +235,6 @@ const UserForm = () => {
             className="w-full p-2 border rounded"
           />
         </div>
-
         {/* Email & password */}
         <div>
           <label className="block text-sm font-medium">Email</label>
@@ -268,7 +267,6 @@ const UserForm = () => {
             className="w-full p-2 border rounded"
           />
         </div>
-
         {/* skill level for students */}
         {formData.role == "Student" && (
           <div className="col-span-2">
@@ -297,7 +295,6 @@ const UserForm = () => {
             />
           </div>
         )}
-
         <div>
           <label className="block text-sm font-medium">Status</label>
           <Select
@@ -316,7 +313,6 @@ const UserForm = () => {
             className="w-full"
           />
         </div>
-
         {/* Trainer Title (only for trainers) */}
         {formData.role === "Trainer" && (
           <div>
@@ -335,7 +331,6 @@ const UserForm = () => {
             />
           </div>
         )}
-
         {/* Conditional Fields for Student Role */}
         {formData.role === "Student" && (
           <>
@@ -427,7 +422,6 @@ const UserForm = () => {
             </div>
           </>
         )}
-
         {/* Contacts */}
         <div>
           <label className="block text-sm font-medium">
@@ -451,7 +445,7 @@ const UserForm = () => {
             className="w-full p-2 border rounded"
           />
         </div>
-
+        asd
         {/* Enrolled Courses */}
         {formData.role === "Student" && (
           <>
@@ -531,7 +525,6 @@ const UserForm = () => {
             )}
           </>
         )}
-
         {/* Submit */}
         <div className="col-span-2">
           <button

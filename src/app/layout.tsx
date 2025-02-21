@@ -21,6 +21,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: "none", // Remove default uppercase transformation
+          // padding: "0",
+          // margin: "0",
         },
       },
     },

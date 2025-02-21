@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
   // Prevent admins from accessing superadmin routes and vice versa
   if (session) {
-    const role = session.user.role;
+    const role = session.user.role.toLowerCase();
     if (session && path == "/") {
       return NextResponse.redirect(
         new URL(`/${role.toLowerCase()}/dashboard`, request.url)

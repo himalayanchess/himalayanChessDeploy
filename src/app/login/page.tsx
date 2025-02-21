@@ -124,7 +124,7 @@ const page = () => {
           <Button
             type="submit"
             variant="contained"
-            color="success"
+            color="info"
             size="large"
             className="w-full"
           >
