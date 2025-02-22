@@ -1,7 +1,7 @@
 import { dbconnect } from "@/index";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/UserModel";
-
+import bcryptjs from "bcryptjs";
 export async function POST(req: NextRequest) {
   try {
     await dbconnect();
@@ -14,13 +14,21 @@ export async function POST(req: NextRequest) {
     if (userExists) {
       return NextResponse.json({ msg: "User already exists", statusCode: 204 });
     }
-    const newUser = new User(reqBody);
+    // hash the password using bcryptjs
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(reqBody.password, salt);
+
+    const newUser = new User({
+      ...reqBody,
+      password: hashedPassword,
+    });
     const savedNewUser = await newUser.save();
     // new user added success
     if (savedNewUser) {
       return NextResponse.json({
         statusCode: 200,
         msg: "New user added",
+        savedNewUser,
       });
     }
     // user add fail

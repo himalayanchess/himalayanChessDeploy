@@ -8,6 +8,7 @@ const Dropdown = ({
   width,
   error,
   helperText,
+  required = false,
 }) => {
   const formattedOptions = options.map((option) => ({
     value: option,
@@ -17,7 +18,7 @@ const Dropdown = ({
   return (
     <div className={`${width ? `w-${width}` : "w-64"}`}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label}
+        {label} {required && "*"}
       </label>
       <Select
         options={formattedOptions}

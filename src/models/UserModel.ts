@@ -45,7 +45,7 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["Student", "Trainer", "Adimin", "Superadmin"],
+      enum: ["Student", "Trainer", "Admin", "Superadmin"],
     },
     status: {
       type: String,
@@ -66,6 +66,10 @@ const UserSchema = new mongoose.Schema(
     },
     enrolledCourses: {
       type: Array,
+    },
+    activeStatus: {
+      type: Boolean,
+      default: true,
     },
     // add later when login
     loginLogRecord: {

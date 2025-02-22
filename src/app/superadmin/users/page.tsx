@@ -3,6 +3,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import Sidebar from "@/components/Sidebar";
 import React, { useEffect, useState } from "react";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
 import Header from "@/components/Header";
 import Dropdown from "@/components/Dropdown";
@@ -11,23 +12,37 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import { Box, Button, Modal } from "@mui/material";
+import { Box, Button, FormControlLabel, Modal, Radio } from "@mui/material";
 import AddUser from "@/components/user/AddUser";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { Controller, useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import UserList from "@/components/user/UserList";
 
 const MembersTable = () => {
+  const session = useSession();
+
+  const [sessionRole, setsessionRole] = useState(null);
   const [searchText, setsearchText] = useState("");
   const options = ["Student", "Trainer", "Admin", "Superadmin"];
   const [selectedRole, setSelectedRole] = useState(options[0]);
-  const [allUsers, setallUsers] = useState<any>([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
   const [filteredUsersCount, setFilteredUsersCount] = useState(0);
   const [open, setOpen] = React.useState(false);
+  // new user added
+  const [newUserAdded, setnewUserAdded] = useState(false);
+  const [newCreatedUser, setnewCreatedUser] = useState();
 
   const [currentPage, setCurrentPage] = useState(1); // Current page number
-  const [usersPerPage] = useState(2);
+  const [usersPerPage] = useState(7);
+  // **New State for Active Status Filter**
+  const [activeStatus, setActiveStatus] = useState("active"); // Default: Active
+  // loggedin users role
+  useEffect(() => {
+    if (session) {
+      setsessionRole(session?.data?.user?.role);
+    }
+  }, [session]);
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
@@ -36,48 +51,17 @@ const MembersTable = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // Reset current page to 1 and active statyus to active when selectedRole changes
   useEffect(() => {
-    getAllUsers();
-  }, []);
-
-  useEffect(() => {
-    // First, filter by role
-    let filteredByRole = allUsers.filter(
-      (user) => user.role.toLowerCase() === selectedRole.toLowerCase() // Match role with selectedRole
-    );
-
-    // Apply search filter only if searchText is not empty
-    if (searchText.trim() !== "") {
-      filteredByRole = filteredByRole.filter((user) =>
-        user.name.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-
-    // Update the filteredUsers state
-    setFilteredUsers(filteredByRole);
-
-    // Update the total count of filtered users
-    setFilteredUsersCount(filteredByRole.length);
-
-    // Reset the current page to 1 if filtered list is empty or searchText is changed
     setCurrentPage(1);
-  }, [allUsers, selectedRole, searchText]);
-
-  // Get list of all users
-  async function getAllUsers() {
-    try {
-      const { data: resData } = await axios.get("/api/users/getAllUsers");
-      setallUsers(resData.allUsers);
-    } catch (error) {
-      console.log("error in superadmin/users (getallusers)", error);
-    }
-  }
-
-  useEffect(() => {
-    // Reset current page to 1 when selectedRole changes
-    setCurrentPage(1);
+    setsearchText("");
+    setActiveStatus("active");
   }, [selectedRole]);
-
+  // resest search when active status changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setsearchText("");
+  }, [activeStatus]);
   return (
     <div>
       <Sidebar
@@ -101,7 +85,45 @@ const MembersTable = () => {
                 onChange={setSelectedRole}
               />
             </div>
-
+            {/* Filters Section */}
+            <div className=" flex items-center justify-start ">
+              <span className="bg-gray-400  text-white py-1 px-3 rounded-full  mr-4 text-sm font-bold">
+                Filter by
+              </span>
+              <FormControlLabel
+                control={
+                  <Radio
+                    size="small"
+                    checked={activeStatus === "active"}
+                    onChange={() => setActiveStatus("active")}
+                    color="default"
+                  />
+                }
+                label="Active"
+              />
+              <FormControlLabel
+                control={
+                  <Radio
+                    size="small"
+                    checked={activeStatus === "inactive"}
+                    onChange={() => setActiveStatus("inactive")}
+                    color="default"
+                  />
+                }
+                label="Inactive"
+              />
+              <FormControlLabel
+                control={
+                  <Radio
+                    size="small"
+                    checked={activeStatus === "all"}
+                    onChange={() => setActiveStatus("all")}
+                    color="default"
+                  />
+                }
+                label="All"
+              />
+            </div>
             <div className="search-options flex items-center">
               {/* Search */}
               <div className="search-div flex border-b-[1px] mr-7 border-gray-300 p-2  ">
@@ -128,65 +150,34 @@ const MembersTable = () => {
                 className="flex items-center justify-center"
               >
                 <Box className="w-[80%] h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
-                  <AddUser />
+                  <AddUser
+                    newUserAdded={newUserAdded}
+                    setnewUserAdded={setnewUserAdded}
+                    newCreatedUser={newCreatedUser}
+                    setnewCreatedUser={setnewCreatedUser}
+                    handleClose={handleClose}
+                  />
                 </Box>
               </Modal>
             </div>
           </div>
-          <p>{searchText}</p>
           {/* Table */}
-          <div className="overflow-x-auto flex-1 bg-white shadow-md rounded-lg">
-            <div className="grid grid-cols-5 w-full bg-gray-200">
-              <span className="p-3 text-left text-sm font-medium text-gray-600">
-                Name
-              </span>
-              <span className="p-3 text-left text-sm font-medium text-gray-600">
-                Email
-              </span>
-              <span className="p-3 text-left text-sm font-medium text-gray-600">
-                Gender
-              </span>
-              <span className="p-3 text-left text-sm font-medium text-gray-600">
-                Role
-              </span>
-              <span className="p-3 text-left text-sm font-medium text-gray-600">
-                Actions
-              </span>
-            </div>
+          <UserList
+            role={sessionRole}
+            currentPage={currentPage}
+            usersPerPage={usersPerPage}
+            searchText={searchText}
+            selectedRole={selectedRole}
+            setFilteredUsersCount={setFilteredUsersCount}
+            setCurrentPage={setCurrentPage}
+            activeStatus={activeStatus}
+            setActiveStatus={setActiveStatus}
+            newUserAdded={newUserAdded}
+            setnewUserAdded={setnewUserAdded}
+            newCreatedUser={newCreatedUser}
+            setnewCreatedUser={setnewCreatedUser}
+          />
 
-            {filteredUsers
-              .slice(
-                (currentPage - 1) * usersPerPage,
-                currentPage * usersPerPage
-              )
-              .map((member: any) => (
-                <div
-                  key={member?._id}
-                  className="border-t grid grid-cols-5 hover:bg-gray-50"
-                >
-                  <span className="p-3 text-sm text-gray-700">
-                    {member?.name}
-                  </span>
-                  <span className="p-3 text-sm text-gray-700">
-                    {member?.email}
-                  </span>
-                  <span className="p-3 text-sm text-gray-700">
-                    {member?.gender}
-                  </span>
-                  <span className="p-3 text-sm text-gray-500">
-                    {member?.role}
-                  </span>
-                  <div className="p-3 text-sm text-gray-500">
-                    <button className="edit">
-                      <ModeEditIcon />
-                    </button>
-                    <button className="edit">
-                      <DeleteIcon />
-                    </button>
-                  </div>
-                </div>
-              ))}
-          </div>
           <Stack spacing={2} className="mx-auto w-max mt-7">
             <Pagination
               count={Math.ceil(filteredUsersCount / usersPerPage)} // Total pages

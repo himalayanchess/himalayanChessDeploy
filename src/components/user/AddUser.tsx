@@ -1,7 +1,7 @@
 import { notify } from "@/index";
 import axios from "axios";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../Input";
 import Dropdown from "../Dropdown";
 import { Button } from "@mui/material";
@@ -9,32 +9,58 @@ import { Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const AddUser = () => {
+const AddUser = ({
+  newUserAdded,
+  setnewUserAdded,
+  newCreatedUser,
+  setnewCreatedUser,
+  handleClose,
+}) => {
+  const [selectedRole, setselectedRole] = useState("Student");
   // react hook form
-  const { register, handleSubmit, control, formState, watch } = useForm<any>({
-    defaultValues: {
-      _name: "",
-      get name() {
-        return this._name;
+  const { register, handleSubmit, control, formState, reset, trigger, watch } =
+    useForm<any>({
+      defaultValues: {
+        role: "Student",
+        name: "",
+        dob: "",
+        address: "",
+        joinedDate: "",
+        phone: "",
+        email: "",
+        password: "",
+        status: "",
+        title: "None",
+        rating: "",
+        skillLevel: "",
+        fideId: "",
+        trainerTitle: "None",
+        guardianInfo: { name: "", phone: "", email: "" },
+        enrolledCourses: [],
+        emergencyContact: "",
+        emergencyContactName: "",
       },
-      set name(value) {
-        this._name = value;
-      },
-      email: "",
-      role: "",
-    },
-  });
+    });
   const { errors } = formState;
   console.log(errors);
   const onSubmit = async (data) => {
     console.log("Form Submitted Successfully:", data);
     const { data: resData } = await axios.post("/api/users/addNewUser", data);
+    if (resData.statusCode == 200) {
+      setnewUserAdded(true);
+      setnewCreatedUser(resData.savedNewUser);
+      handleClose();
+    }
     console.log(resData);
     notify(resData.msg, resData.statusCode);
   };
 
   //options
-  const options = ["Student", "Trainer", "Admin", "Superadmin"];
+  const titleOptions = ["None", "CM", "RM", "GM", "IM"];
+  const roleOptions = ["Student", "Trainer", "Admin", "Superadmin"];
+  const statusOptions = ["Ongoing", "Left"];
+  const skillOptions = ["Beginner", "Intermediate", "Advanced"];
+  const trainerTileOptions = ["None", "NI", "FI", "GM"];
   // form data
   const [formData, setFormData] = useState<any>({
     name: "",
@@ -58,58 +84,30 @@ const AddUser = () => {
     enrolledCourses: [],
   });
 
+  // Handle enrolledCourses dynamically
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "enrolledCourses",
+  });
+
+  // Function to add a new course
+  const addCourse = () => {
+    append({ course: "", status: "Ongoing" });
+  };
+  // Watch enrolledCourses for validation
+  const enrolledCourses = watch("enrolledCourses");
+
+  // Function to check for duplicate courses
+  const isDuplicateCourse = (course: string) => {
+    return enrolledCourses.filter((c) => c.course === course).length > 1;
+  };
+
   const coursesList = [
     { value: "React Basics", label: "React Basics" },
     { value: "Advanced JavaScript", label: "Advanced JavaScript" },
     { value: "Data Structures", label: "Data Structures" },
   ];
-  const addCourse = () => {
-    setFormData({
-      ...formData,
-      enrolledCourses: [
-        ...formData.enrolledCourses,
-        { course: "", status: "Ongoing" },
-      ],
-    });
-  };
-  const removeCourse = (index: any) => {
-    const newCourses = [...formData.enrolledCourses];
-    newCourses.splice(index, 1);
-    setFormData({ ...formData, enrolledCourses: newCourses });
-  };
-  const handleCourseSelectChange = (value: string, index: number) => {
-    setFormData((prevData) => {
-      const updatedCourses = [...prevData.enrolledCourses];
-      updatedCourses[index] = { ...updatedCourses[index], course: value };
-      return { ...prevData, enrolledCourses: updatedCourses };
-    });
-  };
 
-  const handleCourseStatusChange = (value: string, index: number) => {
-    setFormData((prevData) => {
-      const updatedCourses = [...prevData.enrolledCourses];
-      updatedCourses[index] = { ...updatedCourses[index], status: value };
-      return { ...prevData, enrolledCourses: updatedCourses };
-    });
-  };
-
-  //handle change
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    if (name.startsWith("guardianInfo.")) {
-      const field = name.split(".")[1];
-
-      setFormData({
-        ...formData,
-        guardianInfo: {
-          ...formData.guardianInfo,
-          [field]: value,
-        },
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
   // handle dropdowwn change
   const handleDropdownChange = (name: string) => (value: string) => {
     if (name == "role") {
@@ -174,16 +172,28 @@ const AddUser = () => {
                 return (
                   <Dropdown
                     label="Role"
-                    options={options}
+                    options={roleOptions}
                     selected={field.value}
-                    onChange={(value) => field.onChange(value)}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      setselectedRole(value);
+                      reset((prevValues) => ({
+                        ...prevValues,
+                        role: value,
+                        emergencyContact: "",
+                        emergencyContactName: "",
+                        enrolledCourses: [],
+                      }));
+                    }}
                     error={errors.role}
                     helperText={errors.role?.message}
+                    required={true}
                     width="full"
                   />
                 );
               }}
             />
+            {/* full name */}
             <Controller
               name="name"
               control={control}
@@ -200,33 +210,47 @@ const AddUser = () => {
                   label="Full Name"
                   type="text"
                   placeholder="Full Name"
+                  required={true}
                   error={errors.name}
                   helperText={errors.name?.message}
                 />
               )}
             />
-
-            <Input
-              type="date"
+            {/* dob */}
+            <Controller
               name="dob"
-              value={formData.dob}
-              onChange={handleChange}
-              label="Date of Birth"
-            />
-            <Dropdown
-              label="Gender"
-              options={["Male", "Female"]}
-              selected={formData.gender}
-              onChange={handleDropdownChange("gender")}
-              width="full"
+              control={control}
+              rules={{
+                required: "Dob is required",
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="date"
+                  label="Date of Birth"
+                  error={errors.dob}
+                  helperText={errors.dob?.message}
+                  required={true}
+                />
+              )}
             />
             {/* address */}
-            <Input
-              type="text"
+            <Controller
               name="address"
-              value={formData.address}
-              onChange={handleChange}
-              label="Address  "
+              control={control}
+              rules={{
+                required: "Address is required",
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="text"
+                  label="Address"
+                  error={errors.address}
+                  helperText={errors.address?.message}
+                  required={true}
+                />
+              )}
             />
           </div>
         </div>
@@ -237,23 +261,47 @@ const AddUser = () => {
           </p>
           <div className="basic-info-fields grid grid-cols-2  gap-4">
             {/* joinedDate */}
-            <Input
-              type="date"
+            <Controller
               name="joinedDate"
-              value={formData.joinedDate}
-              onChange={handleChange}
-              label="Joined Date"
+              control={control}
+              rules={{
+                required: "Joined Date is required",
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="date"
+                  label="Joined Date"
+                  required={true}
+                  error={errors.joinedDate}
+                  helperText={errors.joinedDate?.message}
+                />
+              )}
             />
-            {/* phone */}
-            <Input
-              type="number"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              label="Phone"
-            />
-            {/* Email */}
 
+            {/* phone */}
+            <Controller
+              name="phone"
+              control={control}
+              rules={{
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "Invalid Phone no.",
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  label="Phone"
+                  error={errors.phone}
+                  helperText={errors.phone?.message}
+                  required={false}
+                />
+              )}
+            />
+
+            {/* Email */}
             <Controller
               name="email"
               control={control}
@@ -270,26 +318,57 @@ const AddUser = () => {
                   label="Email"
                   type="email"
                   placeholder="Enter your email"
+                  required={true}
                   error={errors.email}
                   helperText={errors.email?.message}
                 />
               )}
             />
             {/* password */}
-            <Input
-              type="text"
+            <Controller
               name="password"
-              value={formData.password}
-              onChange={handleChange}
-              label="Password"
+              control={control}
+              rules={{
+                required: "Password is required",
+                pattern: {
+                  value: /^.{8,}$/,
+                  message: "Password must be at least 8 characters",
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Password"
+                  type="password"
+                  placeholder="Password"
+                  required={true}
+                  error={errors.password}
+                  helperText={errors.password?.message}
+                />
+              )}
             />
+
             {/* Status (ongoing,left) */}
-            <Dropdown
-              label="Status"
-              options={["Ongoing", "Left"]}
-              selected={formData.status}
-              onChange={handleDropdownChange("status")}
-              width="full"
+            <Controller
+              name="status"
+              control={control}
+              rules={{
+                required: "Status is required",
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Status"
+                  options={statusOptions}
+                  selected={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  required={true}
+                  error={errors.status}
+                  helperText={errors.status?.message}
+                  width="full"
+                />
+              )}
             />
           </div>
         </div>
@@ -298,134 +377,344 @@ const AddUser = () => {
           <p className="bg-gray-400 text-white w-max text-xs p-1 px-2 mb-2 rounded-full font-bold">
             Chess
           </p>
+
           <div className="basic-info-fields grid grid-cols-2  gap-4">
             {/* title */}
-            <Dropdown
-              label="Title"
-              options={["None", "CM", "RM", "GM", "IM"]}
-              selected={formData.title}
-              onChange={handleDropdownChange("title")}
-              width="full"
-            />
-            {/* rating */}
-            <Input
-              label="Rating"
-              type="number"
-              name="rating"
-              value={formData.rating}
-              onChange={handleChange}
-            />
-            {/* skill level (only for student) */}
-            {formData.role == "Student" && (
-              <Dropdown
-                label="Skill level"
-                options={["Beginner", "Intermediate", "Advanced"]}
-                selected={formData.skillLevel}
-                onChange={handleDropdownChange("skillLevel")}
-                width="full"
+            {selectedRole == "Student" && (
+              <Controller
+                name="title"
+                control={control}
+                rules={{
+                  required: "Title is required",
+                }}
+                render={({ field }) => {
+                  return (
+                    <Dropdown
+                      label="Title"
+                      options={titleOptions}
+                      selected={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      error={errors.title}
+                      helperText={errors.title?.message}
+                      // required={true}
+                      width="full"
+                    />
+                  );
+                }}
               />
             )}
-            {/* Fide Id */}
-            <Input
-              type="number"
+            {/* trainer title (no validation) */}
+            {selectedRole == "Trainer" && (
+              <Controller
+                name="trainerTitle"
+                control={control}
+                rules={
+                  {
+                    //  required: "Trainer title is required",
+                  }
+                }
+                render={({ field }) => {
+                  return (
+                    <Dropdown
+                      label="Trainer title"
+                      options={trainerTileOptions}
+                      selected={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      error={errors.trainerTitle}
+                      helperText={errors.trainerTitle?.message}
+                      // required={true}
+                    />
+                  );
+                }}
+              />
+            )}
+            {/* Fide Id (no validation)*/}
+            <Controller
               name="fideId"
-              value={formData.fideId}
-              onChange={handleChange}
-              label="FIDE ID"
+              control={control}
+              rules={
+                {
+                  // required: "fide id is required",
+                }
+              }
+              render={({ field }) => {
+                return (
+                  <Input
+                    {...field}
+                    label="FIDE ID"
+                    type="number"
+                    error={errors.fideId}
+                    helperText={errors.fideId?.message}
+                  />
+                );
+              }}
             />
-            {/* trainer title */}
-            {formData.role == "Trainer" && (
-              <Dropdown
-                label="Trainer Title"
-                options={["None", "NI", "FI", "GM"]}
-                selected={formData.trainerTitle}
-                onChange={handleDropdownChange("trainerTitle")}
-                width="full"
+            {/* rating (no validation) */}
+            <Controller
+              name="rating"
+              control={control}
+              rules={
+                {
+                  // required: "Skill level is required",
+                }
+              }
+              render={({ field }) => {
+                return (
+                  <Input
+                    {...field}
+                    label="Rating"
+                    type="number"
+                    error={errors.rating}
+                    helperText={errors.rating?.message}
+                  />
+                );
+              }}
+            />
+
+            {/* skill level (only for student) (no validation) */}
+            {selectedRole == "Student" && (
+              <Controller
+                name="skillLevel"
+                control={control}
+                rules={
+                  {
+                    // required: "Skill level is required",
+                  }
+                }
+                render={({ field }) => {
+                  return (
+                    <Dropdown
+                      label="Skill Level"
+                      options={skillOptions}
+                      selected={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      error={errors.skillLevel}
+                      width="full"
+                      helperText={errors.skillLevel?.message}
+                      required={true}
+                    />
+                  );
+                }}
               />
             )}
           </div>
         </div>
         {/* Guardian info */}
-        {formData.role == "Student" && (
+        {selectedRole == "Student" && (
           <div className="contact">
             <p className="bg-gray-400 text-white w-max text-xs p-1 px-2 mb-2 rounded-full font-bold">
               Guardian info
             </p>
             <div className="basic-info-fields grid grid-cols-2  gap-4">
               {/* Guardian Name */}
-              <Input
-                type="text"
+              <Controller
                 name="guardianInfo.name"
-                value={formData.guardianInfo.name}
-                onChange={handleChange}
-                label="Guardian Name"
+                control={control}
+                rules={{
+                  pattern: {
+                    value: /^[A-Za-z]+(?: [A-Za-z]+)+$/,
+                    message: "Invalid guardian full name",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    label="Guardian Full Name"
+                    type="text"
+                    error={errors?.guardianInfo?.name}
+                    helperText={errors?.guardianInfo?.name?.message}
+                  />
+                )}
               />
               {/* guardian phone */}
-              <Input
-                type="text"
+              <Controller
                 name="guardianInfo.phone"
-                value={formData.guardianInfo.phone}
-                onChange={handleChange}
-                label="Guardian Phone"
+                control={control}
+                rules={{
+                  pattern: {
+                    value: /^[0-9]{10}$/,
+                    message: "Invalid phone no",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    label="Guardian Phone no"
+                    type="number"
+                    error={errors?.guardianInfo?.phone}
+                    helperText={errors?.guardianInfo?.phone?.message}
+                  />
+                )}
               />
               {/* guardian email */}
-              <Input
-                type="text"
+              <Controller
                 name="guardianInfo.email"
-                value={formData.guardianInfo.email}
-                onChange={handleChange}
-                label="Guardian Email"
+                control={control}
+                rules={{
+                  pattern: {
+                    value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                    message: "Invalid email format",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    label="Guardian email"
+                    type="text"
+                    error={errors?.guardianInfo?.email}
+                    helperText={errors?.guardianInfo?.email?.message}
+                  />
+                )}
               />
             </div>
           </div>
         )}
-        {formData.role == "Student" && (
+        {/* emergencyContactName */}
+        <div className="emergencyContactName col-span-2">
+          <p className="bg-gray-400 text-white w-max text-xs p-1 px-2 mb-2 rounded-full font-bold">
+            Emergency contact
+          </p>
+
+          <div className="emergency-info-fields grid grid-cols-2  gap-4">
+            {/* emergency contact name */}
+            <Controller
+              name="emergencyContactName"
+              control={control}
+              rules={{
+                required: "Emergency contact required",
+                pattern: {
+                  value: /^[A-Za-z]+(?: [A-Za-z]+)+$/,
+                  message: "Invalid full name",
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="text"
+                  label="Emergency Contact Full Name"
+                  error={errors.emergencyContactName}
+                  helperText={errors.emergencyContactName?.message}
+                  required={true}
+                />
+              )}
+            />
+            {/* emergencyContact */}
+            <Controller
+              name="emergencyContact"
+              control={control}
+              rules={{
+                required: "Emergency contact required",
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "Invalid contact no",
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  label="Emergency Contact no"
+                  error={errors.emergencyContact}
+                  helperText={errors.emergencyContact?.message}
+                  required={true}
+                />
+              )}
+            />
+          </div>
+        </div>
+        {/* enrolled courses */}
+        {selectedRole === "Student" && (
           <div className="enrolledcourses col-span-2">
             <div className="flex">
               <h3 className="text-lg text-gray-500 font-semibold mr-2">
                 Enrolled Courses
               </h3>
-              <button title="Add user" onClick={addCourse}>
+              <div title="Add user" onClick={addCourse}>
                 <AddIcon
                   className="bg-gray-400 p-1 text-white rounded-full"
                   style={{ fontSize: "2rem" }}
                 />
-              </button>
+              </div>
             </div>
 
-            {formData.enrolledCourses.length == 0 && (
+            {fields.length === 0 && (
               <p className="text-gray-500">No courses yet.</p>
             )}
 
-            {formData.enrolledCourses.map((course: any, index: number) => (
-              <div key={index} className="col-span-2 mb-2">
+            {fields.map((course, index) => (
+              <div key={course.id} className="col-span-2 mb-2">
                 <div className="grid grid-cols-3 items-end place-items-start gap-4">
                   {/* Course Selection */}
-
-                  <Dropdown
-                    label="Course"
-                    options={coursesList.map((c) => c.value)}
-                    selected={course.course}
-                    onChange={(value) => handleCourseSelectChange(value, index)}
-                    width="full"
+                  <Controller
+                    name={`enrolledCourses.${index}.course`}
+                    control={control}
+                    rules={{
+                      required: "Course is required",
+                      validate: (value) =>
+                        (value && !isDuplicateCourse(value, index)) ||
+                        "Duplicate course selected",
+                    }}
+                    render={({ field }) => (
+                      <Dropdown
+                        label="Course"
+                        options={coursesList.map((c) => c.value)}
+                        selected={field.value}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
+                        }}
+                        width="full"
+                        error={!!errors?.enrolledCourses?.[index]?.course}
+                      />
+                    )}
                   />
 
                   {/* Course Status Selection */}
-
-                  <Dropdown
-                    label="Status"
-                    options={["Ongoing", "Completed"]}
-                    selected={course.status}
-                    onChange={(value) => handleCourseStatusChange(value, index)}
-                    width="full"
+                  <Controller
+                    name={`enrolledCourses.${index}.status`}
+                    control={control}
+                    rules={{
+                      required: enrolledCourses[index]?.course
+                        ? "Status is required"
+                        : false,
+                    }}
+                    render={({ field }) => (
+                      <Dropdown
+                        label="Status"
+                        options={["Ongoing", "Completed"]}
+                        selected={field.value}
+                        onChange={field.onChange}
+                        width="full"
+                        error={!!errors?.enrolledCourses?.[index]?.status}
+                      />
+                    )}
                   />
+
                   <button
                     type="button"
-                    onClick={() => removeCourse(index)}
+                    onClick={() => remove(index)}
                     className="text-red-500 mx-4 text-2xl"
                   >
                     <DeleteIcon sx={{ fontSize: "2.1rem" }} />
                   </button>
+                </div>
+                {/* Ensure consistent height for error messages */}
+                <div className="grid grid-cols-2 gap-4 min-h-[20px]">
+                  <p className="text-red-500 text-sm">
+                    {errors?.enrolledCourses?.[index]?.course?.message}
+                  </p>
+                  <p className="text-red-500 text-sm">
+                    {errors?.enrolledCourses?.[index]?.status?.message}
+                  </p>
                 </div>
               </div>
             ))}
