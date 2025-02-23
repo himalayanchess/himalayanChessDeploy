@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { unique } from "next/dist/build/utils";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -81,6 +80,6 @@ const UserSchema = new mongoose.Schema(
 );
 
 // Define the User model (with capitalization)
-const User = mongoose.models.User || mongoose.model("User", UserSchema);
+const User = mongoose.models?.User || mongoose.model("User", UserSchema);
 
 export default User;

@@ -8,6 +8,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import { getSession, signIn } from "next-auth/react";
 import { notify } from "@/index";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const page = () => {
   const router = useRouter();
@@ -19,20 +20,18 @@ const page = () => {
   } = useForm();
 
   const onSubmit = async (data: any) => {
-    console.log(data); // Handle form submission
-    const resData = await signIn("credentials", {
-      redirect: false,
-      email: data?.email,
-      password: data?.password,
-    });
+    const { data: resData } = await axios.post("/api/users/login", data);
+
+    notify(resData?.msg, resData?.statusCode);
+    if (resData.statusCode == 200) {
+      const signInResData = await signIn("credentials", {
+        redirect: false,
+        email: data?.email,
+        password: data?.password,
+      });
+    }
     const session = await getSession();
     console.log(session?.user);
-
-    if (resData?.error) {
-      notify(resData?.error, resData?.status);
-      return;
-    }
-    notify("Login success", resData?.status);
 
     setTimeout(() => {
       let redirectRoute = "/";

@@ -1,14 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Settings, User, ChevronDown } from "lucide-react";
+import { Home, Settings, User, ChevronDown, LogOut } from "lucide-react";
 import AddUser from "./user/AddUserPageBased";
 import Link from "next/link";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { signOut } from "next-auth/react";
+import { Box, Button, Modal } from "@mui/material";
 
 const Sidebar = ({ menuItems, role, activeMenu }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-
+  const [signoutModalOpen, setsignoutModalOpen] = useState(false);
   const toggleDropdown = (index) => {
     setOpenDropdown(openDropdown === index ? null : index);
   };
@@ -22,12 +25,12 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <nav className="flex flex-col gap-2 w-full">
+      <nav className="flex flex-col  w-full">
         {menuItems.map((item, index) => (
           <div key={index} className="relative">
             <Link
               href={`/${role.toLowerCase()}/${item.linkName}`}
-              className={`flex items-center justify-start  gap-3 px-3 py-2 w-full ${
+              className={`flex items-center justify-start  gap-3 px-3 py-3 w-full ${
                 activeMenu === item.label
                   ? "bg-gray-600 text-white"
                   : "hover:bg-gray-300"
@@ -60,7 +63,7 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
                 {item.options.map((option, i) => (
                   <div
                     key={i}
-                    className="px-4 py-2 text-sm hover:bg-gray-700 transition-all cursor-pointer"
+                    className="px-4 py-2 text-sm hover:bg-gray-700 transition-all cursor-pointer "
                   >
                     {option}
                   </div>
@@ -69,6 +72,68 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
             )}
           </div>
         ))}
+        {/* logout */}
+        <button
+          onClick={() => setsignoutModalOpen(true)}
+          className="flex items-center justify-start  gap-3 px-3 py-2 w-full transition-all hover:bg-gray-300 "
+        >
+          <LogoutIcon />
+          <motion.span
+            className="text-md whitespace-nowrap"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{
+              opacity: isExpanded ? 1 : 0,
+              x: isExpanded ? 0 : -20,
+            }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            Logout
+          </motion.span>
+        </button>
+        <Modal
+          open={signoutModalOpen}
+          onClose={() => {
+            setsignoutModalOpen(false);
+            setIsExpanded(false);
+          }}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          className="flex items-center justify-center"
+        >
+          <Box className="w-[400px] py-7 text-center rounded-lg bg-white">
+            <>
+              <p className="poppins font-bold text-2xl ">Logout Confirmation</p>
+              <p className="text-sm poppins mt-2 mb-7 text-gray-500">
+                Are you sure you want to logout?
+              </p>
+              <div className="flex justify-center">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="medium"
+                  color="primary"
+                  onClick={() => signOut()}
+                  sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
+                >
+                  {/* <DeleteForeverOutlinedIcon /> */}
+                  Logout
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  onClick={() => {
+                    setsignoutModalOpen(false);
+                    setIsExpanded(false);
+                  }}
+                  sx={{ marginLeft: ".5rem", paddingInline: "1.5rem" }}
+                >
+                  {/* <ClearOutlinedIcon /> */}
+                  Cancel
+                </Button>
+              </div>
+            </>
+          </Box>
+        </Modal>
       </nav>
     </motion.div>
   );
