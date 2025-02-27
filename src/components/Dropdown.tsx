@@ -8,6 +8,7 @@ const Dropdown = ({
   width,
   error,
   helperText,
+  disabled = false,
   required = false,
 }) => {
   const formattedOptions = options.map((option) => ({
@@ -16,11 +17,12 @@ const Dropdown = ({
   }));
 
   return (
-    <div className={`${width ? `w-${width}` : "w-64"}`}>
+    <div className={`${width ? `w-${width}` : "w-64"}  `}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label} {required && "*"}
       </label>
       <Select
+        isDisabled={disabled}
         options={formattedOptions}
         value={formattedOptions.find((opt) => opt.value === selected)}
         onChange={(selectedOption) => onChange(selectedOption.value)}

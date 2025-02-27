@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema(
     },
     rating: {
       type: Number,
+      default: 0,
     },
     joinedDate: {
       type: String,
@@ -41,6 +42,7 @@ const UserSchema = new mongoose.Schema(
     },
     fideId: {
       type: Number,
+      default: 0,
     },
     role: {
       type: String,

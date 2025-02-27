@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         statusCode: 200,
         msg: "New project added",
+        savednewProject,
       });
     }
     // user add fail
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       statusCode: 204,
-      msg: "Internal error in addNewPproject route",
+      msg: "Internal error in addNewProject route",
       error,
     });
   }

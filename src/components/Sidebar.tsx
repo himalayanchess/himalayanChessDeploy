@@ -111,7 +111,7 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
                   type="submit"
                   variant="contained"
                   size="medium"
-                  color="primary"
+                  color="error"
                   onClick={() => signOut()}
                   sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
                 >

@@ -5,7 +5,9 @@ import User from "@/models/UserModel";
 export async function GET(req: NextRequest) {
   try {
     await dbconnect();
-    const trainersList = await User.find({ role: "Trainer" });
+    const trainersList = await User.find({ role: "Trainer" }).select(
+      "_id name"
+    );
     // new user added success
     if (trainersList) {
       return NextResponse.json({

@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
+import axios from "axios";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SearchIcon from "@mui/icons-material/Search";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
-import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-
 import { Box, Button, Modal, Radio, FormControlLabel } from "@mui/material";
+import SettingsIcon from "@mui/icons-material/Settings";
 import ViewUser from "./ViewUser";
+import AddUser from "./AddUser";
+import Link from "next/link";
 
 const UserList = ({
   role,
@@ -36,6 +38,12 @@ const UserList = ({
   // view modal
   const [selectedViewUser, setselectViewUser] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  //edit modal
+  const [selectedEditUser, setselectedEditUser] = useState(null);
+  const [editModalOpen, seteditModalOpen] = useState(false);
+  // user edited
+  const [userEdited, setuserEdited] = useState(false);
+  const [editedUser, seteditedUser] = useState(null);
   // User Delete Function
   async function handleUserDelete(id) {
     try {
@@ -57,16 +65,28 @@ const UserList = ({
       console.log("error in handleUserDelete", error);
     }
   }
-  // modal open
+  // view modal open
   function handleViewModalOpen(user) {
     console.log(user);
-
     setselectViewUser(user);
     setViewModalOpen(true);
   }
+  // edit modal open
+  function handleEditModalOpen(user) {
+    console.log(user);
+    setselectedEditUser(user);
+    seteditModalOpen(true);
+  }
+
+  // view modal close
   function handleViewModalClose() {
     setViewModalOpen(false);
   }
+  // edit modal close
+  function handleEditModalClose() {
+    seteditModalOpen(false);
+  }
+
   function handleDeleteModalOpen(userId, userName) {
     setSelectedUserId(userId);
     setSelectedUserName(userName);
@@ -75,16 +95,13 @@ const UserList = ({
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
-
+  // function get all useres
   async function getAllUsers() {
     try {
       setuserListLoading(true);
-      const { data: resData } = await axios.get("/api/users/getAllUsers");
-      // await new Promise((res, rej) => {
-      //   setTimeout(() => {
-      //     res("asd");
-      //   }, 5000);
-      // });
+      const { data: resData } = await axios.post("/api/users/getAllUsers", {
+        role,
+      });
       console.log(resData.allUsers);
       setAllUsers(resData.allUsers);
       setuserListLoading(false);
@@ -93,6 +110,7 @@ const UserList = ({
     }
   }
 
+  // filtered effect
   useEffect(() => {
     // add new user
     let tempAllUsers = [...allUsers];
@@ -130,9 +148,26 @@ const UserList = ({
   useEffect(() => {
     if (newUserAdded && newCreatedUser) {
       setAllUsers((prevUsers) => [newCreatedUser, ...prevUsers]);
+
       setnewUserAdded(false);
     }
   }, [newUserAdded, newCreatedUser, setnewUserAdded]);
+  // Handle update(edit) user
+  useEffect(() => {
+    if (userEdited && editedUser) {
+      let tempUsers = [...allUsers];
+      console.log("updateeeeeeeeee", tempUsers, editedUser);
+      tempUsers = tempUsers.map((user) => {
+        if (user._id == editedUser._id) {
+          return editedUser;
+        } else {
+          return user;
+        }
+      });
+      setAllUsers(tempUsers);
+      setuserEdited(false);
+    }
+  }, [userEdited, editedUser, setuserEdited]);
   useEffect(() => {
     if (role) {
       getAllUsers();
@@ -196,6 +231,7 @@ const UserList = ({
                     {/* view modal */}
                     <button
                       onClick={() => handleViewModalOpen(member)}
+                      title="View"
                       className="edit mr-3 p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
                     >
                       <WysiwygIcon />
@@ -217,11 +253,41 @@ const UserList = ({
                       </Box>
                     </Modal>
                     {/* edit modal */}
-                    <button className="edit mr-3 p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white">
+                    <button
+                      title="Edit"
+                      onClick={() => handleEditModalOpen(member)}
+                      className="edit mr-3 p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
+                    >
                       <ModeEditIcon />
                     </button>
+                    <Modal
+                      open={editModalOpen}
+                      onClose={handleEditModalClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                      className="flex items-center justify-center"
+                      BackdropProps={{
+                        style: {
+                          backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                        },
+                      }}
+                    >
+                      <Box className="w-[80%] h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
+                        <AddUser
+                          userEdited={userEdited}
+                          setuserEdited={setuserEdited}
+                          handleClose={handleEditModalClose}
+                          mode="edit"
+                          initialData={selectedEditUser}
+                          editedUser={editedUser}
+                          seteditedUser={seteditedUser}
+                        />
+                      </Box>
+                    </Modal>
+                    {/* delete modal */}
                     {member?.activeStatus == true && (
                       <button
+                        title="Delete"
                         className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
                         onClick={() =>
                           handleDeleteModalOpen(member._id, member.name)

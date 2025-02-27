@@ -9,6 +9,7 @@ const Input = ({
   error,
   helperText,
   required,
+  extraClasses,
   label = "",
   ...props
 }) => {
@@ -34,7 +35,9 @@ const Input = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`outline-none border-[1px] p-2 px-3 rounded-md w-full border-gray-400 text-gray-500 text-md `}
+        className={`outline-none border-[1px] p-2 px-3 rounded-md w-full border-gray-150 text-gray-500 text-md ${
+          extraClasses && extraClasses
+        }`}
         {...props}
       />
       {error && <p className="text-red-500 text-xs">{helperText}</p>}

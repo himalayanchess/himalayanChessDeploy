@@ -5,10 +5,10 @@ import React, { useEffect, useState } from "react";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import Header from "@/components/Header";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
-import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -20,7 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import UserList from "@/components/user/UserList";
 
-const MembersTable = () => {
+const Users = () => {
   const session = useSession();
 
   const [sessionRole, setsessionRole] = useState(null);
@@ -150,12 +150,14 @@ const MembersTable = () => {
                 className="flex items-center justify-center"
               >
                 <Box className="w-[80%] h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
+                  {/* add mode */}
                   <AddUser
                     newUserAdded={newUserAdded}
                     setnewUserAdded={setnewUserAdded}
                     newCreatedUser={newCreatedUser}
                     setnewCreatedUser={setnewCreatedUser}
                     handleClose={handleClose}
+                    mode="add"
                   />
                 </Box>
               </Modal>
@@ -165,11 +167,11 @@ const MembersTable = () => {
           <UserList
             role={sessionRole}
             currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
             usersPerPage={usersPerPage}
             searchText={searchText}
             selectedRole={selectedRole}
             setFilteredUsersCount={setFilteredUsersCount}
-            setCurrentPage={setCurrentPage}
             activeStatus={activeStatus}
             setActiveStatus={setActiveStatus}
             newUserAdded={newUserAdded}
@@ -193,4 +195,4 @@ const MembersTable = () => {
   );
 };
 
-export default MembersTable;
+export default Users;
