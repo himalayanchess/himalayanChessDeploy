@@ -97,19 +97,27 @@ const BatchList = ({
         batch.batchName.toLowerCase().includes(searchText.toLowerCase())
       );
     }
+    console.log("filteredBatches", filteredBatches);
 
-    // // Apply Active Status Filter
-    // if (activeStatus === "active") {
-    //   filteredBatches = filteredBatches.filter((batch) => batch.activeStatus);
-    // } else if (activeStatus === "inactive") {
-    //   filteredBatches = filteredBatches.filter((batch) => !batch.activeStatus);
-    // }
+    // Apply filterbatchType filter
+    if (filterbatchType?.toLowerCase() === "hca") {
+      filteredBatches = filteredBatches.filter(
+        (batch) =>
+          batch?.projectDetails?.contractType.toLowerCase() == "academy"
+      );
+    } else if (filterbatchType?.toLowerCase() === "others") {
+      filteredBatches = filteredBatches.filter(
+        (batch) =>
+          batch?.projectDetails?.contractType.toLowerCase() != "academy"
+      );
+    }
 
     // Update filtered users
     setFilteredBatches(filteredBatches);
     setFilteredBatchesCount(filteredBatches.length);
     setCurrentPage(1);
   }, [allBatches, selectedBatchOption, searchText, filterbatchType]);
+
   // Handle new batch addition
   useEffect(() => {
     if (newBatchAdded && newCreatedBatch) {
@@ -117,6 +125,23 @@ const BatchList = ({
       setnewBatchAdded(false);
     }
   }, [newBatchAdded, newCreatedBatch, setnewBatchAdded]);
+  // Handle update(edit) project
+  useEffect(() => {
+    if (batchEdited && editedBatch) {
+      let tempBatches = [...allBatches];
+      console.log("updateeeeeeeeee", tempBatches, editedBatch);
+      tempBatches = tempBatches.map((batch) => {
+        if (batch._id == editedBatch._id) {
+          return editedBatch;
+        } else {
+          return batch;
+        }
+      });
+      setallBatches(tempBatches);
+      setbatchEdited(false);
+    }
+  }, [batchEdited, editedBatch, setbatchEdited]);
+
   // function get all batches
   async function getAllBatches() {
     try {

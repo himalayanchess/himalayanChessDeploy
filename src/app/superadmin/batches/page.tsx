@@ -3,7 +3,14 @@ import Dropdown from "@/components/Dropdown";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
-import { Box, FormControlLabel, Modal, Radio } from "@mui/material";
+import {
+  Box,
+  FormControlLabel,
+  Modal,
+  Pagination,
+  Radio,
+  Stack,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import React, { useEffect, useState } from "react";
@@ -29,6 +36,10 @@ const page = () => {
 
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [batchesPerpage] = useState(7);
+  // handle page change
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
   // handle handleAddBatchOpen function
   function handleAddBatchModalOpen() {
     setaddBatchModalOpen(true);
@@ -177,6 +188,15 @@ const page = () => {
             newCreatedBatch={newCreatedBatch}
             setnewCreatedBatch={setnewCreatedBatch}
           />
+          {/* pagination */}
+          <Stack spacing={2} className="mx-auto w-max mt-7">
+            <Pagination
+              count={Math.ceil(filteredBatchesCount / batchesPerpage)} // Total pages
+              page={currentPage} // Current page
+              onChange={handlePageChange} // Handle page change
+              shape="rounded"
+            />
+          </Stack>
         </div>
       </div>
     </div>

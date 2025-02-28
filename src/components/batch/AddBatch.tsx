@@ -45,17 +45,31 @@ const AddBatch = ({
   });
   // on submit function
   async function onSubmit(data) {
-    const { data: resData } = await axios.post(
-      "/api/batches/addNewBatch",
-      data
-    );
-    if (resData.statusCode == 200) {
-      setnewBatchAdded(true);
-      setnewCreatedBatch(resData.savedNewBatch);
-      handleClose();
+    if (mode == "add") {
+      const { data: resData } = await axios.post(
+        "/api/batches/addNewBatch",
+        data
+      );
+      if (resData.statusCode == 200) {
+        setnewBatchAdded(true);
+        setnewCreatedBatch(resData.savedNewBatch);
+        handleClose();
+      }
+      notify(resData.msg, resData.statusCode);
+      return;
+    } else if (mode == "edit") {
+      const { data: resData } = await axios.post(
+        "/api/batches/updateBatch",
+        data
+      );
+      if (resData.statusCode == 200) {
+        setbatchEdited(true);
+        seteditedBatch(data);
+        handleClose();
+      }
+      notify(resData.msg, resData.statusCode);
+      return;
     }
-    notify(resData.msg, resData.statusCode);
-    return;
   }
   return (
     <>
