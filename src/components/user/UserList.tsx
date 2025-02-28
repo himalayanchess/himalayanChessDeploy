@@ -95,7 +95,7 @@ const UserList = ({
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
-  // function get all useres
+  // function get all users
   async function getAllUsers() {
     try {
       setuserListLoading(true);

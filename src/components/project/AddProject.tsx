@@ -153,27 +153,27 @@ const AddProject = ({
       notify("Update pdf file empty", 204);
       return;
     }
-    // if (updatedcontractFile) {
-    //   const formData = new FormData();
-    //   formData.append("file", updatedcontractFile);
-    //   const { data: resData } = await axios.post(
-    //     "/api/projects/contractUpload",
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //     }
-    //   );
-    //   // cloudinary error
-    //   if (resData.error) {
-    //     notify("Error uploading file", 204);
-    //   }
-    //   // cloudinary success
-    //   else {
-    //     updatedContractPaper = resData.res.secure_url;
-    //   }
-    // }
+    if (updatedcontractFile) {
+      const formData = new FormData();
+      formData.append("file", updatedcontractFile);
+      const { data: resData } = await axios.post(
+        "/api/projects/contractUpload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      // cloudinary error
+      if (resData.error) {
+        notify("Error uploading file", 204);
+      }
+      // cloudinary success
+      else {
+        updatedContractPaper = resData.res.secure_url;
+      }
+    }
     // update contractPaper to updatedContractpaper
     const { data: resData } = await axios.post(
       "/api/projects/updateContractPaper",
@@ -186,6 +186,7 @@ const AddProject = ({
       setProjectEdited(true);
       seteditedProject({ ...initialData, contractPaper: updatedContractPaper });
       handleClose();
+      handleUpdateContratPaperModalClose();
     }
     notify(resData.msg, resData.statusCode);
     return;
@@ -261,7 +262,7 @@ const AddProject = ({
         className="flex-1 grid grid-cols-2 auto-rows-min gap-3"
         onSubmit={handleSubmit(onSubmit)}
       >
-        {/* Course Name */}
+        {/* Project Name */}
         <div className="col-span-2">
           {/* contract type */}
           <Controller
@@ -541,7 +542,16 @@ const AddProject = ({
         )}
         {/* update contract paper (edit) */}
         {mode == "edit" && (
-          <>
+          <div className="col-span-2">
+            {initialData?.contractPaper ? (
+              <p className="text-sm font-bold text-green-500 mb-1">
+                Contract paper already incuded.
+              </p>
+            ) : (
+              <p className="text-sm font-bold text-red-500 mb-1">
+                No contract file found.
+              </p>
+            )}
             <div
               className="update-button bg-green-500 w-max rounded-md text-white py-2 px-3 cursor-pointer hover:bg-green-600"
               onClick={handleUpdateContratPaperModalOpen}
@@ -591,7 +601,7 @@ const AddProject = ({
                       className="cursor-pointer hover:bg-red-50 rounded-md p-2"
                     >
                       <DeleteIcon className="text-red-500" />
-                      <span className="ml-1 text-xs text-red-600">Remove</span>
+                      {/* <span className="ml-1 text-xs text-red-600">Remove</span> */}
                     </div>
                   )}
                 </div>
@@ -604,7 +614,7 @@ const AddProject = ({
                 </div>
               </Box>
             </Modal>
-          </>
+          </div>
         )}
         {/* contract paper (driveLink) (optional) */}
         <div className="driveLink col-span-2">

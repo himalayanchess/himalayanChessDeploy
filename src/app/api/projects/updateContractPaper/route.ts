@@ -7,27 +7,26 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const reqBody = await request.json();
     const { initialData, updatedContractPaper } = reqBody;
-    console.log(initialData, updatedContractPaper);
 
-    // const updatedProject = await Project.findOneAndUpdate(
-    //   { _id: reqBody._id },
-    //   reqBody
-    // );
-    // if (updatedProject) {
-    //   return NextResponse.json({
-    //     msg: "Project updated",
-    //     statusCode: 200,
-    //     updatedProject,
-    //   });
-    // }
+    const updatedProject = await Project.findOneAndUpdate(
+      { _id: initialData._id },
+      { contractPaper: updatedContractPaper }
+    );
+    if (updatedProject) {
+      return NextResponse.json({
+        msg: "Contract paper updated",
+        statusCode: 200,
+        updatedProject,
+      });
+    }
     return NextResponse.json({
-      msg: "Project update failed",
+      msg: "Contarct paper update failed",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateProject route", error);
+    console.log("Internal error in updatecontractpaper route", error);
     return NextResponse.json({
-      msg: "Internal error in updateProject route",
+      msg: "Internal error in updatecontractpaper route",
       statusCode: 204,
       error,
     });
