@@ -26,6 +26,8 @@ const Dropdown = ({
         options={formattedOptions}
         value={formattedOptions.find((opt) => opt.value === selected)}
         onChange={(selectedOption) => onChange(selectedOption.value)}
+        menuPlacement="auto" // Automatically adjust dropdown position
+        menuPosition="fixed"
         className={`basic-single ${width && `w-${width}`}`}
         classNamePrefix="select"
       />

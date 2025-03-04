@@ -123,12 +123,12 @@ const page = () => {
                 control={
                   <Radio
                     size="small"
-                    checked={filterbatchType === "Others"}
-                    onChange={() => setfilterbatchType("Others")}
+                    checked={filterbatchType === "School"}
+                    onChange={() => setfilterbatchType("School")}
                     color="default"
                   />
                 }
-                label="Others"
+                label="School"
               />
             </div>
             {/* search-add-menu */}
@@ -144,7 +144,7 @@ const page = () => {
                   onChange={(e) => setsearchText(e.target.value)}
                 />
               </div>
-              <button title="Add user" onClick={handleAddBatchModalOpen}>
+              <button title="Add Batch" onClick={handleAddBatchModalOpen}>
                 <AddIcon
                   className="bg-gray-400 text-white p-1 rounded-full"
                   style={{ fontSize: "2rem" }}

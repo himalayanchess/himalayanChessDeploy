@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Dropdown from "../Dropdown";
 import Input from "../Input";
@@ -22,6 +22,8 @@ const AddBatch = ({
   editedBatch,
   seteditedBatch,
 }) => {
+  const affiliatedOptions = ["HCA", "School"];
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
   const {
     register,
     handleSubmit,
@@ -34,12 +36,13 @@ const AddBatch = ({
     defaultValues:
       mode === "add"
         ? {
-            batchName: "",
-            projectDetails: {},
+            affiliatedTo: "HCA",
+            batchName: "HCA_",
+            projectId: "",
             projectName: "",
             completedStatus: "Ongoing",
-            projectEndDate: "",
-            projectStartDate: "",
+            batchStartDate: "",
+            batchEndDate: "",
           }
         : { ...initialData },
   });
@@ -79,68 +82,101 @@ const AddBatch = ({
       </h1>
       {/* Form */}
       <form
-        className="flex-1 grid grid-cols-2 auto-rows-min gap-3"
+        className="flex-1 grid grid-cols-2 auto-rows-min gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* Batch Name */}
-        <div className="col-span-2">
-          {/* contract type */}
-          <Controller
-            name="batchName"
-            control={control}
-            rules={{
-              required: "Batch name is required",
-            }}
-            render={({ field }) => {
-              return (
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  label="Batch Name"
-                  type="text"
-                  required={true}
-                  error={errors?.batchName}
-                  helperText={errors?.batchName?.message}
-                />
-              );
-            }}
-          />
-        </div>
-        {/* associated project */}
-        <div className="projectName col-span-2">
-          <Controller
-            name="projectName"
-            control={control}
-            rules={{
-              required: "Project name is required",
-            }}
-            render={({ field }) => (
+        <Controller
+          name="affiliatedTo"
+          control={control}
+          rules={{
+            required: "Affiliation is required",
+          }}
+          render={({ field }) => {
+            return (
               <Dropdown
-                label="Project name"
-                options={allProjects.map((project) => project.projectName)}
+                label="Affiliated to"
+                options={affiliatedOptions}
                 selected={field.value}
+                disabled={mode == "edit"}
                 onChange={(value) => {
                   field.onChange(value);
-                  const selectedProject = allProjects.find(
-                    (project) => project.projectName === value
-                  );
-
-                  setValue(
-                    "projectDetails",
-                    selectedProject?.projectDetails || {}
-                  );
+                  setselectedAffiliatedTo(value);
+                  reset((prev) => {
+                    return {
+                      ...prev,
+                      batchName: value == "HCA" ? "HCA_" : "",
+                      projectName: "",
+                      projectId: "",
+                    };
+                  });
                 }}
-                error={errors.projectName}
-                helperText={errors.projectName?.message}
+                error={errors.affiliatedTo}
+                helperText={errors.affiliatedTo?.message}
                 required={true}
                 width="full"
               />
-            )}
-          />
-        </div>
+            );
+          }}
+        />{" "}
+        {/* contract type */}
+        <Controller
+          name="batchName"
+          control={control}
+          rules={{
+            required: "Batch name is required",
+          }}
+          render={({ field }) => {
+            return (
+              <Input
+                {...field}
+                value={field.value || ""}
+                label="Batch Name"
+                type="text"
+                required={true}
+                error={errors?.batchName}
+                helperText={errors?.batchName?.message}
+              />
+            );
+          }}
+        />
+        {/* associated project */}
+        {(selectedAffiliatedTo != "HCA" || initialData?.projectName) && (
+          <div className="projectName col-span-2">
+            <Controller
+              name="projectName"
+              control={control}
+              rules={{
+                required: "Project name is required",
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Project name"
+                  options={allProjects.map((project) => project.projectName)}
+                  selected={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    const selectedProject = allProjects.find(
+                      (project) => project.projectName === value
+                    );
+
+                    setValue(
+                      "projectDetails",
+                      selectedProject?.projectDetails || {}
+                    );
+                  }}
+                  error={errors.projectName}
+                  helperText={errors.projectName?.message}
+                  required={true}
+                  width="full"
+                />
+              )}
+            />
+          </div>
+        )}
         {/* Project start date */}
         <Controller
-          name="projectStartDate"
+          name="batchStartDate"
           control={control}
           rules={{
             required: "Start date is required",
@@ -153,15 +189,15 @@ const AddBatch = ({
                 label="Start Date"
                 type="date"
                 required={true}
-                error={errors?.projectStartDate}
-                helperText={errors?.projectStartDate?.message}
+                error={errors?.batchStartDate}
+                helperText={errors?.batchStartDate?.message}
               />
             );
           }}
         />
         {/* Project start date  (optional)*/}
         <Controller
-          name="projectEndDate"
+          name="batchEndDate"
           control={control}
           rules={
             {
@@ -175,8 +211,8 @@ const AddBatch = ({
                 value={field.value || ""}
                 label="End Date"
                 type="date"
-                error={errors?.projectEndDate}
-                helperText={errors?.projectEndDate?.message}
+                error={errors?.batchEndDate}
+                helperText={errors?.batchEndDate?.message}
               />
             );
           }}

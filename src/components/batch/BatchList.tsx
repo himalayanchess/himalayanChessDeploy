@@ -72,11 +72,28 @@ const BatchList = ({
   }
   // handleBatchDelete
   async function handleBatchDelete(id) {
-    alert(id);
+    try {
+      const { data: resData } = await axios.post("/api/batches/deleteBatch", {
+        batchId: id,
+      });
+      let tempAllBatches = [...allBatches];
+      tempAllBatches = tempAllBatches.map((batch) => {
+        if (batch._id == id) {
+          return { ...batch, activeStatus: false };
+        } else {
+          return batch;
+        }
+      });
+      setallBatches(tempAllBatches);
+      handleDeleteModalClose();
+      console.log(resData);
+    } catch (error) {
+      console.log("error in handleBatchDelete", error);
+    }
   }
   // filtered effect
   useEffect(() => {
-    // add new user
+    // add new batch
     let tempallBatches = [...allBatches];
 
     // Sort batches by createdAt in descending order (latest first)
@@ -84,7 +101,7 @@ const BatchList = ({
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
 
-    // First, filter by complleted Status
+    // First, filter by completed Status
     let filteredBatches = sortedBatches.filter(
       (batch) =>
         batch.completedStatus.toLowerCase() ===
@@ -102,17 +119,21 @@ const BatchList = ({
     // Apply filterbatchType filter
     if (filterbatchType?.toLowerCase() === "hca") {
       filteredBatches = filteredBatches.filter(
-        (batch) =>
-          batch?.projectDetails?.contractType.toLowerCase() == "academy"
+        (batch) => batch?.affiliatedTo?.toLowerCase() == "hca"
       );
-    } else if (filterbatchType?.toLowerCase() === "others") {
+    } else if (filterbatchType?.toLowerCase() === "school") {
       filteredBatches = filteredBatches.filter(
-        (batch) =>
-          batch?.projectDetails?.contractType.toLowerCase() != "academy"
+        (batch) => batch?.affiliatedTo?.toLowerCase() != "hca"
       );
     }
 
-    // Update filtered users
+    // only show non deleted batches
+    // Filter batches by activeStatus: true
+    filteredBatches = filteredBatches.filter(
+      (batch) => batch.activeStatus === true
+    );
+
+    // Update filtered batchs
     setFilteredBatches(filteredBatches);
     setFilteredBatchesCount(filteredBatches.length);
     setCurrentPage(1);
@@ -151,7 +172,7 @@ const BatchList = ({
       setallBatches(resData.allBatches);
       setbatchListLoading(false);
     } catch (error) {
-      console.log("error in superadmin/users (getallBatches)", error);
+      console.log("error in superadmin/batchs (getallBatches)", error);
     }
   }
   // intital fetch all batches
@@ -165,11 +186,11 @@ const BatchList = ({
         <span className="p-3 text-left text-sm font-medium text-gray-600">
           Batch Name
         </span>
-        <span className="p-3 text-left col-span-2 text-sm font-medium text-gray-600">
+        <span className="p-3 text-left text-sm font-medium text-gray-600">
           Affiliated
         </span>
-        <span className="p-3 text-left text-sm font-medium text-gray-600">
-          Trainers
+        <span className="p-3 text-left col-span-2 text-sm font-medium text-gray-600">
+          School Name
         </span>
 
         <span className="p-3 text-left text-sm font-medium text-gray-600">
@@ -183,7 +204,7 @@ const BatchList = ({
           <p className="text-gray-500">Getting batches</p>
         </div>
       )}
-      {/* No Users Found */}
+      {/* No batchs Found */}
       {filteredBatches.length === 0 && !batchListLoading && (
         <div className="flex items-center text-gray-500 w-max mx-auto my-3">
           <SearchOffIcon className="mr-1" sx={{ fontSize: "1.5rem" }} />
@@ -202,22 +223,18 @@ const BatchList = ({
               key={batch?._id}
               className="border-t grid grid-cols-5 items-center hover:bg-gray-50"
             >
+              {/* batchname */}
               <span className="p-3 text-sm text-gray-700">
                 {batch?.batchName}
               </span>
-              <span className="p-3 col-span-2 text-sm text-gray-700">
-                {batch?.projectDetails?.name}
+              {/* affiliatedTo */}
+              <span className="p-3 text-sm text-gray-700">
+                {batch?.affiliatedTo}
               </span>
-              <div className="p-3 text-sm text-gray-700">
-                {batch?.projectDetails?.assignedTrainers?.map((trainer, i) => {
-                  return (
-                    <span key={`batchTrainers${i}`}>
-                      {trainer?.trainerName}
-                      <br />
-                    </span>
-                  );
-                })}
-              </div>
+              {/* school name */}
+              <span className="p-3 col-span-2 text-sm text-gray-700">
+                {batch.projectName ? batch.projectName : "None"}
+              </span>
               <div className="p-3 text-sm text-gray-500">
                 <>
                   {/* view modal */}
@@ -241,7 +258,7 @@ const BatchList = ({
                     }}
                   >
                     <Box className="w-[50%] h-[90%] p-6 overflow-y-auto grid grid-cols-2 auto-rows-min grid-auto-flow-dense gap-10 bg-white rounded-xl shadow-lg">
-                      {/* <ViewUser user={selectedViewUser} /> */}
+                      {/* <Viewbatch batch={selectedViewbatch} /> */}
                       <p>View batch</p>
                     </Box>
                   </Modal>

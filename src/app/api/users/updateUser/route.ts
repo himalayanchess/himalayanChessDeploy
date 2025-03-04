@@ -6,6 +6,17 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
+    // Check if another user already has the same name
+    const existingUser = await User.findOne({
+      name: { $regex: `^${reqBody.name}$`, $options: "i" }, // Case-insensitive search
+      _id: { $ne: reqBody._id }, // Exclude the current batch
+    });
+    if (existingUser) {
+      return NextResponse.json({
+        msg: "User already exists",
+        statusCode: 409, // Conflict status
+      });
+    }
     // console.log("updateuser route", reqBody);
     const { email, password, ...updateFields } = reqBody;
 

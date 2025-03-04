@@ -1,7 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Default Font */
+* {
+  font-family: "Poppins", sans-serif;
+  /* Uncomment below to use Roboto */
+  /* font-family: "Roboto", sans-serif; */
+}
+
+/* Input Text Color */
 input {
   color: black;
+}
+
+/* Background Color */
+body {
+  /* overflow-x: hidden; */
+  background-color: rgb(240, 240, 240);
+}
+
+/* Global Scrollbar Styling */
+* {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #888 transparent; /* Thumb color & no extra track space */
+}
+
+/* WebKit Browsers (Chrome, Edge, Safari) */
+*::-webkit-scrollbar {
+  width: 4px; /* Ultra-thin scrollbar */
+  height: 4px; /* Thin horizontal scrollbar */
+}
+
+*::-webkit-scrollbar-button {
+  display: none; /* Remove up/down arrows */
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent; /* No extra space */
+  border-radius: 10px; /* Rounded scrollbar track */
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+  border-radius: 10px; /* Rounded scrollbar */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker shade on hover */
 }

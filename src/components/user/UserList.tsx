@@ -12,6 +12,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ViewUser from "./ViewUser";
 import AddUser from "./AddUser";
 import Link from "next/link";
+import { notify } from "@/helpers/notify";
 
 const UserList = ({
   role,
@@ -50,17 +51,22 @@ const UserList = ({
       const { data: resData } = await axios.post("/api/users/deleteUser", {
         userId: id,
       });
-      let tempAllUsers = [...allUsers];
-      tempAllUsers = tempAllUsers.map((user) => {
-        if (user._id == id) {
-          return { ...user, activeStatus: false };
-        } else {
-          return user;
-        }
-      });
-      setAllUsers(tempAllUsers);
-      handleDeleteModalClose();
-      console.log(resData);
+      if (resData.statusCode == 200) {
+        let tempAllUsers = [...allUsers];
+        tempAllUsers = tempAllUsers.map((user) => {
+          if (user._id == id) {
+            return { ...user, activeStatus: false };
+          } else {
+            return user;
+          }
+        });
+        setAllUsers(tempAllUsers);
+        notify(resData.msg, resData.statusCode);
+        handleDeleteModalClose();
+        return;
+      }
+      notify(resData.msg, resData.statusCode);
+      return;
     } catch (error) {
       console.log("error in handleUserDelete", error);
     }

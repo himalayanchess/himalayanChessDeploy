@@ -1,5 +1,5 @@
 import { dbconnect } from "@/helpers/dbconnect/dbconnect";
-import User from "@/models/UserModel";
+import Course from "@/models/CourseModel";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -7,26 +7,25 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const reqBody = await request.json();
     // add role verification
-    const deletedUser = await User.findByIdAndUpdate(
-      { _id: reqBody.userId },
+    const deletedCourse = await Course.findByIdAndUpdate(
+      { _id: reqBody.courseId },
       { activeStatus: false }
     );
-
-    if (deletedUser) {
+    if (deletedCourse) {
       return NextResponse.json({
-        msg: "User deleted",
+        msg: "Course deleted",
         statusCode: 200,
       });
     }
 
     return NextResponse.json({
-      msg: "User delete failed",
+      msg: "Course delete failed",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in deleteUser route", error);
+    console.log("Internal error in deleteCourse route", error);
     return NextResponse.json({
-      msg: "Internal error in deleteUser route",
+      msg: "Internal error in deleteCourse route",
       statusCode: 204,
       error,
     });

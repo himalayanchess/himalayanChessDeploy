@@ -4,22 +4,22 @@ const ProjectSchema = new mongoose.Schema(
   {
     contractType: {
       type: String,
-      enum: ["Academy", "School", "Others"],
       // required: true,
     },
-    name: { type: String }, // School name
+    projectName: { type: String }, // School name
     primaryContact: {
       name: { type: String },
-      email: { type: String },
       phone: { type: String },
+      email: { type: String },
     },
     startDate: { type: String },
+    endDate: { type: String },
     duration: {
       type: Number,
     },
-    address: { type: String },
     completedStatus: { type: String, enum: ["Ongoing", "Completed"] },
-    location: { type: String }, // School address
+    address: { type: String },
+    mapLocation: { type: String }, // School address
     contractPaper: { type: String }, // File URL for contract
     contractDriveLink: { type: String },
     assignedTrainers: [

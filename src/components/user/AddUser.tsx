@@ -360,7 +360,7 @@ const AddUser = ({
                     {...field}
                     label="Email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter email"
                     required={true}
                     error={errors.email}
                     helperText={errors.email?.message}

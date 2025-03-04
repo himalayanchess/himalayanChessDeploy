@@ -70,18 +70,21 @@ const AddProject = ({
     defaultValues:
       mode === "add"
         ? {
-            contractType: "",
-            name: "",
+            contractType: "School",
+            projectName: "",
             primaryContact: { name: "", email: "", phone: "" },
             startDate: "",
+            endDate: "",
             duration: 12,
-            address: "",
             completedStatus: "Ongoing",
-            contractDriveLink: "",
+            address: "",
+            mapLocation: "",
             // contractPaper in onSubmit function
-            location: "",
-            assignedTrainers: [],
-            timeSlots: [],
+            contractDriveLink: "",
+            assignedTrainers: [
+              { trainerId: "", trainerName: "", trainerRole: "" },
+            ],
+            timeSlots: [{ day: "", fromTime: "", toTime: "" }],
           }
         : { ...initialData },
   });
@@ -273,127 +276,112 @@ const AddProject = ({
             }}
             render={({ field }) => {
               return (
-                <Dropdown
-                  label="Contract Type"
-                  options={contractTypeOptions}
-                  disabled={mode == "edit"}
-                  selected={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    setselectedContractType(value);
-                    reset((prevValues) => ({
-                      ...prevValues,
-                      contractType: value,
-                      name: value == "Academy" ? "Himalayan Chess Academy" : "",
-                      location: value == "Academy" ? "" : prevValues.location,
-                      address:
-                        value == "Academy" ? "Thapathali" : prevValues.address,
-                      primaryContact: { name: "", email: "", phone: "" },
-                    }));
-                  }}
-                  error={errors.contractType}
-                  helperText={errors.contractType?.message}
-                  required={true}
-                  width="full"
+                <Input
+                  {...field}
+                  value={field.value || ""}
+                  label="Contract type"
+                  type="text"
+                  disabled
+                  error={errors?.contractType}
+                  helperText={errors?.contractType?.message}
                 />
               );
             }}
           />
         </div>
-        {selectedContractType != "Academy" && (
-          <>
-            {/* Project name */}
-            <div className="col-span-2">
-              <Controller
-                name="name"
-                control={control}
-                rules={{
-                  required: "Project name is required",
-                }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    value={field.value || ""}
-                    label="Project Name"
-                    type="text"
-                    error={errors?.name}
-                    helperText={errors?.name?.message}
-                  />
-                )}
+
+        {/* Project name */}
+        <div className="col-span-2">
+          <Controller
+            name="projectName"
+            control={control}
+            rules={{
+              required: "Project name is required",
+            }}
+            render={({ field }) => (
+              <Input
+                {...field}
+                value={field.value || ""}
+                label="Project Name"
+                type="text"
+                error={errors?.name}
+                helperText={errors?.name?.message}
+                required={true}
               />
-            </div>
-            {/* primary contact */}
-            <div className="h1 col-span-2 text-lg font-bold">
-              Primary Contact
-            </div>
-            {/* contact name */}
-            <Controller
-              name="primaryContact.name"
-              control={control}
-              rules={{
-                required: "Full name is required",
-                pattern: {
-                  value: /^[A-Za-z]+(?: [A-Za-z]+)+$/,
-                  message: "Invalid full name",
-                },
-              }}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  label="Contact Name"
-                  type="text"
-                  error={errors?.primaryContact?.name}
-                  helperText={errors?.primaryContact?.name?.message}
-                />
-              )}
+            )}
+          />
+        </div>
+        {/* primary contact */}
+        <div className="h1 col-span-2 text-lg font-bold">Primary Contact</div>
+        {/* contact name */}
+        <Controller
+          name="primaryContact.name"
+          control={control}
+          rules={{
+            required: "Full name is required",
+            pattern: {
+              value: /^[A-Za-z]+(?: [A-Za-z]+)+$/,
+              message: "Invalid full name",
+            },
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              value={field.value || ""}
+              label="Contact Name"
+              type="text"
+              error={errors?.primaryContact?.name}
+              helperText={errors?.primaryContact?.name?.message}
+              required={true}
             />
-            {/* contact phone */}
-            <Controller
-              name="primaryContact.phone"
-              control={control}
-              rules={{
-                required: "Phone is required",
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: "Invalid phone no",
-                },
-              }}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  label="Phone"
-                  type="number"
-                  error={errors?.primaryContact?.phone}
-                  helperText={errors?.primaryContact?.phone?.message}
-                />
-              )}
+          )}
+        />
+        {/* contact phone */}
+        <Controller
+          name="primaryContact.phone"
+          control={control}
+          rules={{
+            required: "Phone is required",
+            pattern: {
+              value: /^[0-9]{10}$/,
+              message: "Invalid phone no",
+            },
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              value={field.value || ""}
+              label="Phone"
+              type="number"
+              error={errors?.primaryContact?.phone}
+              helperText={errors?.primaryContact?.phone?.message}
+              required={true}
             />
-            {/* contact email */}
-            <Controller
-              name="primaryContact.email"
-              control={control}
-              rules={{
-                required: "Email is required",
-                pattern: {
-                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                  message: "Invalid email",
-                },
-              }}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  label="Email"
-                  type="text"
-                  error={errors?.primaryContact?.email}
-                  helperText={errors?.primaryContact?.email?.message}
-                />
-              )}
+          )}
+        />
+        {/* contact email */}
+        <Controller
+          name="primaryContact.email"
+          control={control}
+          rules={{
+            // required: "Email is required",
+            pattern: {
+              value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+              message: "Invalid email",
+            },
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              value={field.value || ""}
+              label="Email"
+              type="text"
+              error={errors?.primaryContact?.email}
+              helperText={errors?.primaryContact?.email?.message}
             />
-          </>
-        )}
+          )}
+        />
+
         {/* project info */}
         <div className="h1 col-span-2 text-lg font-bold">Project Info</div>
         {/* start date */}
@@ -411,6 +399,27 @@ const AddProject = ({
               type="date"
               error={errors?.startDate}
               helperText={errors?.startDate?.message}
+              required={true}
+            />
+          )}
+        />
+        {/* end date */}
+        <Controller
+          name="endDate"
+          control={control}
+          rules={
+            {
+              // required: "End date is required",
+            }
+          }
+          render={({ field }) => (
+            <Input
+              {...field}
+              value={field.value || ""}
+              label="End date"
+              type="date"
+              error={errors?.endDate}
+              helperText={errors?.endDate?.message}
             />
           )}
         />
@@ -454,61 +463,59 @@ const AddProject = ({
             />
           )}
         />
-        {/* address location for non Academy */}
-        {selectedContractType != "Academy" && (
-          <>
-            <div className="h1 col-span-2 text-lg font-bold">
-              Location Details
-            </div>
-            {/* address */}
-            <div className="col-span-2">
-              <Controller
-                name="address"
-                control={control}
-                rules={{
-                  required: "Address is required",
-                }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    value={field.value || ""}
-                    label="Address"
-                    type="text"
-                    error={errors?.address}
-                    helperText={errors?.address?.message}
-                  />
-                )}
+
+        <div className="h1 col-span-2 text-lg font-bold">Location Details</div>
+        {/* address */}
+        <div className="col-span-2">
+          <Controller
+            name="address"
+            control={control}
+            rules={{
+              required: "Address is required",
+            }}
+            render={({ field }) => (
+              <Input
+                {...field}
+                value={field.value || ""}
+                label="Address"
+                type="text"
+                error={errors?.address}
+                helperText={errors?.address?.message}
+                required={true}
               />
-            </div>
-            {/* location */}
-            <div className="col-span-2">
-              <Controller
-                name="location"
-                control={control}
-                rules={{
-                  required: "Location is required",
-                }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    value={field.value || ""}
-                    label="Location Co-ordinates"
-                    type="text"
-                    error={errors?.location}
-                    helperText={errors?.location?.message}
-                  />
-                )}
+            )}
+          />
+        </div>
+        {/* location */}
+        <div className="col-span-2">
+          <Controller
+            name="mapLocation"
+            control={control}
+            rules={
+              {
+                // required: "Location is required",
+              }
+            }
+            render={({ field }) => (
+              <Input
+                {...field}
+                value={field.value || ""}
+                label="Map Location Co-ordinates"
+                type="text"
+                error={errors?.mapLocation}
+                helperText={errors?.mapLocation?.message}
               />
-            </div>
-          </>
-        )}
+            )}
+          />
+        </div>
+
         {/* contract paper (pdf) (optional)*/}
         <div className="h1 col-span-2 text-lg font-bold">Contract Info</div>
 
         {/* add contract paper (add) */}
         {mode == "add" && (
           <div className="pdf-file col-span-2">
-            <p>Choose PDF file</p>
+            <p>Choose PDF file * (for now)</p>
             <div className="flex items-center  ">
               <label
                 htmlFor="contractInput"
@@ -648,7 +655,7 @@ const AddProject = ({
           </div>
 
           {assignedTrainerField.length === 0 && (
-            <p className="text-gray-500">No courses yet.</p>
+            <p className="text-gray-500">No Trainers yet.</p>
           )}
 
           {assignedTrainerField.map((trainer, index) => (

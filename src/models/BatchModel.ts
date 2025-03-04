@@ -3,11 +3,12 @@ import mongoose from "mongoose";
 const BatchSchema = new mongoose.Schema(
   {
     batchName: { type: String, required: true }, // Name of the batch
-    projectDetails: { type: Object },
-    projectName: { type: String, required: true }, // Project name fetched from the Project model
+    affiliatedTo: { type: String },
+    projectId: { type: mongoose.Schema.Types.Mixed, ref: "Project" }, // Accepts any type
+    projectName: { type: String }, // Project name fetched from the Project model
     completedStatus: { type: String, enum: ["Ongoing", "Completed"] },
-    projectStartDate: { type: String, required: true }, // Start date of the project
-    projectEndDate: { type: String }, // End date of the course
+    batchStartDate: { type: String, required: true }, // Start date of the batch
+    batchEndDate: { type: String }, // End date of the batch
     activeStatus: { type: Boolean, default: true }, // Active status of the batch
   },
   { timestamps: true }

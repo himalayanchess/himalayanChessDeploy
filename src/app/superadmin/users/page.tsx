@@ -63,13 +63,13 @@ const Users = () => {
     setsearchText("");
   }, [activeStatus]);
   return (
-    <div>
+    <div className="">
       <Sidebar
         role="Superadmin"
         menuItems={superadminMenuItems}
         activeMenu="Users"
       />
-      <div className="ml-[3rem] w-[96%]">
+      <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 h-[92dvh] flex flex-col pt-3 px-14">
           <div className="title-search-container mb-4 flex justify-between items-end">

@@ -7,6 +7,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCourse from "./AddCourse";
 import ViewCourse from "./ViewCourse";
+import { notify } from "@/helpers/notify";
 
 const CourseList = ({
   searchText,
@@ -67,7 +68,29 @@ const CourseList = ({
     setDeleteModalOpen(false);
   }
   async function handleCourseDelete(id) {
-    alert(id);
+    try {
+      const { data: resData } = await axios.post("/api/courses/deleteCourse", {
+        courseId: id,
+      });
+      if (resData.statusCode == 200) {
+        let tempAllCourses = [...allCourses];
+        tempAllCourses = tempAllCourses.map((course) => {
+          if (course._id == id) {
+            return { ...course, activeStatus: false };
+          } else {
+            return course;
+          }
+        });
+        setallCourses(tempAllCourses);
+        notify(resData.msg, resData.statusCode);
+        handleDeleteModalClose();
+        return;
+      }
+      notify(resData.msg, resData.statusCode);
+      return;
+    } catch (error) {
+      console.log("error in handleUserDelete", error);
+    }
   }
   // Handle new course addition
   useEffect(() => {
@@ -115,22 +138,27 @@ const CourseList = ({
     );
 
     // First, filter by role
-    let filteredBySelectedLevel = sortedUsers.filter(
+    let filteredCourses = sortedUsers.filter(
       (coures) =>
         coures.skillLevel.toLowerCase() === selectedSkillLevel.toLowerCase()
     );
 
     // Apply search filter if searchText is provided
     if (searchText.trim() !== "") {
-      filteredBySelectedLevel = filteredBySelectedLevel.filter((course) =>
+      filteredCourses = filteredCourses.filter((course) =>
         course.name.toLowerCase().includes(searchText.toLowerCase())
       );
     }
-    console.log("temp allcourses", filteredBySelectedLevel);
+    console.log("temp allcourses", filteredCourses);
 
+    // only show non deleted courses
+    // Filter courses by activeStatus: true
+    filteredCourses = filteredCourses.filter(
+      (course) => course.activeStatus === true
+    );
     // Update filtered users
-    setFilteredCourses(filteredBySelectedLevel);
-    setFilteredCoursesCount(filteredBySelectedLevel.length);
+    setFilteredCourses(filteredCourses);
+    setFilteredCoursesCount(filteredCourses.length);
     setCurrentPage(1);
   }, [allCourses, selectedSkillLevel, searchText]);
   useEffect(() => {
