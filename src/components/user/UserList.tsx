@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box, Button, Modal, Radio, FormControlLabel } from "@mui/material";
@@ -77,6 +77,12 @@ const UserList = ({
     setselectViewUser(user);
     setViewModalOpen(true);
   }
+
+  // view modal close
+  function handleViewModalClose() {
+    setViewModalOpen(false);
+  }
+
   // edit modal open
   function handleEditModalOpen(user) {
     console.log(user);
@@ -84,10 +90,6 @@ const UserList = ({
     seteditModalOpen(true);
   }
 
-  // view modal close
-  function handleViewModalClose() {
-    setViewModalOpen(false);
-  }
   // edit modal close
   function handleEditModalClose() {
     seteditModalOpen(false);

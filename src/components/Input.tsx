@@ -33,6 +33,12 @@ const Input = ({
         id={label}
         type={type == "password" ? (showPassword ? "text" : type) : type}
         placeholder={placeholder}
+        onMouseDown={(e) => {
+          if (type === "date") {
+            e.preventDefault(); // Prevent default focus behavior
+            e.target.showPicker(); // Open the date picker
+          }
+        }}
         value={value}
         onChange={onChange}
         className={`outline-none border-[1px] p-2 px-3 rounded-md w-full border-gray-150 text-gray-500 text-md ${

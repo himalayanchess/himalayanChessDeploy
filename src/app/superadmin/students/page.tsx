@@ -15,6 +15,7 @@ const page = () => {
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
+        {/* main component */}
         <div className="pb-6 h-[91dvh] flex py-5 px-14 ">
           <StudentComponent />
         </div>
