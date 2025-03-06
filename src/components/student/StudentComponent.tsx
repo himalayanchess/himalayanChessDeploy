@@ -29,6 +29,12 @@ const StudentComponent = () => {
   //projectList
   const [projectList, setprojectList] = useState([]);
 
+  // reset acive status to "active" when selectedAffiliatedTo changes
+  useEffect(() => {
+    setselectedActiveStatus("active");
+    setsearchText("");
+  }, [selectedAffiliatedTo]);
+
   // modal operation
   // handleAddStudentModalOpen
   function handleAddStudentModalOpen() {

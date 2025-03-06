@@ -18,6 +18,7 @@ import {
 } from "date-fns";
 import { Button, Divider } from "@mui/material";
 import ManageClass from "./ManageClass";
+import AssignedClasses from "./AssignedClasses";
 
 // Sample data for events
 const events = {
@@ -118,12 +119,12 @@ const AssignClass = ({ selectedBatch }) => {
   }
 
   return (
-    <div className="flex-1 flex h-full p-4 gap-4 ">
+    <div className="flex-1 flex h-full gap-4 ">
       {/* Left Section (Calendar and Events) */}
-      <div className="bg flex flex-col gap-4">
+      <div className="bg flex flex-col gap-2">
         {/* Today's Classes Section */}
-        <div className="bg-gray-100 p-4 h-[25%] overflow-y-auto rounded-lg ">
-          <h3 className="text-lg font-bold mb-2">Today's Classes</h3>
+        <div className="bg-gray-100 p-2 px-4 h-[25%] overflow-y-auto rounded-lg ">
+          <h3 className="text-lg font-bold">Today's Classes</h3>
           {selectedDate ? (
             events[format(selectedDate, "yyyy-MM-dd")] ? (
               events[format(selectedDate, "yyyy-MM-dd")].map((event, index) => (
@@ -145,7 +146,7 @@ const AssignClass = ({ selectedBatch }) => {
         </div>
 
         {/* Calendar Section */}
-        <div className="bg-white  p-4 rounded-lg shadow-md">
+        <div className="bg-white  p-4 border border-gray-100 rounded-lg shadow-md">
           {/* Selected Date and Day */}
           <div className="mb-4">
             <h2 className="text-md font-bold">
@@ -192,7 +193,7 @@ const AssignClass = ({ selectedBatch }) => {
           <div className="grid grid-cols-7 gap-1">
             {/* Weekday Headers */}
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div key={day} className="text-xs font-bold text-center">
+              <div key={day} className="text-xs p-1.5 font-bold text-center">
                 {day}
               </div>
             ))}
@@ -232,9 +233,14 @@ const AssignClass = ({ selectedBatch }) => {
         </div>
       </div>
 
-      {/* Right Section (ManageClass) */}
+      {/* Middle Section (ManageClass) */}
       <div className="flex-1 w-full ">
         {!selectedBatch ? <p>Batch not selected</p> : <ManageClass />}
+      </div>
+
+      {/* Rignt Section (AssignedClasses) */}
+      <div className="flex-[0.5] w-full ">
+        <AssignedClasses />
       </div>
     </div>
   );

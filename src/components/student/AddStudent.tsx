@@ -20,8 +20,12 @@ const AddStudent = ({
   setnewCreatedStudent,
   handleClose,
   initialData,
+  //object
   editedStudent,
   seteditedStudent,
+  // boolean
+  studentEdited,
+  setstudentEdited,
 }) => {
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
@@ -128,8 +132,23 @@ const AddStudent = ({
         notify(resData.msg, resData.statusCode);
         return;
       }
+      // edit mode
+      else if (mode == "edit") {
+        const { data: resData } = await axios.post(
+          "/api/students/updateStudent",
+          data
+        );
+
+        if (resData.statusCode == 200) {
+          setstudentEdited(true);
+          seteditedStudent(data);
+          handleClose();
+        }
+        notify(resData.msg, resData.statusCode);
+        return;
+      }
     } catch (error) {
-      console.log("error in addsudent component (onSubmit)");
+      console.log("error in addsudent component (onSubmit)", error);
     }
   }
 
@@ -141,6 +160,7 @@ const AddStudent = ({
           : `Update Student (${initialData?.name})`}
       </h1>
 
+      <button onClick={() => handleClose()}>close</button>
       {/* form-fields */}
       <form
         onSubmit={handleSubmit(onSubmit)}

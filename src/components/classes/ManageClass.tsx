@@ -10,6 +10,11 @@ const ManageClass = () => {
   const [trainersList, setTrainersList] = useState([]);
   const [courseList, setCourseList] = useState([]);
   const [projectList, setProjectList] = useState([]);
+  const [allBatchList, setallBatchList] = useState([]);
+  const [filteredBatches, setFilteredBatches] = useState([]);
+  const [allStudents, setallStudents] = useState([]);
+  const [selectedBatchStudents, setselectedBatchStudents] = useState([]);
+  const [batchId, setBatchId] = useState("");
 
   const {
     register,
@@ -18,6 +23,7 @@ const ManageClass = () => {
     reset,
     formState: { errors },
     setValue,
+    watch,
   } = useForm({
     defaultValues: {
       trainerName: "",
@@ -26,6 +32,8 @@ const ManageClass = () => {
       courseId: "",
       projectName: "",
       projectId: "",
+      batchName: "",
+      batchId: "",
     },
   });
 
@@ -36,6 +44,48 @@ const ManageClass = () => {
   const onSubmit = (data) => {
     console.log(data);
   };
+
+  // Reset form when selectedContractType changes
+  useEffect(() => {
+    reset({
+      trainerName: "",
+      trainerId: "",
+      courseName: "",
+      courseId: "",
+      projectName: selectedContractType === "School" ? "" : "",
+      projectId: selectedContractType === "School" ? "" : "",
+      batchName: "",
+      batchId: "",
+    });
+    setBatchId(""); // Reset batchId state
+  }, [selectedContractType, reset]);
+
+  // Filter students based on batchId
+  useEffect(() => {
+    if (batchId !== "") {
+      const tempAllStudents = allStudents.filter(
+        (student) => student?.batchId === batchId
+      );
+      setselectedBatchStudents(tempAllStudents);
+    } else {
+      setselectedBatchStudents([]); // Clear students if no batchId is selected
+    }
+  }, [batchId, allStudents]);
+
+  // Filter batches based on selectedContractType
+  useEffect(() => {
+    let tempFilteredBatches;
+    if (selectedContractType.toLowerCase() === "hca") {
+      tempFilteredBatches = allBatchList.filter(
+        (batch) => batch?.affiliatedTo.toLowerCase() === "hca"
+      );
+    } else if (selectedContractType.toLowerCase() === "school") {
+      tempFilteredBatches = allBatchList.filter(
+        (batch) => batch?.affiliatedTo.toLowerCase() === "school"
+      );
+    }
+    setFilteredBatches(tempFilteredBatches || []);
+  }, [selectedContractType, allBatchList]);
 
   const getInitialData = async () => {
     try {
@@ -52,10 +102,21 @@ const ManageClass = () => {
       const { data: projectResData } = await axios.get(
         "/api/projects/getAllProjects"
       );
-      const filteredNonAcademyProjects = projectResData.allProjects.filter(
-        (project) => project?.contractType?.toLowerCase() !== "academy"
+      setProjectList(projectResData.allProjects);
+
+      const { data: batchResData } = await axios.get(
+        "/api/batches/getAllBatches"
       );
-      setProjectList(filteredNonAcademyProjects);
+      setallBatchList(batchResData.allBatches);
+
+      const { data: allStudentsResData } = await axios.get(
+        "/api/students/getAllStudents"
+      );
+      const tempAllStudents = [
+        ...allStudentsResData.allHcaAffiliatedStudents,
+        ...allStudentsResData.allNonAffiliatedStudents,
+      ];
+      setallStudents(tempAllStudents);
     } catch (error) {
       console.log("Error in ManageClass component", error);
     }
@@ -71,9 +132,14 @@ const ManageClass = () => {
       className="bg-white px-4 rounded-lg"
     >
       {/* Project Selection */}
-      <h1 className="text-lg font-bold mb-2">
-        Assign Class for {selectedContractType}
-      </h1>
+      <div className="header flex items-center justify-between">
+        <h1 className="text-lg font-bold mb-2">
+          Assign Class for {selectedContractType}
+        </h1>
+        <Button type="submit" variant="contained">
+          Assign
+        </Button>
+      </div>
       <div className="flex gap-2 mb-4">
         <Button
           variant={selectedContractType === "HCA" ? "contained" : "outlined"}
@@ -95,7 +161,34 @@ const ManageClass = () => {
 
       {/* Dropdowns */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        {/* batch name */}
+        {/* Project Name (only shown for School) */}
+        {selectedContractType === "School" && (
+          <Controller
+            name="projectName"
+            control={control}
+            rules={{ required: "Project is required" }}
+            render={({ field }) => (
+              <Dropdown
+                label="Project name"
+                options={projectList.map((project) => project.name)}
+                selected={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  const selectedProject = projectList.find(
+                    (project) => project.name === value
+                  );
+                  setValue("projectId", selectedProject?._id || "");
+                }}
+                error={errors.projectName}
+                helperText={errors.projectName?.message}
+                width="full"
+                required
+              />
+            )}
+          />
+        )}
+
+        {/* Batch Name */}
         <Controller
           name="batchName"
           control={control}
@@ -103,23 +196,25 @@ const ManageClass = () => {
           render={({ field }) => (
             <Dropdown
               label="Batch"
-              options={trainersList.map((trainer) => trainer.name)}
+              options={filteredBatches.map((batch) => batch.batchName)}
               selected={field.value}
               onChange={(value) => {
                 field.onChange(value);
-                const selectedTrainer = trainersList.find(
-                  (trainer) => trainer.name === value
+                const selectedBatch = filteredBatches.find(
+                  (batch) => batch.batchName === value
                 );
-                setValue("trainerId", selectedTrainer?._id || "");
+                setValue("batchId", selectedBatch?._id || "");
+                setBatchId(selectedBatch?._id);
               }}
-              error={errors.trainerName}
-              helperText={errors.trainerName?.message}
+              error={errors.batchName}
+              helperText={errors.batchName?.message}
               width="full"
               required
             />
           )}
         />
-        {/* trainer name */}
+
+        {/* Trainer Name */}
         <Controller
           name="trainerName"
           control={control}
@@ -144,6 +239,7 @@ const ManageClass = () => {
           )}
         />
 
+        {/* Course Name */}
         <Controller
           name="courseName"
           control={control}
@@ -167,33 +263,6 @@ const ManageClass = () => {
             />
           )}
         />
-
-        {selectedContractType === "School" && (
-          <div className="col-span-2">
-            <Controller
-              name="projectName"
-              control={control}
-              rules={{ required: "Project is required" }}
-              render={({ field }) => (
-                <Dropdown
-                  label="Project name"
-                  options={projectList.map((project) => project.name)}
-                  selected={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    const selectedProject = projectList.find(
-                      (project) => project.name === value
-                    );
-                    setValue("projectId", selectedProject?._id || "");
-                  }}
-                  error={errors.projectName}
-                  helperText={errors.projectName?.message}
-                  required
-                />
-              )}
-            />
-          </div>
-        )}
       </div>
 
       <Divider sx={{ margin: "1rem 0" }} />
@@ -201,13 +270,15 @@ const ManageClass = () => {
       {/* Students List */}
       <div>
         <h1 className="text-lg font-bold mb-2">Students</h1>
-        <div className="grid grid-cols-2 gap-2">
-          {Array.from({ length: 10 }, (_, i) => (
-            <p key={i} className="text-sm">
-              Student {i + 1}
-            </p>
-          ))}
-        </div>
+        {selectedBatchStudents.length === 0 ? (
+          <p>No Students</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {selectedBatchStudents.map((student, i) => (
+              <p key={i}>{student.name}</p>
+            ))}
+          </div>
+        )}
       </div>
     </form>
   );

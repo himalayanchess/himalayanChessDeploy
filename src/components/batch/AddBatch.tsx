@@ -152,18 +152,16 @@ const AddBatch = ({
               render={({ field }) => (
                 <Dropdown
                   label="Project name"
-                  options={allProjects.map((project) => project.projectName)}
+                  options={allProjects.map((project) => project.name)}
                   selected={field.value}
                   onChange={(value) => {
                     field.onChange(value);
                     const selectedProject = allProjects.find(
-                      (project) => project.projectName === value
+                      (project) => project.name == value
                     );
+                    console.log(selectedProject);
 
-                    setValue(
-                      "projectDetails",
-                      selectedProject?.projectDetails || {}
-                    );
+                    setValue("projectId", selectedProject?._id);
                   }}
                   error={errors.projectName}
                   helperText={errors.projectName?.message}

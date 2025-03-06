@@ -152,6 +152,7 @@ const UserList = ({
     setFilteredUsersCount(filteredByRole.length);
     setCurrentPage(1);
   }, [allUsers, selectedRole, searchText, activeStatus]);
+
   // Handle new user addition
   useEffect(() => {
     if (newUserAdded && newCreatedUser) {
@@ -160,6 +161,7 @@ const UserList = ({
       setnewUserAdded(false);
     }
   }, [newUserAdded, newCreatedUser, setnewUserAdded]);
+
   // Handle update(edit) user
   useEffect(() => {
     if (userEdited && editedUser) {

@@ -51,19 +51,8 @@ const page = () => {
   // getAllProjects function
   async function getAllProjects() {
     const { data: resData } = await axios.get("/api/projects/getAllProjects");
-    const modifiedAllProjects = resData.allProjects.map((project: any) => {
-      return {
-        projectDetails: { ...project },
-        projectName:
-          project.contractType === "Academy"
-            ? `HCA (${project.assignedTrainers
-                .map((trainer: any) => trainer.trainerName)
-                .join(",")})`
-            : project.name,
-      };
-    });
 
-    setallProjects(modifiedAllProjects);
+    setallProjects(resData.allProjects);
   }
   // get all projects
   useEffect(() => {

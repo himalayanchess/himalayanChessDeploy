@@ -29,6 +29,7 @@ const StudentList = ({
   setnewStudentAdded,
   newCreatedStudent,
   setnewCreatedStudent,
+  handleAddStudentModalClose,
 }) => {
   const [allHcaStudents, setallHcaStudents] = useState<any>([]);
   const [allSchoolStudents, setallSchoolStudents] = useState<any>([]);
@@ -157,6 +158,51 @@ const StudentList = ({
     selectedActiveStatus,
   ]);
 
+  // Handle new student addition
+  useEffect(() => {
+    if (newStudentAdded && newCreatedStudent) {
+      const { affiliatedTo } = newCreatedStudent;
+
+      // append newCreatedStudent to repsective state array
+      // HCA students
+      if (affiliatedTo.toLowerCase() == "hca") {
+        setallHcaStudents((prev) => [newCreatedStudent, ...prev]);
+      }
+      // School students
+      else if (affiliatedTo.toLowerCase() == "school") {
+        setallSchoolStudents((prev) => [newCreatedStudent, ...prev]);
+      }
+
+      setnewStudentAdded(false);
+    }
+  }, [newStudentAdded, newCreatedStudent, setnewStudentAdded]);
+
+  // Handle update(edit) student
+  useEffect(() => {
+    if (studentEdited && editedStudent) {
+      const { affiliatedTo }: any = editedStudent;
+      let tempAllStudents =
+        affiliatedTo?.toLowerCase() === "hca"
+          ? [...allHcaStudents]
+          : [...allSchoolStudents];
+      console.log("updateeeeeeeeee", tempAllStudents, editedStudent);
+      tempAllStudents = tempAllStudents.map((student) => {
+        if (student._id == editedStudent?._id) {
+          return editedStudent;
+        } else {
+          return student;
+        }
+      });
+      if (affiliatedTo?.toLowerCase() === "hca") {
+        setallHcaStudents(tempAllStudents);
+      }
+      if (affiliatedTo?.toLowerCase() === "school") {
+        setallSchoolStudents(tempAllStudents);
+      }
+      setstudentEdited(false);
+    }
+  }, [studentEdited, editedStudent, setstudentEdited]);
+
   // function getAllStudents
   async function getAllStudents() {
     try {
@@ -177,12 +223,15 @@ const StudentList = ({
   return (
     <div className="overflow-y-auto  mt-3 flex-1 flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings mb-2 grid grid-cols-5 w-full bg-gray-100">
+      <div className="table-headings mb-2 grid grid-cols-6 w-full bg-gray-100">
         <span className="py-3 px-5 text-left text-sm font-medium text-gray-600">
           Name
         </span>
         <span className="py-3 px-5 text-left text-sm font-medium text-gray-600">
           Affiliated to
+        </span>
+        <span className="py-3 px-5 text-left text-sm font-medium text-gray-600">
+          Batch
         </span>
         <span className="py-3 px-5 text-left text-sm font-medium text-gray-600">
           Gender
@@ -209,7 +258,6 @@ const StudentList = ({
           <p className="text-md">No Student Found</p>
         </div>
       )}
-
       {/* students list */}
       <div className="table-contents overflow-y-auto flex-1 grid grid-cols-1 grid-rows-7">
         {filteredStudents
@@ -220,7 +268,7 @@ const StudentList = ({
           .map((student: any) => (
             <div
               key={student?._id}
-              className="table-headings  grid grid-cols-5 items-center w-full border-b border-gray-100"
+              className="table-headings  grid grid-cols-6 items-center w-full border-b border-gray-100"
             >
               {/* student name */}
               <span className="py-1 px-5 text-left text-sm font-medium text-gray-600">
@@ -231,6 +279,10 @@ const StudentList = ({
                 {selectedAffiliatedTo.toLowerCase() == "hca"
                   ? "HCA"
                   : student?.projectName}
+              </span>
+              {/* Batch */}
+              <span className="py-1 px-5 text-left text-sm font-medium text-gray-600">
+                {student?.batchName ? student.batchName : "Not Selected"}
               </span>
               {/* Gender */}
               <span className="py-1 px-5 text-left text-sm font-medium text-gray-600">
@@ -283,8 +335,12 @@ const StudentList = ({
                       setnewStudentAdded={setnewStudentAdded}
                       newCreatedStudent={newCreatedStudent}
                       setnewCreatedStudent={setnewCreatedStudent}
-                      handleClose={handleClose}
+                      handleClose={handleEditModalClose}
                       initialData={selectedEditStudent}
+                      // boolean
+                      studentEdited={studentEdited}
+                      setstudentEdited={setstudentEdited}
+                      // object
                       editedStudent={editedStudent}
                       seteditedStudent={seteditedStudent}
                     />
