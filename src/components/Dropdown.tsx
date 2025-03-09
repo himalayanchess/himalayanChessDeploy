@@ -35,7 +35,6 @@ const Dropdown = ({
         menuPosition="fixed"
         className={`basic-single ${width && `w-${width}`}`}
         classNamePrefix="select"
-        isClearable={true} // Allow clearing the selection
       />
       {error && <p className="text-red-500 text-xs">{helperText}</p>}
     </div>

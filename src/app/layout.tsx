@@ -5,6 +5,9 @@ import { ToastContainer } from "react-toastify";
 import { SessionProvider } from "next-auth/react";
 import { createTheme } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
+import { Provider } from "react-redux";
+import { myStore } from "@/redux/store";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -41,10 +44,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider theme={theme}>
-          <SessionProvider>
-            <ToastContainer />
-            {children}
-          </SessionProvider>
+          <Provider store={myStore}>
+            <SessionProvider>
+              <ToastContainer />
+              {children}
+            </SessionProvider>
+          </Provider>
         </ThemeProvider>
       </body>
     </html>

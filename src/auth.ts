@@ -70,7 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   cookies: {
     sessionToken: {
-      name: "cyyy",
+      name: "myToken",
       options: {
         // httpOnly: true,
         path: "/",

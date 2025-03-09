@@ -1,12 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Button, Divider } from "@mui/material";
+import {
+  Divider,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Button,
+  Checkbox,
+} from "@mui/material";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import axios from "axios";
+import Input from "../Input";
 import { useForm, Controller } from "react-hook-form";
 import Dropdown from "../Dropdown";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+dayjs.extend(weekOfYear);
 
-const ManageClass = () => {
-  const [selectedContractType, setSelectedContractType] = useState("HCA");
+const ManageClass = ({ selectedDate }) => {
+  const [affiliatedTo, setaffiliatedTo] = useState("HCA");
+  const [holidayStatus, setholidayStatus] = useState(false);
   const [trainersList, setTrainersList] = useState([]);
   const [courseList, setCourseList] = useState([]);
   const [projectList, setProjectList] = useState([]);
@@ -15,6 +33,7 @@ const ManageClass = () => {
   const [allStudents, setallStudents] = useState([]);
   const [selectedBatchStudents, setselectedBatchStudents] = useState([]);
   const [batchId, setBatchId] = useState("");
+  const [projectId, setprojectId] = useState("");
 
   const {
     register,
@@ -26,6 +45,7 @@ const ManageClass = () => {
     watch,
   } = useForm({
     defaultValues: {
+      // pass date = selectedDate from state variable to server side
       trainerName: "",
       trainerId: "",
       courseName: "",
@@ -34,31 +54,64 @@ const ManageClass = () => {
       projectId: "",
       batchName: "",
       batchId: "",
+      startTime: "",
+      endTime: "",
+      // holiday status from state variable
+
+      holidayDescription: "",
     },
   });
+  // time order validation
+  const startTime = watch("startTime");
+  const endTime = watch("endTime");
+  // Validation for startTime should be before endTime
+  const validateTimeOrder = () => {
+    if (startTime && endTime && dayjs(startTime).isAfter(dayjs(endTime))) {
+      return "Invalid time slot";
+    }
+    return true;
+  };
 
   const handleContractTypeChange = (contract) => {
-    setSelectedContractType(contract);
+    setaffiliatedTo(contract);
   };
 
-  const onSubmit = (data) => {
-    console.log(data);
+  // form submit function (assign class)
+  const onSubmit = async (data) => {
+    try {
+      const { data: resData } = await axios.post("/api/classes/assignClass", {
+        ...data,
+        // date = selected date to get weekStartDate , weekEndDate, weekNumber in server side (assignClass route)
+        date: selectedDate,
+        holidayStatus,
+        affiliatedTo,
+      });
+      console.log({ ...data, date: selectedDate, holidayStatus, affiliatedTo });
+      console.log(resData);
+    } catch (error) {
+      console.log("Internal error in manageclass (assignclassroute)");
+    }
   };
 
-  // Reset form when selectedContractType changes
+  // Reset form when affiliatedTo changes
   useEffect(() => {
     reset({
       trainerName: "",
       trainerId: "",
       courseName: "",
       courseId: "",
-      projectName: selectedContractType === "School" ? "" : "",
-      projectId: selectedContractType === "School" ? "" : "",
+      projectName: affiliatedTo.toLowerCase() === "school" ? "" : "",
+      projectId: affiliatedTo.toLowerCase() === "school" ? "" : "",
       batchName: "",
       batchId: "",
+      startTime: "",
+      endTime: "",
+      // holiday status from state variable
+      holidayDescription: "",
     });
     setBatchId(""); // Reset batchId state
-  }, [selectedContractType, reset]);
+    setprojectId(""); // Reset projectId state
+  }, [affiliatedTo, holidayStatus, reset]);
 
   // Filter students based on batchId
   useEffect(() => {
@@ -72,20 +125,29 @@ const ManageClass = () => {
     }
   }, [batchId, allStudents]);
 
-  // Filter batches based on selectedContractType
+  // Filter batches based on affiliatedTo
   useEffect(() => {
+    console.log(projectId);
+
     let tempFilteredBatches;
-    if (selectedContractType.toLowerCase() === "hca") {
+    if (affiliatedTo.toLowerCase() === "hca") {
       tempFilteredBatches = allBatchList.filter(
         (batch) => batch?.affiliatedTo.toLowerCase() === "hca"
       );
-    } else if (selectedContractType.toLowerCase() === "school") {
+    } else if (affiliatedTo.toLowerCase() === "school") {
       tempFilteredBatches = allBatchList.filter(
         (batch) => batch?.affiliatedTo.toLowerCase() === "school"
       );
+      if (projectId !== "") {
+        tempFilteredBatches = tempFilteredBatches.filter(
+          (batch) => batch?.projectId === projectId
+        );
+      }
     }
+    console.log(tempFilteredBatches);
+
     setFilteredBatches(tempFilteredBatches || []);
-  }, [selectedContractType, allBatchList]);
+  }, [affiliatedTo, allBatchList, projectId]);
 
   const getInitialData = async () => {
     try {
@@ -132,37 +194,163 @@ const ManageClass = () => {
       className="bg-white px-4 rounded-lg"
     >
       {/* Project Selection */}
-      <div className="header flex items-center justify-between">
-        <h1 className="text-lg font-bold mb-2">
-          Assign Class for {selectedContractType}
-        </h1>
+      <div className="header flex justify-between items-center">
+        <h1 className="text-lg  font-bold ">Assign Class for {affiliatedTo}</h1>
         <Button type="submit" variant="contained">
           Assign
         </Button>
       </div>
-      <div className="flex gap-2 mb-4">
-        <Button
-          variant={selectedContractType === "HCA" ? "contained" : "outlined"}
-          color="success"
-          disableElevation
-          onClick={() => handleContractTypeChange("HCA")}
-        >
-          HCA
-        </Button>
-        <Button
-          variant={selectedContractType === "School" ? "contained" : "outlined"}
-          color="success"
-          disableElevation
-          onClick={() => handleContractTypeChange("School")}
-        >
-          School
-        </Button>
+      <p className="mb-2">
+        {dayjs(selectedDate).format("MMMM D, YYYY, dddd")}
+        <span className="ml-4">#Week{dayjs(selectedDate).week()}</span>
+      </p>
+      <div className=" flex justify-between gap-2 mb-2">
+        <div className="buttons flex gap-2 items-center">
+          <Button
+            variant={affiliatedTo === "HCA" ? "contained" : "outlined"}
+            color="success"
+            disableElevation
+            onClick={() => handleContractTypeChange("HCA")}
+          >
+            HCA
+          </Button>
+          <Button
+            variant={affiliatedTo === "School" ? "contained" : "outlined"}
+            color="success"
+            disableElevation
+            onClick={() => handleContractTypeChange("School")}
+          >
+            School
+          </Button>
+        </div>
+        {/* holiday status container */}
+        <div className="holiday-container">
+          <FormControlLabel
+            control={
+              <Radio
+                checked={!holidayStatus} // Holiday is selected when holidayStatus is true
+                onChange={() => {
+                  setholidayStatus(false);
+                }}
+                color="default"
+              />
+            }
+            label="Workday"
+          />
+          <FormControlLabel
+            control={
+              <Radio
+                checked={holidayStatus} // Holiday is selected when holidayStatus is true
+                onChange={() => {
+                  setholidayStatus(true);
+                }}
+                color="default"
+              />
+            }
+            label="Holiday"
+          />
+        </div>
       </div>
+      {/* holiday description if (holiday) */}
+      {holidayStatus && (
+        // holiday description
+        <Controller
+          name="holidayDescription"
+          control={control}
+          rules={{
+            required: "Description is required",
+          }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="text"
+              label="Holiday description"
+              error={errors.holidayDescription}
+              helperText={errors.holidayDescription?.message}
+              required={true}
+            />
+          )}
+        />
+      )}
 
+      {/*  start time end time (if not holiday) */}
+      {!holidayStatus && (
+        /* time slots */
+        <div className="timeSlots flex gap-2 mb-2">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Controller
+              name="startTime"
+              control={control}
+              rules={{
+                required: "Start time is required",
+                validate: validateTimeOrder,
+              }}
+              render={({ field }) => (
+                <TimePicker
+                  label="Start Time"
+                  value={field.value ? dayjs(field.value) : null}
+                  onChange={(newValue) => {
+                    field.onChange(newValue ? newValue.toISOString() : null);
+                  }}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.startTime,
+                      helperText: errors.startTime?.message,
+                      size: "small", // Decreases input size
+                      sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.8rem",
+                      height: "35px",
+                    },
+                  }}
+                />
+              )}
+            />
+          </LocalizationProvider>
+          {/*  end time */}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Controller
+              name="endTime"
+              control={control}
+              rules={{
+                required: "End time is required",
+                validate: validateTimeOrder,
+              }}
+              render={({ field }) => (
+                <TimePicker
+                  label="End Time"
+                  value={field.value ? dayjs(field.value) : null}
+                  onChange={(newValue) => {
+                    field.onChange(newValue ? newValue.toISOString() : null);
+                  }}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.endTime,
+                      helperText: errors.endTime?.message,
+                      size: "small", // Decreases input size
+                      sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.8rem",
+                      height: "35px",
+                    },
+                  }}
+                />
+              )}
+            />
+          </LocalizationProvider>
+        </div>
+      )}
+      {/* time selection */}
       {/* Dropdowns */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
         {/* Project Name (only shown for School) */}
-        {selectedContractType === "School" && (
+        {affiliatedTo === "School" && (
           <Controller
             name="projectName"
             control={control}
@@ -178,6 +366,7 @@ const ManageClass = () => {
                     (project) => project.name === value
                   );
                   setValue("projectId", selectedProject?._id || "");
+                  setprojectId(selectedProject?._id);
                 }}
                 error={errors.projectName}
                 helperText={errors.projectName?.message}
@@ -214,31 +403,6 @@ const ManageClass = () => {
           )}
         />
 
-        {/* Trainer Name */}
-        <Controller
-          name="trainerName"
-          control={control}
-          rules={{ required: "Trainer is required" }}
-          render={({ field }) => (
-            <Dropdown
-              label="Trainer name"
-              options={trainersList.map((trainer) => trainer.name)}
-              selected={field.value}
-              onChange={(value) => {
-                field.onChange(value);
-                const selectedTrainer = trainersList.find(
-                  (trainer) => trainer.name === value
-                );
-                setValue("trainerId", selectedTrainer?._id || "");
-              }}
-              error={errors.trainerName}
-              helperText={errors.trainerName?.message}
-              width="full"
-              required
-            />
-          )}
-        />
-
         {/* Course Name */}
         <Controller
           name="courseName"
@@ -263,10 +427,33 @@ const ManageClass = () => {
             />
           )}
         />
+
+        {/* Trainer Name */}
+        <Controller
+          name="trainerName"
+          control={control}
+          rules={{ required: "Trainer is required" }}
+          render={({ field }) => (
+            <Dropdown
+              label="Trainer name"
+              options={trainersList.map((trainer) => trainer.name)}
+              selected={field.value}
+              onChange={(value) => {
+                field.onChange(value);
+                const selectedTrainer = trainersList.find(
+                  (trainer) => trainer.name === value
+                );
+                setValue("trainerId", selectedTrainer?._id || "");
+              }}
+              error={errors.trainerName}
+              helperText={errors.trainerName?.message}
+              width="full"
+              required
+            />
+          )}
+        />
       </div>
-
       <Divider sx={{ margin: "1rem 0" }} />
-
       {/* Students List */}
       <div>
         <h1 className="text-lg font-bold mb-2">Students</h1>

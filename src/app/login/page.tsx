@@ -58,7 +58,7 @@ const page = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-screen bg-white w-screen">
       <div className="form-container w-full  lg:w-[35%] flex items-center justify-center">
         <form onSubmit={handleSubmit(onSubmit)} className="w-[70%]">
           <div className="mb-7">

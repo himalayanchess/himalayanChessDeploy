@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
@@ -19,6 +19,9 @@ import {
 import { Button, Divider } from "@mui/material";
 import ManageClass from "./ManageClass";
 import AssignedClasses from "./AssignedClasses";
+import { fetchAssignedClasses } from "@/redux/assignedClassesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import dayjs from "dayjs";
 
 // Sample data for events
 const events = {
@@ -75,6 +78,11 @@ const instituteColors = {
 };
 
 const AssignClass = ({ selectedBatch }) => {
+  const dis = useDispatch<any>();
+  const { allAssignedClasses, status, error } = useSelector(
+    (state) => state.assignedClassesReducer
+  );
+  const [filteredProjectNames, setfilteredProjectNames] = useState<any>([]);
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(today);
   const [selectedDate, setSelectedDate] = useState(today);
@@ -118,26 +126,53 @@ const AssignClass = ({ selectedBatch }) => {
     }
   }
 
+  useEffect(() => {
+    // Convert selectedDate to YYYY-MM-DD format using dayjs
+    const selectedDateISOString = dayjs(selectedDate).format("YYYY-MM-DD");
+
+    // Filter allAssignedClasses by the selectedDate
+    const filteredClasses = allAssignedClasses.filter((assignedClass) => {
+      // Convert assignedClass.date to YYYY-MM-DD format using dayjs
+      const assignedClassDate = dayjs(assignedClass.date).format("YYYY-MM-DD");
+
+      // Compare only the date part
+      return assignedClassDate === selectedDateISOString;
+    });
+
+    // - If affiliatedTo is "hca", we just add "hca"
+    // - If affiliatedTo is "school", we add the projectName
+    const uniqueProjectNames = [
+      ...new Set(
+        filteredClasses.map((assignedClass) =>
+          assignedClass?.affiliatedTo?.toLowerCase() === "hca"
+            ? "hca"
+            : assignedClass.projectName
+        )
+      ),
+    ];
+
+    setfilteredProjectNames(uniqueProjectNames); // Logs unique affiliations for the selectedDate
+  }, [selectedDate, allAssignedClasses]);
+
   return (
     <div className="flex-1 flex h-full gap-4 ">
       {/* Left Section (Calendar and Events) */}
       <div className="bg flex flex-col gap-2">
         {/* Today's Classes Section */}
         <div className="bg-gray-100 p-2 px-4 h-[25%] overflow-y-auto rounded-lg ">
-          <h3 className="text-lg font-bold">Today's Classes</h3>
+          <h3 className="text-lg font-bold mb-1 ">Today's Classes</h3>
+
           {selectedDate ? (
-            events[format(selectedDate, "yyyy-MM-dd")] ? (
-              events[format(selectedDate, "yyyy-MM-dd")].map((event, index) => (
-                <div key={index} className="mb-2">
-                  <div className="text-sm font-semibold">{event.institute}</div>
-                  <div className="text-sm text-gray-600">{event.note}</div>
-                </div>
-              ))
-            ) : (
-              <div className="text-sm text-gray-600">
-                No events for this day.
-              </div>
-            )
+            <div className="uniqueprojects flex gap-2">
+              {filteredProjectNames?.map((uniqueProject) => (
+                <p
+                  key={uniqueProject}
+                  className="bg-gray-500 text-white w-max rounded-full px-3 py-1 text-sm"
+                >
+                  {uniqueProject}
+                </p>
+              ))}
+            </div>
           ) : (
             <div className="text-sm text-gray-600">
               Select a date to view events.
@@ -204,25 +239,30 @@ const AssignClass = ({ selectedBatch }) => {
               const isTodayDate = day ? isToday(day) : false;
               const isSelectedDate =
                 day && selectedDate && isSameDay(day, selectedDate);
+              const isCurrentMonth = day && isSameMonth(day, monthStart);
 
               return (
                 <div
                   key={i}
                   className={`aspect-square cursor-pointer relative flex flex-col items-center justify-center text-sm rounded ${
-                    !day || !isSameMonth(day, monthStart) ? "bg-gray-100" : ""
+                    !isCurrentMonth
+                      ? "bg-gray-100 opacity-50 pointer-events-none"
+                      : ""
                   } ${isTodayDate ? "border-2 border-blue-500" : ""} ${
                     isSelectedDate ? "bg-blue-100" : ""
                   }`}
-                  onClick={() => handleDateClick(day)}
+                  onClick={
+                    isCurrentMonth ? () => handleDateClick(day) : undefined
+                  }
                 >
                   {day && <div>{format(day, "d")}</div>}
-                  <div className="absolute -top-0.5 left-0.5 flex mt-1 ">
+                  <div className="absolute -top-0.5 left-0.5 flex mt-1">
                     {dayEvents.map((event, index) => (
                       <div
                         key={index}
                         className={`${
                           instituteColors[event.institute]
-                        } w-1.5 h-1.5 rounded-full mr-1 `}
+                        } w-1.5 h-1.5 rounded-full mr-1`}
                       ></div>
                     ))}
                   </div>
@@ -235,12 +275,16 @@ const AssignClass = ({ selectedBatch }) => {
 
       {/* Middle Section (ManageClass) */}
       <div className="flex-1 w-full ">
-        {!selectedBatch ? <p>Batch not selected</p> : <ManageClass />}
+        {!selectedBatch ? (
+          <p>Batch not selected</p>
+        ) : (
+          <ManageClass selectedDate={selectedDate} />
+        )}
       </div>
 
       {/* Rignt Section (AssignedClasses) */}
       <div className="flex-[0.5] w-full ">
-        <AssignedClasses />
+        <AssignedClasses selectedDate={selectedDate} />
       </div>
     </div>
   );
