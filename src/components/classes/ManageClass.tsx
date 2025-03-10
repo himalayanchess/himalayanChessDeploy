@@ -20,9 +20,19 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import { notify } from "@/helpers/notify";
+import { useDispatch } from "react-redux";
+import { addActiveAssignedClass } from "@/redux/assignedClassesSlice";
+import utc from "dayjs/plugin/utc";
+import { fetchAllTrainers } from "@/redux/allListSlice";
+
 dayjs.extend(weekOfYear);
+dayjs.extend(utc);
 
 const ManageClass = ({ selectedDate }) => {
+  console.log("selectedDate", selectedDate);
+
+  const dis = useDispatch<any>();
   const [affiliatedTo, setaffiliatedTo] = useState("HCA");
   const [holidayStatus, setholidayStatus] = useState(false);
   const [trainersList, setTrainersList] = useState([]);
@@ -34,6 +44,10 @@ const ManageClass = ({ selectedDate }) => {
   const [selectedBatchStudents, setselectedBatchStudents] = useState([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
+
+  const selectedDateUTC = dayjs(selectedDate).startOf("day");
+  const todayUTC = dayjs().startOf("day");
+  const isPastDate = selectedDateUTC.isBefore(todayUTC, "day");
 
   const {
     register,
@@ -86,8 +100,15 @@ const ManageClass = ({ selectedDate }) => {
         holidayStatus,
         affiliatedTo,
       });
-      console.log({ ...data, date: selectedDate, holidayStatus, affiliatedTo });
-      console.log(resData);
+      if (resData.statusCode === 200) {
+        // Notify success
+        notify(resData.msg, resData.statusCode);
+
+        // Dispatch the action to update Redux state
+        dis(addActiveAssignedClass(resData.savedNewAssignClass));
+      } else {
+        notify(resData.msg, resData.statusCode);
+      }
     } catch (error) {
       console.log("Internal error in manageclass (assignclassroute)");
     }
@@ -184,8 +205,10 @@ const ManageClass = ({ selectedDate }) => {
     }
   };
 
+  // initial data
   useEffect(() => {
     getInitialData();
+    dis(fetchAllTrainers());
   }, []);
 
   return (
@@ -196,6 +219,7 @@ const ManageClass = ({ selectedDate }) => {
       {/* Project Selection */}
       <div className="header flex justify-between items-center">
         <h1 className="text-lg  font-bold ">Assign Class for {affiliatedTo}</h1>
+        {/* <Button type="submit" variant="contained" disabled={isPastDate}> */}
         <Button type="submit" variant="contained">
           Assign
         </Button>

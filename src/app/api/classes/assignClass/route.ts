@@ -34,11 +34,11 @@ export async function POST(request: NextRequest) {
     const weekNumber = dayjs(date).week();
     const weekStartDate = dayjs(date).startOf("isoWeek").toISOString();
     const weekEndDate = dayjs(date).endOf("isoWeek").toISOString();
+    console.log(date);
 
     // check if class already assignted to (date,trainer,batch)
     const classExists = await ActivityRecord.exists({
       date,
-      trainerId,
       batchId,
     });
     if (classExists) {

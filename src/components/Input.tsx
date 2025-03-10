@@ -15,7 +15,7 @@ const Input = ({
 }) => {
   const [showPassword, setshowPassword] = useState(false);
   return (
-    <div>
+    <div className="w-full">
       <label htmlFor={label} className="text-sm block flex ">
         {label} {required && "*"}
         {type == "password" &&

@@ -76,8 +76,7 @@ const AddStudent = ({
             phone: "",
             joinedDate: "",
             endDate: "",
-            batchId: "",
-            batchName: "",
+            batches: [],
             projectId: "",
             projectName: "",
             fideId: 0,
@@ -95,6 +94,17 @@ const AddStudent = ({
         : { ...initialData },
   });
   const { errors } = formState;
+
+  // Handle batches dynamically
+  const {
+    fields: batchesFields,
+    append: appendBatch,
+    remove: removeBatch,
+  } = useFieldArray({
+    control,
+    name: "batches",
+  });
+
   // Handle enrolledCourses dynamically
   const { fields, append, remove } = useFieldArray({
     control,
@@ -111,6 +121,18 @@ const AddStudent = ({
   // Function to check for duplicate courses
   const isDuplicateCourse = (course: string) => {
     return enrolledCourses.filter((c) => c.course === course).length > 1;
+  };
+
+  // Function to add a new batch
+  const addBatch = () => {
+    appendBatch({ batchId: "", batchName: "", startDate: "", endDate: "" });
+  };
+  // Watch batches for validation
+  const batches = watch("batches");
+
+  // Function to check for duplicate courses
+  const isDuplicateBatch = (batchName: string) => {
+    return batches.filter((c) => c.batchName === batchName).length > 1;
   };
 
   // onSubmit Function
@@ -638,6 +660,113 @@ const AddStudent = ({
             </div>
           </div>
         )}
+
+        {/* batches */}
+        <div className="enrolledcourses col-span-2">
+          <div className="flex items-center">
+            <h3 className="text-lg text-gray-500 font-semibold mr-2">
+              Batches
+            </h3>
+          </div>
+          {batchesFields.length === 0 && (
+            <p className="text-gray-500 mb-2  ">No Batch yet.</p>
+          )}
+          {batchesFields.map((batch, index) => (
+            <div key={batch?.id} className="col-span-2 mb-2">
+              <div className="grid grid-cols-4 items-center place-items-start gap-4">
+                {/* batch name Selection */}
+                <Controller
+                  name={`batches.${index}.batchName`}
+                  control={control}
+                  rules={{
+                    required: "Batch is required",
+                    validate: (value) =>
+                      (value && !isDuplicateBatch(value, index)) ||
+                      "Duplicate batch selected",
+                  }}
+                  render={({ field }) => (
+                    <Dropdown
+                      label="Batch"
+                      options={
+                        selectedAffiliatedTo?.toLowerCase() == "hca"
+                          ? hcaBatchList.map((batch) => batch.batchName)
+                          : schoolBatchList.map((batch) => batch.batchName)
+                      }
+                      selected={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        let selectedBatchList =
+                          selectedAffiliatedTo.toLowerCase() == "hca"
+                            ? hcaBatchList
+                            : schoolBatchList;
+                        const selectedBatch = selectedBatchList.find(
+                          (batch) => batch.batchName == value
+                        );
+                        setValue(`batches.${index}.batchId`, selectedBatch._id);
+                      }}
+                      width="full"
+                      error={errors?.batches?.[index]?.batchName}
+                      helperText={errors?.batches?.[index]?.batchName?.message}
+                    />
+                  )}
+                />
+                {/* batch start date */}
+                <Controller
+                  name={`batches.${index}.startDate`}
+                  control={control}
+                  rules={{
+                    required: "Date is required",
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Start date"
+                      type="date"
+                      required={true}
+                      error={errors?.batches?.[index]?.startDate}
+                      helperText={errors?.batches?.[index]?.startDate?.message}
+                      width="full"
+                    />
+                  )}
+                />{" "}
+                {/* batch end date */}
+                <Controller
+                  name={`batches.${index}.endDate`}
+                  control={control}
+                  rules={
+                    {
+                      // required: "Date is required",
+                    }
+                  }
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="End date"
+                      type="date"
+                      required={true}
+                      error={errors?.batches?.[index]?.endDate}
+                      helperText={errors?.batches?.[index]?.endDate?.message}
+                      width="full"
+                    />
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeBatch(index)}
+                  className="text-red-500  "
+                >
+                  <DeleteIcon sx={{ fontSize: "1.5rem" }} />
+                  <span className="text-sm">Delete</span>
+                </button>
+              </div>
+            </div>
+          ))}
+          {/* add course button */}
+          <Button title="Add Batch" variant="outlined" onClick={addBatch}>
+            <AddIcon />
+            <span>Add batch</span>
+          </Button>
+        </div>
 
         {/* enrolled courses */}
         {selectedAffiliatedTo.toLowerCase() == "hca" && (

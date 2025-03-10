@@ -23,63 +23,15 @@ import { fetchAssignedClasses } from "@/redux/assignedClassesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 
-// Sample data for events
-const events = {
-  "2025-03-03": [
-    {
-      institute: "HCA",
-      note: "Conference All Day Event",
-      batch: "Batch A",
-      trainer: "John Doe",
-      course: "Mathematics",
-    },
-  ],
-  "2025-03-09": [
-    {
-      institute: "HCA",
-      note: "Conference All Day Event",
-      batch: "Batch A",
-      trainer: "John Doe",
-      course: "Mathematics",
-    },
-    {
-      institute: "School 1",
-      note: "Workshop",
-      batch: "Batch B",
-      trainer: "Jane Smith",
-      course: "Science",
-    },
-  ],
-  "2025-03-04": [
-    {
-      institute: "School 1",
-      note: "10:30a Meeting",
-      batch: "Batch C",
-      trainer: "Alice Johnson",
-      course: "History",
-    },
-  ],
-  "2025-03-16": [
-    {
-      institute: "School 2",
-      note: "Repeating Event",
-      batch: "Batch D",
-      trainer: "Bob Brown",
-      course: "Geography",
-    },
-  ],
-};
-
 // Color coding for institutes
 const instituteColors = {
-  HCA: "bg-blue-500",
-  "School 1": "bg-green-500",
-  "School 2": "bg-yellow-500",
+  hca: "bg-blue-100",
+  school: "bg-yellow-100",
 };
 
 const AssignClass = ({ selectedBatch }) => {
   const dis = useDispatch<any>();
-  const { allAssignedClasses, status, error } = useSelector(
+  const { allActiveAssignedClasses, status, error } = useSelector(
     (state) => state.assignedClassesReducer
   );
   const [filteredProjectNames, setfilteredProjectNames] = useState<any>([]);
@@ -112,7 +64,6 @@ const AssignClass = ({ selectedBatch }) => {
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
-
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
   // Ensure there are always 42 cells (7 columns x 6 rows)
@@ -130,8 +81,8 @@ const AssignClass = ({ selectedBatch }) => {
     // Convert selectedDate to YYYY-MM-DD format using dayjs
     const selectedDateISOString = dayjs(selectedDate).format("YYYY-MM-DD");
 
-    // Filter allAssignedClasses by the selectedDate
-    const filteredClasses = allAssignedClasses.filter((assignedClass) => {
+    // Filter allActiveAssignedClasses by the selectedDate
+    const filteredClasses = allActiveAssignedClasses.filter((assignedClass) => {
       // Convert assignedClass.date to YYYY-MM-DD format using dayjs
       const assignedClassDate = dayjs(assignedClass.date).format("YYYY-MM-DD");
 
@@ -145,33 +96,37 @@ const AssignClass = ({ selectedBatch }) => {
       ...new Set(
         filteredClasses.map((assignedClass) =>
           assignedClass?.affiliatedTo?.toLowerCase() === "hca"
-            ? "hca"
+            ? "HCA"
             : assignedClass.projectName
         )
       ),
     ];
 
     setfilteredProjectNames(uniqueProjectNames); // Logs unique affiliations for the selectedDate
-  }, [selectedDate, allAssignedClasses]);
+  }, [selectedDate, allActiveAssignedClasses]);
 
   return (
     <div className="flex-1 flex h-full gap-4 ">
       {/* Left Section (Calendar and Events) */}
       <div className="bg flex flex-col gap-2">
         {/* Today's Classes Section */}
-        <div className="bg-gray-100 p-2 px-4 h-[25%] overflow-y-auto rounded-lg ">
+        <div className="bg-gray-100 p-2 px-4 h-[25%] w-[330px]  overflow-y-auto rounded-lg ">
           <h3 className="text-lg font-bold mb-1 ">Today's Classes</h3>
 
           {selectedDate ? (
-            <div className="uniqueprojects flex gap-2">
-              {filteredProjectNames?.map((uniqueProject) => (
-                <p
-                  key={uniqueProject}
-                  className="bg-gray-500 text-white w-max rounded-full px-3 py-1 text-sm"
-                >
-                  {uniqueProject}
-                </p>
-              ))}
+            <div className="uniqueprojects flex flex-wrap gap-2">
+              {filteredProjectNames.length == 0 ? (
+                <p className="text-sm text-gray-500">Class not assigned</p>
+              ) : (
+                filteredProjectNames?.map((uniqueProject) => (
+                  <p
+                    key={uniqueProject}
+                    className={`bg-gray-400 text-white w-max rounded-full px-3 py-1 text-sm`}
+                  >
+                    {uniqueProject}
+                  </p>
+                ))
+              )}
             </div>
           ) : (
             <div className="text-sm text-gray-600">
@@ -235,7 +190,6 @@ const AssignClass = ({ selectedBatch }) => {
             {/* Calendar Cells */}
             {calendarDays.map((day, i) => {
               const dayKey = day ? format(day, "yyyy-MM-dd") : null;
-              const dayEvents = dayKey ? events[dayKey] || [] : [];
               const isTodayDate = day ? isToday(day) : false;
               const isSelectedDate =
                 day && selectedDate && isSameDay(day, selectedDate);
@@ -256,16 +210,6 @@ const AssignClass = ({ selectedBatch }) => {
                   }
                 >
                   {day && <div>{format(day, "d")}</div>}
-                  <div className="absolute -top-0.5 left-0.5 flex mt-1">
-                    {dayEvents.map((event, index) => (
-                      <div
-                        key={index}
-                        className={`${
-                          instituteColors[event.institute]
-                        } w-1.5 h-1.5 rounded-full mr-1`}
-                      ></div>
-                    ))}
-                  </div>
                 </div>
               );
             })}

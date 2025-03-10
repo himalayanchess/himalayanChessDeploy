@@ -65,6 +65,8 @@ const ActivityRecordSchema = new mongoose.Schema(
     studentRecords: {
       type: Array,
     },
+    trainerPresentStatus: { type: String, enum: ["present", "absent"] },
+    activeStatus: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

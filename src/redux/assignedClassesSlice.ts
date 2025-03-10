@@ -17,13 +17,26 @@ export const fetchAssignedClasses = createAsyncThunk(
 );
 
 const assignedClassesSlice = createSlice({
-  name: "chat-slice",
+  name: "assignClass",
   initialState: {
     allAssignedClasses: [],
+    allActiveAssignedClasses: [],
     status: "idle", // "idle" | "loading" | "succeeded" | "failed"
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // append new assigned class
+    addActiveAssignedClass: (state, action) => {
+      state.allActiveAssignedClasses.push(action.payload);
+    },
+    // remove class from active assigned class
+    removeActiveAssignedClass: (state, action) => {
+      const classId = action.payload._id; // Destructure classId from payload
+      state.allActiveAssignedClasses = state.allActiveAssignedClasses.filter(
+        (assignedClass) => assignedClass?._id !== classId // Ensure proper comparison
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAssignedClasses.pending, (state) => {
@@ -31,7 +44,13 @@ const assignedClassesSlice = createSlice({
       })
       .addCase(fetchAssignedClasses.fulfilled, (state, action) => {
         state.status = "succeeded";
+        // set all assigned classes
         state.allAssignedClasses = action.payload;
+
+        // set all (active) assigned classes
+        state.allActiveAssignedClasses = action.payload.filter(
+          (assignedClass) => assignedClass?.activeStatus === true
+        );
       })
       .addCase(fetchAssignedClasses.rejected, (state, action) => {
         state.status = "failed";
@@ -40,6 +59,7 @@ const assignedClassesSlice = createSlice({
   },
 });
 
-export const {} = assignedClassesSlice.actions;
+export const { addActiveAssignedClass, removeActiveAssignedClass } =
+  assignedClassesSlice.actions;
 
 export default assignedClassesSlice.reducer;
