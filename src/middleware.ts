@@ -52,5 +52,11 @@ export async function middleware(request: NextRequest) {
 
 // Match paths where middleware should be applied
 export const config = {
-  matcher: ["/", "/login", "/admin/:path*", "/superadmin/:path*"],
+  matcher: [
+    "/",
+    "/login",
+    "/admin/:path*",
+    "/superadmin/:path*",
+    "/trainer/:path*",
+  ],
 };

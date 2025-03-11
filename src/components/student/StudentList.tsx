@@ -282,12 +282,17 @@ const StudentList = ({
               </span>
               {/* Batch */}
               <div className="py-1 px-5 text-left text-sm font-medium text-gray-600">
-                {student?.batches?.length == 0
+                {student?.batches?.filter(
+                  (batch) => batch.activeStatus && !batch.endDate // Exclude completed batches
+                ).length === 0
                   ? "Not Selected"
-                  : student?.batches?.map((batch) => (
-                      <p key={batch?.batchId}>{batch?.batchName}</p>
-                    ))}
+                  : student?.batches
+                      ?.filter((batch) => batch.activeStatus && !batch.endDate) // Only show active, non-completed batches
+                      .map((batch) => (
+                        <p key={batch?.batchId}>{batch?.batchName}</p>
+                      ))}
               </div>
+
               {/* Gender */}
               <span className="py-1 px-5 text-left text-sm font-medium text-gray-600">
                 {student?.gender}

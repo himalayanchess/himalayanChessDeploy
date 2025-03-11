@@ -73,6 +73,7 @@ const ManageClass = ({ selectedDate }) => {
       // holiday status from state variable
 
       holidayDescription: "",
+      trainerPresentStatus: "absent",
     },
   });
   // time order validation
@@ -99,6 +100,7 @@ const ManageClass = ({ selectedDate }) => {
         date: selectedDate,
         holidayStatus,
         affiliatedTo,
+        trainerPresentStatus: holidayStatus ? "holiday" : "absent",
       });
       if (resData.statusCode === 200) {
         // Notify success
@@ -129,16 +131,21 @@ const ManageClass = ({ selectedDate }) => {
       endTime: "",
       // holiday status from state variable
       holidayDescription: "",
+      trainerPresentStatus: "absent",
     });
     setBatchId(""); // Reset batchId state
     setprojectId(""); // Reset projectId state
   }, [affiliatedTo, holidayStatus, reset]);
 
-  // Filter students based on batchId
   useEffect(() => {
     if (batchId !== "") {
-      const tempAllStudents = allStudents.filter(
-        (student) => student.batches.some((batch) => batch.batchId == batchId) // Check if any batch has the selected batchId
+      const tempAllStudents = allStudents.filter((student) =>
+        student.batches.some(
+          (batch) =>
+            batch.batchId == batchId &&
+            batch.activeStatus && // Ensure batch is active
+            !batch.endDate // Exclude completed batches
+        )
       );
       setselectedBatchStudents(tempAllStudents);
     } else {
@@ -190,7 +197,11 @@ const ManageClass = ({ selectedDate }) => {
       const { data: batchResData } = await axios.get(
         "/api/batches/getAllBatches"
       );
-      setallBatchList(batchResData.allBatches);
+
+      let tempAllBatches = batchResData.allBatches.filter(
+        (batch) => batch.activeStatus == true
+      );
+      setallBatchList(tempAllBatches);
 
       const { data: allStudentsResData } = await axios.get(
         "/api/students/getAllStudents"

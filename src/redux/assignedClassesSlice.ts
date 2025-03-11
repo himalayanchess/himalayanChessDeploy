@@ -27,6 +27,8 @@ const assignedClassesSlice = createSlice({
   reducers: {
     // append new assigned class
     addActiveAssignedClass: (state, action) => {
+      console.log("assignedddddddddddddddddddd", action.payload);
+
       state.allActiveAssignedClasses.push(action.payload);
     },
     // remove class from active assigned class

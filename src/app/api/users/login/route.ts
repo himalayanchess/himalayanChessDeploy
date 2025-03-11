@@ -10,6 +10,13 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { email, password } = reqBody;
     const fetchedUser = await User.findOne({ email });
+    console.log(
+      "asdfashdfp asjdfpkasdf;lasjdf[o",
+      email,
+      password,
+      fetchedUser
+    );
+
     // user not found
     if (!fetchedUser) {
       return NextResponse.json({

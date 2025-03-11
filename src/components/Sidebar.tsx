@@ -7,8 +7,10 @@ import Link from "next/link";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { signOut } from "next-auth/react";
 import { Box, Button, Modal } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 const Sidebar = ({ menuItems, role, activeMenu }) => {
+  const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [signoutModalOpen, setsignoutModalOpen] = useState(false);
@@ -112,7 +114,12 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
                   variant="contained"
                   size="medium"
                   color="error"
-                  onClick={() => signOut()}
+                  onClick={() => {
+                    console.log("logout");
+
+                    signOut();
+                    router.push("/login");
+                  }}
                   sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
                 >
                   {/* <DeleteForeverOutlinedIcon /> */}

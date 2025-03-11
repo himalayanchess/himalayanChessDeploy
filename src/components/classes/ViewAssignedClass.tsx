@@ -256,26 +256,37 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
               />
             )}
           />
+
           {/* trainer present status */}
-          <Controller
-            name="trainerPresentStatus"
-            control={control}
-            rules={{ required: "Attendance is required" }}
-            render={({ field }) => (
-              <Dropdown
-                label="Attendance"
-                options={presentStatusOptions}
-                selected={field.value}
-                onChange={(value) => {
-                  field.onChange(value);
-                }}
-                error={errors.trainerPresentStatus}
-                helperText={errors.trainerPresentStatus?.message}
-                width="full"
-                required
-              />
-            )}
-          />
+          {assignedClass?.holidayStatus ? (
+            <Input
+              label="Attendance"
+              value={assignedClass?.trainerPresentStatus}
+              onChange={() => {}}
+              disabled
+              required={true}
+            />
+          ) : (
+            <Controller
+              name="trainerPresentStatus"
+              control={control}
+              rules={{ required: "Attendance is required" }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Attendance"
+                  options={presentStatusOptions}
+                  selected={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  error={errors.trainerPresentStatus}
+                  helperText={errors.trainerPresentStatus?.message}
+                  width="full"
+                  required
+                />
+              )}
+            />
+          )}
         </div>
       </div>
     </form>

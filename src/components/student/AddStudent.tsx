@@ -91,7 +91,10 @@ const AddStudent = ({
             emergencyContactName: "",
             emergencyContactNo: "",
           }
-        : { ...initialData },
+        : {
+            ...initialData,
+            batches: initialData?.batches.filter((batch) => batch.activeStatus),
+          },
   });
   const { errors } = formState;
 

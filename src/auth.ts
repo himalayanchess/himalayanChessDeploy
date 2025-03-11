@@ -21,13 +21,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async ({ email, password }) => {
         await dbconnect();
+
         const fetchedUser = await User.findOne({ email });
         // checks are done in login route (repeated here) was giving response as configuartin,200
         // // Check if user exists
         if (!fetchedUser) {
           throw new Error("User not found");
         }
-        console.log("asasd", fetchedUser.activeStatus);
+        console.log("asasd", fetchedUser);
 
         //check users activeStatus
         if (!fetchedUser?.activeStatus) {

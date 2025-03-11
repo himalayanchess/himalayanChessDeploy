@@ -85,7 +85,10 @@ const AssignedClasses = ({ selectedDate }) => {
                       assignedClass?.trainerPresentStatus?.toLowerCase() ==
                       "present"
                         ? " bg-green-400 text-white "
-                        : " bg-red-400 text-white "
+                        : assignedClass?.trainerPresentStatus?.toLowerCase() ==
+                          "absent"
+                        ? " bg-red-400 text-white "
+                        : " bg-gray-400 text-white "
                     } `}
                   >
                     {assignedClass?.trainerPresentStatus}
