@@ -6,12 +6,17 @@ const NonAffiliatedStudentSchema = new mongoose.Schema(
     name: { type: String }, // Name of the student
     dob: { type: String }, // Date of birth of the student
     gender: { type: String }, // Gender of the student
-    batchId: {
-      type: mongoose.Schema.Types.Mixed,
-      ref: "Batch",
-      //   required: true,
-    }, // Reference to the Batch model
-    batchName: { type: String },
+    batches: {
+      type: [
+        {
+          batchId: { type: mongoose.Schema.Types.Mixed, ref: "Batch" },
+          batchName: { type: String },
+          startDate: { type: Date },
+          endDate: { type: Date },
+          activeStatus: { type: Boolean, default: true }, // delete status
+        },
+      ],
+    },
     joinedDate: { type: String }, // Date when the student joined
     endDate: { type: String }, // End date of the student's association
     projectId: {

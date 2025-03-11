@@ -13,6 +13,7 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
           batchName: { type: String },
           startDate: { type: Date },
           endDate: { type: Date },
+          activeStatus: { type: Boolean, default: true }, // delete status
         },
       ],
     },

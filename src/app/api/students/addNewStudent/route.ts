@@ -16,8 +16,7 @@ export async function POST(req: NextRequest) {
       phone,
       joinedDate,
       endDate,
-      batchId,
-      batchName,
+      batches,
       projectId,
       projectName,
       fideId,
@@ -50,39 +49,33 @@ export async function POST(req: NextRequest) {
     if (selectedAffiliatedTo?.toLowerCase() == "hca") {
       console.log(reqBody);
 
-      // const newStudent = new HcaAffiliatedStudent({
-      //   affiliatedTo,
-      //   name,
-      //   dob,
-      //   gender,
-      //   batchId,
-      //   batchName,
-      //   joinedDate,
-      //   endDate,
-      //   address,
-      //   phone,
-      //   completedStatus,
-      //   title,
-      //   fideId,
-      //   rating,
-      //   guardianInfo,
-      //   emergencyContactName,
-      //   emergencyContactNo,
-      //   enrolledCourses,
-      // });
-      // const savedNewStudent = await newStudent.save();
-      // if (savedNewStudent) {
-      //   return NextResponse.json({
-      //     statusCode: 200,
-      //     msg: "New Student added",
-      //     savedNewStudent,
-      //   });
-      // }
-      return NextResponse.json({
-        statusCode: 200,
-        msg: "New Student added",
-        // savedNewStudent,
+      const newStudent = new HcaAffiliatedStudent({
+        affiliatedTo,
+        name,
+        dob,
+        gender,
+        batches,
+        joinedDate,
+        endDate,
+        address,
+        phone,
+        completedStatus,
+        title,
+        fideId,
+        rating,
+        guardianInfo,
+        emergencyContactName,
+        emergencyContactNo,
+        enrolledCourses,
       });
+      const savedNewStudent = await newStudent.save();
+      if (savedNewStudent) {
+        return NextResponse.json({
+          statusCode: 200,
+          msg: "New Student added",
+          savedNewStudent,
+        });
+      }
     }
     // add student accoring to selectedAffiliatedTo (school)
     if (selectedAffiliatedTo?.toLowerCase() == "school") {
@@ -91,8 +84,7 @@ export async function POST(req: NextRequest) {
         name,
         dob,
         gender,
-        batchId,
-        batchName,
+        batches,
         joinedDate,
         endDate,
         projectId,

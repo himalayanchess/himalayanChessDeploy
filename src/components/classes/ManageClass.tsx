@@ -138,7 +138,7 @@ const ManageClass = ({ selectedDate }) => {
   useEffect(() => {
     if (batchId !== "") {
       const tempAllStudents = allStudents.filter(
-        (student) => student?.batchId === batchId
+        (student) => student.batches.some((batch) => batch.batchId == batchId) // Check if any batch has the selected batchId
       );
       setselectedBatchStudents(tempAllStudents);
     } else {
@@ -484,9 +484,14 @@ const ManageClass = ({ selectedDate }) => {
         {selectedBatchStudents.length === 0 ? (
           <p>No Students</p>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex gap-4">
             {selectedBatchStudents.map((student, i) => (
-              <p key={i}>{student.name}</p>
+              <p
+                key={i}
+                className="border px-4 rounded-full text-sm shadow-md py-1"
+              >
+                {student.name}
+              </p>
             ))}
           </div>
         )}

@@ -11,7 +11,10 @@ import { useDispatch, useSelector } from "react-redux";
 import Input from "../Input";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
-import { removeActiveAssignedClass } from "@/redux/assignedClassesSlice";
+import {
+  removeActiveAssignedClass,
+  updateActiveAssignedClass,
+} from "@/redux/assignedClassesSlice";
 import { trainerRoleOptions } from "@/options/projectOptions";
 import { presentStatusOptions } from "@/options/activitiyRecordOptions";
 
@@ -54,7 +57,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
       // pass date = selectedDate from state variable to server side
       trainerName: assignedClass?.trainerName,
       trainerId: assignedClass?.trainerId,
-      trainerPresentStatus: "absent",
+      trainerPresentStatus: assignedClass?.trainerPresentStatus,
     },
   });
 
@@ -82,7 +85,11 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
         ...assignedClass,
         ...data,
       });
-      console.log(resData);
+      if (resData?.statusCode == 200) {
+        handleClose();
+        dis(updateActiveAssignedClass(resData?.updatedClass));
+      }
+      notify(resData?.msg, resData?.statusCode);
     } catch (error) {
       console.log("Error in ViewAssignedClass component (editclass)", error);
     }

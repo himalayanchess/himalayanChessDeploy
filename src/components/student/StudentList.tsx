@@ -281,9 +281,13 @@ const StudentList = ({
                   : student?.projectName}
               </span>
               {/* Batch */}
-              <span className="py-1 px-5 text-left text-sm font-medium text-gray-600">
-                {student?.batchName ? student.batchName : "Not Selected"}
-              </span>
+              <div className="py-1 px-5 text-left text-sm font-medium text-gray-600">
+                {student?.batches?.length == 0
+                  ? "Not Selected"
+                  : student?.batches?.map((batch) => (
+                      <p key={batch?.batchId}>{batch?.batchName}</p>
+                    ))}
+              </div>
               {/* Gender */}
               <span className="py-1 px-5 text-left text-sm font-medium text-gray-600">
                 {student?.gender}

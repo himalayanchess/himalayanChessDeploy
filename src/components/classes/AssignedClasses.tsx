@@ -70,11 +70,26 @@ const AssignedClasses = ({ selectedDate }) => {
                 onClick={() => handleEditAssignedModalOpen(assignedClass)} // Pass the assignedClass to the handler
               >
                 <p className="text-sm">{assignedClass?.batchName}</p>
-                <div className="trainer">
-                  <AccountCircleIcon sx={{ fontSize: "1rem", color: "gray" }} />
-                  <span className="ml-0.5 text-xs text-gray-500">
-                    {assignedClass?.trainerName}
-                  </span>
+
+                <div className="trainer-attendance flex justify-between items-center">
+                  <div className="trainer">
+                    <AccountCircleIcon
+                      sx={{ fontSize: "1rem", color: "gray" }}
+                    />
+                    <span className="ml-0.5 text-xs text-gray-500">
+                      {assignedClass?.trainerName}
+                    </span>
+                  </div>
+                  <p
+                    className={`text-xs px-2 rounded-full py-0.5 w-max ${
+                      assignedClass?.trainerPresentStatus?.toLowerCase() ==
+                      "present"
+                        ? " bg-green-400 text-white "
+                        : " bg-red-400 text-white "
+                    } `}
+                  >
+                    {assignedClass?.trainerPresentStatus}
+                  </p>
                 </div>
               </div>
 

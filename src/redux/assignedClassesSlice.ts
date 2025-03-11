@@ -31,9 +31,23 @@ const assignedClassesSlice = createSlice({
     },
     // remove class from active assigned class
     removeActiveAssignedClass: (state, action) => {
-      const classId = action.payload._id; // Destructure classId from payload
+      const classId = action.payload._id;
       state.allActiveAssignedClasses = state.allActiveAssignedClasses.filter(
         (assignedClass) => assignedClass?._id !== classId // Ensure proper comparison
+      );
+    },
+    // update class from active assigned class
+    updateActiveAssignedClass: (state, action) => {
+      const classId = action.payload._id;
+
+      state.allActiveAssignedClasses = state.allActiveAssignedClasses.map(
+        (assignedClass) => {
+          if (assignedClass?._id != classId) {
+            return assignedClass;
+          } else {
+            return action.payload;
+          }
+        }
       );
     },
   },
@@ -59,7 +73,10 @@ const assignedClassesSlice = createSlice({
   },
 });
 
-export const { addActiveAssignedClass, removeActiveAssignedClass } =
-  assignedClassesSlice.actions;
+export const {
+  addActiveAssignedClass,
+  removeActiveAssignedClass,
+  updateActiveAssignedClass,
+} = assignedClassesSlice.actions;
 
 export default assignedClassesSlice.reducer;
