@@ -5,7 +5,10 @@ const ActivityRecordSchema = new mongoose.Schema(
     affiliatedTo: {
       type: String,
     },
-    date: {
+    nepaliDate: {
+      type: String,
+    },
+    utcDate: {
       type: Date,
     },
     weekNumber: {

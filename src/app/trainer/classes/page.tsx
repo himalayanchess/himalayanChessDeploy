@@ -7,6 +7,7 @@ import AddUser from "@/components/user/AddUserPageBased";
 import AddCourse from "@/components/course/AddCourse";
 import Header from "@/components/Header";
 import { trainerMenuItems } from "@/sidebarMenuItems/trainerMenuItems";
+import TrainerClasses from "@/components/trainer/trainerclasses/TrainerClasses";
 const page = () => {
   const router = useRouter();
   const session = useSession();
@@ -18,11 +19,13 @@ const page = () => {
         menuItems={trainerMenuItems}
         // role={session?.data?.user.role}
         role="trainer"
-        activeMenu="Dashboard"
+        activeMenu="Classes"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="dashboard-container py-6 px-14">Trainer Dashboard</div>
+        <div className="pb-6 h-[91dvh] flex py-5 px-14 ">
+          <TrainerClasses />
+        </div>
       </div>
     </div>
   );

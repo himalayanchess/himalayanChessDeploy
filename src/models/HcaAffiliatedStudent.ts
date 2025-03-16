@@ -6,6 +6,7 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
     name: { type: String }, // Name of the student
     dob: { type: String }, // Date of birth of the student
     gender: { type: String }, // Gender of the student
+    educationalInstitute: { type: String },
     batches: {
       type: [
         {
@@ -37,7 +38,17 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
     emergencyContactName: { type: String },
     emergencyContactNo: { type: Number },
     eventsPlayed: { type: Array, default: [] }, // Array of events played by the student
-    enrolledCourses: { type: Array, default: [] },
+    enrolledCourses: {
+      type: [
+        {
+          course: { type: String },
+          courseId: { type: mongoose.Schema.Types.Mixed, ref: "Course" },
+          completedStatus: { type: String, enum: ["Ongoing", "Completed"] },
+          activeStatus: { type: Boolean, default: true },
+        },
+      ],
+      default: [],
+    },
     history: { type: Array, default: [] },
     activeStatus: { type: Boolean, default: true },
   },

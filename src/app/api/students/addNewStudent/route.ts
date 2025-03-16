@@ -32,13 +32,17 @@ export async function POST(req: NextRequest) {
       selectedAffiliatedTo,
     } = reqBody;
 
+    console.log("enrolled coursessss", enrolledCourses);
+
     // Check if user with the same name exists (case-insensitive)
     const nonAffiliatedStudentExists = await NonAffiliatedStudent.findOne({
       name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
+      fideId,
     });
 
     const hcaAffiliatedStudentExists = await HcaAffiliatedStudent.findOne({
       name: { $regex: new RegExp(`^${name}$`, "i") },
+      fideId,
     });
 
     if (nonAffiliatedStudentExists || hcaAffiliatedStudentExists) {

@@ -32,9 +32,9 @@ const AddStudent = ({
   const statusOptions = ["Ongoing", "Left"];
   const titleOptions = ["None", "CM", "RM", "GM", "IM"];
   const coursesList = [
-    { value: "React Basics", label: "React Basics" },
-    { value: "Advanced JavaScript", label: "Advanced JavaScript" },
-    { value: "Data Structures", label: "Data Structures" },
+    { _id: "101", value: "React Basics", label: "React Basics" },
+    { _id: "102", value: "Advanced JavaScript", label: "Advanced JavaScript" },
+    { _id: "103", value: "Data Structures", label: "Data Structures" },
   ];
 
   // state variable
@@ -76,6 +76,7 @@ const AddStudent = ({
             phone: "",
             joinedDate: "",
             endDate: "",
+            educationalInstitute: "",
             batches: [],
             projectId: "",
             projectName: "",
@@ -94,6 +95,9 @@ const AddStudent = ({
         : {
             ...initialData,
             batches: initialData?.batches.filter((batch) => batch.activeStatus),
+            enrolledCourses: initialData?.enrolledCourses.filter(
+              (enrolledCourse) => enrolledCourse.activeStatus
+            ),
           },
   });
   const { errors } = formState;
@@ -117,7 +121,7 @@ const AddStudent = ({
 
   // Function to add a new course
   const addCourse = () => {
-    append({ course: "", status: "Ongoing" });
+    append({ course: "", courseId: "", status: "Ongoing", activeStatus: true });
   };
   // Watch enrolledCourses for validation
   const enrolledCourses = watch("enrolledCourses");
@@ -334,6 +338,28 @@ const AddStudent = ({
               }}
             />
           </div> */}
+          {/* educationalInstitute */}
+          <div className="educationalInstitute col-span-2">
+            <Controller
+              name="educationalInstitute"
+              control={control}
+              rules={
+                {
+                  // required: "School Name is required",
+                }
+              }
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="text"
+                  label="Educational Insititute"
+                  // required={true}
+                  error={errors.educationalInstitute}
+                  helperText={errors.educationalInstitute?.message}
+                />
+              )}
+            />
+          </div>
         </div>
 
         {/* second-basic-info */}
@@ -841,6 +867,13 @@ const AddStudent = ({
                         selected={field.value}
                         onChange={(value) => {
                           field.onChange(value);
+                          const selectedCourse = coursesList.find(
+                            (course) => course.value == value
+                          );
+                          setValue(
+                            `enrolledCourses.${index}.courseId`,
+                            selectedCourse._id
+                          );
                           trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                         }}
                         width="full"

@@ -3,8 +3,14 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { fetchAssignedClasses } from "@/redux/assignedClassesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Modal } from "@mui/material";
-import dayjs from "dayjs";
 import ViewAssignedClass from "./ViewAssignedClass";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const timeZone = "Asia/Kathmandu";
 
 const AssignedClasses = ({ selectedDate }) => {
   const dispatch = useDispatch<any>();
@@ -31,14 +37,17 @@ const AssignedClasses = ({ selectedDate }) => {
 
   // Filter assigned classes according to selected date (YYYY-MM-DD format)
   useEffect(() => {
-    const selectedDateISOString = dayjs(selectedDate).format("YYYY-MM-DD");
+    const selectedNepaliDateOnly = dayjs(selectedDate)
+      .tz(timeZone)
+      .startOf("day")
+      .format("YYYY-MM-DD");
 
     const tempFilteredAssignedClasses = allActiveAssignedClasses.filter(
       (assignedClass) => {
-        const assignedClassDate = dayjs(assignedClass?.date).format(
+        const assignedClassDate = dayjs(assignedClass?.nepaliDate).format(
           "YYYY-MM-DD"
         );
-        return assignedClassDate === selectedDateISOString;
+        return assignedClassDate == selectedNepaliDateOnly;
       }
     );
 

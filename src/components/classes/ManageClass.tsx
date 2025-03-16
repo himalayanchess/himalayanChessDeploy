@@ -24,13 +24,15 @@ import { notify } from "@/helpers/notify";
 import { useDispatch } from "react-redux";
 import { addActiveAssignedClass } from "@/redux/assignedClassesSlice";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { fetchAllTrainers } from "@/redux/allListSlice";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const ManageClass = ({ selectedDate }) => {
-  console.log("selectedDate", selectedDate);
+  // console.log("selectedDate in manage class", selectedDate);
 
   const dis = useDispatch<any>();
   const [affiliatedTo, setaffiliatedTo] = useState("HCA");
@@ -402,6 +404,8 @@ const ManageClass = ({ selectedDate }) => {
                   );
                   setValue("projectId", selectedProject?._id || "");
                   setprojectId(selectedProject?._id);
+                  setValue("batchName", "");
+                  setValue("batchId", "");
                 }}
                 error={errors.projectName}
                 helperText={errors.projectName?.message}

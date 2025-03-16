@@ -64,7 +64,7 @@ const assignedClassesSlice = createSlice({
         state.allAssignedClasses = action.payload;
 
         // set all (active) assigned classes
-        state.allActiveAssignedClasses = action.payload.filter(
+        state.allActiveAssignedClasses = action.payload?.filter(
           (assignedClass) => assignedClass?.activeStatus === true
         );
       })

@@ -20,7 +20,7 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
 
   return (
     <motion.div
-      className="h-screen z-50 bg-gray-200 text-black fixed top-0 left-0 flex flex-col items-center py-16 shadow-lg"
+      className="h-screen overflow-y-auto overflow-x-hidden z-50 bg-gray-200 text-black fixed top-0 left-0 flex flex-col items-center py-16 shadow-lg"
       initial={{ width: "3.4dvw" }}
       animate={{ width: isExpanded ? "15dvw" : "3.4dvw" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -114,10 +114,10 @@ const Sidebar = ({ menuItems, role, activeMenu }) => {
                   variant="contained"
                   size="medium"
                   color="error"
-                  onClick={() => {
+                  onClick={async () => {
                     console.log("logout");
 
-                    signOut();
+                    await signOut({ redirect: false });
                     router.push("/login");
                   }}
                   sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}

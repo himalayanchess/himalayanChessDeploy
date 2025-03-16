@@ -1,4 +1,9 @@
 import { dbconnect } from "@/helpers/dbconnect/dbconnect";
+import {
+  getFinalUpdatedBatches,
+  getFinalUpdatedEnrolledCourses,
+} from "@/helpers/updatestudent/finalUpdatedRecord";
+
 import HcaAffiliatedStudent from "@/models/HcaAffiliatedStudent";
 import NonAffiliatedStudent from "@/models/NonAffiliatedStudentModel";
 import User from "@/models/UserModel";
@@ -47,37 +52,18 @@ export async function POST(request: NextRequest) {
       }
 
       const dbStudent = await HcaAffiliatedStudent.findOne({ _id });
-      console.log("passedBatches", batches);
-      console.log("database student", dbStudent.batches);
 
-      let finalBatches = JSON.parse(JSON.stringify(dbStudent?.batches || [])); // Prevents Mongoose issues
-      // Update existing records and add new ones
-      batches.forEach((passedBatch) => {
-        const index = finalBatches.findIndex(
-          (student) => student.batchId === passedBatch.batchId
-        );
+      // MAKE BATCHES activeStatus to false if deleted
+      let finalUpdatedBatches = getFinalUpdatedBatches(
+        dbStudent?.batches,
+        batches
+      );
 
-        if (index !== -1) {
-          // If batch exists, update it
-          finalBatches[index] = passedBatch;
-        } else {
-          // If batch does not exist, add it
-          finalBatches.push(passedBatch);
-        }
-      });
-
-      // Mark inactive batches (present in dbStudents but not in passedBatches)
-      finalBatches = finalBatches.map((batch) => {
-        const existsInPassed = batches.some(
-          (passedBatch) => passedBatch.batchId === batch.batchId
-        );
-        if (!existsInPassed) {
-          return { ...batch, activeStatus: false };
-        }
-        return batch;
-      });
-
-      console.log("finalBatches", finalBatches);
+      // MAKE COURSES activeStatus to false if deleted
+      let finalUpdatedEnrolledCourses = getFinalUpdatedEnrolledCourses(
+        dbStudent?.enrolledCourses,
+        enrolledCourses
+      );
 
       const updatedStudent = await HcaAffiliatedStudent.findOneAndUpdate(
         {
@@ -88,7 +74,7 @@ export async function POST(request: NextRequest) {
           name,
           dob,
           gender,
-          batches: finalBatches,
+          batches: finalUpdatedBatches,
           joinedDate,
           endDate,
           address,
@@ -100,7 +86,7 @@ export async function POST(request: NextRequest) {
           guardianInfo,
           emergencyContactName,
           emergencyContactNo,
-          enrolledCourses,
+          enrolledCourses: finalUpdatedEnrolledCourses,
         },
         { new: true }
       );
@@ -129,6 +115,15 @@ export async function POST(request: NextRequest) {
           statusCode: 409, // Conflict status
         });
       }
+
+      const dbStudent = await NonAffiliatedStudent.findOne({ _id });
+
+      // MAKE BATCHES activeStatus to false if deleted
+      let finalUpdatedBatches = getFinalUpdatedBatches(
+        dbStudent?.batches,
+        batches
+      );
+
       const updatedStudent = await NonAffiliatedStudent.findOneAndUpdate(
         {
           _id,
@@ -138,7 +133,7 @@ export async function POST(request: NextRequest) {
           name,
           dob,
           gender,
-          batches,
+          batches: finalUpdatedBatches,
           joinedDate,
           endDate,
           projectId,

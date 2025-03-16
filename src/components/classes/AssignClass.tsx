@@ -22,6 +22,12 @@ import AssignedClasses from "./AssignedClasses";
 import { fetchAssignedClasses } from "@/redux/assignedClassesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const timeZone = "Asia/Kathmandu";
 
 // Color coding for institutes
 const instituteColors = {
@@ -35,9 +41,15 @@ const AssignClass = ({ selectedBatch }) => {
     (state) => state.assignedClassesReducer
   );
   const [filteredProjectNames, setfilteredProjectNames] = useState<any>([]);
-  const today = new Date();
-  const [currentDate, setCurrentDate] = useState(today);
-  const [selectedDate, setSelectedDate] = useState(today);
+
+  // Use dayjs() instead of new Date() to get the current date
+  // giving utc even after adding time zone
+  // it is giving object but in hadle click it is formattin format()
+  // convert to nepali date first in route.ts
+
+  const today = dayjs().tz(timeZone, true);
+  const [currentDate, setCurrentDate] = useState<any>(today);
+  const [selectedDate, setSelectedDate] = useState<any>(today);
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -49,7 +61,10 @@ const AssignClass = ({ selectedBatch }) => {
 
   const handleDateClick = (day) => {
     if (day) {
-      setSelectedDate(day);
+      // send nepali timeze zone date
+      // console.log("Selected day", dayjs(day).tz(timeZone).format());
+
+      setSelectedDate(dayjs(day).tz(timeZone).format());
     } else {
       console.error("Invalid date selected");
     }
@@ -79,17 +94,24 @@ const AssignClass = ({ selectedBatch }) => {
 
   useEffect(() => {
     // Convert selectedDate to YYYY-MM-DD format using dayjs
-    const selectedDateISOString = dayjs(selectedDate).format("YYYY-MM-DD");
+
+    const selectedNepaliDateOnly = dayjs(selectedDate)
+      .tz(timeZone)
+      .startOf("day")
+      .format("YYYY-MM-DD");
 
     // Filter allActiveAssignedClasses by the selectedDate
     const filteredClasses = allActiveAssignedClasses.filter((assignedClass) => {
       // Convert assignedClass.date to YYYY-MM-DD format using dayjs
-      const assignedClassDate = dayjs(assignedClass.date).format("YYYY-MM-DD");
+      const assignedClassDate = dayjs(assignedClass.nepaliDate).format(
+        "YYYY-MM-DD"
+      );
 
       // Compare only the date part
-      return assignedClassDate === selectedDateISOString;
+      return assignedClassDate == selectedNepaliDateOnly;
     });
 
+    console.log(filteredClasses);
     // - If affiliatedTo is "hca", we just add "hca"
     // - If affiliatedTo is "school", we add the projectName
     const uniqueProjectNames = [
@@ -154,7 +176,7 @@ const AssignClass = ({ selectedBatch }) => {
                 className="p-2 border rounded text-sm"
               >
                 {Array.from({ length: 12 }, (_, i) => {
-                  const monthDate = new Date(currentDate.getFullYear(), i, 1);
+                  const monthDate = new Date(currentDate.year(), i, 1);
                   return (
                     <option key={i} value={format(monthDate, "yyyy-MM")}>
                       {format(monthDate, "MMMM yyyy")}
@@ -216,7 +238,6 @@ const AssignClass = ({ selectedBatch }) => {
           </div>
         </div>
       </div>
-
       {/* Middle Section (ManageClass) */}
       <div className="flex-1 w-full ">
         {!selectedBatch ? (
@@ -225,11 +246,10 @@ const AssignClass = ({ selectedBatch }) => {
           <ManageClass selectedDate={selectedDate} />
         )}
       </div>
-
       {/* Rignt Section (AssignedClasses) */}
       <div className="flex-[0.5] w-full ">
         <AssignedClasses selectedDate={selectedDate} />
-      </div>
+      </div>{" "}
     </div>
   );
 };
