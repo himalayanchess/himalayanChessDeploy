@@ -109,6 +109,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
           <Button
             variant="contained"
             color="error"
+            disabled={assignedClass?.recordUpdatedByTrainer}
             onClick={handleDeleteModalOpen}
           >
             Delete
@@ -140,7 +141,11 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
             </Box>
           </Modal>
           {/* edit */}
-          <Button type="submit" variant="contained">
+          <Button
+            disabled={assignedClass?.recordUpdatedByTrainer}
+            type="submit"
+            variant="contained"
+          >
             Edit
           </Button>
         </div>
@@ -242,6 +247,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
                 label="Trainer name"
                 options={allTrainerList.map((trainer) => trainer.name)}
                 selected={field.value}
+                disabled={assignedClass?.recordUpdatedByTrainer}
                 onChange={(value) => {
                   field.onChange(value);
                   const selectedTrainer = allTrainerList.find(
@@ -276,6 +282,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
                   label="Attendance"
                   options={presentStatusOptions}
                   selected={field.value}
+                  disabled={assignedClass?.recordUpdatedByTrainer}
                   onChange={(value) => {
                     field.onChange(value);
                   }}

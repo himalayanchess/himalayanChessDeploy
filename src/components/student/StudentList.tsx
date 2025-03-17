@@ -30,7 +30,7 @@ const StudentList = ({
   newCreatedStudent,
   setnewCreatedStudent,
   handleAddStudentModalClose,
-}) => {
+}: any) => {
   const [allHcaStudents, setallHcaStudents] = useState<any>([]);
   const [allSchoolStudents, setallSchoolStudents] = useState<any>([]);
   const [filteredStudents, setFilteredStudents] = useState([]);

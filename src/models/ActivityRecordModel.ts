@@ -73,6 +73,7 @@ const ActivityRecordSchema = new mongoose.Schema(
       enum: ["present", "absent", "holiday"],
     },
     activeStatus: { type: Boolean, default: true },
+    recordUpdatedByTrainer: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

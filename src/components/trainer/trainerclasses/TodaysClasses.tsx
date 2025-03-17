@@ -1,9 +1,140 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useDispatch, useSelector } from "react-redux";
+import { selectTodaysClass } from "@/redux/trainerSlice";
+import CircularProgress from "@mui/material/CircularProgress";
+import {
+  ResponsiveContainer,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  Bar,
+  Label,
+} from "recharts";
 
-const TodaysClasses = () => {
+const TodaysClasses = ({
+  trainersTodaysClasses,
+  loadingTodaysClasses,
+  selectedTodaysClass,
+}: any) => {
+  //selector
+  const { attendanceStudentRecordsList, status, error } = useSelector(
+    (state: any) => state.trainerReducer
+  );
+
+  // dispatch
+  const dis = useDispatch<any>();
+
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    const totalStudents = attendanceStudentRecordsList.length;
+    const presentCount = attendanceStudentRecordsList.filter(
+      (student) => student.attendance === "present"
+    ).length;
+    const absentCount = attendanceStudentRecordsList.filter(
+      (student) => student.attendance === "absent"
+    ).length;
+    const data = [
+      { name: "Total", count: totalStudents },
+      { name: "Present", count: presentCount },
+      { name: "Absent", count: absentCount },
+    ];
+    setData(data);
+  }, [attendanceStudentRecordsList]);
+
+  function handleSelectTodaysClass(todaysClass: any) {
+    dis(selectTodaysClass(todaysClass));
+  }
+
   return (
-    <div>
-      <h1 className="text-lg font-bold">Todays Classes</h1>
+    <div className="classes-analysis-container h-full flex flex-col overflow-hidden">
+      {/* Today's Classes */}
+      <div className="flex-[0.5] overflow-y-auto bg-white pt-3 pb-4 px-6 rounded-md shadow-md flex flex-col overflow-hidden">
+        <h1 className="text-lg font-bold pb-1 bg-white sticky top-0">
+          Todays Classes{" "}
+          <span className="bg-gray-500 text-white px-2 py-1 ml-1 rounded-md">
+            {trainersTodaysClasses?.length}
+          </span>
+        </h1>
+
+        {loadingTodaysClasses ? (
+          <div className="flex justify-center items-center flex-1">
+            <CircularProgress sx={{ fontSize: ".8rem", color: "gray" }} />
+          </div>
+        ) : (
+          <div className="assigned-classes-list mt-2 flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto pb-4">
+            {trainersTodaysClasses?.length === 0 ? (
+              <p>No assigned Classes</p>
+            ) : (
+              trainersTodaysClasses?.map((todaysClass) => (
+                <div
+                  key={todaysClass?._id}
+                  onClick={() => handleSelectTodaysClass(todaysClass)}
+                >
+                  <div
+                    className={`py-2 px-3 ${
+                      todaysClass?.affiliatedTo?.toLowerCase() === "hca"
+                        ? "bg-blue-100"
+                        : "bg-gray-100"
+                    } shadow-sm rounded-md cursor-pointer ${
+                      selectedTodaysClass?._id === todaysClass?._id
+                        ? "border-2 border-blue-400"
+                        : ""
+                    } hover:opacity-80`}
+                  >
+                    <p className="text-sm">{todaysClass?.batchName}</p>
+
+                    <div className="trainer-attendance flex justify-between items-center">
+                      <div className="trainer flex items-center">
+                        <AccountCircleIcon
+                          sx={{ fontSize: "1rem", color: "gray" }}
+                        />
+                        <span className="ml-1 text-xs text-gray-500">
+                          {todaysClass?.trainerName}
+                        </span>
+                      </div>
+                      <p
+                        className={`text-xs px-2 rounded-full py-0.5 w-max ${
+                          todaysClass?.recordUpdatedByTrainer
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-500 text-white"
+                        }`}
+                      >
+                        {todaysClass?.recordUpdatedByTrainer
+                          ? "Updated"
+                          : "Pending"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Analysis Section */}
+      <div
+        className="flex-[0.5] flex items-center justify-center bg-white mt-3 rounded-md shadow-md"
+        style={{ height: "300px" }}
+      >
+        <ResponsiveContainer width="85%" height="85%">
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="2 2" />
+            <XAxis dataKey="name" />
+            {/* <YAxis /> */}
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="count" fill="#8884d8">
+              <Label position="top" />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
