@@ -30,8 +30,6 @@ export const fetchAllStudents = createAsyncThunk(
   "trainer/getAllStudents",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("teacher slice fetchAllStudents slice");
-
       // Use axios to make the get request
       const { data: resData } = await axios.get("/api/students/getAllStudents");
       const allStudents = [
@@ -65,6 +63,11 @@ const trainerSlice = createSlice({
     selectTodaysClass: (state, action) => {
       const selectedClass = action.payload;
       state.selectedTodaysClass = selectedClass;
+      // console.log(
+      //   "Inside select todays class reducer selected class",
+      //   selectedClass
+      // );
+      console.log("inside select todays class studentlist", state.studentList);
 
       const batchId = selectedClass.batchId;
       // Filter students who have a batch with the given 'batchId' and 'activeStatus' as true
@@ -81,7 +84,7 @@ const trainerSlice = createSlice({
 
     // update todays classes record when trainer updates the student record
     updateTodaysClassRecord: (state, action) => {
-      console.log(" inside updateTodaysClassRecord reducer ", action.payload);
+      // console.log(" inside updateTodaysClassRecord reducer ", action.payload);
       const updatedRecord = action.payload;
       const tempTrainersTodaysClasses = state.trainersTodaysClasses?.map(
         (todaysClass: any) => {
@@ -126,7 +129,7 @@ const trainerSlice = createSlice({
       })
       .addCase(fetchAllStudents.fulfilled, (state, action: any) => {
         state.status = "succeeded";
-        state.studentList = action.payload.updatedRecord;
+        state.studentList = action.payload;
       });
   },
 });

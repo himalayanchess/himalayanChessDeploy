@@ -32,7 +32,7 @@ const AddProject = ({
   // object
   editedProject,
   seteditedProject,
-}) => {
+}: any) => {
   // add contract file
   const [contractFile, setcontractFile] = useState<File | any>(null);
   const [contractFileName, setContractFileName] = useState("Not Selected");
@@ -71,7 +71,7 @@ const AddProject = ({
       mode === "add"
         ? {
             contractType: "School",
-            projectName: "",
+            name: "",
             primaryContact: { name: "", email: "", phone: "" },
             startDate: "",
             endDate: "",
@@ -159,8 +159,12 @@ const AddProject = ({
     if (updatedcontractFile) {
       const formData = new FormData();
       formData.append("file", updatedcontractFile);
+
+      const folderName = `contractpapers/${initialData?.name}`;
+      formData.append("folderName", folderName);
+
       const { data: resData } = await axios.post(
-        "/api/projects/contractUpload",
+        "/api/fileupload/uploadfile",
         formData,
         {
           headers: {
@@ -171,71 +175,93 @@ const AddProject = ({
       // cloudinary error
       if (resData.error) {
         notify("Error uploading file", 204);
+        return;
       }
       // cloudinary success
       else {
         updatedContractPaper = resData.res.secure_url;
+        // update contractPaper to updatedContractpaper
+        const { data: upadteContractPaperResData } = await axios.post(
+          "/api/projects/updateContractPaper",
+          {
+            projectId: initialData?._id,
+            updatedContractPaper,
+          }
+        );
+        if (upadteContractPaperResData.statusCode == 200) {
+          setProjectEdited(true);
+          seteditedProject({
+            ...initialData,
+            contractPaper: updatedContractPaper,
+          });
+          handleClose();
+          handleUpdateContratPaperModalClose();
+        }
+        notify(
+          upadteContractPaperResData.msg,
+          upadteContractPaperResData.statusCode
+        );
+        return;
       }
     }
-    // update contractPaper to updatedContractpaper
-    const { data: resData } = await axios.post(
-      "/api/projects/updateContractPaper",
-      {
-        initialData,
-        updatedContractPaper,
-      }
-    );
-    if (resData.statusCode == 200) {
-      setProjectEdited(true);
-      seteditedProject({ ...initialData, contractPaper: updatedContractPaper });
-      handleClose();
-      handleUpdateContratPaperModalClose();
-    }
-    notify(resData.msg, resData.statusCode);
-    return;
   }
   //onsubmit
   async function onSubmit(data) {
     if (mode == "add") {
-      // first upload file in cloudinary
-      let contractPaper = "";
-      if (!contractFile) {
-        notify("Contract paper required", 204);
-        return;
-      }
-      // if file set
-      if (contractFile) {
-        const formData = new FormData();
-        formData.append("file", contractFile);
-        const { data: resData } = await axios.post(
-          "/api/projects/contractUpload",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        // cloudinary error
-        if (resData.error) {
-          notify("Error uploading file", 204);
-        }
-        // cloudinary success
-        else {
-          contractPaper = resData.res.secure_url;
-        }
-      }
-
+      // to create a proper folder name in cloudinary
+      // first create a neww project to get projectname
       const { data: resData } = await axios.post(
         "/api/projects/addNewProject",
         {
           ...data,
-          contractPaper,
         }
       );
       if (resData.statusCode == 200) {
+        let tempsavednewProject = resData.savednewProject;
+        // after successfull addition of project, upload file to cloudinary
+        let contractPaper = "";
+        // if (!contractFile) {
+        //   notify("Contract paper required", 204);
+        //   return;
+        // }
+        // if file set
+        if (contractFile) {
+          const formData = new FormData();
+          formData.append("file", contractFile);
+          const folderName = `contractpapers/${resData?.savednewProject?.name}`;
+          formData.append("folderName", folderName);
+
+          const { data: uploadresData } = await axios.post(
+            "/api/fileupload/uploadfile",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+          // cloudinary error
+          if (uploadresData.error) {
+            notify("Error uploading file", 204);
+          }
+          // cloudinary success
+          else {
+            contractPaper = uploadresData.res.secure_url;
+            tempsavednewProject = { ...tempsavednewProject, contractPaper };
+            // update the project that is just created
+            const { data: updateProjectResData } = await axios.post(
+              "/api/projects/updateProject",
+              tempsavednewProject
+            );
+            console.log(
+              "Project updated (just created) by adding contractpaper url "
+            );
+          }
+        }
+
+        // make ui update
         setnewProjectAdded(true);
-        setnewCreatedProject(resData.savednewProject);
+        setnewCreatedProject(tempsavednewProject);
         handleClose();
       }
       notify(resData.msg, resData.statusCode);
@@ -293,7 +319,7 @@ const AddProject = ({
         {/* Project name */}
         <div className="col-span-2">
           <Controller
-            name="projectName"
+            name="name"
             control={control}
             rules={{
               required: "Project name is required",
@@ -515,7 +541,7 @@ const AddProject = ({
         {/* add contract paper (add) */}
         {mode == "add" && (
           <div className="pdf-file col-span-2">
-            <p>Choose PDF file * (for now)</p>
+            <p>Choose PDF file</p>
             <div className="flex items-center  ">
               <label
                 htmlFor="contractInput"

@@ -6,7 +6,7 @@ const ProjectSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    projectName: { type: String }, // School name
+    name: { type: String }, // School name
     primaryContact: {
       name: { type: String },
       phone: { type: String },
@@ -26,7 +26,7 @@ const ProjectSchema = new mongoose.Schema(
       {
         trainerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         trainerName: { type: String },
-        trainerRole: { type: String, enum: ["Primary", "Substitute"] }, // Track trainer type
+        trainerRole: { type: String, enum: ["Primary", "Secondary"] }, // Track trainer type
       },
     ],
     timeSlots: [

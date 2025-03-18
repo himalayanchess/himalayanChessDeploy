@@ -29,7 +29,7 @@ const TrainerClasses = () => {
     error,
   } = useSelector((state) => state.trainerReducer);
 
-  console.log(selectedTodaysClass);
+  // console.log(selectedTodaysClass);
 
   // apply to all
   const [applyToAllClicked, setapplyToAllClicked] = useState(false);

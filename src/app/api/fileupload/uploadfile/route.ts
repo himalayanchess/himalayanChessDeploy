@@ -1,6 +1,3 @@
-// not used
-// places in api/fileupload/uploadfile
-
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -20,11 +17,10 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    const fileUploadDomain = formData.get("fileUploadDomain") as string;
     const fileType = file?.type.startsWith("image/") ? "image" : "raw";
+    const folderName = formData.get("folderName") as string;
 
     console.log("fileee", file);
-    console.log("fileUploadDomain", fileUploadDomain);
 
     if (!file) {
       return NextResponse.json({
@@ -38,7 +34,7 @@ export async function POST(request: NextRequest) {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           resource_type: fileType, // This ensures PDF files are handled correctly
-          folder: "himalayanContracts",
+          folder: folderName,
         },
         (error, result) => {
           if (error) rej(error);

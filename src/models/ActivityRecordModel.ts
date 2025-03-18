@@ -74,6 +74,10 @@ const ActivityRecordSchema = new mongoose.Schema(
     },
     activeStatus: { type: Boolean, default: true },
     recordUpdatedByTrainer: { type: Boolean, default: false },
+    studyMaterials: {
+      type: Array,
+      default: [],
+    },
   },
   { timestamps: true }
 );

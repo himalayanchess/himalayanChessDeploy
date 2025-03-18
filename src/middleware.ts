@@ -35,14 +35,18 @@ export async function middleware(request: NextRequest) {
         new URL(`/${role.toLowerCase()}/dashboard`, request.url)
       );
     }
-    if (role === "admin" && path.startsWith("/superadmin")) {
+    if (role === "admin" && !path.startsWith("/admin")) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
 
-    if (role === "superadmin" && path.startsWith("/admin")) {
+    if (role === "superadmin" && !path.startsWith("/superadmin")) {
       return NextResponse.redirect(
         new URL("/superadmin/dashboard", request.url)
       );
+    }
+
+    if (role === "trainer" && !path.startsWith("/trainer")) {
+      return NextResponse.redirect(new URL("/trainer/dashboard", request.url));
     }
   }
 

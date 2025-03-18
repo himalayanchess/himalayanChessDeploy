@@ -119,17 +119,18 @@ const TodaysClasses = ({
 
       {/* Analysis Section */}
       <div
-        className="flex-[0.5] flex items-center justify-center bg-white mt-3 rounded-md shadow-md"
+        className="flex-[0.5] flex  flex-col items-center justify-center bg-white mt-3 rounded-md shadow-md"
         style={{ height: "300px" }}
       >
-        <ResponsiveContainer width="85%" height="85%">
+        <h1 className="mb-4 text-lg font-bold">Attendance</h1>
+        <ResponsiveContainer width="75%" height="75%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="2 2" />
             <XAxis dataKey="name" />
             {/* <YAxis /> */}
             <Tooltip />
             <Legend />
-            <Bar dataKey="count" fill="#8884d8">
+            <Bar dataKey="count" fill="#F38C79" barSize={40}>
               <Label position="top" />
             </Bar>
           </BarChart>

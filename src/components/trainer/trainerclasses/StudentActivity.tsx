@@ -26,18 +26,15 @@ const StudentActivity = ({
   const [attendanceChanged, setattendanceChanged] = useState(false);
   const [studyTopicModalOpen, setstudyTopicModalOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
-  const [topicInput, setTopicInput] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(""); // Track selected dropdown option
 
   // handlestudyTopicModalOpen
   function handlestudyTopicModalOpen(studentId) {
     setSelectedStudentId(studentId);
-    setTopicInput(""); // Reset input field
     setstudyTopicModalOpen(true);
   }
   // handlestudyTopicModalClose
   function handlestudyTopicModalClose() {
-    setSelectedTopic("");
     setstudyTopicModalOpen(false);
   }
 
@@ -53,11 +50,11 @@ const StudentActivity = ({
     },
   });
   const students = watch("students");
-  console.log(students);
+  // console.log(students);
 
   // update redux state for evry attendance change for analysis
   useEffect(() => {
-    console.log("studentsattencande cnahgedddddd", students);
+    // console.log("studentsattencande cnahgedddddd", students);
     if (students) {
       const tempStudents = JSON.stringify(students);
 
@@ -70,29 +67,32 @@ const StudentActivity = ({
   }, [attendanceChanged, selectedTodaysClass, students]);
 
   useEffect(() => {
-    // Set the form default values dynamically based on selectedTodaysClass or selectedStudentList
-    const updatedStudents =
+    let updatedStudents = [];
+
+    if (
       selectedTodaysClass?.studentRecords &&
       selectedTodaysClass.studentRecords.length > 0
-        ? selectedTodaysClass.studentRecords.map((student) => ({
-            _id: student._id,
-            name: student.name,
-            studyTopics: student.studyTopics || [],
-            completedStatus: student.completedStatus ?? false,
-            attendance: student.attendance || "absent",
-            remark: student.remark || "",
-          }))
-        : selectedStudentList?.map((student) => ({
-            _id: student._id,
-            name: student.name,
-            studyTopics: student.studyTopics || [],
-            completedStatus: student.completedStatus ?? false,
-            attendance: student.attendance ?? "absent",
-            remark: student.remark ?? "",
-          })) || [];
-
-    // Set the value to the form
-    console.log("updated students", updatedStudents);
+    ) {
+      console.log("Using selectedTodaysClass.studentRecords");
+      updatedStudents = selectedTodaysClass.studentRecords.map((student) => ({
+        _id: student._id,
+        name: student.name,
+        studyTopics: student.studyTopics || [],
+        completedStatus: student.completedStatus ?? false,
+        attendance: student.attendance || "absent",
+        remark: student.remark || "",
+      }));
+    } else if (selectedStudentList) {
+      console.log("Using selectedStudentList");
+      updatedStudents = selectedStudentList.map((student) => ({
+        _id: student._id,
+        name: student.name,
+        studyTopics: student.studyTopics || [],
+        completedStatus: false,
+        attendance: student.attendance ?? "absent",
+        remark: student.remark ?? "",
+      }));
+    }
 
     setValue("students", updatedStudents);
   }, [selectedTodaysClass, selectedStudentList, setValue]);
@@ -233,7 +233,7 @@ const StudentActivity = ({
                         className="text-red-500"
                       >
                         <CloseIcon
-                          className="bg-red-400 text-white rounded-full p-0.5 ml-1s"
+                          className=" border border-gray-400 text-black rounded-full p-0.5 ml-1s"
                           sx={{ fontSize: "0.9rem" }}
                         />
                       </button>

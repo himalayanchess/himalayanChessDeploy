@@ -4,6 +4,7 @@ import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import Dropdown from "@/components/Dropdown";
 import { Button } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -11,6 +12,7 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { Controller, useForm } from "react-hook-form";
+import StudyMaterialModal from "@/popupModals/StudyMaterialModal";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -22,6 +24,19 @@ const ClassesHeader = ({
   setapplyToAllClicked,
   setapplyTopic,
 }: any) => {
+  // state variables
+  const [studyMaterialModalOpen, setstudyMaterialModalOpen] = useState(false);
+
+  // handle study material modal open
+  function handleStudyMaterailModalOpen() {
+    setstudyMaterialModalOpen(true);
+  }
+
+  // handle study material modal close
+  function handleStudyMaterailModalClose() {
+    setstudyMaterialModalOpen(false);
+  }
+
   const {
     control,
     handleSubmit,
@@ -41,7 +56,7 @@ const ClassesHeader = ({
   return (
     <div className="flex flex-col ">
       {/* First Row */}
-      <div className="flex  justify-between items-start mt-3 ">
+      <div className="flex  justify-between items-center mt-3 ">
         {/* Left Section: Date and Affiliation */}
         <div className="flex items-center space-x-3">
           <CalendarTodayIcon sx={{ fontSize: "3rem" }} />
@@ -50,18 +65,37 @@ const ClassesHeader = ({
               .tz("Asia/Kathmandu")
               .format("MMMM D, YYYY dddd")}
           </span>
-          <div className="bg-blue-100 text-blue-800 w-max px-4 py-1 text-md rounded-full">
-            {selectedTodaysClass?.affiliatedTo?.toLowerCase() == "hca"
-              ? "HCA"
-              : selectedTodaysClass?.projectName}
-          </div>
+          {selectedTodaysClass && (
+            <div className="bg-blue-100 text-blue-800 w-max px-4 py-1 text-md rounded-full">
+              {selectedTodaysClass?.affiliatedTo?.toLowerCase() == "hca"
+                ? "HCA"
+                : selectedTodaysClass?.projectName}
+            </div>
+          )}
         </div>
 
-        {/* Right Section: Current Time */}
-        {/* <div className="flex items-center space-x-3 mt-4 md:mt-0">
-          <AccessTimeIcon className="text-gray-500" fontSize="large" />
-          <span className="text-2xl font-bold text-gray-500"></span>
-        </div> */}
+        {/* Right Section: Study materials */}
+        {selectedTodaysClass && (
+          <>
+            <Button
+              onClick={handleStudyMaterailModalOpen}
+              variant="outlined"
+              size="small"
+              color="info"
+              className="flex items-center "
+            >
+              <MenuBookIcon className="" sx={{ fontSize: "1.5rem" }} />
+              <span className="ml-1 ">Study Materials</span>
+            </Button>
+
+            {/* study material modal */}
+            <StudyMaterialModal
+              studyMaterialModalOpen={studyMaterialModalOpen}
+              handleStudyMaterailModalClose={handleStudyMaterailModalClose}
+              selectedTodaysClass={selectedTodaysClass}
+            />
+          </>
+        )}
       </div>
       {/* Second Row */}
       {selectedTodaysClass ? (
@@ -103,32 +137,38 @@ const ClassesHeader = ({
             {/* Syllabus Dropdown */}
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex items-end ml-auto"
+              className="flex items-start flex-col ml-auto"
             >
-              <Controller
-                name="selectedStudyTopic" // Name of the field
-                control={control}
-                rules={{ required: "Study topic is required" }} // Validation rule
-                render={({ field }) => (
-                  <Dropdown
-                    label="Today's Study Topic"
-                    options={["asd", "pih", "rt"]}
-                    selected={field.value}
-                    onChange={(value) => field.onChange(value)}
-                    error={!!errors.selectedStudyTopic} // Pass error state
-                    helperText={errors.selectedStudyTopic?.message} // Error message
-                  />
-                )}
-              />
-              <Button
-                variant="contained"
-                color="info"
-                type="submit"
-                sx={{ marginLeft: "1rem" }}
-              >
-                <ChecklistRtlIcon />
-                <span className="ml-1 font-medium">Apply to all</span>
-              </Button>
+              <h1 className="text-sm">Todays Study Topic</h1>
+              <div className="main-dropdown flex items-start">
+                <Controller
+                  name="selectedStudyTopic" // Name of the field
+                  control={control}
+                  rules={{ required: "Study topic is required" }} // Validation rule
+                  render={({ field }) => (
+                    <Dropdown
+                      options={["asd", "pih", "rt"]}
+                      selected={field.value}
+                      onChange={(value) => field.onChange(value)}
+                      error={!!errors.selectedStudyTopic} // Pass error state
+                      helperText={errors.selectedStudyTopic?.message} // Error message
+                    />
+                  )}
+                />
+                <Button
+                  variant="contained"
+                  color="info"
+                  type="submit"
+                  sx={{
+                    marginLeft: "1rem",
+                    marginTop: "0.2rem",
+                    paddingBlock: ".4rem",
+                  }}
+                >
+                  <ChecklistRtlIcon />
+                  <span className="ml-1 font-medium">Apply to all</span>
+                </Button>
+              </div>
             </form>
           </div>
         </div>

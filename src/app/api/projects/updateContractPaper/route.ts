@@ -6,10 +6,10 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    const { initialData, updatedContractPaper } = reqBody;
+    const { projectId, updatedContractPaper } = reqBody;
 
     const updatedProject = await Project.findOneAndUpdate(
-      { _id: initialData._id },
+      { _id: projectId },
       { contractPaper: updatedContractPaper }
     );
     if (updatedProject) {

@@ -68,7 +68,7 @@ const AssignedClasses = ({ selectedDate }) => {
         {filteredAssignedClasses.length === 0 ? (
           <p>No assigned Classes</p>
         ) : (
-          filteredAssignedClasses.map((assignedClass) => (
+          filteredAssignedClasses.map((assignedClass: any) => (
             <div key={assignedClass?._id}>
               <div
                 className={`py-2 px-3 ${
@@ -89,19 +89,29 @@ const AssignedClasses = ({ selectedDate }) => {
                       {assignedClass?.trainerName}
                     </span>
                   </div>
-                  <p
-                    className={`text-xs px-2 rounded-full py-0.5 w-max ${
-                      assignedClass?.trainerPresentStatus?.toLowerCase() ==
-                      "present"
-                        ? " bg-green-400 text-white "
-                        : assignedClass?.trainerPresentStatus?.toLowerCase() ==
-                          "absent"
-                        ? " bg-red-400 text-white "
-                        : " bg-gray-400 text-white "
-                    } `}
-                  >
-                    {assignedClass?.trainerPresentStatus}
-                  </p>
+
+                  <div className="status-indicators flex items-center">
+                    {/* student records added status */}
+                    {assignedClass?.studentRecords?.length != 0 && (
+                      <span
+                        className={`mr-2 h-[10px] w-[10px] rounded-full bg-green-500`}
+                      ></span>
+                    )}
+                    {/* trainer present status */}
+                    <p
+                      className={`text-xs px-2 rounded-full py-0.5 w-max ${
+                        assignedClass?.trainerPresentStatus?.toLowerCase() ==
+                        "present"
+                          ? " bg-green-500 text-white "
+                          : assignedClass?.trainerPresentStatus?.toLowerCase() ==
+                            "absent"
+                          ? " bg-red-500 text-white "
+                          : " bg-gray-500 text-white "
+                      } `}
+                    >
+                      {assignedClass?.trainerPresentStatus}
+                    </p>
+                  </div>
                 </div>
               </div>
 
