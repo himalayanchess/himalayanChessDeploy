@@ -8,7 +8,7 @@ import StudentList from "./StudentList";
 import { Pagination, Stack } from "@mui/material";
 import AddStudent from "./AddStudent";
 import axios from "axios";
-import FilterComponent from "../FilterComponent";
+import StudentFilterComponent from "../filtercomponents/StudentFilterComponent";
 
 const StudentComponent = () => {
   const affiliatedToOptions = ["HCA", "School"];
@@ -102,7 +102,7 @@ const StudentComponent = () => {
           />
 
           {/* filter button */}
-          <FilterComponent
+          <StudentFilterComponent
             selectedActiveStatus={selectedActiveStatus}
             setselectedActiveStatus={setselectedActiveStatus}
           />

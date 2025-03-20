@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     await dbconnect();
     const trainersList = await User.find({ role: "Trainer" }).select(
-      "_id name"
+      "-password"
     );
     // new user added success
     if (trainersList) {

@@ -22,7 +22,7 @@ const Dropdown = ({
   const selectedOption = formattedOptions.find((opt) => opt.value === selected);
 
   return (
-    <div className={`${width ? `w-${width}` : "w-64"}`}>
+    <div className={`${width ? `w-${width}` : "w-64"} z-50`}>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label} {required && "*"}
       </label>
@@ -33,7 +33,7 @@ const Dropdown = ({
         onChange={(selectedOption) => onChange(selectedOption?.value)} // Handle change
         menuPlacement="auto"
         menuPosition="fixed"
-        className={`basic-single ${width && `w-${width}`}`}
+        className={`basic-single z-40 ${width && `w-${width}`}`}
         classNamePrefix="select"
       />
       {error && <p className="text-red-500 text-xs">{helperText}</p>}

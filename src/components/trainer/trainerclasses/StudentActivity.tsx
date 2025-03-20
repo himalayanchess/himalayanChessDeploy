@@ -197,7 +197,7 @@ const StudentActivity = ({
               </div>
             </div>
           ) : (
-            students?.map((student, i) => (
+            students?.map((student: any, i: any) => (
               <div
                 key={"student" + student?._id}
                 className="text-sm grid grid-cols-[60px,repeat(6,1fr)] items-center border-b hover:bg-gray-50"
@@ -207,7 +207,7 @@ const StudentActivity = ({
 
                 {/* Study Topics */}
                 <div className="px-2 py-2 col-span-2 flex  items-start  flex-wrap gap-2">
-                  {student.studyTopics?.map((topic, index) => (
+                  {student?.studyTopics?.map((topic: any, index: any) => (
                     <span
                       key={"topic" + index}
                       className="text-black border text-xs shadow-sm outline-none w-max h-max py-1 px-2 rounded-full flex items-center gap-1"
@@ -215,19 +215,22 @@ const StudentActivity = ({
                       {topic}
                       <button
                         type="button"
+                        title="Delete"
                         onClick={() => {
                           // Remove the topic from the student's studyTopics
-                          const updatedStudents = students.map((s) => {
-                            if (s._id === student._id) {
-                              return {
-                                ...s,
-                                studyTopics: s.studyTopics.filter(
-                                  (_, i) => i !== index
-                                ),
-                              };
+                          const updatedStudents: any = students.map(
+                            (s: any) => {
+                              if (s._id === student._id) {
+                                return {
+                                  ...s,
+                                  studyTopics: s.studyTopics.filter(
+                                    (_: any, i: any) => i !== index
+                                  ),
+                                };
+                              }
+                              return s;
                             }
-                            return s;
-                          });
+                          );
                           setValue("students", updatedStudents);
                         }}
                         className="text-red-500"

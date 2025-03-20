@@ -7,7 +7,7 @@ export const fetchAllTrainers = createAsyncThunk(
     try {
       const response = await fetch("/api/users/getTrainersList");
       const resData = await response.json();
-      console.log("das fjhakdf hlhsf", resData);
+      // console.log("das fjhakdf hlhsf", resData);
 
       return resData.trainersList;
     } catch (error: any) {
@@ -20,6 +20,7 @@ const allListSlice = createSlice({
   name: "allList",
   initialState: {
     allTrainerList: [],
+    allActiveTrainerList: [],
     status: "",
   },
   reducers: {},
@@ -30,7 +31,13 @@ const allListSlice = createSlice({
       })
       .addCase(fetchAllTrainers.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log("after all trainers", action.payload);
+
         state.allTrainerList = action.payload;
+        const tempAllActiveTrainerList = action.payload?.filter(
+          (trainer) => trainer.activeStatus
+        );
+        state.allActiveTrainerList = tempAllActiveTrainerList;
       })
       .addCase(fetchAllTrainers.rejected, (state, action) => {
         state.status = "failed";

@@ -15,7 +15,7 @@ const timeZone = "Asia/Kathmandu";
 const AssignedClasses = ({ selectedDate }) => {
   const dispatch = useDispatch<any>();
   const { allActiveAssignedClasses, status, error } = useSelector(
-    (state) => state.assignedClassesReducer
+    (state: any) => state.assignedClassesReducer
   );
 
   const [selectedAssignedClass, setSelectedAssignedClass] = useState(null);
@@ -43,7 +43,7 @@ const AssignedClasses = ({ selectedDate }) => {
       .format("YYYY-MM-DD");
 
     const tempFilteredAssignedClasses = allActiveAssignedClasses.filter(
-      (assignedClass) => {
+      (assignedClass: any) => {
         const assignedClassDate = dayjs(assignedClass?.nepaliDate).format(
           "YYYY-MM-DD"
         );
@@ -114,7 +114,6 @@ const AssignedClasses = ({ selectedDate }) => {
                   </div>
                 </div>
               </div>
-
               {/* Modal */}
               <Modal
                 open={

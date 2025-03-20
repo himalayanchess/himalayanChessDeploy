@@ -41,7 +41,6 @@ const assignedClassesSlice = createSlice({
     // update class from active assigned class
     updateActiveAssignedClass: (state, action) => {
       const classId = action.payload._id;
-
       state.allActiveAssignedClasses = state.allActiveAssignedClasses.map(
         (assignedClass) => {
           if (assignedClass?._id != classId) {
