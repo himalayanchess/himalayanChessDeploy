@@ -9,86 +9,139 @@ import { Pagination, Stack } from "@mui/material";
 import AddStudent from "./AddStudent";
 import axios from "axios";
 import StudentFilterComponent from "../filtercomponents/StudentFilterComponent";
+import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchAllBatches,
+  filterStudentsList,
+  getAllStudents,
+} from "@/redux/allListSlice";
 
 const StudentComponent = () => {
-  const affiliatedToOptions = ["HCA", "School"];
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
-  const [selectedActiveStatus, setselectedActiveStatus] = useState("active");
+  // dispatch
+  const dispath = useDispatch<any>();
+  // use selector
+  // batches
+  const { allActiveBatches, allActiveStudentsList, allFilteredActiveStudents } =
+    useSelector((state: any) => state.allListReducer);
+
+  // state vars
+  const affiliatedToOptions = ["All", "HCA", "School"];
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
+  const [selectedBatch, setselectedBatch] = useState("None");
   const [searchText, setsearchText] = useState("");
   const [filteredStudentCount, setfilteredStudentCount] = useState(0);
-  // new student added
-  const [newStudentAdded, setnewStudentAdded] = useState(false);
-  const [newCreatedStudent, setnewCreatedStudent] = useState();
   const [currentPage, setCurrentPage] = useState(1); // Current page number
-  const [studentsPerPage] = useState(7);
-  //modal
-  const [addStudentModalOpen, setaddStudentModalOpen] = useState(false);
+  const [studentsPerPage] = useState(2);
   // batchlist
-  const [hcaBatchList, sethcaBatchList] = useState([]);
-  const [schoolBatchList, setschoolBatchList] = useState([]);
-  //projectList
-  const [projectList, setprojectList] = useState([]);
+  const [filteredBatches, setfilteredBatches] = useState([]);
 
   // reset acive status to "active" when selectedAffiliatedTo changes
   useEffect(() => {
-    setselectedActiveStatus("active");
     setsearchText("");
+    setselectedBatch("None");
   }, [selectedAffiliatedTo]);
 
-  // modal operation
-  // handleAddStudentModalOpen
-  function handleAddStudentModalOpen() {
-    setaddStudentModalOpen(true);
-  }
-
-  // handleAddStudentModalClose
-  function handleAddStudentModalClose() {
-    setaddStudentModalOpen(false);
-  }
   // handle page change
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
-  // getInitialData function
-  async function getInitialData() {
-    // get all batches
-    const { data: batchResData } = await axios.get(
-      "/api/batches/getAllBatches"
-    );
-    let tempHcaBatches = batchResData.allBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "hca"
-    );
-    let tempSchoolBatches = batchResData.allBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "school"
-    );
-    sethcaBatchList(tempHcaBatches);
-    setschoolBatchList(tempSchoolBatches);
 
-    // get all projects
-    const { data: projectResData } = await axios.get(
-      "/api/projects/getAllProjects"
-    );
-    setprojectList(projectResData.allProjects);
-  }
+  // filter
+  useEffect(() => {
+    // filter students
+    let tempFilteredStudentsList =
+      selectedAffiliatedTo.toLowerCase() === "all"
+        ? allActiveStudentsList
+        : allActiveStudentsList.filter(
+            (student) =>
+              student.affiliatedTo.toLowerCase() ==
+              selectedAffiliatedTo.toLowerCase()
+          );
+
+    console.log("affiliated to", tempFilteredStudentsList);
+    // Apply search filter if searchText is provided
+    if (searchText.trim() !== "") {
+      tempFilteredStudentsList = tempFilteredStudentsList.filter((student) =>
+        student.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    // // Sort students by createdAt in descending order (latest first)
+    tempFilteredStudentsList = tempFilteredStudentsList
+      .slice()
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // filter batches
+    let tempFilteredBatches =
+      selectedAffiliatedTo.toLowerCase() == "all"
+        ? allActiveBatches
+        : allActiveBatches?.filter(
+            (batch) =>
+              batch?.affiliatedTo?.toLowerCase() ==
+              selectedAffiliatedTo?.toLowerCase()
+          );
+
+    // sort student by batch if not "none"
+    if (selectedBatch?.toLowerCase() != "none") {
+      tempFilteredStudentsList = tempFilteredStudentsList.filter((student) =>
+        student.batches.some(
+          (batch) =>
+            batch.activeStatus === true && // Active batch
+            !batch.endDate && // No end date
+            batch.batchName == selectedBatch // Match batchName
+        )
+      );
+    }
+
+    //sort
+    tempFilteredBatches = tempFilteredBatches
+      .slice()
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // update states
+    setfilteredStudentCount(tempFilteredStudentsList?.length);
+    setfilteredBatches(tempFilteredBatches);
+    setCurrentPage(1);
+    // update redux state
+    dispath(filterStudentsList(tempFilteredStudentsList));
+  }, [
+    allActiveBatches,
+    allActiveStudentsList,
+    selectedAffiliatedTo,
+    searchText,
+    selectedBatch,
+  ]);
+
   // intial data fetching
   useEffect(() => {
-    getInitialData();
+    dispath(getAllStudents());
+    dispath(fetchAllBatches());
   }, []);
   return (
-    <div className="flex-1 py-6 px-10 border bg-white rounded-lg">
+    <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
       <h1 className="text-2xl font-bold">Student Management</h1>
       {/* student header */}
       <div className="student-header my-2 flex items-end justify-between">
         {/* dropdown */}
-        <div className="dropdown flex items-end">
+        <div className="dropdown flex gap-4 items-end">
           <Dropdown
             label="Affiliated to"
             options={affiliatedToOptions}
             selected={selectedAffiliatedTo}
             onChange={setselectedAffiliatedTo}
           />
+          <Dropdown
+            label="Batch name"
+            options={[
+              "None",
+              ...filteredBatches?.map((batch: any) => batch?.batchName),
+            ]}
+            selected={selectedBatch}
+            onChange={setselectedBatch}
+          />
           {/* Student count */}
-          <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold ml-2">
+          <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
             {filteredStudentCount}
           </span>
         </div>
@@ -101,62 +154,20 @@ const StudentComponent = () => {
             onChange={(e) => setsearchText(e.target.value)}
           />
 
-          {/* filter button */}
-          <StudentFilterComponent
-            selectedActiveStatus={selectedActiveStatus}
-            setselectedActiveStatus={setselectedActiveStatus}
-          />
           {/* add student button */}
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleAddStudentModalOpen}
-          >
-            <AddIcon />
-            <span className="ml-1">Add Student</span>
-          </Button>
-          <Modal
-            open={addStudentModalOpen}
-            onClose={handleAddStudentModalClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-            className="flex items-center justify-center"
-          >
-            <Box className="w-[70%] max-h-[87%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
-              {/* add mode */}
-              <AddStudent
-                mode="add"
-                hcaBatchList={hcaBatchList}
-                schoolBatchList={schoolBatchList}
-                projectList={projectList}
-                newStudentAdded={newStudentAdded}
-                setnewStudentAdded={setnewStudentAdded}
-                newCreatedStudent={newCreatedStudent}
-                setnewCreatedStudent={setnewCreatedStudent}
-                handleClose={handleAddStudentModalClose}
-              />
-            </Box>
-          </Modal>
+          <Link href={"/superadmin/students/addstudent"}>
+            <Button variant="contained" size="small">
+              <AddIcon />
+              <span className="ml-1">Add Student</span>
+            </Button>
+          </Link>
         </div>
       </div>
       {/* students list */}
       <StudentList
-        hcaBatchList={hcaBatchList}
-        schoolBatchList={schoolBatchList}
-        projectList={projectList}
+        allFilteredActiveStudents={allFilteredActiveStudents}
         currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        handleClose={handleAddStudentModalClose}
         studentsPerPage={studentsPerPage}
-        searchText={searchText}
-        selectedAffiliatedTo={selectedAffiliatedTo}
-        setfilteredStudentCount={setfilteredStudentCount}
-        selectedActiveStatus={selectedActiveStatus}
-        setselectedActiveStatus={setselectedActiveStatus}
-        newStudentAdded={newStudentAdded}
-        setnewStudentAdded={setnewStudentAdded}
-        newCreatedStudent={newCreatedStudent}
-        setnewCreatedStudent={setnewCreatedStudent}
       />
       {/* pagination */}
       <Stack spacing={2} className="mx-auto w-max mt-7">

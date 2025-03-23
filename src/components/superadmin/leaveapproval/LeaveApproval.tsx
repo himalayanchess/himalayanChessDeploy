@@ -38,8 +38,6 @@ const LeaveApproval = () => {
 
   // filter leave requests based on conditions and diaptach the array
   useEffect(() => {
-    console.log(selectedTrainer);
-
     let tempFilteredLeaveRequests =
       selectedApprovalStatus.toLowerCase() === "all"
         ? allLeaveRequests
@@ -62,7 +60,7 @@ const LeaveApproval = () => {
 
     // update total leave request count
     settotalLeaveRequests(tempFilteredLeaveRequests?.length);
-
+    setCurrentPage(1);
     // update redux state
     dispatch(filterLeaveRequests(tempFilteredLeaveRequests));
   }, [selectedApprovalStatus, selectedTrainer]);
@@ -111,7 +109,6 @@ const LeaveApproval = () => {
         </div>
         {/* leave approval list */}
         <LeaveApprovalList
-          selectedApprovalStatus={selectedApprovalStatus}
           allFilteredLeaveRequests={allFilteredLeaveRequests}
           currentPage={currentPage}
           leaveRequestsPerPage={leaveRequestsPerPage}

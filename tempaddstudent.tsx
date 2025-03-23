@@ -5,15 +5,28 @@ import Input from "../Input";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Button, Divider, Modal } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-
+import { Box, Button, Modal } from "@mui/material";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllBatches, fetchAllProjects } from "@/redux/allListSlice";
 
-const AddStudent = () => {
+const AddStudent = ({
+  mode = "add",
+  hcaBatchList,
+  schoolBatchList,
+  projectList,
+  newStudentAdded,
+  setnewStudentAdded,
+  newCreatedStudent,
+  setnewCreatedStudent,
+  handleClose,
+  initialData,
+  //object
+  editedStudent,
+  seteditedStudent,
+  // boolean
+  studentEdited,
+  setstudentEdited,
+}) => {
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
   const statusOptions = ["Ongoing", "Left"];
@@ -23,33 +36,22 @@ const AddStudent = () => {
     { _id: "102", value: "Advanced JavaScript", label: "Advanced JavaScript" },
     { _id: "103", value: "Data Structures", label: "Data Structures" },
   ];
-  // dispatch
-  const dispatch = useDispatch<any>();
-
-  // use selector
-  const { allActiveBatches, allActiveProjects } = useSelector(
-    (state: any) => state.allListReducer
-  );
 
   // state variable
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
-  const [addStudentLoading, setaddStudentLoading] = useState(false);
-  // batchlist
-  const [hcaBatchList, sethcaBatchList] = useState([]);
-  const [schoolBatchList, setschoolBatchList] = useState([]);
-  //projectList
-  const [projectList, setprojectList] = useState([]);
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState(
+    mode == "add" ? "HCA" : initialData?.affiliatedTo
+  );
+  // restore modal
+  const [restoreStudentModalOpen, setrestoreStudentModalOpen] = useState(false);
 
-  // confirm modal
-  const [confirmModalOpen, setconfirmModalOpen] = useState(false);
-
-  // handleconfirmModalOpen
-  function handleconfirmModalOpen() {
-    setconfirmModalOpen(true);
+  // handle restore modal open
+  function handleRestoreModalOpen() {
+    setrestoreStudentModalOpen(true);
   }
-  // handleconfirmModalClose
-  function handleconfirmModalClose() {
-    setconfirmModalOpen(false);
+
+  // handle restore modal close
+  function handleRestoreModalClose() {
+    setrestoreStudentModalOpen(false);
   }
 
   // react hook form
@@ -63,33 +65,42 @@ const AddStudent = () => {
     trigger,
     watch,
   } = useForm<any>({
-    defaultValues: {
-      affiliatedTo: "HCA",
-      name: "",
-      dob: "",
-      gender: "",
-      address: "",
-      phone: "",
-      joinedDate: "",
-      endDate: "",
-      educationalInstitute: "",
-      batches: [],
-      projectId: "",
-      projectName: "",
-      fideId: 0,
-      title: "None",
-      rating: 0,
-      completedStatus: "",
-      enrolledCourses: [],
-      // add file in studentform in (onSubmit)
-      eventsPlayed: [],
-      history: [],
-      guardianInfo: { name: "", phone: "", email: "" },
-      emergencyContactName: "",
-      emergencyContactNo: "",
-    },
+    defaultValues:
+      mode == "add"
+        ? {
+            affiliatedTo: "HCA",
+            name: "",
+            dob: "",
+            gender: "",
+            address: "",
+            phone: "",
+            joinedDate: "",
+            endDate: "",
+            educationalInstitute: "",
+            batches: [],
+            projectId: "",
+            projectName: "",
+            fideId: 0,
+            title: "None",
+            rating: 0,
+            completedStatus: "",
+            enrolledCourses: [],
+            // add file in studentform in (onSubmit)
+            eventsPlayed: [],
+            history: [],
+            guardianInfo: { name: "", phone: "", email: "" },
+            emergencyContactName: "",
+            emergencyContactNo: "",
+          }
+        : {
+            ...initialData,
+            batches: initialData?.batches.filter((batch) => batch.activeStatus),
+            enrolledCourses: initialData?.enrolledCourses.filter(
+              (enrolledCourse) => enrolledCourse.activeStatus
+            ),
+          },
   });
-  const { errors, isValid } = formState;
+  const { errors } = formState;
 
   // Handle batches dynamically
   const {
@@ -110,13 +121,7 @@ const AddStudent = () => {
 
   // Function to add a new course
   const addCourse = () => {
-    append({
-      course: "",
-      courseId: "",
-      startDate: "",
-      endDate: "",
-      activeStatus: true,
-    });
+    append({ course: "", courseId: "", status: "Ongoing", activeStatus: true });
   };
   // Watch enrolledCourses for validation
   const enrolledCourses = watch("enrolledCourses");
@@ -147,56 +152,61 @@ const AddStudent = () => {
   // onSubmit Function
   async function onSubmit(data) {
     try {
-      setaddStudentLoading(true);
-      const { data: resData } = await axios.post(
-        "/api/students/addNewStudent",
-        {
-          ...data,
-          selectedAffiliatedTo,
+      if (mode == "add") {
+        const { data: resData } = await axios.post(
+          "/api/students/addNewStudent",
+          {
+            ...data,
+            selectedAffiliatedTo,
+          }
+        );
+        if (resData.statusCode == 200) {
+          setnewStudentAdded(true);
+          setnewCreatedStudent(resData.savedNewStudent);
+          handleClose();
         }
-      );
-      if (resData.statusCode == 200) {
-        console.log("ass student", resData);
-        handleconfirmModalClose();
-        setaddStudentLoading(false);
+        notify(resData.msg, resData.statusCode);
+        return;
       }
-      notify(resData.msg, resData.statusCode);
-      return;
+      // edit mode
+      else if (mode == "edit") {
+        const { data: resData } = await axios.post(
+          "/api/students/updateStudent",
+          data
+        );
+        console.log("previous student", data);
+        console.log("updated student", resData);
+
+        if (resData.statusCode == 200) {
+          setstudentEdited(true);
+          seteditedStudent(data);
+          handleClose();
+        }
+        notify(resData.msg, resData.statusCode);
+        return;
+      }
     } catch (error) {
       console.log("error in addsudent component (onSubmit)", error);
     }
   }
 
-  // filter batchs list and projects and set to state vars
-  useEffect(() => {
-    let tempHcaBatches = allActiveBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "hca"
-    );
-    let tempSchoolBatches = allActiveBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "school"
-    );
-    sethcaBatchList(tempHcaBatches);
-    setschoolBatchList(tempSchoolBatches);
-
-    setprojectList(allActiveProjects);
-  }, [allActiveBatches, allActiveProjects, dispatch]);
-
-  // fetch initial data
-  useEffect(() => {
-    dispatch(fetchAllBatches());
-    dispatch(fetchAllProjects());
-  }, []);
-
   return (
-    <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <div className="heading ">
-        <h1 className="text-xl font-bold ">Add Student</h1>
+    <>
+      <div className="heading flex justify-between items-center">
+        <h1 className="text-xl font-bold mb-2">
+          {mode == "add"
+            ? "Add Student"
+            : `Update Student (${initialData?.name})`}
+        </h1>
+
+        <Button variant="outlined" onClick={() => handleClose()}>
+          Close
+        </Button>
       </div>
-      <Divider sx={{ margin: ".5rem 0 .7rem  " }} />
       {/* form-fields */}
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
+        className="form-fields grid grid-cols-2 gap-5"
       >
         {/* first-basic-info */}
         <div className="first-basic-info grid grid-cols-2 grid-rows-3 gap-5">
@@ -204,6 +214,7 @@ const AddStudent = () => {
           <Dropdown
             label="Affiliated to"
             options={affiliatedToOptions}
+            disabled={mode == "edit"}
             selected={selectedAffiliatedTo}
             onChange={(value) => {
               setselectedAffiliatedTo(value);
@@ -328,29 +339,27 @@ const AddStudent = () => {
             />
           </div> */}
           {/* educationalInstitute */}
-          {selectedAffiliatedTo.toLowerCase() == "school" && (
-            <div className="educationalInstitute col-span-2">
-              <Controller
-                name="educationalInstitute"
-                control={control}
-                rules={
-                  {
-                    // required: "School Name is required",
-                  }
+          <div className="educationalInstitute col-span-2">
+            <Controller
+              name="educationalInstitute"
+              control={control}
+              rules={
+                {
+                  // required: "School Name is required",
                 }
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text"
-                    label="Educational Insititute"
-                    // required={true}
-                    error={errors.educationalInstitute}
-                    helperText={errors.educationalInstitute?.message}
-                  />
-                )}
-              />
-            </div>
-          )}
+              }
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="text"
+                  label="Educational Insititute"
+                  // required={true}
+                  error={errors.educationalInstitute}
+                  helperText={errors.educationalInstitute?.message}
+                />
+              )}
+            />
+          </div>
         </div>
 
         {/* second-basic-info */}
@@ -777,7 +786,7 @@ const AddStudent = () => {
                           width="full"
                         />
                       )}
-                    />
+                    />{" "}
                     {/* batch end date */}
                     <Controller
                       name={`batches.${index}.endDate`}
@@ -792,6 +801,7 @@ const AddStudent = () => {
                           {...field}
                           label="End date"
                           type="date"
+                          required={true}
                           value={
                             field.value
                               ? new Date(field.value)
@@ -839,7 +849,7 @@ const AddStudent = () => {
             )}
             {fields.map((course, index) => (
               <div key={course.id} className="col-span-2 mb-2">
-                <div className="grid grid-cols-4 items-center place-items-start gap-4">
+                <div className="grid grid-cols-3 items-end place-items-start gap-4">
                   {/* Course Selection */}
                   <Controller
                     name={`enrolledCourses.${index}.course`}
@@ -874,59 +884,31 @@ const AddStudent = () => {
                       />
                     )}
                   />
-                  {/* enrolled course start date */}
+
+                  {/* Course Status Selection */}
                   <Controller
-                    name={`enrolledCourses.${index}.startDate`}
+                    name={`enrolledCourses.${index}.status`}
                     control={control}
                     rules={{
-                      required: "Date is required",
+                      required: enrolledCourses[index]?.course
+                        ? "Status is required"
+                        : false,
                     }}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Start date"
-                        type="date"
-                        required={true}
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().split("T")[0]
-                            : ""
-                        }
-                        error={errors?.enrolledCourses?.[index]?.startDate}
-                        helperText={
-                          errors?.enrolledCourses?.[index]?.startDate?.message
-                        }
+                      <Dropdown
+                        label="Status"
+                        options={["Ongoing", "Completed"]}
+                        selected={field.value}
+                        onChange={field.onChange}
                         width="full"
-                      />
-                    )}
-                  />{" "}
-                  {/* enrolled course start date */}
-                  <Controller
-                    name={`enrolledCourses.${index}.endDate`}
-                    control={control}
-                    rules={
-                      {
-                        // required: "Date is required",
-                      }
-                    }
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="End date"
-                        type="date"
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().split("T")[0]
-                            : ""
-                        }
-                        error={errors?.enrolledCourses?.[index]?.endDate}
+                        error={errors?.enrolledCourses?.[index]?.status}
                         helperText={
-                          errors?.enrolledCourses?.[index]?.endDate?.message
+                          errors?.enrolledCourses?.[index]?.status?.message
                         }
-                        width="full"
                       />
                     )}
                   />
+
                   <button
                     type="button"
                     onClick={() => remove(index)}
@@ -947,65 +929,12 @@ const AddStudent = () => {
         )}
         {/* add or edit button */}
         <div className="button mt-3 col-span-2">
-          <Button
-            onClick={handleconfirmModalOpen}
-            variant="contained"
-            className=""
-          >
-            Add Student
+          <Button type="submit" variant="contained" className="">
+            {mode == "add" ? "Add Student" : "Edit Student"}
           </Button>
-          {/* Hidden Submit Button (Inside Form) */}
-          <button type="submit" id="hiddenSubmit" hidden></button>
-          {/* confirm modal */}
-          <Modal
-            open={confirmModalOpen}
-            onClose={handleconfirmModalClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-            className="flex items-center justify-center"
-          >
-            <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
-              <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
-              <p className="mb-6 text-gray-600">You want to add new student.</p>
-              <div className="buttons flex gap-4">
-                <Button
-                  variant="outlined"
-                  onClick={handleconfirmModalClose}
-                  className="text-gray-600 hover:bg-gray-50"
-                >
-                  Cancel
-                </Button>
-                {addStudentLoading ? (
-                  <LoadingButton
-                    size="large"
-                    loading={addStudentLoading}
-                    loadingPosition="start"
-                    variant="contained"
-                    className="mt-7"
-                  >
-                    <span className="">Adding student</span>
-                  </LoadingButton>
-                ) : (
-                  <Button
-                    variant="contained"
-                    color="info"
-                    onClick={() => {
-                      document.getElementById("hiddenSubmit").click();
-
-                      if (!isValid) {
-                        handleconfirmModalClose();
-                      }
-                    }}
-                  >
-                    Add Student
-                  </Button>
-                )}
-              </div>
-            </Box>
-          </Modal>
         </div>
       </form>
-    </div>
+    </>
   );
 };
 

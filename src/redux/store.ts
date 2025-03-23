@@ -4,6 +4,7 @@ import allListReducer from "@/redux/allListSlice";
 import trainerReducer from "@/redux/trainerSlice";
 import leaveRequestReducer from "@/redux/leaveRequestSlice";
 import leaveApprovalReducer from "@/redux/leaveApprovalSlice";
+import trainerHistoryReducer from "@/redux/trainerHistorySlice";
 
 export const myStore = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const myStore = configureStore({
     trainerReducer,
     leaveRequestReducer,
     leaveApprovalReducer,
+    trainerHistoryReducer,
   },
 });

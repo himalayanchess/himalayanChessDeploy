@@ -3,9 +3,22 @@ import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/UserModel";
 import NonAffiliatedStudent from "@/models/NonAffiliatedStudentModel";
 import HcaAffiliatedStudent from "@/models/HcaAffiliatedStudent";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isoWeek from "dayjs/plugin/isoWeek";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
 export async function POST(req: NextRequest) {
   try {
     await dbconnect();
+    const timeZone = "Asia/Kathmandu";
+
     const reqBody = await req.json();
     const {
       affiliatedTo,
@@ -32,7 +45,27 @@ export async function POST(req: NextRequest) {
       selectedAffiliatedTo,
     } = reqBody;
 
-    console.log("enrolled coursessss", enrolledCourses);
+    const utcJoinedDate = dayjs(dob).tz(timeZone).startOf("day").utc();
+    const utcEndDate = dayjs(dob).tz(timeZone).startOf("day").utc();
+    const utcDob = dayjs(dob).tz(timeZone).startOf("day").utc();
+
+    // batches to utcdate
+    const utcconvertedBatches = batches.map((batch) => ({
+      ...batch,
+      startDate: dayjs(batch.startDate).tz(timeZone).startOf("day").utc(),
+      endDate: batch?.endDate
+        ? dayjs(batch.endDate).tz(timeZone).startOf("day").utc()
+        : "",
+    }));
+    //enrolled courses to utc date
+    const utcconvertedEnrolledCourses = enrolledCourses.map((course) => ({
+      ...course,
+      startDate: dayjs(course.startDate).tz(timeZone).startOf("day").utc(),
+      endDate: course?.endDate
+        ? dayjs(course.endDate).tz(timeZone).startOf("day").utc()
+        : "",
+    }));
+    console.log("onverted coursees", utcconvertedEnrolledCourses);
 
     // Check if user with the same name exists (case-insensitive)
     const nonAffiliatedStudentExists = await NonAffiliatedStudent.findOne({
@@ -56,11 +89,11 @@ export async function POST(req: NextRequest) {
       const newStudent = new HcaAffiliatedStudent({
         affiliatedTo,
         name,
-        dob,
+        dob: utcDob,
         gender,
-        batches,
-        joinedDate,
-        endDate,
+        batches: utcconvertedBatches,
+        joinedDate: utcJoinedDate,
+        endDate: utcEndDate,
         address,
         phone,
         completedStatus,
@@ -70,13 +103,13 @@ export async function POST(req: NextRequest) {
         guardianInfo,
         emergencyContactName,
         emergencyContactNo,
-        enrolledCourses,
+        enrolledCourses: utcconvertedEnrolledCourses,
       });
       const savedNewStudent = await newStudent.save();
       if (savedNewStudent) {
         return NextResponse.json({
           statusCode: 200,
-          msg: "New Student added",
+          msg: "New HCA student added",
           savedNewStudent,
         });
       }
@@ -86,11 +119,11 @@ export async function POST(req: NextRequest) {
       const newStudent = new NonAffiliatedStudent({
         affiliatedTo,
         name,
-        dob,
+        dob: utcDob,
         gender,
         batches,
-        joinedDate,
-        endDate,
+        joinedDate: utcJoinedDate,
+        endDate: utcEndDate,
         projectId,
         projectName,
         completedStatus,
@@ -102,13 +135,12 @@ export async function POST(req: NextRequest) {
       if (savedNewStudent) {
         return NextResponse.json({
           statusCode: 200,
-          msg: "New Student added",
+          msg: "New school student added",
           savedNewStudent,
         });
       }
     }
 
-    // }
     // user add fail
     return NextResponse.json({
       statusCode: 204,

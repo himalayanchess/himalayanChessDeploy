@@ -131,12 +131,12 @@ const StudyMaterialModal = ({
                   className="p-2 flex justify-between items-between bg-gray-100 rounded-md cursor-pointer"
                 >
                   {/* title */}
-                  <div className="title">
+                  <a href={studyMaterial?.fileUrl} className="title">
                     <InsertDriveFileOutlinedIcon sx={{ fontSize: "1.6rem" }} />
                     <span className="ml-2 text-sm">
                       {studyMaterial?.fileName}
                     </span>
-                  </div>
+                  </a>
                   {/* buttons */}
                   <div className="buttons">
                     <Button
@@ -231,6 +231,9 @@ export const UploadStudyMaterialModal = ({
           fileUrl,
           activeStatus: true,
           uploadedAt: Date.now(),
+          fileType: studyMaterialFile?.type.startsWith("image/")
+            ? "image"
+            : "pdf",
         };
         const { data: addStudyMaterialResData } = await axios.post(
           "/api/classes/addStudyMaterial",
@@ -268,6 +271,8 @@ export const UploadStudyMaterialModal = ({
   //handle file change
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
+    console.log(file);
+
     if (file) {
       setstudyMaterialFile(file);
     }

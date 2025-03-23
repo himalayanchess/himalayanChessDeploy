@@ -18,8 +18,9 @@ import Dropdown from "@/components/Dropdown";
 import TrainersLeaveRequestList from "./TrainersLeaveRequestList";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addLeaveRequest } from "@/redux/leaveRequestSlice";
+import { fetchAllBatches } from "@/redux/allListSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -31,6 +32,10 @@ const LeaveRequest = () => {
   const dispatch = useDispatch<any>();
   // session
   const { data: sessionData } = useSession();
+  // selector
+  const { allActiveBatches } = useSelector(
+    (state: any) => state.allListReducer
+  );
 
   // state vars
   const [nepaliTodaysDate, setNepaliTodaysDate] = useState(
@@ -38,6 +43,8 @@ const LeaveRequest = () => {
   );
   const [supportReasonFile, setsupportReasonFile] = useState<File | any>(null);
   const [selectedAffectedClass, setselectedAffectedClass] = useState("");
+  const [filteredBatchesOptions, setfilteredBatchesOptions] = useState([]);
+
   // modal
   const [affectedClassModalOpen, setaffectedClassModalOpen] = useState(false);
   // modal operations
@@ -136,10 +143,34 @@ const LeaveRequest = () => {
     } else {
       appendaffectedClasses({ affectedClassName: selectedAffectedClass });
       notify("Affected class added", 200);
+      setselectedAffectedClass("");
       handleaffectedClassModalClose();
       return;
     }
   }
+
+  // filter allActiveBatches
+  useEffect(() => {
+    const tempfilteredBatchesOptions = new Set(
+      allActiveBatches.map((batch) => {
+        if (batch?.affiliatedTo?.toLowerCase() === "school") {
+          return batch.projectName;
+        } else if (batch?.affiliatedTo?.toLowerCase() === "hca") {
+          return batch.batchName;
+        }
+      })
+    );
+
+    // Convert the Set back to an array
+    const uniqueFilteredBatches = [...tempfilteredBatchesOptions];
+
+    setfilteredBatchesOptions(uniqueFilteredBatches);
+  }, [allActiveBatches]);
+
+  // fetch all batches from redux
+  useEffect(() => {
+    dispatch(fetchAllBatches());
+  }, []);
 
   //   submit function
   async function onSubmit(data) {
@@ -409,7 +440,7 @@ const LeaveRequest = () => {
 
                 <Dropdown
                   label="Project name"
-                  options={["asd", "34"]}
+                  options={filteredBatchesOptions}
                   selected={selectedAffectedClass}
                   onChange={(value: any) => {
                     setselectedAffectedClass(value);

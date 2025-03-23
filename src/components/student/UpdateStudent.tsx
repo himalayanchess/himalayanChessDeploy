@@ -7,13 +7,24 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Divider, Modal } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllBatches, fetchAllProjects } from "@/redux/allListSlice";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isoWeek from "dayjs/plugin/isoWeek";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
-const AddStudent = () => {
+dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
+const timeZone = "Asia/Kathmandu";
+
+const UpdateStudent = ({ studentRecord }: any) => {
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
   const statusOptions = ["Ongoing", "Left"];
@@ -23,25 +34,27 @@ const AddStudent = () => {
     { _id: "102", value: "Advanced JavaScript", label: "Advanced JavaScript" },
     { _id: "103", value: "Data Structures", label: "Data Structures" },
   ];
-  // dispatch
-  const dispatch = useDispatch<any>();
 
-  // use selector
+  const dispatch = useDispatch<any>();
   const { allActiveBatches, allActiveProjects } = useSelector(
     (state: any) => state.allListReducer
   );
 
-  // state variable
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
-  const [addStudentLoading, setaddStudentLoading] = useState(false);
-  // batchlist
+  const [updateStudentLoading, setupdateStudentLoading] = useState(false);
   const [hcaBatchList, sethcaBatchList] = useState([]);
   const [schoolBatchList, setschoolBatchList] = useState([]);
-  //projectList
   const [projectList, setprojectList] = useState([]);
-
-  // confirm modal
+  // modal
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
+  const [confirmBatchDeleteModalOpen, setconfirmBatchDeleteModalOpen] =
+    useState(false);
+  const [confirmCourseDeleteModalOpen, setconfirmCourseDeleteModalOpen] =
+    useState(false);
+  // selected index
+  const [selectedDeleteBatchIndex, setselectedDeleteBatchIndex] = useState("");
+  const [selectedDeleteCourseIndex, setselectedDeleteCourseIndex] =
+    useState("");
 
   // handleconfirmModalOpen
   function handleconfirmModalOpen() {
@@ -51,8 +64,25 @@ const AddStudent = () => {
   function handleconfirmModalClose() {
     setconfirmModalOpen(false);
   }
+  // handleconfirmBatchDeleteModalOpen
+  function handleconfirmBatchDeleteModalOpen(batchIndex: any) {
+    setselectedDeleteBatchIndex(batchIndex);
+    setconfirmBatchDeleteModalOpen(true);
+  }
+  // handleconfirmBatchDeleteModalClose
+  function handleconfirmBatchDeleteModalClose() {
+    setconfirmBatchDeleteModalOpen(false);
+  }
+  // handleconfirmCourseDeleteModalOpen
+  function handleconfirmCourseDeleteModalOpen(courseIndex: any) {
+    setselectedDeleteCourseIndex(courseIndex);
+    setconfirmCourseDeleteModalOpen(true);
+  }
+  // handleconfirmCourseDeleteModalClose
+  function handleconfirmCourseDeleteModalClose() {
+    setconfirmCourseDeleteModalOpen(false);
+  }
 
-  // react hook form
   const {
     register,
     handleSubmit,
@@ -81,7 +111,6 @@ const AddStudent = () => {
       rating: 0,
       completedStatus: "",
       enrolledCourses: [],
-      // add file in studentform in (onSubmit)
       eventsPlayed: [],
       history: [],
       guardianInfo: { name: "", phone: "", email: "" },
@@ -89,9 +118,9 @@ const AddStudent = () => {
       emergencyContactNo: "",
     },
   });
+
   const { errors, isValid } = formState;
 
-  // Handle batches dynamically
   const {
     fields: batchesFields,
     append: appendBatch,
@@ -100,15 +129,12 @@ const AddStudent = () => {
     control,
     name: "batches",
   });
-  console.log("batchesFields", batchesFields);
 
-  // Handle enrolledCourses dynamically
   const { fields, append, remove } = useFieldArray({
     control,
     name: "enrolledCourses",
   });
 
-  // Function to add a new course
   const addCourse = () => {
     append({
       course: "",
@@ -118,15 +144,13 @@ const AddStudent = () => {
       activeStatus: true,
     });
   };
-  // Watch enrolledCourses for validation
+
   const enrolledCourses = watch("enrolledCourses");
 
-  // Function to check for duplicate courses
   const isDuplicateCourse = (course: string) => {
     return enrolledCourses.filter((c) => c.course === course).length > 1;
   };
 
-  // Function to add a new batch
   const addBatch = () => {
     appendBatch({
       batchId: "",
@@ -136,38 +160,37 @@ const AddStudent = () => {
       activeStatus: true,
     });
   };
-  // Watch batches for validation
+
   const batches = watch("batches");
 
-  // Function to check for duplicate courses
   const isDuplicateBatch = (batchName: string) => {
     return batches.filter((c) => c.batchName === batchName).length > 1;
   };
 
-  // onSubmit Function
-  async function onSubmit(data) {
+  console.log("errors", errors);
+
+  const onSubmit = async (data) => {
     try {
-      setaddStudentLoading(true);
+      setupdateStudentLoading(true);
       const { data: resData } = await axios.post(
-        "/api/students/addNewStudent",
-        {
-          ...data,
-          selectedAffiliatedTo,
-        }
+        "/api/students/updateStudent",
+        data
       );
+      console.log("previous student", data);
+      console.log("updated student", resData);
+
       if (resData.statusCode == 200) {
         console.log("ass student", resData);
         handleconfirmModalClose();
-        setaddStudentLoading(false);
+        setupdateStudentLoading(false);
       }
       notify(resData.msg, resData.statusCode);
       return;
     } catch (error) {
-      console.log("error in addsudent component (onSubmit)", error);
+      console.log("error in updateStudent component (onSubmit)", error);
     }
-  }
+  };
 
-  // filter batchs list and projects and set to state vars
   useEffect(() => {
     let tempHcaBatches = allActiveBatches.filter(
       (batch) => batch.affiliatedTo.toLowerCase() == "hca"
@@ -181,46 +204,52 @@ const AddStudent = () => {
     setprojectList(allActiveProjects);
   }, [allActiveBatches, allActiveProjects, dispatch]);
 
-  // fetch initial data
   useEffect(() => {
     dispatch(fetchAllBatches());
     dispatch(fetchAllProjects());
   }, []);
 
+  useEffect(() => {
+    if (studentRecord) {
+      reset({
+        ...studentRecord,
+        batches: studentRecord.batches || [],
+        enrolledCourses: studentRecord.enrolledCourses || [],
+      });
+      setselectedAffiliatedTo(studentRecord.affiliatedTo);
+    }
+  }, [studentRecord, reset]);
+
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       <div className="heading ">
-        <h1 className="text-xl font-bold ">Add Student</h1>
+        <h1 className="text-xl font-bold ">Update Student</h1>
       </div>
       <Divider sx={{ margin: ".5rem 0 .7rem  " }} />
-      {/* form-fields */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
       >
+        {/* Form fields go here, same as in AddStudent */}
         {/* first-basic-info */}
         <div className="first-basic-info grid grid-cols-2 grid-rows-3 gap-5">
           {/* selected affiliated to */}
-          <Dropdown
-            label="Affiliated to"
-            options={affiliatedToOptions}
-            selected={selectedAffiliatedTo}
-            onChange={(value) => {
-              setselectedAffiliatedTo(value);
-              reset((prevValues) => ({
-                ...prevValues,
-                affiliatedTo: value,
-                address: "",
-                phone: "",
-                guardianInfo: { name: "", phone: "", email: "" },
-                projectName: "",
-                projectId: "",
-                emergencyContact: "",
-                emergencyContactName: "",
-                enrolledCourses: [],
-              }));
-            }}
-            width="full"
+          <Controller
+            name="affiliatedTo"
+            control={control}
+            rules={{}}
+            render={({ field }) => (
+              <Dropdown
+                label="Affiliated to"
+                options={affiliatedToOptions}
+                selected={field.value || ""}
+                disabled={true}
+                onChange={(value) => {
+                  setselectedAffiliatedTo(value);
+                }}
+                width="full"
+              />
+            )}
           />
           {/* full name */}
           <Controller
@@ -236,6 +265,7 @@ const AddStudent = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                value={field.value || ""}
                 label="Full Name"
                 type="text"
                 placeholder="Full Name"
@@ -255,6 +285,11 @@ const AddStudent = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                value={
+                  field.value
+                    ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                    : ""
+                }
                 type="date"
                 label="Date of Birth"
                 error={errors.dob}
@@ -275,7 +310,7 @@ const AddStudent = () => {
                 <Dropdown
                   label="Gender"
                   options={genderOptions}
-                  selected={field.value}
+                  selected={field.value || ""}
                   onChange={(value) => {
                     field.onChange(value);
                   }}
@@ -341,6 +376,7 @@ const AddStudent = () => {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    value={field.value || ""}
                     type="text"
                     label="Educational Insititute"
                     // required={true}
@@ -365,6 +401,11 @@ const AddStudent = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                value={
+                  field.value
+                    ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                    : ""
+                }
                 type="date"
                 label="Joined Date"
                 required={true}
@@ -385,6 +426,11 @@ const AddStudent = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                value={
+                  field.value
+                    ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                    : ""
+                }
                 type="date"
                 label="End Date"
                 error={errors.endDate}
@@ -403,6 +449,7 @@ const AddStudent = () => {
               render={({ field }) => (
                 <Input
                   {...field}
+                  value={field.value || ""}
                   type="text"
                   label="Address"
                   error={errors.address}
@@ -426,6 +473,7 @@ const AddStudent = () => {
               render={({ field }) => (
                 <Input
                   {...field}
+                  value={field.value || ""}
                   type="number"
                   label="phone"
                   error={errors.phone}
@@ -445,7 +493,7 @@ const AddStudent = () => {
                 <Dropdown
                   label="Project name"
                   options={projectList.map((project) => project.name)}
-                  selected={field.value}
+                  selected={field.value || ""}
                   onChange={(value) => {
                     field.onChange(value);
                     const selectedProject = projectList.find(
@@ -473,7 +521,7 @@ const AddStudent = () => {
               <Dropdown
                 label="Status"
                 options={statusOptions}
-                selected={field.value}
+                selected={field.value || ""}
                 onChange={(value) => {
                   field.onChange(value);
                 }}
@@ -504,7 +552,7 @@ const AddStudent = () => {
                   <Dropdown
                     label="Title"
                     options={titleOptions}
-                    selected={field.value}
+                    selected={field.value || ""}
                     onChange={(value) => {
                       field.onChange(value);
                     }}
@@ -530,6 +578,7 @@ const AddStudent = () => {
                 return (
                   <Input
                     {...field}
+                    value={field.value || ""}
                     label="FIDE ID"
                     type="number"
                     error={errors.fideId}
@@ -551,6 +600,7 @@ const AddStudent = () => {
                 return (
                   <Input
                     {...field}
+                    value={field.value || ""}
                     label="Rating"
                     type="number"
                     error={errors.rating}
@@ -659,6 +709,7 @@ const AddStudent = () => {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    value={field.value || ""}
                     type="text"
                     label="Emergency Contact Full Name"
                     error={errors.emergencyContactName}
@@ -682,6 +733,7 @@ const AddStudent = () => {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    value={field.value || ""}
                     type="number"
                     label="Emergency Contact no"
                     error={errors.emergencyContactNo}
@@ -765,9 +817,9 @@ const AddStudent = () => {
                           required={true}
                           value={
                             field.value
-                              ? new Date(field.value)
-                                  .toISOString()
-                                  .split("T")[0]
+                              ? dayjs(field.value)
+                                  .tz(timeZone)
+                                  .format("YYYY-MM-DD")
                               : ""
                           }
                           error={errors?.batches?.[index]?.startDate}
@@ -794,9 +846,9 @@ const AddStudent = () => {
                           type="date"
                           value={
                             field.value
-                              ? new Date(field.value)
-                                  .toISOString()
-                                  .split("T")[0]
+                              ? dayjs(field.value)
+                                  .tz(timeZone)
+                                  .format("YYYY-MM-DD")
                               : ""
                           }
                           error={errors?.batches?.[index]?.endDate}
@@ -807,14 +859,52 @@ const AddStudent = () => {
                         />
                       )}
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeBatch(index)}
+                    <Button
+                      onClick={() => handleconfirmBatchDeleteModalOpen(index)}
                       className="text-red-500  "
+                      color="error"
                     >
                       <DeleteIcon sx={{ fontSize: "1.5rem" }} />
                       <span className="text-sm">Delete</span>
-                    </button>
+                    </Button>
+                    {/* confrim remove batch modal */}
+                    <Modal
+                      open={confirmBatchDeleteModalOpen}
+                      onClose={handleconfirmBatchDeleteModalClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                      className="flex items-center justify-center"
+                    >
+                      <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
+                        <p className="font-semibold mb-4 text-2xl">
+                          Are you sure?
+                        </p>
+                        <p className="mb-6 text-gray-600">
+                          You want to update this student.
+                        </p>
+                        <div className="buttons flex gap-4">
+                          <Button
+                            variant="outlined"
+                            onClick={handleconfirmBatchDeleteModalClose}
+                            className="text-gray-600 hover:bg-gray-50"
+                          >
+                            Cancel
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            color="info"
+                            onClick={() => {
+                              removeBatch(Number(selectedDeleteBatchIndex));
+                              notify("Batch deleted", 200);
+                              handleconfirmBatchDeleteModalClose();
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </Box>
+                    </Modal>
                   </div>
                 </div>
               ))
@@ -854,7 +944,7 @@ const AddStudent = () => {
                       <Dropdown
                         label="Course"
                         options={coursesList.map((c) => c.value)}
-                        selected={field.value}
+                        selected={field.value || ""}
                         onChange={(value) => {
                           field.onChange(value);
                           const selectedCourse = coursesList.find(
@@ -889,7 +979,9 @@ const AddStudent = () => {
                         required={true}
                         value={
                           field.value
-                            ? new Date(field.value).toISOString().split("T")[0]
+                            ? dayjs(field.value)
+                                .tz(timeZone)
+                                .format("YYYY-MM-DD")
                             : ""
                         }
                         error={errors?.enrolledCourses?.[index]?.startDate}
@@ -916,7 +1008,9 @@ const AddStudent = () => {
                         type="date"
                         value={
                           field.value
-                            ? new Date(field.value).toISOString().split("T")[0]
+                            ? dayjs(field.value)
+                                .tz(timeZone)
+                                .format("YYYY-MM-DD")
                             : ""
                         }
                         error={errors?.enrolledCourses?.[index]?.endDate}
@@ -927,14 +1021,52 @@ const AddStudent = () => {
                       />
                     )}
                   />
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
+                  <Button
+                    onClick={() => handleconfirmCourseDeleteModalOpen(index)}
                     className="text-red-500  "
+                    color="error"
                   >
                     <DeleteIcon sx={{ fontSize: "1.5rem" }} />
                     <span className="text-sm">Delete</span>
-                  </button>
+                  </Button>
+                  {/* confirm course delete modal */}
+                  <Modal
+                    open={confirmCourseDeleteModalOpen}
+                    onClose={handleconfirmCourseDeleteModalClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    className="flex items-center justify-center"
+                  >
+                    <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
+                      <p className="font-semibold mb-4 text-2xl">
+                        Are you sure?
+                      </p>
+                      <p className="mb-6 text-gray-600">
+                        You want to update this student.
+                      </p>
+                      <div className="buttons flex gap-4">
+                        <Button
+                          variant="outlined"
+                          onClick={handleconfirmCourseDeleteModalClose}
+                          className="text-gray-600 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </Button>
+
+                        <Button
+                          variant="contained"
+                          color="info"
+                          onClick={() => {
+                            remove(Number(selectedDeleteCourseIndex));
+                            notify("Enrolled course deleted", 200);
+                            handleconfirmCourseDeleteModalClose();
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Box>
+                  </Modal>
                 </div>
               </div>
             ))}
@@ -945,6 +1077,7 @@ const AddStudent = () => {
             </Button>
           </div>
         )}
+
         {/* add or edit button */}
         <div className="button mt-3 col-span-2">
           <Button
@@ -952,7 +1085,7 @@ const AddStudent = () => {
             variant="contained"
             className=""
           >
-            Add Student
+            Update Student
           </Button>
           {/* Hidden Submit Button (Inside Form) */}
           <button type="submit" id="hiddenSubmit" hidden></button>
@@ -966,7 +1099,9 @@ const AddStudent = () => {
           >
             <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
-              <p className="mb-6 text-gray-600">You want to add new student.</p>
+              <p className="mb-6 text-gray-600">
+                You want to update this student.
+              </p>
               <div className="buttons flex gap-4">
                 <Button
                   variant="outlined"
@@ -975,15 +1110,15 @@ const AddStudent = () => {
                 >
                   Cancel
                 </Button>
-                {addStudentLoading ? (
+                {updateStudentLoading ? (
                   <LoadingButton
                     size="large"
-                    loading={addStudentLoading}
+                    loading={updateStudentLoading}
                     loadingPosition="start"
                     variant="contained"
                     className="mt-7"
                   >
-                    <span className="">Adding student</span>
+                    <span className="">Updating student</span>
                   </LoadingButton>
                 ) : (
                   <Button
@@ -997,7 +1132,7 @@ const AddStudent = () => {
                       }
                     }}
                   >
-                    Add Student
+                    Update Student
                   </Button>
                 )}
               </div>
@@ -1009,4 +1144,4 @@ const AddStudent = () => {
   );
 };
 
-export default AddStudent;
+export default UpdateStudent;

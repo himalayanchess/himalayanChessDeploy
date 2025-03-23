@@ -16,7 +16,7 @@ const Input = ({
   const [showPassword, setshowPassword] = useState(false);
   return (
     <div className="w-full">
-      <label htmlFor={label} className="text-sm block flex ">
+      <label htmlFor={label} className="text-sm  flex ">
         {label} {required && "*"}
         {type == "password" &&
           (showPassword ? (
@@ -33,7 +33,7 @@ const Input = ({
         id={label}
         type={type == "password" ? (showPassword ? "text" : type) : type}
         placeholder={placeholder}
-        onMouseDown={(e) => {
+        onClick={(e) => {
           if (type === "date") {
             e.preventDefault(); // Prevent default focus behavior
             e.target.showPicker(); // Open the date picker
@@ -41,7 +41,7 @@ const Input = ({
         }}
         value={value}
         onChange={onChange}
-        className={`outline-none border-[1px] p-2 px-3 rounded-md w-full border-gray-150 text-gray-500 text-md ${
+        className={`outline-none border-[1px] p-2 px-3 rounded-md w-full border-gray-300  text-gray-500 text-md ${
           extraClasses && extraClasses
         }`}
         {...props}

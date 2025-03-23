@@ -56,8 +56,8 @@ const leaveApprovalSlice = createSlice({
         state.status = "succeeded";
         // Filtering active leave requests and sorting by latest createdAt
         const tempAllLeaveRequests = action.payload
-          .slice()
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          .filter((request) => request.activeStatus === true) // Keep only active requests
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by latest
         state.allLeaveRequests = tempAllLeaveRequests;
         state.allFilteredLeaveRequests = tempAllLeaveRequests;
         state.allLeaveRequestsLoading = false;

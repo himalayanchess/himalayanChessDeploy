@@ -1,10 +1,13 @@
+import { DATE_TIME_VALIDATION_PROP_NAMES } from "@mui/x-date-pickers/validation/extractValidationProps";
 import mongoose from "mongoose";
 
 const HcaAffiliatedStudentSchema = new mongoose.Schema(
   {
+    // DATES ARE STORED IN UTC FORMAT
+    // IN FRONT END USE dayjs(dob).tz("Asia/kathmandu").format()
     affiliatedTo: { type: String, enum: ["HCA", "School"] },
     name: { type: String }, // Name of the student
-    dob: { type: String }, // Date of birth of the student
+    dob: { type: Date }, // Date of birth of the student
     gender: { type: String }, // Gender of the student
     educationalInstitute: { type: String },
     batches: {
@@ -18,8 +21,8 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
         },
       ],
     },
-    joinedDate: { type: String }, // Date when the student joined
-    endDate: { type: String }, // End date of the student's association
+    joinedDate: { type: Date }, // Date when the student joined
+    endDate: { type: Date }, // End date of the student's association
     address: { type: String }, // End date of the student's association
     phone: { type: Number }, // End date of the student's association
     completedStatus: {
@@ -43,7 +46,8 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
         {
           course: { type: String },
           courseId: { type: mongoose.Schema.Types.Mixed, ref: "Course" },
-          completedStatus: { type: String, enum: ["Ongoing", "Completed"] },
+          startDate: { type: Date },
+          endDate: { type: Date },
           activeStatus: { type: Boolean, default: true },
         },
       ],

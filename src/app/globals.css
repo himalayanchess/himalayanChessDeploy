@@ -24,31 +24,16 @@ body {
 }
 
 /* Global Scrollbar Styling */
-* {
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: #888 transparent; /* Thumb color & no extra track space */
-}
-
-/* WebKit Browsers (Chrome, Edge, Safari) */
 *::-webkit-scrollbar {
-  width: 4px; /* Ultra-thin scrollbar */
-  height: 4px; /* Thin horizontal scrollbar */
+  width: 5px; /* Width of the vertical Scrollbar */
+  height: 12px; /* Height of the horizontal scrollbar */
 }
-
-*::-webkit-scrollbar-button {
-  display: none; /* Remove up/down arrows */
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent; /* No extra space */
-  border-radius: 10px; /* Rounded scrollbar track */
-}
-
 *::-webkit-scrollbar-thumb {
-  background: #888; /* Thumb color */
-  border-radius: 10px; /* Rounded scrollbar */
+  background: rgb(162, 162, 162); /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners for the thumb */
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Darker shade on hover */
+/* Remove the scrollbar arrows for WebKit browsers */
+*::-webkit-scrollbar-button {
+  display: none; /* Hides the arrows */
 }
