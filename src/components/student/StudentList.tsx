@@ -186,8 +186,10 @@ const StudentList = ({
                         ?.filter(
                           (batch) => batch.activeStatus && !batch.endDate
                         ) // Only show active, non-completed batches
-                        .map((batch) => (
-                          <p key={batch?.batchId}>{batch?.batchName}</p>
+                        .map((batch: any, index: any) => (
+                          <p key={batch?.batchId || `batch${index}`}>
+                            {batch?.batchName}
+                          </p>
                         ))}
                 </div>
 

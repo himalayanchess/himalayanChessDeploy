@@ -167,8 +167,6 @@ const UpdateStudent = ({ studentRecord }: any) => {
     return batches.filter((c) => c.batchName === batchName).length > 1;
   };
 
-  console.log("errors", errors);
-
   const onSubmit = async (data) => {
     try {
       setupdateStudentLoading(true);

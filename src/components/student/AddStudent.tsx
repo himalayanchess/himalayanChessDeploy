@@ -3,6 +3,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Dropdown from "../Dropdown";
 import Input from "../Input";
 import LockResetIcon from "@mui/icons-material/LockReset";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Divider, Modal } from "@mui/material";
@@ -39,7 +40,11 @@ const AddStudent = () => {
   const [schoolBatchList, setschoolBatchList] = useState([]);
   //projectList
   const [projectList, setprojectList] = useState([]);
+  // student json file
+  const [studentFile, setstudentFile] = useState<File | null>();
 
+  // fileupload modal
+  const [fileUploadModalOpen, setfileUploadModalOpen] = useState(false);
   // confirm modal
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
 
@@ -50,6 +55,76 @@ const AddStudent = () => {
   // handleconfirmModalClose
   function handleconfirmModalClose() {
     setconfirmModalOpen(false);
+  }
+
+  // handlefileUploadModalOpen
+  function handlefileUploadModalOpen() {
+    setfileUploadModalOpen(true);
+  }
+  // handlefileUploadModalClose
+  function handlefileUploadModalClose() {
+    setstudentFile(null);
+    setfileUploadModalOpen(false);
+  }
+
+  // handle student file change
+  function handleStudentFileChange(e: any) {
+    const file = e.target.files[0];
+    console.log(file);
+
+    if (file) {
+      setstudentFile(file);
+    }
+  }
+
+  // add student by file
+  async function handleAddStudentByFile() {
+    try {
+      if (!studentFile) {
+        notify("File is required", 204);
+        return;
+      }
+      // Check MIME type
+      if (studentFile?.type !== "application/json") {
+        notify("Please upload a valid JSON file", 204);
+        return;
+      }
+
+      // Check studentFile extension (extra validation)
+      const validExtensions = ["json"];
+      const studentFileExtension = studentFile.name
+        .split(".")
+        .pop()
+        ?.toLowerCase();
+
+      if (
+        !studentFileExtension ||
+        !validExtensions.includes(studentFileExtension)
+      ) {
+        notify("Invalid file extension. Please upload a .json file.", 204);
+        return;
+      }
+
+      // send file to addNewStudent route
+      const formData = new FormData();
+      formData.append("file", studentFile);
+      const { data: resData } = await axios.post(
+        "/api/test/addNewFileStudent",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (resData?.statusCode == 200) {
+        handlefileUploadModalClose();
+      }
+      notify(resData?.msg, resData?.statusCode);
+    } catch (error) {
+      notify("Invaid data inside JSON file", 204);
+      console.log("Error in handleAddStudentByFile function", error);
+    }
   }
 
   // react hook form
@@ -189,17 +264,67 @@ const AddStudent = () => {
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <div className="heading ">
+      <div className="heading flex items-center gap-4">
         <h1 className="text-xl font-bold ">Add Student</h1>
+        <Button
+          onClick={handlefileUploadModalOpen}
+          color="info"
+          variant="contained"
+          size="medium"
+        >
+          <FileUploadIcon />
+          <span>Upload JSON file</span>
+        </Button>
+
+        {/* file upload modal */}
+        {/* confirm modal */}
+        <Modal
+          open={fileUploadModalOpen}
+          onClose={handlefileUploadModalClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          className="flex items-center justify-center"
+        >
+          <Box className="w-[400px] h-max p-6  flex flex-col gap-5 items-start bg-white rounded-xl shadow-lg">
+            <p className="text-xl w-full font-bold text-center">
+              Add students by uploading file
+            </p>
+            {/* file input */}
+            <input
+              // accept="application/pdf,image/*"
+              onChange={handleStudentFileChange}
+              type="file"
+              id="addStudentFile"
+              name="addStudentFile"
+              className="mt-1"
+            />
+            <div className="buttons flex   gap-5">
+              <Button
+                variant="outlined"
+                onClick={handlefileUploadModalClose}
+                className="text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="info"
+                onClick={handleAddStudentByFile}
+              >
+                Add Students
+              </Button>
+            </div>
+          </Box>
+        </Modal>
       </div>
-      <Divider sx={{ margin: ".5rem 0 .7rem  " }} />
+      <Divider sx={{ margin: "1rem 0   " }} />
       {/* form-fields */}
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
+        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-4"
       >
         {/* first-basic-info */}
-        <div className="first-basic-info grid grid-cols-2 grid-rows-3 gap-5">
+        <div className="first-basic-info grid grid-cols-2 grid-rows-3 gap-3">
           {/* selected affiliated to */}
           <Dropdown
             label="Affiliated to"
@@ -328,7 +453,7 @@ const AddStudent = () => {
             />
           </div> */}
           {/* educationalInstitute */}
-          {selectedAffiliatedTo.toLowerCase() == "school" && (
+          {selectedAffiliatedTo.toLowerCase() == "hca" && (
             <div className="educationalInstitute col-span-2">
               <Controller
                 name="educationalInstitute"
@@ -354,7 +479,7 @@ const AddStudent = () => {
         </div>
 
         {/* second-basic-info */}
-        <div className="second-basic-info grid grid-cols-2 gap-5 auto-rows-min grid-auto-flow-dense">
+        <div className="second-basic-info grid grid-cols-2 gap-3 auto-rows-min grid-auto-flow-dense">
           {/* joinedDate */}
           <Controller
             name="joinedDate"
@@ -490,7 +615,7 @@ const AddStudent = () => {
         <div className="info">
           <p className="text-lg  mb-2 font-bold">Chess</p>
 
-          <div className="basic-info-fields grid grid-cols-2  gap-4">
+          <div className="basic-info-fields grid grid-cols-2  gap-3">
             {/* title */}
 
             <Controller
@@ -566,7 +691,7 @@ const AddStudent = () => {
         {selectedAffiliatedTo.toLowerCase() == "hca" && (
           <div className="contact">
             <p className="text-lg  mb-2 font-bold">Guardian info</p>
-            <div className="basic-info-fields grid grid-cols-2  gap-4">
+            <div className="basic-info-fields grid grid-cols-2  gap-3">
               {/* Guardian Name */}
               <Controller
                 name="guardianInfo.name"
@@ -644,7 +769,7 @@ const AddStudent = () => {
           <div className="info">
             <p className="text-lg  mb-2 font-bold">Emergency Contact</p>
 
-            <div className="basic-info-fields grid grid-cols-2  gap-4">
+            <div className="basic-info-fields grid grid-cols-2  gap-3">
               {/* emergency contact name */}
               <Controller
                 name="emergencyContactName"
@@ -708,7 +833,7 @@ const AddStudent = () => {
               .filter((batch) => batch.activeStatus == true)
               .map((batch, index) => (
                 <div key={batch?.id} className="col-span-2 mb-2">
-                  <div className="grid grid-cols-4 items-center place-items-start gap-4">
+                  <div className="grid grid-cols-4 items-center place-items-start gap-3">
                     {/* batch name Selection */}
                     <Controller
                       name={`batches.${index}.batchName`}
@@ -839,7 +964,7 @@ const AddStudent = () => {
             )}
             {fields.map((course, index) => (
               <div key={course.id} className="col-span-2 mb-2">
-                <div className="grid grid-cols-4 items-center place-items-start gap-4">
+                <div className="grid grid-cols-4 items-center place-items-start gap-3">
                   {/* Course Selection */}
                   <Controller
                     name={`enrolledCourses.${index}.course`}
@@ -967,7 +1092,7 @@ const AddStudent = () => {
             <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
               <p className="mb-6 text-gray-600">You want to add new student.</p>
-              <div className="buttons flex gap-4">
+              <div className="buttons flex gap-5">
                 <Button
                   variant="outlined"
                   onClick={handleconfirmModalClose}

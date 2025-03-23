@@ -5,10 +5,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import TrainerHistory from "@/components/trainer/trainerhistory/TrainerHistory";
 import ViewActivityRecordDetail from "@/components/trainer/trainerhistory/ViewActivityRecordDetail";
-import { trainerMenuItems } from "@/sidebarMenuItems/trainerMenuItems";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
 import UpdateStudent from "@/components/student/UpdateStudent";
+import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 
 const page = ({ params }: any) => {
   const { id: studentId }: any = use(params);
@@ -39,10 +39,10 @@ const page = ({ params }: any) => {
   return (
     <div>
       <Sidebar
-        menuItems={trainerMenuItems}
+        menuItems={superadminMenuItems}
         // role={session?.data?.user.role}
         role="trainer"
-        activeMenu="History"
+        activeMenu="Students"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
