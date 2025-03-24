@@ -1,10 +1,9 @@
 "use client";
+import React from "react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import LeaveApproval from "@/components/superadmin/leaveapproval/LeaveApproval";
-import LeaveRequest from "@/components/trainer/leaverequest/LeaveRequest";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
-import React from "react";
 
 const page = () => {
   return (

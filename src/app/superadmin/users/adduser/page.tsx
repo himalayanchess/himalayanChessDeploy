@@ -1,27 +1,27 @@
 "use client";
-import React from "react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import UsersComponent from "@/components/user/UsersComponent";
+import AddUser from "@/components/user/AddUser";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
+import React from "react";
 
-const Users = () => {
+const page = () => {
   return (
-    <div className="">
+    <div>
       <Sidebar
-        role="Superadmin"
         menuItems={superadminMenuItems}
+        // role={session?.data?.user.role}
+        role="superadmin"
         activeMenu="Users"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="pb-6 h-[91dvh] flex py-5 px-14 ">
-          <UsersComponent />
+        <div className="pb-6 h-[91dvh]  flex py-5 px-14 ">
+          <AddUser />
         </div>
       </div>
-      {/* pagination */}
     </div>
   );
 };
 
-export default Users;
+export default page;

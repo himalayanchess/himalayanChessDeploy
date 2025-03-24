@@ -2,10 +2,33 @@ import { dbconnect } from "@/helpers/dbconnect/dbconnect";
 import User from "@/models/UserModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isoWeek from "dayjs/plugin/isoWeek";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
 export async function POST(request: NextRequest) {
   try {
     await dbconnect();
+    const timeZone = "Asia/Kathmandu";
+
     const reqBody = await request.json();
+
+    const utcJoinedDate = reqBody?.joinedDate
+      ? dayjs(reqBody?.joinedDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcEndDate = reqBody?.endDate
+      ? dayjs(reqBody?.endDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcDob = reqBody?.dob
+      ? dayjs(reqBody?.dob).tz(timeZone).startOf("day").utc()
+      : "";
     // Check if another user already has the same name
     const existingUser = await User.findOne({
       name: { $regex: `^${reqBody.name}$`, $options: "i" }, // Case-insensitive search
@@ -18,11 +41,16 @@ export async function POST(request: NextRequest) {
       });
     }
     // console.log("updateuser route", reqBody);
-    const { email, password, ...updateFields } = reqBody;
+    const { password, ...updateFields } = reqBody;
 
     const updatedUser = await User.findOneAndUpdate(
       { _id: reqBody._id },
-      updateFields
+      {
+        ...updateFields,
+        dob: utcDob,
+        joinedDate: utcJoinedDate,
+        endDate: utcEndDate,
+      }
     );
     if (updatedUser) {
       return NextResponse.json({

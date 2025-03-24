@@ -45,9 +45,13 @@ export async function POST(req: NextRequest) {
       selectedAffiliatedTo,
     } = reqBody;
 
-    const utcJoinedDate = dayjs(dob).tz(timeZone).startOf("day").utc();
-    const utcEndDate = dayjs(dob).tz(timeZone).startOf("day").utc();
-    const utcDob = dayjs(dob).tz(timeZone).startOf("day").utc();
+    const utcJoinedDate = joinedDate
+      ? dayjs(joinedDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcEndDate = endDate
+      ? dayjs(endDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcDob = dob ? dayjs(dob).tz(timeZone).startOf("day").utc() : "";
 
     // batches to utcdate
     const utcconvertedBatches = batches.map((batch) => ({

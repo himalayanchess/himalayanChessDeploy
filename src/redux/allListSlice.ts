@@ -65,6 +65,21 @@ export const getAllStudents = createAsyncThunk(
     }
   }
 );
+// get all users list
+export const getAllUsers = createAsyncThunk(
+  "users/getAllUsers",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.get("/api/users/getAllUsers");
+
+      return resData.allUsers;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 const allListSlice = createSlice({
   name: "allList",
@@ -86,11 +101,42 @@ const allListSlice = createSlice({
     allActiveStudentsList: [],
     allFilteredActiveStudents: [],
     allStudentsLoading: true,
+    // users (trainers,admin,superadmin)
+    allUsersList: [],
+    allActiveUsersList: [],
+    allFilteredActiveUsersList: [],
+    allUsersLoading: true,
+
+    // status
     status: "",
   },
   reducers: {
+    // update allFilteredActiveStudents state
     filterStudentsList: (state, action) => {
       state.allFilteredActiveStudents = action.payload;
+    },
+    // delete student
+    deleteStudent: (state, action) => {
+      const studentId = action.payload;
+
+      let tempAllActiveStudentsList = state.allActiveStudentsList?.filter(
+        (student: any) => student?._id != studentId
+      );
+      state.allActiveStudentsList = tempAllActiveStudentsList;
+    },
+
+    // update allFilteredActiveStudents state
+    filterUsersList: (state, action) => {
+      state.allFilteredActiveUsersList = action.payload;
+    },
+    // delete user
+    deleteUser: (state, action) => {
+      const userId = action.payload;
+
+      let tempAllActiveUsersList = state.allActiveUsersList?.filter(
+        (student: any) => student?._id != userId
+      );
+      state.allActiveUsersList = tempAllActiveUsersList;
     },
   },
   extraReducers: (builder) => {
@@ -193,10 +239,40 @@ const allListSlice = createSlice({
         state.allActiveStudentsList = sortedStudents;
         state.allFilteredActiveStudents = sortedStudents;
         state.allStudentsLoading = false;
+      })
+      // all students
+      .addCase(getAllUsers.pending, (state) => {
+        state.allUsersLoading = true;
+      })
+      .addCase(getAllUsers.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log("after all users", action.payload);
+
+        state.allUsersList = action.payload?.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedUsers = action.payload
+          ?.filter((user) => user.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        // Filtering active Projects after sorting
+        state.allActiveUsersList = sortedUsers;
+        state.allFilteredActiveUsersList = sortedUsers;
+        state.allUsersLoading = false;
       });
   },
 });
 
-export const { filterStudentsList } = allListSlice.actions;
+export const {
+  filterStudentsList,
+  filterUsersList,
+  deleteStudent,
+  deleteUser,
+} = allListSlice.actions;
 
 export default allListSlice.reducer;

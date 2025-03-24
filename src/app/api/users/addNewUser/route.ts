@@ -2,11 +2,35 @@ import { dbconnect } from "@/index";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/UserModel";
 import bcryptjs from "bcryptjs";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isoWeek from "dayjs/plugin/isoWeek";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
 export async function POST(req: NextRequest) {
   try {
     await dbconnect();
+    const timeZone = "Asia/Kathmandu";
+
     const reqBody = await req.json();
     console.log(reqBody);
+
+    const utcJoinedDate = reqBody?.joinedDate
+      ? dayjs(reqBody?.joinedDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcEndDate = reqBody?.endDate
+      ? dayjs(reqBody?.endDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcDob = reqBody?.dob
+      ? dayjs(reqBody?.dob).tz(timeZone).startOf("day").utc()
+      : "";
+
     // Check if user with the same name exists (case-insensitive)
     const userExists = await User.findOne({
       name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
@@ -20,6 +44,9 @@ export async function POST(req: NextRequest) {
 
     const newUser = new User({
       ...reqBody,
+      dob: utcDob,
+      joinedDate: utcJoinedDate,
+      endDate: utcEndDate,
       password: hashedPassword,
     });
     const savedNewUser = await newUser.save();

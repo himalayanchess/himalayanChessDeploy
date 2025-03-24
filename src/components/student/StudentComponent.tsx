@@ -32,7 +32,7 @@ const StudentComponent = () => {
   const [searchText, setsearchText] = useState("");
   const [filteredStudentCount, setfilteredStudentCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
-  const [studentsPerPage] = useState(2);
+  const [studentsPerPage] = useState(7);
   // batchlist
   const [filteredBatches, setfilteredBatches] = useState([]);
 

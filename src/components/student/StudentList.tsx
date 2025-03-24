@@ -11,12 +11,16 @@ import Link from "next/link";
 import { Box, Button, Modal } from "@mui/material";
 import AddStudent from "./AddStudent";
 import { notify } from "@/helpers/notify";
+import { useDispatch } from "react-redux";
+import { deleteStudent } from "@/redux/allListSlice";
 
 const StudentList = ({
   allFilteredActiveStudents,
   currentPage,
   studentsPerPage,
 }: any) => {
+  //dispatch
+  const dispatch = useDispatch();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudentId, setselectedStudentId] = useState(null);
   const [selectedStudentName, setselectedStudentName] = useState(null);
@@ -33,44 +37,28 @@ const StudentList = ({
   }
 
   // User Delete Function
-  // async function handleStudentDelete(id, affiliatedTo) {
-  //   try {
-  //     const { data: resData } = await axios.post(
-  //       "/api/students/deleteStudent",
-  //       {
-  //         studentId: id,
-  //         affiliatedTo,
-  //       }
-  //     );
-  //     if (resData?.statusCode == 200) {
-  //       let tempAllStudents =
-  //         selectedAffiliatedTo?.toLowerCase() === "hca"
-  //           ? [...allHcaStudents]
-  //           : [...allSchoolStudents];
-  //       tempAllStudents = tempAllStudents.map((student) => {
-  //         if (student._id == id) {
-  //           return { ...student, activeStatus: false };
-  //         } else {
-  //           return student;
-  //         }
-  //       });
+  async function handleStudentDelete(id, affiliatedTo) {
+    try {
+      const { data: resData } = await axios.post(
+        "/api/students/deleteStudent",
+        {
+          studentId: id,
+          affiliatedTo,
+        }
+      );
+      if (resData?.statusCode == 200) {
+        notify(resData.msg, resData.statusCode);
+        dispatch(deleteStudent(id));
+        handleDeleteModalClose();
 
-  //       if (selectedAffiliatedTo?.toLowerCase() === "hca") {
-  //         setallHcaStudents(tempAllStudents);
-  //       }
-  //       if (selectedAffiliatedTo?.toLowerCase() === "school") {
-  //         setallSchoolStudents(tempAllStudents);
-  //       }
-  //       notify(resData.msg, resData.statusCode);
-  //       handleDeleteModalClose();
-  //       return;
-  //     }
-  //     notify(resData.msg, resData.statusCode);
-  //     return;
-  //   } catch (error) {
-  //     console.log("error in handleStudentDelete", error);
-  //   }
-  // }
+        return;
+      }
+      notify(resData.msg, resData.statusCode);
+      return;
+    } catch (error) {
+      console.log("error in handleStudentDelete", error);
+    }
+  }
 
   // filter effect
   // useEffect(() => {
@@ -165,7 +153,7 @@ const StudentList = ({
                 {/* student name */}
                 <Link
                   title="View"
-                  href={`/student/${student?._id}`}
+                  href={`students/${student?._id}`}
                   className="text-left text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
                 >
                   {student?.name}
@@ -202,7 +190,7 @@ const StudentList = ({
                 <span className="text-left text-sm font-medium text-gray-600">
                   {student?.activeStatus ? "Active" : "Inactive"}
                 </span>
-                {/* Active Status */}
+                {/* edit button */}
                 <div className="text-left text-sm font-medium text-gray-600">
                   {/* edit */}
                   <Link

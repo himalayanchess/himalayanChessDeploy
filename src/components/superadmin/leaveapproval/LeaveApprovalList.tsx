@@ -46,7 +46,7 @@ const LeaveApprovalList = ({
   return (
     <div className="overflow-y-auto  mt-3 flex-1 flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings sticky top-0 z-10 mb-2 grid grid-cols-[70px,repeat(7,1fr)] w-full bg-gray-100">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(7,1fr)] w-full bg-gray-100">
         <span className="py-3 px-5 text-left text-sm font-medium text-gray-600">
           SN
         </span>

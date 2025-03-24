@@ -2,34 +2,27 @@ import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
   {
+    role: {
+      type: String,
+      enum: ["Trainer", "Admin", "Superadmin"],
+    },
     name: {
       type: String,
       unique: true,
     },
-    title: {
-      type: String,
-      //   enum
-      //   required: [true, "Please provide a title"],
-    },
-    dob: {
+    dob: { type: Date },
+    address: {
       type: String,
     },
     gender: {
       type: String,
     },
-    address: {
-      type: String,
-    },
+
+    joinedDate: { type: Date },
+    endDate: { type: Date },
     phone: {
       type: Number,
       //   required: [true, "Please provide phone no."],
-    },
-    rating: {
-      type: Number,
-      default: 0,
-    },
-    joinedDate: {
-      type: String,
     },
     email: {
       type: String,
@@ -37,37 +30,26 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
     },
-    skillLevel: {
+    completedStatus: {
+      type: String,
+      enum: ["Ongoing", "Left"],
+    },
+
+    title: {
       type: String,
     },
     fideId: {
       type: Number,
       default: 0,
     },
-    role: {
-      type: String,
-      enum: ["Student", "Trainer", "Admin", "Superadmin"],
+    rating: {
+      type: Number,
+      default: 0,
     },
-    status: {
-      type: String,
-      enum: ["Ongoing", "Left"],
-    },
-    guardianInfo: {
-      type: Object,
-    },
-    trainerTitle: {
-      type: String,
-      // enum
-    },
-    emergencyContact: {
-      type: String,
-    },
-    emergencyContactName: {
-      type: String,
-    },
-    enrolledCourses: {
-      type: Array,
-    },
+
+    emergencyContactName: { type: String },
+    emergencyContactNo: { type: Number },
+
     activeStatus: {
       type: Boolean,
       default: true,

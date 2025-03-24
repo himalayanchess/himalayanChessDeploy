@@ -4,19 +4,13 @@ import Sidebar from "@/components/Sidebar";
 import { Home, Settings, User } from "lucide-react";
 
 const menuItems = [
-  { icon: <Home />, label: "Admin " },
-  { icon: <User />, label: "Profile" },
-  {
-    icon: <Settings />,
-    label: "Settings",
-    hasDropdown: true,
-    options: ["Account", "Privacy"],
-  },
+  { icon: Home, label: "Dashboard " },
+  { icon: User, label: "Profile" },
 ];
 const page = () => {
   return (
     <>
-      <Sidebar menuItems={menuItems} role="Admin" />
+      <Sidebar menuItems={menuItems} role="admin" activeMenu="Dashboard" />
       <div className="ml-[4rem]">admin</div>
     </>
   );

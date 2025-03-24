@@ -7,42 +7,43 @@ import TrainerHistory from "@/components/trainer/trainerhistory/TrainerHistory";
 import ViewActivityRecordDetail from "@/components/trainer/trainerhistory/ViewActivityRecordDetail";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
-import UpdateStudent from "@/components/student/UpdateStudent";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
+import UpdateUser from "@/components/user/UpdateUser";
 
 const page = ({ params }: any) => {
-  const { id: studentId }: any = use(params);
+  const { id: userId }: any = use(params);
 
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
-  const [studentRecord, setstudentRecord] = useState<any>(null);
+  const [userRecord, setuserRecord] = useState<any>(null);
 
-  async function getStudentRecord() {
+  async function getuserRecord() {
     try {
       setLoading(true);
-      const { data: resData } = await axios.post("/api/students/getStudent", {
-        studentId,
+      const { data: resData } = await axios.post("/api/users/getUser", {
+        userId,
       });
-      setstudentRecord(resData.studentRecord);
+      setuserRecord(resData.userRecord);
+
       if (resData?.statusCode == 204) {
         setinvalidId(true);
       }
       setLoading(false);
     } catch (error) {
-      console.log("error in updatestudent : [id], getStudentRecord api", error);
+      console.log("error in updatestudent : [id], getuserRecord api", error);
     }
   }
   // initial fecth of selected activity record
   useEffect(() => {
-    getStudentRecord();
-  }, [studentId]);
+    getuserRecord();
+  }, [userId]);
   return (
     <div>
       <Sidebar
         menuItems={superadminMenuItems}
         // role={session?.data?.user.role}
         role="superadmin"
-        activeMenu="Students"
+        activeMenu="Users"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
@@ -53,9 +54,9 @@ const page = ({ params }: any) => {
               <span className="mt-2">Loading record...</span>
             </div>
           ) : invalidId ? (
-            <p>Invalid student id</p>
+            <p>Invalid user id</p>
           ) : (
-            <UpdateStudent studentRecord={studentRecord} />
+            <UpdateUser userRecord={userRecord} />
           )}
         </div>
       </div>

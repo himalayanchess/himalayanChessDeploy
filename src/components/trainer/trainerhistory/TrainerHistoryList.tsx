@@ -38,8 +38,8 @@ const TrainerHistoryList = ({
   return (
     <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings sticky top-0 z-10 mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
-        <span className="py-3 text-center text-left text-sm font-bold text-gray-600">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
+        <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
         <span className="py-3  text-left text-sm font-bold text-gray-600">
@@ -100,7 +100,7 @@ const TrainerHistoryList = ({
                   key={activityRecord?._id}
                   className="grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
-                  <span className=" text-left text-sm text-center font-medium text-gray-600">
+                  <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
                   </span>
                   <span className=" text-left text-sm font-medium text-gray-600">

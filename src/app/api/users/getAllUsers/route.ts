@@ -2,10 +2,9 @@ import { dbconnect } from "@/helpers/dbconnect/dbconnect";
 import User from "@/models/UserModel";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     await dbconnect();
-    const reqBody = await request.json();
     let allUsers = [];
 
     // if (reqBody.role?.toLowerCase() == "superadmin") {
