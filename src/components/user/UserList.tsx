@@ -20,7 +20,7 @@ const UserList = ({
   allFilteredActiveUsersList,
   currentPage,
   usersPerPage,
-}) => {
+}: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
   //state vars
@@ -149,7 +149,7 @@ const UserList = ({
                   className="text-left text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
                 >
                   {user?.name}
-                </Link>{" "}
+                </Link>
                 <span className="text-sm text-gray-700">{user?.email}</span>
                 <span className="text-sm text-gray-700">{user?.gender}</span>
                 <span className="text-sm text-gray-500">{user?.role}</span>

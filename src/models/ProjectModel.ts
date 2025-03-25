@@ -12,10 +12,11 @@ const ProjectSchema = new mongoose.Schema(
       phone: { type: String },
       email: { type: String },
     },
-    startDate: { type: String },
-    endDate: { type: String },
+    startDate: { type: Date },
+    endDate: { type: Date },
     duration: {
       type: Number,
+      default: 12,
     },
     completedStatus: { type: String, enum: ["Ongoing", "Completed"] },
     address: { type: String },

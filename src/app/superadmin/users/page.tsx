@@ -19,7 +19,6 @@ const Users = () => {
           <UsersComponent />
         </div>
       </div>
-      {/* pagination */}
     </div>
   );
 };

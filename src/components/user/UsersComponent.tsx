@@ -46,7 +46,7 @@ const UsersComponent = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
-  // Reset current page to 1 and active statyus to active when selectedRole changes
+  // Reset current page to 1 and search text when selectedStatus changes
   useEffect(() => {
     setCurrentPage(1);
     setsearchText("");
@@ -83,19 +83,24 @@ const UsersComponent = () => {
   }, []);
   return (
     <div className="flex w-full">
-      <div className="requestForm flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
+      <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
         <div className="title-search-container mb-4 flex justify-between items-end">
           {/* title and Dropdown */}
           <div className="title-options">
             <h2 className="text-3xl mb-2 font-medium text-gray-700">
               Users List
             </h2>
-            <Dropdown
-              label="Role"
-              options={options}
-              selected={selectedRole}
-              onChange={setSelectedRole}
-            />
+            <div className="dropdown flex gap-4 items-end">
+              <Dropdown
+                label="Role"
+                options={options}
+                selected={selectedRole}
+                onChange={setSelectedRole}
+              />
+              <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
+                {filteredUsersCount}
+              </span>
+            </div>
           </div>
 
           <div className="search-options flex items-center">

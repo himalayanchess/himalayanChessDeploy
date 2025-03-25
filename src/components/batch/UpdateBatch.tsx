@@ -8,8 +8,16 @@ import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProjects } from "@/redux/allListSlice";
 import { LoadingButton } from "@mui/lab";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
-const AddBatch = () => {
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
+const timeZone = "Asia/Kathmandu";
+
+const UpdateBatch = ({ batchRecord }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -20,7 +28,7 @@ const AddBatch = () => {
 
   const affiliatedOptions = ["HCA", "School"];
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
-  const [addBatchLoading, setaddBatchLoading] = useState(false);
+  const [updateBatchLoading, setupdateBatchLoading] = useState(false);
 
   // confirm modal
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
@@ -55,31 +63,29 @@ const AddBatch = () => {
   });
   // on submit function
   async function onSubmit(data) {
-    setaddBatchLoading(true);
+    setupdateBatchLoading(true);
+
     const { data: resData } = await axios.post(
-      "/api/batches/addNewBatch",
+      "/api/batches/updateBatch",
       data
     );
     if (resData.statusCode == 200) {
-      handleconfirmModalClose();
-      setaddBatchLoading(false);
+      setconfirmModalOpen(false);
+      setupdateBatchLoading(false);
     }
     notify(resData.msg, resData.statusCode);
     return;
-    // } else if (mode == "edit") {
-    //   const { data: resData } = await axios.post(
-    //     "/api/batches/updateBatch",
-    //     data
-    //   );
-    //   if (resData.statusCode == 200) {
-    //     setbatchEdited(true);
-    //     seteditedBatch(data);
-    //     handleClose();
-    //   }
-    //   notify(resData.msg, resData.statusCode);
-    //   return;
-    // }
   }
+
+  useEffect(() => {
+    if (batchRecord) {
+      reset({
+        ...batchRecord,
+        assignedTrainers: batchRecord.assignedTrainers || [],
+        timeSlots: batchRecord.timeSlots || [],
+      });
+    }
+  }, [batchRecord, reset]);
 
   // fetch initial data
   useEffect(() => {
@@ -89,7 +95,7 @@ const AddBatch = () => {
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       <div className="heading flex items-center gap-4">
-        <h1 className="w-max mr-auto text-2xl font-bold">Create New Batch</h1>
+        <h1 className="w-max mr-auto text-2xl font-bold">Update batch</h1>
       </div>
 
       {/* divider */}
@@ -97,7 +103,7 @@ const AddBatch = () => {
 
       {/* Form */}
       <form
-        className="addbatchform form-fields mt-4 grid grid-cols-2 gap-7 w-full h-fit"
+        className="updateBatchform form-fields mt-4 grid grid-cols-2 gap-7 w-full h-fit"
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* first rows */}
@@ -206,7 +212,11 @@ const AddBatch = () => {
               return (
                 <Input
                   {...field}
-                  value={field.value || ""}
+                  value={
+                    field.value
+                      ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                      : ""
+                  }
                   label="Start Date"
                   type="date"
                   required={true}
@@ -229,7 +239,11 @@ const AddBatch = () => {
               return (
                 <Input
                   {...field}
-                  value={field.value || ""}
+                  value={
+                    field.value
+                      ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                      : ""
+                  }
                   label="End Date"
                   type="date"
                   error={errors?.batchEndDate}
@@ -287,7 +301,7 @@ const AddBatch = () => {
         >
           <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
             <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
-            <p className="mb-6 text-gray-600">You want to add new batch.</p>
+            <p className="mb-6 text-gray-600">You want to update this batch.</p>
             <div className="buttons flex gap-5">
               <Button
                 variant="outlined"
@@ -296,15 +310,15 @@ const AddBatch = () => {
               >
                 Cancel
               </Button>
-              {addBatchLoading ? (
+              {updateBatchLoading ? (
                 <LoadingButton
                   size="large"
-                  loading={addBatchLoading}
+                  loading={updateBatchLoading}
                   loadingPosition="start"
                   variant="contained"
                   className="mt-7"
                 >
-                  <span className="">Adding batch</span>
+                  <span className="">Updating batch</span>
                 </LoadingButton>
               ) : (
                 <Button
@@ -318,7 +332,7 @@ const AddBatch = () => {
                     }
                   }}
                 >
-                  Add batch
+                  Update batch
                 </Button>
               )}
             </div>
@@ -329,4 +343,4 @@ const AddBatch = () => {
   );
 };
 
-export default AddBatch;
+export default UpdateBatch;

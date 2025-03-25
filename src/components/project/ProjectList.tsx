@@ -10,39 +10,28 @@ import { Box, Button, Modal, Radio, FormControlLabel } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import AddProject from "./AddProject";
 import ViewProject from "./ViewProject";
+import Link from "next/link";
+import { notify } from "@/helpers/notify";
+import { useDispatch } from "react-redux";
+import { deleteProject } from "@/redux/allListSlice";
 
 const ProjectList = ({
+  allFilteredActiveProjects,
   currentPage,
-  setCurrentPage,
   projectsPerPage,
-  searchText,
-  selectedProjectStatus,
-  filteredProjectCount,
-  setfilteredProjectCount,
-  newProjectAdded,
-  setnewProjectAdded,
-  newCreatedProject,
-  setnewCreatedProject,
-  trainersList,
-}) => {
-  const [allProjects, setallProjects] = useState<any>([]);
-  const [filteredProjects, setfilteredProjects] = useState([]);
+}: any) => {
+  const dispatch = useDispatch<any>();
+
   const [selectedProjectId, setselectedProjectId] = useState(null);
   const [selectedProjectName, setselectedProjectName] = useState("");
-  const [projectListLoading, setprojectListLoading] = useState(true);
   // Delete Modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   // view modal
   const [selectedViewProject, setselectedViewProject] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  //edit modal
-  const [selectedEditProject, setselectedEditProject] = useState(null);
-  const [editModalOpen, seteditModalOpen] = useState(false);
-  // user edited
-  const [projectEdited, setprojectEdited] = useState(false);
-  const [editedProject, seteditedProject] = useState(null);
-  // User Delete Function
-  async function handleUserDelete(id) {
+
+  // project Delete Function
+  async function handleProjectDelete(id) {
     try {
       const { data: resData } = await axios.post(
         "/api/projects/deleteProject",
@@ -50,17 +39,14 @@ const ProjectList = ({
           projectId: id,
         }
       );
-      console.log(resData);
-      let tempAllProjects = [...allProjects];
-      tempAllProjects = tempAllProjects.map((project) => {
-        if (project._id == id) {
-          return { ...project, activeStatus: false };
-        } else {
-          return project;
-        }
-      });
-      setallProjects(tempAllProjects);
-      handleDeleteModalClose();
+      if (resData.statusCode == 200) {
+        notify(resData.msg, resData.statusCode);
+        dispatch(deleteProject(id));
+        handleDeleteModalClose();
+        return;
+      }
+      notify(resData.msg, resData.statusCode);
+      return;
     } catch (error) {
       console.log("error in handleProjectDelete", error);
     }
@@ -71,20 +57,10 @@ const ProjectList = ({
     setselectedViewProject(project);
     setViewModalOpen(true);
   }
-  // edit modal open
-  function handleEditModalOpen(project) {
-    console.log(project);
-    setselectedEditProject(project);
-    seteditModalOpen(true);
-  }
 
   // view modal close
   function handleViewModalClose() {
     setViewModalOpen(false);
-  }
-  // edit modal close
-  function handleEditModalClose() {
-    seteditModalOpen(false);
   }
 
   function handleDeleteModalOpen(projectId, projectName) {
@@ -95,264 +71,247 @@ const ProjectList = ({
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
-  // filter effect
-  useEffect(() => {
-    // add new user
-    let tempAllProjects = [...allProjects];
+  // // filter effect
+  // useEffect(() => {
+  //   // add new user
+  //   let tempAllProjects = [...allProjects];
 
-    // Sort users by createdAt in descending order (latest first)
-    const sortedProjects = tempAllProjects.sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
+  //   // Sort users by createdAt in descending order (latest first)
+  //   const sortedProjects = tempAllProjects.sort(
+  //     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  //   );
 
-    // First, filter by status
-    let filteredByStatus = sortedProjects.filter(
-      (project) =>
-        project.completedStatus.toLowerCase() ===
-        selectedProjectStatus.toLowerCase()
-    );
+  //   // First, filter by status
+  //   let filteredByStatus = sortedProjects.filter(
+  //     (project) =>
+  //       project.completedStatus.toLowerCase() ===
+  //       selectedProjectStatus.toLowerCase()
+  //   );
 
-    // Apply search filter if searchText is provided
-    if (searchText.trim() !== "") {
-      filteredByStatus = filteredByStatus.filter((project) =>
-        project.name.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-    // only show project with active status (not deleted)
-    filteredByStatus = filteredByStatus.filter(
-      (project) => project.activeStatus
-    );
-    // Apply Active Status Filter
-    // if (activeStatus === "active") {
-    //   filteredByStatus = filteredByStatus.filter((user) => user.activeStatus);
-    // } else if (activeStatus === "inactive") {
-    //   filteredByStatus = filteredByStatus.filter((user) => !user.activeStatus);
-    // }
+  //   // Apply search filter if searchText is provided
+  //   if (searchText.trim() !== "") {
+  //     filteredByStatus = filteredByStatus.filter((project) =>
+  //       project.name.toLowerCase().includes(searchText.toLowerCase())
+  //     );
+  //   }
+  //   // only show project with active status (not deleted)
+  //   filteredByStatus = filteredByStatus.filter(
+  //     (project) => project.activeStatus
+  //   );
+  //   // Apply Active Status Filter
+  //   // if (activeStatus === "active") {
+  //   //   filteredByStatus = filteredByStatus.filter((user) => user.activeStatus);
+  //   // } else if (activeStatus === "inactive") {
+  //   //   filteredByStatus = filteredByStatus.filter((user) => !user.activeStatus);
+  //   // }
 
-    // Update filtered users
-    setfilteredProjects(filteredByStatus);
-    setfilteredProjectCount(filteredByStatus.length);
-    setCurrentPage(1);
-  }, [allProjects, selectedProjectStatus, searchText]);
+  //   // Update filtered users
+  //   setfilteredProjects(filteredByStatus);
+  //   setfilteredProjectCount(filteredByStatus.length);
+  //   setCurrentPage(1);
+  // }, [allProjects, selectedProjectStatus, searchText]);
 
-  // Handle new project addition
-  useEffect(() => {
-    if (newProjectAdded && newCreatedProject) {
-      setallProjects((prevProjects) => [newCreatedProject, ...prevProjects]);
-      setnewProjectAdded(false);
-    }
-  }, [newProjectAdded, newCreatedProject, setnewProjectAdded]);
-
-  // Handle update(edit) project
-  useEffect(() => {
-    if (projectEdited && editedProject) {
-      let tempProjects = [...allProjects];
-      console.log("updateeeeeeeeee", tempProjects, editedProject);
-      tempProjects = tempProjects.map((project) => {
-        if (project._id == editedProject._id) {
-          return editedProject;
-        } else {
-          return project;
-        }
-      });
-      setallProjects(tempProjects);
-      setprojectEdited(false);
-    }
-  }, [projectEdited, editedProject, setprojectEdited]);
-
-  //function get all projects
-  async function getAllProjects() {
-    setprojectListLoading(true);
-    const { data: resData } = await axios.get("/api/projects/getAllProjects");
-    setallProjects(resData.allProjects);
-    setprojectListLoading(false);
-  }
-  // get all projects
-  useEffect(() => {
-    getAllProjects();
-  }, []);
   return (
-    <div className="overflow-x-auto flex-1 flex flex-col bg-white rounded-lg">
+    <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings grid grid-cols-5 w-full bg-gray-200">
-        <span className="p-3 text-left text-sm font-medium text-gray-600">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
+        <span className="py-3 text-center text-sm font-bold text-gray-600">
+          SN
+        </span>
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
           Project Name
         </span>
-        <span className="p-3 text-left text-sm font-medium text-gray-600">
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
           Address
         </span>
-        <span className="p-3 text-left text-sm font-medium text-gray-600">
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
           Trainers
         </span>
-        <span className="p-3 text-left text-sm font-medium text-gray-600">
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
           Status
         </span>
-
-        <span className="p-3 text-left text-sm font-medium text-gray-600">
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
           Action
         </span>
       </div>
       {/* loading */}
-      {projectListLoading && (
+      {false && (
         <div className="w-full text-center my-6">
           <CircularProgress sx={{ color: "gray" }} />
           <p className="text-gray-500">Getting projects</p>
         </div>
       )}
       {/* No projects Found */}
-      {filteredProjects.length === 0 && !projectListLoading && (
+      {/* {allFilteredActiveProjects.length === 0 && !projectListLoading && ( */}
+      {allFilteredActiveProjects.length === 0 && !false && (
         <div className="flex items-center text-gray-500 w-max mx-auto my-3">
           <SearchOffIcon className="mr-1" sx={{ fontSize: "1.5rem" }} />
           <p className="text-md">No Projects Found</p>
         </div>
       )}
       {/* projects List */}
-      <div className="table-contents flex-1 grid grid-cols-1 grid-rows-7">
-        {filteredProjects
+      <div className="table-contents overflow-y-auto h-full  flex-1 grid grid-cols-1 grid-rows-7">
+        {allFilteredActiveProjects
           .slice(
             (currentPage - 1) * projectsPerPage,
             currentPage * projectsPerPage
           )
-          .map((project: any) => (
-            <div
-              key={project?._id}
-              className="border-t grid grid-cols-5 items-center hover:bg-gray-50"
-            >
-              <span className="p-3 text-sm text-gray-700">{project?.name}</span>
-              <span className="p-3 text-sm text-gray-700">
-                {project?.address}
-              </span>
-              <div className="p-3 text-sm text-gray-700">
-                {project?.assignedTrainers?.map((trainer, i) => {
-                  return (
-                    <span key={trainer?.trainerId}>
-                      {trainer?.trainerName}
-                      <br />
-                    </span>
-                  );
-                })}
-              </div>
-              <span className="p-3 text-sm text-gray-500">
-                {project?.completedStatus}
-              </span>
+          .map((project: any, index: any) => {
+            const serialNumber =
+              (currentPage - 1) * projectsPerPage + index + 1;
 
-              <div className="p-3 text-sm text-gray-500">
-                {/* view modal */}
-                <button
-                  onClick={() => handleViewModalOpen(project)}
+            return (
+              <div
+                key={project?._id}
+                className="grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+              >
+                <span className="text-sm text-center font-medium text-gray-600">
+                  {serialNumber}
+                </span>
+                <Link
                   title="View"
-                  className="view mr-3 p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
+                  href={`projects/${project?._id}`}
+                  className="text-left text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
                 >
-                  <WysiwygIcon />
-                </button>
-                <Modal
-                  open={viewModalOpen}
-                  onClose={handleViewModalClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                  className="flex items-center justify-center"
-                  BackdropProps={{
-                    style: {
-                      backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
-                    },
-                  }}
-                >
-                  <Box className="w-[50%] h-[90%] p-6 overflow-y-auto grid grid-cols-2 auto-rows-min grid-auto-flow-dense gap-4 bg-white rounded-xl shadow-lg">
-                    <ViewProject project={selectedViewProject} />
-                  </Box>
-                </Modal>
-                {/* edit modal */}
-                <button
-                  title="Edit"
-                  onClick={() => handleEditModalOpen(project)}
-                  className="edit mr-3 p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
-                >
-                  <ModeEditIcon />
-                </button>
-                <Modal
-                  open={editModalOpen}
-                  onClose={handleEditModalClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                  className="flex items-center justify-center"
-                  BackdropProps={{
-                    style: {
-                      backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
-                    },
-                  }}
-                >
-                  <Box className="w-[50%] h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
-                    <AddProject
-                      projectEdited={projectEdited}
-                      setProjectEdited={setprojectEdited}
-                      handleClose={handleEditModalClose}
-                      mode="edit"
-                      initialData={selectedEditProject}
-                      editedProject={editedProject}
-                      seteditedProject={seteditedProject}
-                      trainersList={trainersList}
-                    />
-                  </Box>
-                </Modal>
-                {/* delete modal */}
-                {project?.activeStatus == true && (
-                  <button
-                    title="Delete"
-                    className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
-                    onClick={() =>
-                      handleDeleteModalOpen(project._id, project.name)
-                    }
-                  >
-                    <DeleteIcon />
-                  </button>
-                )}
-                <Modal
-                  open={deleteModalOpen}
-                  onClose={handleDeleteModalClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                  className="flex items-center justify-center"
-                  BackdropProps={{
-                    style: {
-                      backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
-                    },
-                  }}
-                >
-                  <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
-                    <DeleteIcon
-                      className="text-white bg-red-600 rounded-full"
-                      sx={{ fontSize: "3rem", padding: "0.5rem" }}
-                    />
-                    <p className="text-md mt-1 font-bold ">Delete Account?</p>
-                    <span className="text-center mt-2">
-                      <span className="font-bold text-xl">
-                        {selectedProjectName}
+                  {project?.name}
+                </Link>
+                <span className=" text-sm text-gray-700">
+                  {project?.address}
+                </span>
+                <div className=" text-sm text-gray-700 flex gap-1">
+                  {project?.assignedTrainers?.map((trainer, i) => {
+                    return (
+                      <span
+                        key={trainer?.trainerId}
+                        className="text-xs border border-gray-300 px-2 py-0.5 rounded-full"
+                      >
+                        {trainer?.trainerName}
                       </span>
-                      <br />
-                      will be deleted permanently.
-                    </span>
-                    <div className="buttons mt-5">
-                      <Button
-                        variant="outlined"
-                        sx={{ marginRight: ".5rem", paddingInline: "2rem" }}
-                        onClick={handleDeleteModalClose}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
-                        sx={{ marginLeft: ".5rem", paddingInline: "2rem" }}
-                        onClick={() => handleUserDelete(selectedProjectId)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </Box>
-                </Modal>
+                    );
+                  })}
+                </div>
+                <span className=" text-sm text-gray-500">
+                  {project?.completedStatus}
+                </span>
+
+                <div className=" text-sm text-gray-500">
+                  {/* view modal */}
+                  <button
+                    onClick={() => handleViewModalOpen(project)}
+                    title="View"
+                    className="view mr-3 p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
+                  >
+                    <WysiwygIcon />
+                  </button>
+                  <Modal
+                    open={viewModalOpen}
+                    onClose={handleViewModalClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    className="flex items-center justify-center"
+                    BackdropProps={{
+                      style: {
+                        backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                      },
+                    }}
+                  >
+                    <Box className="w-[50%] h-[90%] p-6 overflow-y-auto grid grid-cols-2 auto-rows-min grid-auto-flow-dense gap-4 bg-white rounded-xl shadow-lg">
+                      <ViewProject project={selectedViewProject} />
+                    </Box>
+                  </Modal>
+                  {/* edit modal */}
+                  <Link
+                    href={`/superadmin/projects/updateproject/${project?._id}`}
+                    title="Edit"
+                    className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
+                  >
+                    <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
+                  </Link>
+                  {/* <Modal
+                    open={editModalOpen}
+                    onClose={handleEditModalClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    className="flex items-center justify-center"
+                    BackdropProps={{
+                      style: {
+                        backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                      },
+                    }}
+                  >
+                    <Box className="w-[50%] h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
+                      <AddProject
+                        projectEdited={projectEdited}
+                        setProjectEdited={setprojectEdited}
+                        handleClose={handleEditModalClose}
+                        mode="edit"
+                        initialData={selectedEditProject}
+                        editedProject={editedProject}
+                        seteditedProject={seteditedProject}
+                        trainersList={trainersList}
+                      />
+                    </Box>
+                  </Modal> */}
+                  {/* delete modal */}
+                  {project?.activeStatus == true && (
+                    <button
+                      title="Delete"
+                      className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
+                      onClick={() =>
+                        handleDeleteModalOpen(project._id, project.name)
+                      }
+                    >
+                      <DeleteIcon />
+                    </button>
+                  )}
+                  <Modal
+                    open={deleteModalOpen}
+                    onClose={handleDeleteModalClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    className="flex items-center justify-center"
+                    BackdropProps={{
+                      style: {
+                        backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                      },
+                    }}
+                  >
+                    <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
+                      <DeleteIcon
+                        className="text-white bg-red-600 rounded-full"
+                        sx={{ fontSize: "3rem", padding: "0.5rem" }}
+                      />
+                      <p className="text-md mt-1 font-bold ">Delete project?</p>
+                      <span className="text-center mt-2">
+                        <span className="font-bold text-xl">
+                          {selectedProjectName}
+                        </span>
+                        <br />
+                        will be deleted permanently.
+                      </span>
+                      <div className="buttons mt-5">
+                        <Button
+                          variant="outlined"
+                          sx={{ marginRight: ".5rem", paddingInline: "2rem" }}
+                          onClick={handleDeleteModalClose}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          sx={{ marginLeft: ".5rem", paddingInline: "2rem" }}
+                          onClick={() => handleProjectDelete(selectedProjectId)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Box>
+                  </Modal>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
     </div>
   );

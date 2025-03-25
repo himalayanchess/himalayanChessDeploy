@@ -231,7 +231,7 @@ const AddStudent = () => {
         }
       );
       if (resData.statusCode == 200) {
-        console.log("ass student", resData);
+        // console.log("ass student", resData);
         handleconfirmModalClose();
         setaddStudentLoading(false);
       }
@@ -317,7 +317,7 @@ const AddStudent = () => {
           </Box>
         </Modal>
       </div>
-      <Divider sx={{ margin: "1rem 0   " }} />
+      <Divider sx={{ margin: "0.7rem 0" }} />
       {/* form-fields */}
       <form
         onSubmit={handleSubmit(onSubmit)}

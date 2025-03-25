@@ -2,13 +2,40 @@ import { dbconnect } from "@/helpers/dbconnect/dbconnect";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import Batch from "@/models/BatchModel";
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isoWeek from "dayjs/plugin/isoWeek";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
+function escapeRegex(string: any) {
+  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+}
+
 export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
+    const timeZone = "Asia/Kathmandu";
+
+    const utcBatchStartDate = reqBody?.batchStartDate
+      ? dayjs(reqBody?.batchStartDate).tz(timeZone).startOf("day").utc()
+      : "";
+    const utcBatchEndDate = reqBody?.batchEndDate
+      ? dayjs(reqBody?.batchEndDate).tz(timeZone).startOf("day").utc()
+      : "";
+
     // Check if another batch already has the same name
     const existingBatch = await Batch.findOne({
-      batchName: reqBody.batchName, // Assuming `name` is the unique field
+      batchName: {
+        $regex: `^${escapeRegex(reqBody.batchName)}$`,
+        $options: "i",
+      },
       _id: { $ne: reqBody._id }, // Exclude the current batch
     });
 
@@ -21,7 +48,11 @@ export async function POST(request: NextRequest) {
     //update batch
     const updatedBatch = await Batch.findOneAndUpdate(
       { _id: reqBody._id },
-      reqBody
+      {
+        ...reqBody,
+        batchStartDate: utcBatchStartDate,
+        batchEndDate: utcBatchEndDate,
+      }
     );
     if (updatedBatch) {
       return NextResponse.json({

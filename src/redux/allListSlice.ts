@@ -91,10 +91,12 @@ const allListSlice = createSlice({
     // batches
     allBatches: [],
     allActiveBatches: [],
+    allFilteredActiveBatches: [],
     allBatchesLoading: true,
     // batches
     allProjects: [],
     allActiveProjects: [],
+    allFilteredActiveProjects: [],
     allProjectsLoading: true,
     // students
     allStudentsList: [],
@@ -138,6 +140,32 @@ const allListSlice = createSlice({
       );
       state.allActiveUsersList = tempAllActiveUsersList;
     },
+    // update allFilteredProjects state
+    filterProjectsList: (state, action) => {
+      state.allFilteredActiveProjects = action.payload;
+    },
+    // delete user
+    deleteProject: (state, action) => {
+      const projectId = action.payload;
+
+      let tempAllActiveProjectsList = state.allActiveProjects?.filter(
+        (student: any) => student?._id != projectId
+      );
+      state.allActiveProjects = tempAllActiveProjectsList;
+    },
+    // update allFilteredActiveBatches state
+    filterBatchesList: (state, action) => {
+      state.allFilteredActiveBatches = action.payload;
+    },
+    // delete user
+    deleteBatch: (state, action) => {
+      const batchId = action.payload;
+
+      let tempAllActiveBatchesList = state.allActiveBatches?.filter(
+        (student: any) => student?._id != batchId
+      );
+      state.allActiveBatches = tempAllActiveBatchesList;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -177,19 +205,20 @@ const allListSlice = createSlice({
         state.status = "succeeded";
         console.log("after all batches", action.payload);
 
-        // Sorting batches by createdAt (assuming createdAt is a valid date string or timestamp)
-        const sortedBatches = action.payload?.sort(
+        state.allBatches = action.payload?.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
+        // Sorting batches by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedBatches = action.payload
+          ?.filter((batch) => batch.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
 
-        state.allBatches = sortedBatches;
-
-        // Filtering active batches after sorting
-        state.allActiveBatches = sortedBatches?.filter(
-          (batch) => batch.activeStatus
-        );
-
+        state.allActiveBatches = sortedBatches;
+        state.allFilteredActiveBatches = sortedBatches;
         state.allBatchesLoading = false;
       })
       // all projects
@@ -201,18 +230,22 @@ const allListSlice = createSlice({
         console.log("after all Projects", action.payload);
 
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
-        const sortedProjects = action.payload?.sort(
+        state.allProjects = action.payload?.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
-        state.allProjects = sortedProjects;
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedProjects = action.payload
+          ?.filter((project) => project.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
 
         // Filtering active Projects after sorting
-        state.allActiveProjects = sortedProjects?.filter(
-          (project) => project.activeStatus
-        );
-
+        state.allActiveProjects = sortedProjects;
+        state.allFilteredActiveProjects = sortedProjects;
         state.allProjectsLoading = false;
       })
       // all students
@@ -273,6 +306,10 @@ export const {
   filterUsersList,
   deleteStudent,
   deleteUser,
+  filterProjectsList,
+  deleteProject,
+  filterBatchesList,
+  deleteBatch,
 } = allListSlice.actions;
 
 export default allListSlice.reducer;

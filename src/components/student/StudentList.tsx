@@ -93,26 +93,26 @@ const StudentList = ({
   return (
     <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings mb-2 grid grid-cols-[60px,repeat(6,1fr)] w-full bg-gray-100">
-        <span className="py-3  text-center text-sm font-medium text-gray-600">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
+        <span className="py-3  text-center text-sm font-bold text-gray-600">
           SN
         </span>
-        <span className="py-3  text-left text-sm font-medium text-gray-600">
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
           Name
         </span>
-        <span className="py-3  text-left text-sm font-medium text-gray-600">
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
           Affiliated to
         </span>
-        <span className="py-3  text-left text-sm font-medium text-gray-600">
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
           Batch
         </span>
-        <span className="py-3  text-left text-sm font-medium text-gray-600">
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
           Gender
         </span>
-        <span className="py-3  text-left text-sm font-medium text-gray-600">
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
           Active Status
         </span>
-        <span className="py-3  text-left text-sm font-medium text-gray-600">
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
           Actions
         </span>
       </div>

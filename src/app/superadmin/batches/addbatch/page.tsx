@@ -1,26 +1,28 @@
 "use client";
-import React from "react";
+import AddBatch from "@/components/batch/AddBatch";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import AddUser from "@/components/user/AddUser";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
-import BatchComponent from "@/components/batch/BatchComponent";
+import React from "react";
 
-const Users = () => {
+const page = () => {
   return (
-    <div className="">
+    <div>
       <Sidebar
-        role="Superadmin"
         menuItems={superadminMenuItems}
+        // role={session?.data?.user.role}
+        role="superadmin"
         activeMenu="Batches"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="pb-6 h-[91dvh]  flex flex-col py-5 px-14 ">
-          <BatchComponent />
+        <div className="pb-6 h-[91dvh]  flex py-5 px-14 ">
+          <AddBatch />
         </div>
       </div>
     </div>
   );
 };
 
-export default Users;
+export default page;
