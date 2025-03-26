@@ -29,9 +29,8 @@ const UsersComponent = () => {
   const dispatch = useDispatch<any>();
 
   // selector
-  const { allActiveUsersList, allFilteredActiveUsersList } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveUsersList, allFilteredActiveUsersList, allUsersLoading } =
+    useSelector((state: any) => state.allListReducer);
 
   // session
   const session = useSession();
@@ -129,6 +128,7 @@ const UsersComponent = () => {
           allFilteredActiveUsersList={allFilteredActiveUsersList}
           currentPage={currentPage}
           usersPerPage={usersPerPage}
+          allUsersLoading={allUsersLoading}
         />
 
         <Stack spacing={2} className="mx-auto w-max mt-7">

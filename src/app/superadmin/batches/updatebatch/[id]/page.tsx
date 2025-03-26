@@ -52,7 +52,7 @@ const page = ({ params }: any) => {
               <span className="mt-2">Loading record...</span>
             </div>
           ) : invalidId ? (
-            <p>Invalid user id</p>
+            <p>Invalid batch id</p>
           ) : (
             <UpdateBatch batchRecord={batchRecord} />
           )}

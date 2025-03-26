@@ -47,6 +47,7 @@ const StudentActivity = ({
   } = useForm({
     defaultValues: {
       students: [],
+      mainStudyTopic: "",
     },
   });
   const students = watch("students");
@@ -95,6 +96,7 @@ const StudentActivity = ({
     }
 
     setValue("students", updatedStudents);
+    setValue("mainStudyTopic", selectedTodaysClass?.mainStudyTopic || "");
   }, [selectedTodaysClass, selectedStudentList, setValue]);
 
   // Effect to handle applying the topic to all students
@@ -163,6 +165,7 @@ const StudentActivity = ({
         {
           activityRecordId: selectedTodaysClass?._id,
           studentRecords: data.students,
+          mainStudyTopic: data.mainStudyTopic,
         }
       );
 
@@ -176,202 +179,236 @@ const StudentActivity = ({
   };
 
   return (
-    <form className="overflow-x-auto" onSubmit={handleSubmit(onSubmit)}>
-      <div className="min-w-full flex flex-col gap-2">
-        {/* Header row */}
-        <div className="text-sm w-full grid grid-cols-[60px,repeat(6,1fr)] items-center border-b">
-          <div className="w-12 px-2 py-2 text-left">SN</div>
-          <div className="px-2 py-2 text-left">Name</div>
-          <div className="px-2 py-2 text-left col-span-2">Study Topic</div>
-          <div className="px-2 py-2 text-center">Completed Status</div>
-          <div className="px-2 py-2 text-center">Remark</div>
-          <div className="px-2 py-2 text-center">Attendance</div>
+    <>
+      {/* main study topic */}
+      <div className="main-study-topic mb-2"></div>
+      <form
+        className="overflow-x-auto rounded-md "
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <div className="mainStudyTopic mb-3">
+          <Controller
+            name="mainStudyTopic" // Name of the field
+            control={control}
+            rules={{ required: "Main study topic is required" }} // Validation rule
+            render={({ field }) => (
+              <Dropdown
+                options={["asd", "pih", "rt"]}
+                selected={field.value || ""}
+                label="Main study topic"
+                onChange={(value) => field.onChange(value)}
+                error={!!errors.mainStudyTopic} // Pass error state
+                helperText={errors.mainStudyTopic?.message} // Error message
+              />
+            )}
+          />
         </div>
-
-        {/* Body content */}
-        <div className="studentlist-container max-h-[370px] overflow-y-auto">
-          {students?.length === 0 ? (
-            <div className="text-sm grid grid-cols-6">
-              <div className="col-span-4 text-center px-4 py-2">
-                No students
-              </div>
+        <div className="min-w-full flex flex-col gap-2">
+          {/* Header row */}
+          <div className="text-sm w-full bg-gray-200 grid grid-cols-[60px,repeat(6,1fr)] items-center border-b">
+            <div className="py-3 text-center font-bold text-gray-600">SN</div>
+            <div className="py-3 text-left font-bold text-gray-600 ">Name</div>
+            <div className="py-3 text-left  font-bold text-gray-600 col-span-2">
+              Study Topic
             </div>
-          ) : (
-            students?.map((student: any, i: any) => (
-              <div
-                key={"student" + student?._id}
-                className="text-sm grid grid-cols-[60px,repeat(6,1fr)] items-center border-b hover:bg-gray-50"
-              >
-                <div className="w-12 px-2 py-2">{i + 1}</div>
-                <div className="px-2 py-2 flex flex-wrap">{student?.name}</div>
+            <div className="py-3 text-center font-bold text-gray-600 ">
+              Completed Status
+            </div>
+            <div className="py-3 text-center font-bold text-gray-600 ">
+              Remark
+            </div>
+            <div className="py-3 text-center font-bold text-gray-600 ">
+              Attendance
+            </div>
+          </div>
 
-                {/* Study Topics */}
-                <div className="px-2 py-2 col-span-2 flex  items-start  flex-wrap gap-2">
-                  {student?.studyTopics?.map((topic: any, index: any) => (
-                    <span
-                      key={"topic" + index}
-                      className="text-black border text-xs shadow-sm outline-none w-max h-max py-1 px-2 rounded-full flex items-center gap-1"
-                    >
-                      {topic}
-                      <button
-                        type="button"
-                        title="Delete"
-                        onClick={() => {
-                          // Remove the topic from the student's studyTopics
-                          const updatedStudents: any = students.map(
-                            (s: any) => {
-                              if (s._id === student._id) {
-                                return {
-                                  ...s,
-                                  studyTopics: s.studyTopics.filter(
-                                    (_: any, i: any) => i !== index
-                                  ),
-                                };
-                              }
-                              return s;
-                            }
-                          );
-                          setValue("students", updatedStudents);
-                        }}
-                        className="text-red-500"
+          {/* Body content */}
+          <div className="studentlist-container max-h-[370px] overflow-y-auto">
+            {students?.length === 0 ? (
+              <div className="text-sm grid grid-cols-6">
+                <div className="col-span-4 text-center px-4 py-2">
+                  No students
+                </div>
+              </div>
+            ) : (
+              students?.map((student: any, i: any) => (
+                <div
+                  key={"student" + student?._id}
+                  className="text-sm grid grid-cols-[60px,repeat(6,1fr)] items-center border-b hover:bg-gray-50"
+                >
+                  <div className=" text-center py-2">{i + 1}</div>
+                  <div className=" py-2 flex flex-wrap">{student?.name}</div>
+
+                  {/* Study Topics */}
+                  <div className=" py-2 col-span-2 flex  items-start  flex-wrap gap-2">
+                    {student?.studyTopics?.map((topic: any, index: any) => (
+                      <span
+                        key={"topic" + index}
+                        className="text-black border text-xs shadow-sm outline-none w-max h-max py-1  rounded-full flex items-center gap-1"
                       >
-                        <CloseIcon
-                          className=" border border-gray-400 text-black rounded-full p-0.5 ml-1s"
-                          sx={{ fontSize: "0.9rem" }}
+                        {topic}
+                        <button
+                          type="button"
+                          title="Delete"
+                          onClick={() => {
+                            // Remove the topic from the student's studyTopics
+                            const updatedStudents: any = students.map(
+                              (s: any) => {
+                                if (s._id === student._id) {
+                                  return {
+                                    ...s,
+                                    studyTopics: s.studyTopics.filter(
+                                      (_: any, i: any) => i !== index
+                                    ),
+                                  };
+                                }
+                                return s;
+                              }
+                            );
+                            setValue("students", updatedStudents);
+                          }}
+                          className="text-red-500"
+                        >
+                          <CloseIcon
+                            className=" border border-gray-400 text-black rounded-full p-0.5 ml-1s"
+                            sx={{ fontSize: "0.9rem" }}
+                          />
+                        </button>
+                      </span>
+                    ))}
+                    {/* add study topic */}
+                    <div
+                      title="Add study topic"
+                      className="border text-black py-1 pl-1 pr-3 outline-none text-md cursor-pointer flex items-center justify-center rounded-full hover:bg-gray-600 hover:text-white transition-all duration-150"
+                      onClick={() => handlestudyTopicModalOpen(student?._id)}
+                    >
+                      <AddIcon sx={{ fontSize: "0.9rem" }} />
+                      <span className="ml-1 text-xs">Add</span>
+                    </div>
+
+                    <Modal
+                      open={studyTopicModalOpen}
+                      onClose={handlestudyTopicModalClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                      className="flex items-center justify-center"
+                      BackdropProps={{
+                        style: { backgroundColor: "rgba(0,0,0,0.3)" },
+                      }}
+                    >
+                      <div className="bg-white p-4 rounded shadow-lg w-96">
+                        <h2 className="text-xl font-bold mb-2">
+                          Add additional topic
+                        </h2>
+
+                        <Dropdown
+                          options={[
+                            "Advanced Java",
+                            "REST Api framework",
+                            "Advanced Beginner 4",
+                          ]}
+                          label="Study topic"
+                          selected={selectedTopic}
+                          width="full"
+                          onChange={(value) => setSelectedTopic(value)}
                         />
-                      </button>
-                    </span>
-                  ))}
-                  {/* add study topic */}
-                  <div
-                    title="Add study topic"
-                    className="border text-black py-1 pl-1 pr-3 outline-none text-md cursor-pointer flex items-center justify-center rounded-full hover:bg-gray-600 hover:text-white transition-all duration-150"
-                    onClick={() => handlestudyTopicModalOpen(student?._id)}
-                  >
-                    <AddIcon sx={{ fontSize: "0.9rem" }} />
-                    <span className="ml-1 text-xs">Add</span>
+
+                        <div className="buttons flex justify-end gap-3 mt-5">
+                          <Button
+                            className="bg-gray-300 text-black px-4 py-2 rounded mr-2"
+                            onClick={handlestudyTopicModalClose}
+                            variant="outlined"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                            onClick={handleAddStudyTopic}
+                            variant="contained"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    </Modal>
                   </div>
 
-                  <Modal
-                    open={studyTopicModalOpen}
-                    onClose={handlestudyTopicModalClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                    className="flex items-center justify-center"
-                    BackdropProps={{
-                      style: { backgroundColor: "rgba(0,0,0,0.3)" },
-                    }}
-                  >
-                    <div className="bg-white p-4 rounded shadow-lg w-96">
-                      <h2 className="text-xl font-bold mb-2">
-                        Add additional topic
-                      </h2>
+                  {/* Completed Status */}
+                  <div className=" py-2 text-center ">
+                    <Controller
+                      name={`students[${i}].completedStatus`}
+                      control={control}
+                      defaultValue={students[i]?.completedStatus ?? false} // Ensure it reflects the form data
+                      render={({ field }) => (
+                        <input
+                          title="Assignment complete status"
+                          type="checkbox"
+                          {...field}
+                          checked={field.value}
+                          className="scale-125 cursor-pointer"
+                        />
+                      )}
+                    />
+                  </div>
 
-                      <Dropdown
-                        options={[
-                          "Advanced Java",
-                          "REST Api framework",
-                          "Advanced Beginner 4",
-                        ]}
-                        label="Study topic"
-                        selected={selectedTopic}
-                        width="full"
-                        onChange={(value) => setSelectedTopic(value)}
-                      />
+                  {/* Remark Textbox */}
+                  <div className=" py-2 text-center">
+                    <Controller
+                      name={`students[${i}].remark`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextareaAutosize
+                          {...field}
+                          title="Remark"
+                          placeholder="Add remark"
+                          className="border border-gray-400 rounded-md text-xs w-full  py-1"
+                        />
+                      )}
+                    />
+                  </div>
 
-                      <div className="buttons flex justify-end gap-3 mt-5">
+                  {/* Attendance Toggle Button */}
+                  <div className=" py-2 text-center">
+                    <Controller
+                      name={`students[${i}].attendance`}
+                      control={control}
+                      render={({ field }) => (
                         <Button
-                          className="bg-gray-300 text-black px-4 py-2 rounded mr-2"
-                          onClick={handlestudyTopicModalClose}
-                          variant="outlined"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          className="bg-blue-500 text-white px-4 py-2 rounded"
-                          onClick={handleAddStudyTopic}
+                          {...field}
+                          title="Attendance"
                           variant="contained"
+                          size="small"
+                          color={
+                            field.value === "present" ? "success" : "error"
+                          }
+                          onClick={() => {
+                            const newAttendance =
+                              field.value === "present" ? "absent" : "present";
+                            field.onChange(newAttendance); // Update the form value
+                            setattendanceChanged((prev) => !prev);
+                          }}
                         >
-                          Add
+                          {field.value === "present" ? "Present" : "Absent"}
                         </Button>
-                      </div>
-                    </div>
-                  </Modal>
+                      )}
+                    />
+                  </div>
                 </div>
+              ))
+            )}
+          </div>
 
-                {/* Completed Status */}
-                <div className="px-2 py-2 text-center ">
-                  <Controller
-                    name={`students[${i}].completedStatus`}
-                    control={control}
-                    defaultValue={students[i]?.completedStatus ?? false} // Ensure it reflects the form data
-                    render={({ field }) => (
-                      <input
-                        title="Assignment complete status"
-                        type="checkbox"
-                        {...field}
-                        checked={field.value}
-                        className="scale-125 cursor-pointer"
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Remark Textbox */}
-                <div className="px-2 py-2 text-center">
-                  <Controller
-                    name={`students[${i}].remark`}
-                    control={control}
-                    render={({ field }) => (
-                      <TextareaAutosize
-                        {...field}
-                        title="Remark"
-                        placeholder="Add remark"
-                        className="border border-gray-400 rounded-md text-xs w-full px-2 py-1"
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Attendance Toggle Button */}
-                <div className="px-2 py-2 text-center">
-                  <Controller
-                    name={`students[${i}].attendance`}
-                    control={control}
-                    render={({ field }) => (
-                      <Button
-                        {...field}
-                        title="Attendance"
-                        variant="contained"
-                        size="small"
-                        color={field.value === "present" ? "success" : "error"}
-                        onClick={() => {
-                          const newAttendance =
-                            field.value === "present" ? "absent" : "present";
-                          field.onChange(newAttendance); // Update the form value
-                          setattendanceChanged((prev) => !prev);
-                        }}
-                      >
-                        {field.value === "present" ? "Present" : "Absent"}
-                      </Button>
-                    )}
-                  />
-                </div>
-              </div>
-            ))
+          {/* Update button */}
+          {students?.length > 0 && selectedTodaysClass && (
+            <div className="update-record-button mt-4 mb-2">
+              <Button type="submit" variant="contained" color="primary">
+                Update record
+              </Button>
+            </div>
           )}
         </div>
-
-        {/* Update button */}
-        {students?.length > 0 && selectedTodaysClass && (
-          <div className="update-record-button mt-4 mb-2">
-            <Button type="submit" variant="contained" color="primary">
-              Update record
-            </Button>
-          </div>
-        )}
-      </div>
-    </form>
+      </form>
+    </>
   );
 };
 

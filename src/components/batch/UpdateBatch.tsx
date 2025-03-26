@@ -26,6 +26,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
     (state: any) => state.allListReducer
   );
 
+  const [loaded, setLoaded] = useState(false);
   const affiliatedOptions = ["HCA", "School"];
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
   const [updateBatchLoading, setupdateBatchLoading] = useState(false);
@@ -71,8 +72,8 @@ const UpdateBatch = ({ batchRecord }: any) => {
     );
     if (resData.statusCode == 200) {
       setconfirmModalOpen(false);
-      setupdateBatchLoading(false);
     }
+    setupdateBatchLoading(false);
     notify(resData.msg, resData.statusCode);
     return;
   }
@@ -84,6 +85,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
         assignedTrainers: batchRecord.assignedTrainers || [],
         timeSlots: batchRecord.timeSlots || [],
       });
+      setLoaded(true);
     }
   }, [batchRecord, reset]);
 
@@ -91,6 +93,8 @@ const UpdateBatch = ({ batchRecord }: any) => {
   useEffect(() => {
     dispatch(fetchAllProjects());
   }, []);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
@@ -104,6 +108,12 @@ const UpdateBatch = ({ batchRecord }: any) => {
       {/* Form */}
       <form
         className="updateBatchform form-fields mt-4 grid grid-cols-2 gap-7 w-full h-fit"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* first rows */}

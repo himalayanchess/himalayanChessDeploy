@@ -18,6 +18,7 @@ const StudentList = ({
   allFilteredActiveStudents,
   currentPage,
   studentsPerPage,
+  allStudentsLoading,
 }: any) => {
   //dispatch
   const dispatch = useDispatch();
@@ -118,155 +119,159 @@ const StudentList = ({
       </div>
 
       {/* loading */}
-      {false && (
+      {allStudentsLoading && (
         <div className="w-full text-center my-6">
           <CircularProgress sx={{ color: "gray" }} />
-          <p className="text-gray-500">Getting users</p>
+          <p className="text-gray-500">Getting students</p>
         </div>
       )}
       {/* No Student Found */}
-      {/* {allFilteredActiveStudents.length === 0 && !studentListLoading && (
+      {allFilteredActiveStudents.length === 0 && !allStudentsLoading && (
         <div className="flex-1 flex items-center text-gray-500 w-max mx-auto my-3">
           <SearchOffIcon className="mr-1" sx={{ fontSize: "1.5rem" }} />
           <p className="text-md">No Student Found</p>
         </div>
-      )} */}
+      )}
       {/* students list */}
-      <div className="table-contents overflow-y-auto h-full  flex-1 grid grid-cols-1 grid-rows-7">
-        {allFilteredActiveStudents
-          .slice(
-            (currentPage - 1) * studentsPerPage,
-            currentPage * studentsPerPage
-          )
-          .map((student: any, index: any) => {
-            const serialNumber =
-              (currentPage - 1) * studentsPerPage + index + 1;
-            return (
-              <div
-                key={student?._id}
-                className="table-headings  grid grid-cols-[60px,repeat(6,1fr)] items-center w-full cursor-pointer border-b border-gray-100 hover:bg-gray-100"
-              >
-                {/* SN */}
-                <span className="text-center text-sm font-medium text-gray-600">
-                  {serialNumber}
-                </span>
-                {/* student name */}
-                <Link
-                  title="View"
-                  href={`students/${student?._id}`}
-                  className="text-left text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
+      {!allStudentsLoading && (
+        <div className="table-contents overflow-y-auto h-full  flex-1 grid grid-cols-1 grid-rows-7">
+          {allFilteredActiveStudents
+            .slice(
+              (currentPage - 1) * studentsPerPage,
+              currentPage * studentsPerPage
+            )
+            .map((student: any, index: any) => {
+              const serialNumber =
+                (currentPage - 1) * studentsPerPage + index + 1;
+              return (
+                <div
+                  key={student?._id}
+                  className="table-headings  grid grid-cols-[60px,repeat(6,1fr)] items-center w-full cursor-pointer border-b border-gray-100 hover:bg-gray-100"
                 >
-                  {student?.name}
-                </Link>
-                {/* Affiliate to  */}
-                <span className="text-left text-sm font-medium text-gray-600">
-                  {student.affiliatedTo.toLowerCase() == "hca"
-                    ? "HCA"
-                    : student?.projectName}
-                </span>
-                {/* Batch */}
-                <div className="text-left text-sm font-medium text-gray-600">
-                  {student?.batches?.filter(
-                    (batch) => batch.activeStatus && !batch.endDate // Exclude completed batches
-                  ).length === 0
-                    ? "Not Selected"
-                    : student?.batches
-                        ?.filter(
-                          (batch) => batch.activeStatus && !batch.endDate
-                        ) // Only show active, non-completed batches
-                        .map((batch: any, index: any) => (
-                          <p key={batch?.batchId || `batch${index}`}>
-                            {batch?.batchName}
-                          </p>
-                        ))}
-                </div>
-
-                {/* Gender */}
-                <span className="text-left text-sm font-medium text-gray-600">
-                  {student?.gender}
-                </span>
-
-                {/* Active Status */}
-                <span className="text-left text-sm font-medium text-gray-600">
-                  {student?.activeStatus ? "Active" : "Inactive"}
-                </span>
-                {/* edit button */}
-                <div className="text-left text-sm font-medium text-gray-600">
-                  {/* edit */}
+                  {/* SN */}
+                  <span className="text-center text-sm font-medium text-gray-600">
+                    {serialNumber}
+                  </span>
+                  {/* student name */}
                   <Link
-                    href={`/superadmin/students/updatestudent/${student?._id}`}
-                    title="Edit"
-                    className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
+                    title="View"
+                    href={`students/${student?._id}`}
+                    className="text-left text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
                   >
-                    <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
+                    {student?.name}
                   </Link>
+                  {/* Affiliate to  */}
+                  <span className="text-left text-sm font-medium text-gray-600">
+                    {student.affiliatedTo.toLowerCase() == "hca"
+                      ? "HCA"
+                      : student?.projectName}
+                  </span>
+                  {/* Batch */}
+                  <div className="text-left text-sm font-medium text-gray-600">
+                    {student?.batches?.filter(
+                      (batch) => batch.activeStatus && !batch.endDate // Exclude completed batches
+                    ).length === 0
+                      ? "Not Selected"
+                      : student?.batches
+                          ?.filter(
+                            (batch) => batch.activeStatus && !batch.endDate
+                          ) // Only show active, non-completed batches
+                          .map((batch: any, index: any) => (
+                            <p key={batch?.batchId || `batch${index}`}>
+                              {batch?.batchName}
+                            </p>
+                          ))}
+                  </div>
 
-                  {/* delete modal */}
-                  {student?.activeStatus == true && (
-                    <button
-                      title="Delete"
-                      className="delete py-1 px-1 transition-all ease duration-200 rounded-full hover:bg-red-500 hover:text-white"
-                      onClick={() =>
-                        handleDeleteModalOpen(student._id, student.name)
-                      }
+                  {/* Gender */}
+                  <span className="text-left text-sm font-medium text-gray-600">
+                    {student?.gender}
+                  </span>
+
+                  {/* Active Status */}
+                  <span className="text-left text-sm font-medium text-gray-600">
+                    {student?.activeStatus ? "Active" : "Inactive"}
+                  </span>
+                  {/* edit button */}
+                  <div className="text-left text-sm font-medium text-gray-600">
+                    {/* edit */}
+                    <Link
+                      href={`/superadmin/students/updatestudent/${student?._id}`}
+                      title="Edit"
+                      className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
                     >
-                      <DeleteIcon sx={{ fontSize: "1.3rem" }} />
-                    </button>
-                  )}
-                  <Modal
-                    open={deleteModalOpen}
-                    onClose={handleDeleteModalClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                    className="flex items-center justify-center"
-                    BackdropProps={{
-                      style: {
-                        backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
-                      },
-                    }}
-                  >
-                    <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
-                      <DeleteIcon
-                        className="text-white bg-red-600 rounded-full"
-                        sx={{ fontSize: "3rem", padding: "0.5rem" }}
-                      />
-                      <p className="text-md mt-1 font-bold ">Delete Account?</p>
-                      <span className="text-center mt-2">
-                        <span className="font-bold text-xl">
-                          {selectedStudentName}
+                      <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
+                    </Link>
+
+                    {/* delete modal */}
+                    {student?.activeStatus == true && (
+                      <button
+                        title="Delete"
+                        className="delete py-1 px-1 transition-all ease duration-200 rounded-full hover:bg-red-500 hover:text-white"
+                        onClick={() =>
+                          handleDeleteModalOpen(student._id, student.name)
+                        }
+                      >
+                        <DeleteIcon sx={{ fontSize: "1.3rem" }} />
+                      </button>
+                    )}
+                    <Modal
+                      open={deleteModalOpen}
+                      onClose={handleDeleteModalClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                      className="flex items-center justify-center"
+                      BackdropProps={{
+                        style: {
+                          backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                        },
+                      }}
+                    >
+                      <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
+                        <DeleteIcon
+                          className="text-white bg-red-600 rounded-full"
+                          sx={{ fontSize: "3rem", padding: "0.5rem" }}
+                        />
+                        <p className="text-md mt-1 font-bold ">
+                          Delete Account?
+                        </p>
+                        <span className="text-center mt-2">
+                          <span className="font-bold text-xl">
+                            {selectedStudentName}
+                          </span>
+                          <br />
+                          will be deleted permanently.
                         </span>
-                        <br />
-                        will be deleted permanently.
-                      </span>
-                      <div className="buttons mt-5">
-                        <Button
-                          variant="outlined"
-                          sx={{ marginRight: ".5rem", paddingInline: "2rem" }}
-                          onClick={handleDeleteModalClose}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          sx={{ marginLeft: ".5rem", paddingInline: "2rem" }}
-                          onClick={() =>
-                            handleStudentDelete(
-                              selectedStudentId,
-                              student?.affiliatedTo
-                            )
-                          }
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </Box>
-                  </Modal>
+                        <div className="buttons mt-5">
+                          <Button
+                            variant="outlined"
+                            sx={{ marginRight: ".5rem", paddingInline: "2rem" }}
+                            onClick={handleDeleteModalClose}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            sx={{ marginLeft: ".5rem", paddingInline: "2rem" }}
+                            onClick={() =>
+                              handleStudentDelete(
+                                selectedStudentId,
+                                student?.affiliatedTo
+                              )
+                            }
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </Box>
+                    </Modal>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-      </div>
+              );
+            })}
+        </div>
+      )}
     </div>
   );
 };

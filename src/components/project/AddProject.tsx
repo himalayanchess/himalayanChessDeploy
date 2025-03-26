@@ -210,6 +210,12 @@ const AddProject = () => {
       {/* form-fields */}
       <form
         className="addprojectform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-4"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* first grid */}
@@ -563,7 +569,7 @@ const AddProject = () => {
                       onChange={(value) => {
                         field.onChange(value);
                         const selectedTrainer = allActiveTrainerList.find(
-                          (trainer) => trainer.name === value
+                          (trainer: any) => trainer.name === value
                         );
                         if (selectedTrainer) {
                           setValue(

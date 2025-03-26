@@ -14,9 +14,8 @@ const ProjectComponent = () => {
   const dispatch = useDispatch<any>();
 
   // selector
-  const { allActiveProjects, allFilteredActiveProjects } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveProjects, allFilteredActiveProjects, allProjectsLoading } =
+    useSelector((state: any) => state.allListReducer);
   //options
   const options = ["All", "Ongoing", "Completed"];
   //state vars
@@ -113,6 +112,7 @@ const ProjectComponent = () => {
         allFilteredActiveProjects={allFilteredActiveProjects}
         currentPage={currentPage}
         projectsPerPage={projectsPerPage}
+        allProjectsLoading={allProjectsLoading}
       />
 
       <Stack spacing={2} className="mx-auto w-max mt-7">

@@ -61,6 +61,7 @@ const ActivityRecordSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
+    mainStudyTopic: { type: String },
     holidayStatus: { type: Boolean },
     holidayDescription: { type: String },
     arrivalTime: { type: Date },

@@ -7,7 +7,9 @@ export async function POST(req: NextRequest) {
     await dbconnect();
     const reqBody = await req.json();
     console.log(reqBody);
-    const courseExists = await Course.findOne({ name: reqBody.name });
+    const courseExists = await Course.findOne({
+      name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
+    });
     if (courseExists) {
       return NextResponse.json({
         statusCode: 204,

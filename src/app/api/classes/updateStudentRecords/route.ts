@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    const { activityRecordId, studentRecords } = reqBody;
+    const { activityRecordId, studentRecords, mainStudyTopic } = reqBody;
     console.log(studentRecords);
 
     const updatedActivityRecord = await ActivityRecord.findByIdAndUpdate(
@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
         studentRecords,
         recordUpdatedByTrainer: true,
         trainerPresentStatus: "present",
+        mainStudyTopic,
       },
       { new: true }
     );

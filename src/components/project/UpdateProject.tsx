@@ -51,6 +51,7 @@ const UpdateProject = ({ projectRecord }: any) => {
   const [updatedcontractFile, setupdatedcontractFile] = useState<File | any>(
     null
   );
+  const [loaded, setLoaded] = useState(false);
   const [updateProjectLoading, setUpdateProjectLoading] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmTrainerDeleteModalOpen, setConfirmTrainerDeleteModalOpen] =
@@ -246,8 +247,8 @@ const UpdateProject = ({ projectRecord }: any) => {
 
       if (resData.statusCode == 200) {
         setConfirmModalOpen(false);
-        setUpdateProjectLoading(false);
       }
+      setUpdateProjectLoading(false);
       notify(resData.msg, resData.statusCode);
     } catch (error) {
       console.log("error in updateProject component (onSubmit)", error);
@@ -262,6 +263,7 @@ const UpdateProject = ({ projectRecord }: any) => {
         assignedTrainers: projectRecord.assignedTrainers || [],
         timeSlots: projectRecord.timeSlots || [],
       });
+      setLoaded(true);
     }
   }, [projectRecord, reset]);
 
@@ -270,7 +272,7 @@ const UpdateProject = ({ projectRecord }: any) => {
     dispatch(fetchAllTrainers());
   }, []);
 
-  if (!projectRecord) return <div></div>;
+  if (!loaded) return <div></div>;
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md">
@@ -280,6 +282,12 @@ const UpdateProject = ({ projectRecord }: any) => {
       <Divider sx={{ margin: ".7rem 0" }} />
       <form
         onSubmit={handleSubmit(onSubmit)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            setConfirmModalOpen(true); // Open modal instead of submitting form
+          }
+        }}
         className="updateprojectform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
       >
         {/* first grid */}

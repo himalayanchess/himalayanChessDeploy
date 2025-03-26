@@ -101,8 +101,9 @@ const ClassesHeader = ({
       {selectedTodaysClass ? (
         <div className="second-row">
           <div className="flex gap-5 mt-5 ">
+            {/* batch-time-info */}
             {/* Batch Name */}
-            <div className="flex flex-col items-start w-max py-2 px-3 border shadow-md rounded-lg ">
+            <div className="flex flex-col items-start w-max py-2 px-3 border bg-gray-50  rounded-lg ">
               <p className="text-xs text-gray-500">Batch Name</p>
               <span className="text-md font-semibold text-gray-700">
                 {selectedTodaysClass?.batchName}
@@ -110,7 +111,7 @@ const ClassesHeader = ({
             </div>
 
             {/* Start Time */}
-            <div className="flex flex-col items-start w-max py-2 px-3 border shadow-md rounded-lg ">
+            <div className="flex flex-col items-start w-max py-2 px-3 border bg-gray-50  rounded-lg ">
               <p className="text-xs text-gray-500">From</p>
               <div className="flex items-center space-x-2">
                 <ScheduleOutlinedIcon className="text-gray-600" />
@@ -123,7 +124,7 @@ const ClassesHeader = ({
             </div>
 
             {/* End Time */}
-            <div className="flex flex-col items-start w-max py-2 px-3 border shadow-md rounded-lg ">
+            <div className="flex flex-col items-start w-max py-2 px-3 border bg-gray-50  rounded-lg ">
               <p className="text-xs text-gray-500">To</p>
               <div className="flex items-center space-x-2">
                 <ScheduleOutlinedIcon className="text-gray-600" />
@@ -134,12 +135,13 @@ const ClassesHeader = ({
                 </span>
               </div>
             </div>
+
             {/* Syllabus Dropdown */}
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="flex items-start flex-col ml-auto"
             >
-              <h1 className="text-sm">Todays Study Topic</h1>
+              <h1 className="text-sm">Study Topic</h1>
               <div className="main-dropdown flex items-start">
                 <Controller
                   name="selectedStudyTopic" // Name of the field
@@ -162,10 +164,9 @@ const ClassesHeader = ({
                   sx={{
                     marginLeft: "1rem",
                     marginTop: "0.2rem",
-                    paddingBlock: ".4rem",
                   }}
                 >
-                  <ChecklistRtlIcon />
+                  {/* <ChecklistRtlIcon /> */}
                   <span className="ml-1 font-medium">Apply to all</span>
                 </Button>
               </div>

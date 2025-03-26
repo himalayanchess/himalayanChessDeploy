@@ -62,23 +62,10 @@ const AddBatch = () => {
     );
     if (resData.statusCode == 200) {
       handleconfirmModalClose();
-      setaddBatchLoading(false);
     }
+    setaddBatchLoading(false);
     notify(resData.msg, resData.statusCode);
     return;
-    // } else if (mode == "edit") {
-    //   const { data: resData } = await axios.post(
-    //     "/api/batches/updateBatch",
-    //     data
-    //   );
-    //   if (resData.statusCode == 200) {
-    //     setbatchEdited(true);
-    //     seteditedBatch(data);
-    //     handleClose();
-    //   }
-    //   notify(resData.msg, resData.statusCode);
-    //   return;
-    // }
   }
 
   // fetch initial data
@@ -98,6 +85,12 @@ const AddBatch = () => {
       {/* Form */}
       <form
         className="addbatchform form-fields mt-4 grid grid-cols-2 gap-7 w-full h-fit"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* first rows */}

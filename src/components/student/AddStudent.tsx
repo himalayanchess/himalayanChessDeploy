@@ -35,6 +35,8 @@ const AddStudent = () => {
   // state variable
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
   const [addStudentLoading, setaddStudentLoading] = useState(false);
+  const [addStudentFileLoading, setaddStudentFileLoading] = useState(false);
+
   // batchlist
   const [hcaBatchList, sethcaBatchList] = useState([]);
   const [schoolBatchList, setschoolBatchList] = useState([]);
@@ -80,6 +82,7 @@ const AddStudent = () => {
   // add student by file
   async function handleAddStudentByFile() {
     try {
+      setaddStudentFileLoading(true);
       if (!studentFile) {
         notify("File is required", 204);
         return;
@@ -109,7 +112,7 @@ const AddStudent = () => {
       const formData = new FormData();
       formData.append("file", studentFile);
       const { data: resData } = await axios.post(
-        "/api/test/addNewFileStudent",
+        "/api/uploadbyfile/addNewFileStudent",
         formData,
         {
           headers: {
@@ -120,7 +123,9 @@ const AddStudent = () => {
       if (resData?.statusCode == 200) {
         handlefileUploadModalClose();
       }
+      setaddStudentFileLoading(false);
       notify(resData?.msg, resData?.statusCode);
+      return;
     } catch (error) {
       notify("Invaid data inside JSON file", 204);
       console.log("Error in handleAddStudentByFile function", error);
@@ -233,8 +238,8 @@ const AddStudent = () => {
       if (resData.statusCode == 200) {
         // console.log("ass student", resData);
         handleconfirmModalClose();
-        setaddStudentLoading(false);
       }
+      setaddStudentLoading(false);
       notify(resData.msg, resData.statusCode);
       return;
     } catch (error) {
@@ -306,13 +311,25 @@ const AddStudent = () => {
               >
                 Cancel
               </Button>
-              <Button
-                variant="contained"
-                color="info"
-                onClick={handleAddStudentByFile}
-              >
-                Add Students
-              </Button>
+              {addStudentFileLoading ? (
+                <LoadingButton
+                  size="large"
+                  loading={addStudentFileLoading}
+                  loadingPosition="start"
+                  variant="contained"
+                  className="mt-7"
+                >
+                  <span className="">Adding student</span>
+                </LoadingButton>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="info"
+                  onClick={handleAddStudentByFile}
+                >
+                  Add Student
+                </Button>
+              )}
             </div>
           </Box>
         </Modal>
@@ -321,6 +338,12 @@ const AddStudent = () => {
       {/* form-fields */}
       <form
         onSubmit={handleSubmit(onSubmit)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-4"
       >
         {/* first-basic-info */}

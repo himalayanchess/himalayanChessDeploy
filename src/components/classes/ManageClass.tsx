@@ -21,11 +21,15 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { notify } from "@/helpers/notify";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addActiveAssignedClass } from "@/redux/assignedClassesSlice";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { fetchAllTrainers } from "@/redux/allListSlice";
+import {
+  fetchAllBatches,
+  fetchAllTrainers,
+  getAllStudents,
+} from "@/redux/allListSlice";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utc);
@@ -35,14 +39,18 @@ const ManageClass = ({ selectedDate }) => {
   // console.log("selectedDate in manage class", selectedDate);
 
   const dis = useDispatch<any>();
+  // use selectors
+  const { allActiveStudentsList, allActiveBatches } = useSelector(
+    (state: any) => state.allListReducer
+  );
+  //state vars
+
   const [affiliatedTo, setaffiliatedTo] = useState("HCA");
   const [holidayStatus, setholidayStatus] = useState(false);
   const [trainersList, setTrainersList] = useState([]);
   const [courseList, setCourseList] = useState([]);
   const [projectList, setProjectList] = useState([]);
-  const [allBatchList, setallBatchList] = useState([]);
   const [filteredBatches, setFilteredBatches] = useState([]);
-  const [allStudents, setallStudents] = useState([]);
   const [selectedBatchStudents, setselectedBatchStudents] = useState([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
@@ -141,7 +149,7 @@ const ManageClass = ({ selectedDate }) => {
 
   useEffect(() => {
     if (batchId !== "") {
-      const tempAllStudents = allStudents.filter((student) =>
+      const tempAllStudents = allActiveStudentsList.filter((student) =>
         student.batches.some(
           (batch) =>
             batch.batchId == batchId &&
@@ -149,23 +157,23 @@ const ManageClass = ({ selectedDate }) => {
             !batch.endDate // Exclude completed batches
         )
       );
+      console.log("batch change", allActiveStudentsList, tempAllStudents);
+
       setselectedBatchStudents(tempAllStudents);
     } else {
       setselectedBatchStudents([]); // Clear students if no batchId is selected
     }
-  }, [batchId, allStudents]);
+  }, [batchId, allActiveStudentsList]);
 
   // Filter batches based on affiliatedTo
   useEffect(() => {
-    console.log(projectId);
-
     let tempFilteredBatches;
     if (affiliatedTo.toLowerCase() === "hca") {
-      tempFilteredBatches = allBatchList.filter(
+      tempFilteredBatches = allActiveBatches.filter(
         (batch) => batch?.affiliatedTo.toLowerCase() === "hca"
       );
     } else if (affiliatedTo.toLowerCase() === "school") {
-      tempFilteredBatches = allBatchList.filter(
+      tempFilteredBatches = allActiveBatches.filter(
         (batch) => batch?.affiliatedTo.toLowerCase() === "school"
       );
       if (projectId !== "") {
@@ -174,10 +182,9 @@ const ManageClass = ({ selectedDate }) => {
         );
       }
     }
-    console.log(tempFilteredBatches);
 
     setFilteredBatches(tempFilteredBatches || []);
-  }, [affiliatedTo, allBatchList, projectId]);
+  }, [affiliatedTo, allActiveBatches, projectId]);
 
   const getInitialData = async () => {
     try {
@@ -195,24 +202,6 @@ const ManageClass = ({ selectedDate }) => {
         "/api/projects/getAllProjects"
       );
       setProjectList(projectResData.allProjects);
-
-      const { data: batchResData } = await axios.get(
-        "/api/batches/getAllBatches"
-      );
-
-      let tempAllBatches = batchResData.allBatches.filter(
-        (batch) => batch.activeStatus == true
-      );
-      setallBatchList(tempAllBatches);
-
-      const { data: allStudentsResData } = await axios.get(
-        "/api/students/getAllStudents"
-      );
-      const tempAllStudents = [
-        ...allStudentsResData.allHcaAffiliatedStudents,
-        ...allStudentsResData.allNonAffiliatedStudents,
-      ];
-      setallStudents(tempAllStudents);
     } catch (error) {
       console.log("Error in ManageClass component", error);
     }
@@ -222,6 +211,8 @@ const ManageClass = ({ selectedDate }) => {
   useEffect(() => {
     getInitialData();
     dis(fetchAllTrainers());
+    dis(getAllStudents());
+    dis(fetchAllBatches());
   }, []);
 
   return (

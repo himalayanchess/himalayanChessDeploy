@@ -2,7 +2,8 @@ import React from "react";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { Divider } from "@mui/material";
+import { Button, Divider } from "@mui/material";
+import Link from "next/link";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -83,6 +84,15 @@ const ViewUserDetail = ({ userRecord }: any) => {
             <p className="font-bold text-xs text-gray-500">Rating:</p>
             <p>{userRecord?.rating}</p>
           </div>
+          {/* cv if trainer */}
+          {userRecord?.role?.toLowerCase() == "trainer" && (
+            <div>
+              <p className="font-bold text-xs text-gray-500">Trainers CV:</p>
+              <Link href={userRecord?.trainerCvUrl} target="_blank">
+                <Button variant="contained">View CV</Button>
+              </Link>
+            </div>
+          )}
           add required fields and stat analysis
         </div>
       </div>

@@ -22,8 +22,12 @@ const StudentComponent = () => {
   const dispath = useDispatch<any>();
   // use selector
   // batches
-  const { allActiveBatches, allActiveStudentsList, allFilteredActiveStudents } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveBatches,
+    allActiveStudentsList,
+    allFilteredActiveStudents,
+    allStudentsLoading,
+  } = useSelector((state: any) => state.allListReducer);
 
   // state vars
   const affiliatedToOptions = ["All", "HCA", "School"];
@@ -168,6 +172,7 @@ const StudentComponent = () => {
         allFilteredActiveStudents={allFilteredActiveStudents}
         currentPage={currentPage}
         studentsPerPage={studentsPerPage}
+        allStudentsLoading={allStudentsLoading}
       />
       {/* pagination */}
       <Stack spacing={2} className="mx-auto w-max mt-7">

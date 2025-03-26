@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
+    trainerCvUrl: { type: String, default: "" },
     emergencyContactName: { type: String },
     emergencyContactNo: { type: Number },
 

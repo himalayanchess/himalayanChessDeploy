@@ -13,7 +13,7 @@ import { LoadingButton } from "@mui/lab";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
 
-const AddCourse = () => {
+const UpdateCourse = ({ courseRecord }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -24,9 +24,9 @@ const AddCourse = () => {
 
   const affiliatedToOptions = ["HCA", "School"];
 
+  const [loaded, setLoaded] = useState(false);
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
-  const [addCourseLoading, setaddCourseLoading] = useState(false);
-  const [addCourseFileLoading, setaddCourseFileLoading] = useState(false);
+  const [updateCourseLoading, setupdateCourseLoading] = useState(false);
   // course json file
   const [courseFile, setcourseFile] = useState<File | null>();
 
@@ -34,8 +34,6 @@ const AddCourse = () => {
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
   const [removeChaperModalOpen, setremoveChaperModalOpen] = useState(false);
   const [removeChapterIndex, setremoveChapterIndex] = useState<any>(null);
-  // fileupload modal
-  const [fileUploadModalOpen, setfileUploadModalOpen] = useState(false);
 
   // handleconfirmModalOpen
   function handleconfirmModalOpen() {
@@ -56,16 +54,6 @@ const AddCourse = () => {
     setremoveChaperModalOpen(false);
   }
 
-  // handlefileUploadModalOpen
-  function handlefileUploadModalOpen() {
-    setfileUploadModalOpen(true);
-  }
-  // handlefileUploadModalClose
-  function handlefileUploadModalClose() {
-    setcourseFile(null);
-    setfileUploadModalOpen(false);
-  }
-
   // handle course file change
   function handleCourseFileChange(e: any) {
     const file = e.target.files[0];
@@ -73,59 +61,6 @@ const AddCourse = () => {
 
     if (file) {
       setcourseFile(file);
-    }
-  }
-
-  // add course by file
-  async function handleAddCourseByFile() {
-    try {
-      setaddCourseFileLoading(true);
-      if (!courseFile) {
-        notify("File is required", 204);
-        return;
-      }
-      // Check MIME type
-      if (courseFile?.type !== "application/json") {
-        notify("Please upload a valid JSON file", 204);
-        return;
-      }
-
-      // Check courseFile extension (extra validation)
-      const validExtensions = ["json"];
-      const courseFileExtension = courseFile.name
-        .split(".")
-        .pop()
-        ?.toLowerCase();
-
-      if (
-        !courseFileExtension ||
-        !validExtensions.includes(courseFileExtension)
-      ) {
-        notify("Invalid file extension. Please upload a .json file.", 204);
-        return;
-      }
-
-      // send file to addNewStudent route
-      const formData = new FormData();
-      formData.append("file", courseFile);
-      const { data: resData } = await axios.post(
-        "/api/uploadbyfile/addNewFileCourse",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      if (resData?.statusCode == 200) {
-        handlefileUploadModalClose();
-      }
-      setaddCourseFileLoading(false);
-      notify(resData?.msg, resData?.statusCode);
-      return;
-    } catch (error) {
-      notify("Invaid data inside JSON file", 204);
-      console.log("Error in handleaddCourseByFile function", error);
     }
   }
 
@@ -179,92 +114,41 @@ const AddCourse = () => {
   const chapters = watch("chapters");
 
   // on submit function
-  async function onSubmit(data) {
-    setaddCourseLoading(true);
+  async function onSubmit(data: any) {
+    setupdateCourseLoading(true);
     const { data: resData } = await axios.post(
-      "/api/courses/addNewCourse",
+      "/api/courses/updateCourse",
       data
     );
     if (resData.statusCode == 200) {
       handleconfirmModalClose();
     }
-    setaddCourseLoading(false);
+    setupdateCourseLoading(false);
     notify(resData.msg, resData.statusCode);
     return;
   }
+
+  useEffect(() => {
+    if (courseRecord) {
+      reset({
+        ...courseRecord,
+        chapters: courseRecord.chapters || [],
+      });
+      setLoaded(true);
+    }
+  }, [courseRecord, reset]);
 
   // fetch initial data
   useEffect(() => {
     dispatch(getAllCourses());
   }, []);
 
+  if (!loaded) return <div></div>;
+
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       <div className="heading flex items-center gap-4">
-        <h1 className="text-xl font-bold ">Add Course</h1>
-
-        <Button
-          onClick={handlefileUploadModalOpen}
-          color="info"
-          variant="contained"
-          size="medium"
-        >
-          <FileUploadIcon />
-          <span>Upload JSON file</span>
-        </Button>
-
-        {/* file upload modal */}
-        {/* confirm modal */}
-        <Modal
-          open={fileUploadModalOpen}
-          onClose={handlefileUploadModalClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-          className="flex items-center justify-center"
-        >
-          <Box className="w-[400px] h-max p-6  flex flex-col gap-5 items-start bg-white rounded-xl shadow-lg">
-            <p className="text-xl w-full font-bold text-center">
-              Add course by uploading file
-            </p>
-            {/* file input */}
-            <input
-              // accept="application/pdf,image/*"
-              onChange={handleCourseFileChange}
-              type="file"
-              id="addStudentFile"
-              name="addStudentFile"
-              className="mt-1"
-            />
-            <div className="buttons flex   gap-5">
-              <Button
-                variant="outlined"
-                onClick={handlefileUploadModalClose}
-                className="text-gray-600 hover:bg-gray-50"
-              >
-                Cancel
-              </Button>
-              {addCourseFileLoading ? (
-                <LoadingButton
-                  size="large"
-                  loading={addCourseFileLoading}
-                  loadingPosition="start"
-                  variant="contained"
-                  className="mt-7"
-                >
-                  <span className="">Adding course</span>
-                </LoadingButton>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="info"
-                  onClick={handleAddCourseByFile}
-                >
-                  Add course
-                </Button>
-              )}
-            </div>
-          </Box>
-        </Modal>
+        <h1 className="text-xl font-bold ">Update Course</h1>
       </div>
 
       {/* divider */}
@@ -272,7 +156,7 @@ const AddCourse = () => {
 
       {/* Form */}
       <form
-        className="addcourseform form-fields h-fit overflow-y-auto grid grid-cols-2 gap-4"
+        className="updateCourseform form-fields h-fit overflow-y-auto grid grid-cols-2 gap-4"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -395,7 +279,10 @@ const AddCourse = () => {
         {/* fourth col */}
         <h1 className="col-span-2 text-lg font-bold mt-4">Chapters</h1>
         {chaptersFields.map((chapter, chapterIndex) => (
-          <div key={chapter.id} className="border p-4 rounded-md mt-3">
+          <div
+            key={chapter.id}
+            className="border p-4 bg-blue-50 rounded-md mt-3"
+          >
             <h1 className="font-bold mb-1">Chapter {chapterIndex + 1}</h1>
             <div className="flex items-center gap-3">
               {/* Chapter Name */}
@@ -434,6 +321,11 @@ const AddCourse = () => {
                 onClose={handleremoveChaperModalClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
+                BackdropProps={{
+                  style: {
+                    backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                  },
+                }}
                 className="flex items-center justify-center"
               >
                 <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
@@ -554,7 +446,9 @@ const AddCourse = () => {
         >
           <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
             <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
-            <p className="mb-6 text-gray-600">You want to add new course.</p>
+            <p className="mb-6 text-gray-600">
+              You want to update this course.
+            </p>
             <div className="buttons flex gap-5">
               <Button
                 variant="outlined"
@@ -563,15 +457,15 @@ const AddCourse = () => {
               >
                 Cancel
               </Button>
-              {addCourseLoading ? (
+              {updateCourseLoading ? (
                 <LoadingButton
                   size="large"
-                  loading={addCourseLoading}
+                  loading={updateCourseLoading}
                   loadingPosition="start"
                   variant="contained"
                   className="mt-7"
                 >
-                  <span className="">Adding course</span>
+                  <span className="">Updating course</span>
                 </LoadingButton>
               ) : (
                 <Button
@@ -585,7 +479,7 @@ const AddCourse = () => {
                     }
                   }}
                 >
-                  Add course
+                  Update course
                 </Button>
               )}
             </div>
@@ -596,4 +490,4 @@ const AddCourse = () => {
   );
 };
 
-export default AddCourse;
+export default UpdateCourse;

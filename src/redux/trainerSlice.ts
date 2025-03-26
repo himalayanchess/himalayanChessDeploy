@@ -51,6 +51,7 @@ const trainerSlice = createSlice({
     trainersTodaysClasses: [],
     selectedTodaysClass: null,
     studentList: [],
+    allStudentActiveList: [],
     selectedStudentList: [],
     // for attendance analysis
     attendanceStudentRecordsList: [],
@@ -71,7 +72,7 @@ const trainerSlice = createSlice({
 
       const batchId = selectedClass.batchId;
       // Filter students who have a batch with the given 'batchId' and 'activeStatus' as true
-      const filteredStudents = state.studentList?.filter((student) =>
+      const filteredStudents = state.allStudentActiveList?.filter((student) =>
         student.batches.some(
           (batch) =>
             batch.batchId === batchId &&
@@ -130,6 +131,13 @@ const trainerSlice = createSlice({
       .addCase(fetchAllStudents.fulfilled, (state, action: any) => {
         state.status = "succeeded";
         state.studentList = action.payload;
+        const sortedStudents = action.payload
+          ?.filter((student) => student.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        state.allStudentActiveList = sortedStudents;
       });
   },
 });

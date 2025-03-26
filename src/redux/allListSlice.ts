@@ -80,6 +80,21 @@ export const getAllUsers = createAsyncThunk(
     }
   }
 );
+// get all users list
+export const getAllCourses = createAsyncThunk(
+  "courses/getAllCourses",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.get("/api/courses/getAllCourses");
+
+      return resData.allCourses;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 const allListSlice = createSlice({
   name: "allList",
@@ -108,6 +123,11 @@ const allListSlice = createSlice({
     allActiveUsersList: [],
     allFilteredActiveUsersList: [],
     allUsersLoading: true,
+    // courses
+    allCoursesList: [],
+    allActiveCoursesList: [],
+    allFilteredActiveCoursesList: [],
+    allCoursesLoading: true,
 
     // status
     status: "",
@@ -140,6 +160,7 @@ const allListSlice = createSlice({
       );
       state.allActiveUsersList = tempAllActiveUsersList;
     },
+
     // update allFilteredProjects state
     filterProjectsList: (state, action) => {
       state.allFilteredActiveProjects = action.payload;
@@ -153,6 +174,7 @@ const allListSlice = createSlice({
       );
       state.allActiveProjects = tempAllActiveProjectsList;
     },
+
     // update allFilteredActiveBatches state
     filterBatchesList: (state, action) => {
       state.allFilteredActiveBatches = action.payload;
@@ -165,6 +187,20 @@ const allListSlice = createSlice({
         (student: any) => student?._id != batchId
       );
       state.allActiveBatches = tempAllActiveBatchesList;
+    },
+
+    // update allFilteredActiveBatches state
+    filterCourseList: (state, action) => {
+      state.allFilteredActiveCoursesList = action.payload;
+    },
+    // delete user
+    deleteCourse: (state, action) => {
+      const courseId = action.payload;
+
+      let tempAllActiveCoursesList = state.allActiveCoursesList?.filter(
+        (course: any) => course?._id != courseId
+      );
+      state.allActiveCoursesList = tempAllActiveCoursesList;
     },
   },
   extraReducers: (builder) => {
@@ -221,6 +257,7 @@ const allListSlice = createSlice({
         state.allFilteredActiveBatches = sortedBatches;
         state.allBatchesLoading = false;
       })
+
       // all projects
       .addCase(fetchAllProjects.pending, (state) => {
         state.allProjectsLoading = true;
@@ -248,6 +285,7 @@ const allListSlice = createSlice({
         state.allFilteredActiveProjects = sortedProjects;
         state.allProjectsLoading = false;
       })
+
       // all students
       .addCase(getAllStudents.pending, (state) => {
         state.allStudentsLoading = true;
@@ -273,7 +311,8 @@ const allListSlice = createSlice({
         state.allFilteredActiveStudents = sortedStudents;
         state.allStudentsLoading = false;
       })
-      // all students
+
+      // all users
       .addCase(getAllUsers.pending, (state) => {
         state.allUsersLoading = true;
       })
@@ -297,6 +336,32 @@ const allListSlice = createSlice({
         state.allActiveUsersList = sortedUsers;
         state.allFilteredActiveUsersList = sortedUsers;
         state.allUsersLoading = false;
+      })
+
+      // all courses
+      .addCase(getAllCourses.pending, (state) => {
+        state.allCoursesLoading = true;
+      })
+      .addCase(getAllCourses.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log("after all courses", action.payload);
+
+        state.allCoursesList = action.payload?.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedCourses = action.payload
+          ?.filter((course) => course.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        // Filtering active Projects after sorting
+        state.allActiveCoursesList = sortedCourses;
+        state.allFilteredActiveCoursesList = sortedCourses;
+        state.allCoursesLoading = false;
       });
   },
 });
@@ -310,6 +375,8 @@ export const {
   deleteProject,
   filterBatchesList,
   deleteBatch,
+  filterCourseList,
+  deleteCourse,
 } = allListSlice.actions;
 
 export default allListSlice.reducer;

@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user with the same name exists (case-insensitive)
     const nonAffiliatedStudentExists = await NonAffiliatedStudent.findOne({
-      name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
+      name: { $regex: new RegExp(`^${name}$`, "i") },
       fideId,
     });
 

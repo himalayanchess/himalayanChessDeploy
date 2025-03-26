@@ -6,6 +6,7 @@ import Input from "../Input";
 import Dropdown from "../Dropdown";
 import { Box, Button, Divider, Modal } from "@mui/material";
 import LockResetIcon from "@mui/icons-material/LockReset";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { LoadingButton } from "@mui/lab";
@@ -32,13 +33,16 @@ const UpdateUser = ({ userRecord }: any) => {
   const completedStatusOptions = ["Ongoing", "Left"];
 
   // state vars
+  const [loaded, setLoaded] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
-  const [addUserLoading, setaddUserLoading] = useState(false);
+  const [addUserLoading, setupdateUserLoading] = useState(false);
+  const [cvFile, setcvFile] = useState<File | any>(null);
 
   // reset password
   const [randomPassword, setRandomPassword] = useState("");
   const [resetPasswordModalOpen, setresetPasswordModalOpen] = useState(false);
-
+  const [updateCVModalOpen, setupdateCVModalOpen] = useState(false);
+  const [updateCvLoading, setupdateCvLoading] = useState(false);
   // reset modal open
   function handleresetPaswordModalOpen() {
     const generatedRandomPassword = generateRandomPassword(12);
@@ -58,6 +62,23 @@ const UpdateUser = ({ userRecord }: any) => {
   function handleconfirmModalClose() {
     setconfirmModalOpen(false);
   }
+
+  // handleupdateCVModalOpen
+  function handleupdateCVModalOpen() {
+    setupdateCVModalOpen(true);
+  }
+  // handleupdateCVModalClose
+  function handleupdateCVModalClose() {
+    setcvFile(null);
+    setupdateCVModalOpen(false);
+  }
+
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      setcvFile(file);
+    }
+  };
 
   // react hook form
   const { register, handleSubmit, control, formState, reset, trigger, watch } =
@@ -89,12 +110,14 @@ const UpdateUser = ({ userRecord }: any) => {
   console.log(errors);
   const onSubmit = async (data) => {
     console.log("Form Submitted Successfully:", data);
+    setupdateUserLoading(true);
     // add mode api call
     const { data: resData } = await axios.post("/api/users/updateUser", data);
 
     if (resData.statusCode == 200) {
       handleconfirmModalClose();
     }
+    setupdateUserLoading(false);
     notify(resData.msg, resData.statusCode);
     return;
   };
@@ -111,14 +134,72 @@ const UpdateUser = ({ userRecord }: any) => {
     }
   }
 
+  async function handleCVUpdate() {
+    if (!cvFile) {
+      notify("CV file required", 204);
+      return;
+    }
+
+    setupdateCvLoading(true);
+    let trainerCvUrl = "";
+
+    const formData = new FormData();
+    formData.append("file", cvFile);
+    const folderName = `cv/${userRecord?.name}`;
+    formData.append("folderName", folderName);
+
+    const { data: uploadresData } = await axios.post(
+      "/api/fileupload/uploadfile",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    // cloudinary error
+    if (uploadresData.error) {
+      notify("Error uploading file", 204);
+    }
+    // cloudinary success
+    else {
+      trainerCvUrl = uploadresData.res.secure_url;
+      const { data: updateTrainersCvResData } = await axios.post(
+        "/api/trainer/updateTrainersCV",
+        {
+          ...userRecord,
+          trainerCvUrl,
+        }
+      );
+
+      if (updateTrainersCvResData) {
+        // handleupdateCVModalClose();
+        notify(
+          updateTrainersCvResData?.msg,
+          updateTrainersCvResData?.statusCode
+        );
+        setupdateCvLoading(false);
+        window.location.reload();
+        return;
+      }
+      setupdateCvLoading(false);
+
+      notify(updateTrainersCvResData?.msg, updateTrainersCvResData?.statusCode);
+      return;
+    }
+  }
+
   //   update from state
   useEffect(() => {
     if (userRecord) {
       reset({
         ...userRecord,
       });
+      setLoaded(true);
     }
   }, [userRecord, reset]);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
@@ -129,6 +210,12 @@ const UpdateUser = ({ userRecord }: any) => {
       {/* form */}
       <form
         className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-3"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* basic info */}
@@ -257,6 +344,69 @@ const UpdateUser = ({ userRecord }: any) => {
                 );
               }}
             />
+
+            {/* upload cv for trainer */}
+            {userRecord?.role?.toLowerCase() == "trainer" && (
+              <div className="upload-cv flex gap-2 flex-col items-center">
+                {userRecord?.trainerCvUrl ? (
+                  <p className="text-xs font-bold text-green-500">
+                    CV already uploaded
+                  </p>
+                ) : (
+                  <p className="text-xs font-bold text-red-500">CV not found</p>
+                )}
+                <Button variant="contained" onClick={handleupdateCVModalOpen}>
+                  <CloudUploadIcon />
+                  <span className="ml-2">Update CV</span>
+                </Button>
+
+                {/* update cv modal  */}
+                <Modal
+                  open={updateCVModalOpen}
+                  onClose={handleupdateCVModalClose}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                  className="flex items-center justify-center"
+                >
+                  <Box className="w-[400px] h-max p-6  flex flex-col items-start bg-white rounded-xl shadow-lg">
+                    <p className="font-semibold mb-4 text-xl">Update CV</p>
+
+                    <input
+                      accept="application/pdf,image/*" // allow pdf and image
+                      onChange={handleFileChange}
+                      type="file"
+                      id="contractInput"
+                      name="contractInput"
+                    />
+
+                    <div className="buttons flex gap-4 mt-4">
+                      <Button
+                        variant="outlined"
+                        onClick={handleupdateCVModalClose}
+                        className="text-gray-600 hover:bg-gray-50"
+                      >
+                        Cancel
+                      </Button>
+                      {updateCvLoading ? (
+                        <LoadingButton
+                          size="large"
+                          loading={updateCvLoading}
+                          loadingPosition="start"
+                          variant="contained"
+                          className="mt-7"
+                        >
+                          <span className="">Updating CV</span>
+                        </LoadingButton>
+                      ) : (
+                        <Button variant="contained" onClick={handleCVUpdate}>
+                          Update CV
+                        </Button>
+                      )}
+                    </div>
+                  </Box>
+                </Modal>
+              </div>
+            )}
           </div>
         </div>
         {/* Information */}
@@ -659,7 +809,7 @@ const UpdateUser = ({ userRecord }: any) => {
         >
           <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
             <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
-            <p className="mb-6 text-gray-600">You want to add new student.</p>
+            <p className="mb-6 text-gray-600">You want to add update user.</p>
             <div className="buttons flex gap-5">
               <Button
                 variant="outlined"
@@ -676,7 +826,7 @@ const UpdateUser = ({ userRecord }: any) => {
                   variant="contained"
                   className="mt-7"
                 >
-                  <span className="">Adding user</span>
+                  <span className="">Updating user</span>
                 </LoadingButton>
               ) : (
                 <Button
@@ -690,7 +840,7 @@ const UpdateUser = ({ userRecord }: any) => {
                     }
                   }}
                 >
-                  Add user
+                  Update user
                 </Button>
               )}
             </div>

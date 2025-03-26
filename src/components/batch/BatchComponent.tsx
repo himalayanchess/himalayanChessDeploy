@@ -34,8 +34,12 @@ const BatchComponent = () => {
   const dispatch = useDispatch<any>();
 
   // selector
-  const { allActiveProjects, allActiveBatches, allFilteredActiveBatches } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveProjects,
+    allActiveBatches,
+    allFilteredActiveBatches,
+    allBatchesLoading,
+  } = useSelector((state: any) => state.allListReducer);
 
   // session
   const session = useSession();
@@ -188,6 +192,7 @@ const BatchComponent = () => {
         allFilteredActiveBatches={allFilteredActiveBatches}
         currentPage={currentPage}
         batchesPerPage={batchesPerPage}
+        allBatchesLoading={allBatchesLoading}
       />
 
       {/* pagination */}
@@ -195,7 +200,7 @@ const BatchComponent = () => {
       <Stack spacing={2} className="mx-auto w-max mt-7">
         <Pagination
           count={Math.ceil(filteredBatchCount / batchesPerPage)} // Total pages
-          page={currentPage} // Current page
+          page={currentPage} //allCoursesLoading Current page
           onChange={handlePageChange} // Handle page change
           shape="rounded"
         />

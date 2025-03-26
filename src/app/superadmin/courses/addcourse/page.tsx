@@ -1,27 +1,27 @@
 "use client";
-import React from "react";
-import AddIcon from "@mui/icons-material/Add";
+import AddCourse from "@/components/course/AddCourse";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
-import CourseComponent from "@/components/course/CourseComponent";
+import React from "react";
 
-const Users = () => {
+const page = () => {
   return (
-    <div className="">
+    <div>
       <Sidebar
-        role="Superadmin"
         menuItems={superadminMenuItems}
+        // role={session?.data?.user.role}
+        role="superadmin"
         activeMenu="Courses"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="pb-6 h-[91dvh] flex py-5 px-14 ">
-          <CourseComponent />
+        <div className="pb-6 h-[91dvh]  flex py-5 px-14 ">
+          <AddCourse />
         </div>
       </div>
     </div>
   );
 };
 
-export default Users;
+export default page;

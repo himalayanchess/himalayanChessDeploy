@@ -65,11 +65,12 @@ const AddUser = () => {
   const onSubmit = async (data) => {
     console.log("Form Submitted Successfully:", data);
     // add mode api call
-
+    setaddUserLoading(true);
     const { data: resData } = await axios.post("/api/users/addNewUser", data);
     if (resData.statusCode == 200) {
       handleconfirmModalClose();
     }
+    setaddUserLoading(false);
     notify(resData.msg, resData.statusCode);
     return;
   };
@@ -83,6 +84,12 @@ const AddUser = () => {
       {/* form */}
       <form
         className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-3"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* basic info */}

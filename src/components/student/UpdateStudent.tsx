@@ -40,6 +40,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
     (state: any) => state.allListReducer
   );
 
+  const [loaded, setLoaded] = useState(false);
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
   const [updateStudentLoading, setupdateStudentLoading] = useState(false);
   const [hcaBatchList, sethcaBatchList] = useState([]);
@@ -178,10 +179,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
       console.log("updated student", resData);
 
       if (resData.statusCode == 200) {
-        console.log("ass student", resData);
+        // console.log("ass student", resData);
         handleconfirmModalClose();
-        setupdateStudentLoading(false);
       }
+      setupdateStudentLoading(false);
       notify(resData.msg, resData.statusCode);
       return;
     } catch (error) {
@@ -215,8 +216,11 @@ const UpdateStudent = ({ studentRecord }: any) => {
         enrolledCourses: studentRecord.enrolledCourses || [],
       });
       setselectedAffiliatedTo(studentRecord.affiliatedTo);
+      setLoaded(true);
     }
   }, [studentRecord, reset]);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
@@ -226,6 +230,12 @@ const UpdateStudent = ({ studentRecord }: any) => {
       <Divider sx={{ margin: ".5rem 0 .7rem  " }} />
       <form
         onSubmit={handleSubmit(onSubmit)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
         className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
       >
         {/* Form fields go here, same as in AddStudent */}

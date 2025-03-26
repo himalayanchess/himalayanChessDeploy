@@ -59,3 +59,37 @@ export function getFinalUpdatedEnrolledCourses(
 
   return finalUpdatedEnrolledCourses;
 }
+
+export function getFinalUpdatedChapters(
+  dbChapters: any[],
+  passedChapters: any[]
+) {
+  let finalUpdatedChapters = JSON.parse(JSON.stringify(dbChapters || []));
+
+  passedChapters.forEach((passedChapter) => {
+    const index = finalUpdatedChapters.findIndex(
+      (chapter: any) =>
+        chapter.chapterName.toLowerCase() ===
+        passedChapter.chapterName.toLowerCase()
+    );
+
+    if (index !== -1) {
+      // Update chapter, ensure activeStatus is set to true
+      finalUpdatedChapters[index] = { ...passedChapter, activeStatus: true };
+    } else {
+      // Add new chapter, ensure activeStatus is set to true
+      finalUpdatedChapters.push({ ...passedChapter, activeStatus: true });
+    }
+  });
+
+  finalUpdatedChapters = finalUpdatedChapters.map((chapter: any) => {
+    const existsInPassed = passedChapters.some(
+      (passedChapter) =>
+        passedChapter.chapterName.toLowerCase() ===
+        chapter.chapterName.toLowerCase()
+    );
+    return existsInPassed ? chapter : { ...chapter, activeStatus: false };
+  });
+
+  return finalUpdatedChapters;
+}

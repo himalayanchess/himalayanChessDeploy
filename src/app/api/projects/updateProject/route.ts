@@ -26,6 +26,18 @@ export async function POST(request: NextRequest) {
       ? dayjs(reqBody?.endDate).tz(timeZone).startOf("day").utc()
       : "";
 
+    // Check if another project already has the same name
+    const existingProject = await Project.findOne({
+      name: { $regex: `^${reqBody.name}$`, $options: "i" }, // Case-insensitive search
+      _id: { $ne: reqBody._id }, // Exclude the current batch
+    });
+    if (existingProject) {
+      return NextResponse.json({
+        msg: "Project already exists",
+        statusCode: 409, // Conflict status
+      });
+    }
+
     const updatedProject = await Project.findOneAndUpdate(
       { _id: reqBody._id },
       {
