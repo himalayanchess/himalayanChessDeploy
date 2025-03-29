@@ -4,8 +4,10 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import UsersComponent from "@/components/user/UsersComponent";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
+import { useSession } from "next-auth/react";
 
 const Users = () => {
+  const session = useSession();
   return (
     <div className="">
       <Sidebar
@@ -16,7 +18,7 @@ const Users = () => {
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 h-[91dvh] flex py-5 px-14 ">
-          <UsersComponent />
+          <UsersComponent role={session?.data?.user?.role} />
         </div>
       </div>
     </div>

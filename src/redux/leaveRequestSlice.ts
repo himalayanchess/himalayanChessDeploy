@@ -4,17 +4,19 @@ import axios from "axios";
 // Async thunk to fetch assigned classes
 export const fetchAllTrainersLeaveRequests = createAsyncThunk(
   "leaverequest/fetchAllTrainersLeaveRequests",
-  async ({ trainerId }: any, { rejectWithValue }) => {
+  async ({ userId }: any, { rejectWithValue }) => {
     try {
       console.log("fetchAllTrainersLeaveRequests thunk");
 
       const response = await axios.post(
         "/api/leaverequest/getAllTrainersLeaveRequests",
         {
-          trainerId,
+          userId,
         }
       );
       // Return the data from the response
+      console.log("all trainers requets", response);
+
       return response.data.allTrainersLeaveRequests;
     } catch (error: any) {
       return rejectWithValue(error.message);

@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { filterCourseList, getAllCourses } from "@/redux/allListSlice";
 import CourseList from "./CourseList";
 
-const CourseComponent = () => {
+const CourseComponent = ({ role = "" }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -70,8 +70,7 @@ const CourseComponent = () => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-2xl mb-2 font-bold text-gray-700">Course List</h2>
-
+      <h2 className="text-3xl mb-2 font-medium text-gray-700">Course List</h2>
       <div className="courses-header my-2 flex items-end justify-between">
         {/* title and Dropdown */}
         <div className="title-options">
@@ -98,8 +97,8 @@ const CourseComponent = () => {
               onChange={(e) => setsearchText(e.target.value)}
             />
 
-            {/* add student button */}
-            <Link href={"/superadmin/courses/addcourse"}>
+            {/* add course button */}
+            <Link href={`/${role?.toLowerCase()}/courses/addcourse`}>
               <Button variant="contained" size="small">
                 <AddIcon />
                 <span className="ml-1">Add Course</span>
@@ -116,6 +115,7 @@ const CourseComponent = () => {
         currentPage={currentPage}
         coursesPerPage={coursesPerPage}
         allCoursesLoading={allCoursesLoading}
+        role={role}
       />
 
       {/* pagination */}

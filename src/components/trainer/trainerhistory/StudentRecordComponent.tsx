@@ -12,10 +12,10 @@ const StudentRecordComponent = ({ studentRecords }: any) => {
   useEffect(() => {
     const totalStudents = studentRecords.length;
     const presentStudents = studentRecords.filter(
-      (student) => student.attendance.toLowerCase() == "present"
+      (student: any) => student.attendance.toLowerCase() == "present"
     ).length;
     const absentStudents = studentRecords.filter(
-      (student) => student.attendance.toLowerCase() == "absent"
+      (student: any) => student.attendance.toLowerCase() == "absent"
     ).length;
 
     setAttendanceStats({

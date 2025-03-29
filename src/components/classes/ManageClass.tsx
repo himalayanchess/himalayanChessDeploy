@@ -30,15 +30,17 @@ import {
   fetchAllTrainers,
   getAllStudents,
 } from "@/redux/allListSlice";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const ManageClass = ({ selectedDate }) => {
+const ManageClass = ({ selectedDate }: any) => {
   // console.log("selectedDate in manage class", selectedDate);
 
   const dis = useDispatch<any>();
+  const session = useSession();
   // use selectors
   const { allActiveStudentsList, allActiveBatches } = useSelector(
     (state: any) => state.allListReducer
@@ -111,6 +113,8 @@ const ManageClass = ({ selectedDate }) => {
         holidayStatus,
         affiliatedTo,
         trainerPresentStatus: holidayStatus ? "holiday" : "absent",
+        assignedById: session?.data?.user?._id,
+        assignedByName: session?.data?.user?.name,
       });
       if (resData.statusCode === 200) {
         // Notify success

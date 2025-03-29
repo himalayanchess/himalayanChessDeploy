@@ -64,8 +64,8 @@ const ActivityRecordSchema = new mongoose.Schema(
     mainStudyTopic: { type: String },
     holidayStatus: { type: Boolean },
     holidayDescription: { type: String },
-    arrivalTime: { type: Date },
-    departureTime: { type: Date },
+    assignedByName: { type: String },
+    assignedById: { type: mongoose.Schema.Types.Mixed, ref: "User" },
     studentRecords: {
       type: Array,
     },

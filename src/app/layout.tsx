@@ -7,6 +7,7 @@ import { createTheme } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
 import { Provider } from "react-redux";
 import { myStore } from "@/redux/store";
+import RootClient from "./RootClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,15 +18,13 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 const theme = createTheme({
   components: {
-    // Customizing the Button component
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: "none", // Remove default uppercase transformation
-          // padding: "0",
-          // margin: "0",
+          textTransform: "none",
         },
       },
     },
@@ -34,9 +33,9 @@ const theme = createTheme({
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <head></head>
@@ -47,7 +46,7 @@ export default function RootLayout({
           <Provider store={myStore}>
             <SessionProvider>
               <ToastContainer />
-              {children}
+              <RootClient>{children}</RootClient> {/* Loading in root client */}
             </SessionProvider>
           </Provider>
         </ThemeProvider>

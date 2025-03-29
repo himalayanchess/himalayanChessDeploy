@@ -11,8 +11,10 @@ const page = ({ params }: any) => {
   const { id: userId }: any = use(params);
 
   const [loading, setLoading] = useState(true);
+  const [invalidId, setinvalidId] = useState(false);
+
   const [userRecord, setuserRecord] = useState<any>(null);
-  console.log("ac record", userRecord);
+  // console.log("ac record", userRecord);
 
   async function getuserRecord() {
     try {
@@ -21,7 +23,9 @@ const page = ({ params }: any) => {
         userId,
       });
       setuserRecord(resData.userRecord);
-      console.log(resData);
+      if (resData?.statusCode == 204) {
+        setinvalidId(true);
+      }
       setLoading(false);
     } catch (error) {
       console.log("error in traierhistory : [id], getuserRecord api", error);
@@ -47,6 +51,8 @@ const page = ({ params }: any) => {
               <CircularProgress />
               <span className="mt-2">Loading record...</span>
             </div>
+          ) : invalidId ? (
+            <p>Invalid user id</p>
           ) : (
             <ViewUserDetail userRecord={userRecord} />
           )}

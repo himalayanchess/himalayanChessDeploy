@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ClassesHeader from "./ClassesHeader";
 import StudentActivity from "./StudentActivity";
+import BrowserNotSupportedIcon from "@mui/icons-material/BrowserNotSupported";
 import { useSession } from "next-auth/react";
 import TodaysClasses from "./TodaysClasses";
 import dayjs from "dayjs";
@@ -9,6 +10,7 @@ import timezone from "dayjs/plugin/timezone";
 import {
   fetchAllStudents,
   fetchTrainersTodayClasses,
+  getAllCourses,
 } from "@/redux/trainerSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -25,11 +27,13 @@ const TrainerClasses = () => {
     loadingTodaysClasses,
     selectedStudentList,
     selectedTodaysClass,
+    selectedCourseLessons,
     status,
     error,
   } = useSelector((state) => state.trainerReducer);
 
   // console.log(selectedTodaysClass);
+  const [hasFetched, setHasFetched] = useState(false);
 
   // apply to all
   const [applyToAllClicked, setapplyToAllClicked] = useState(false);
@@ -40,8 +44,7 @@ const TrainerClasses = () => {
 
   // fetch initial trainers' classes and students on session change
   useEffect(() => {
-    if (session?.data?.user?._id) {
-      // Fetch today's classes and all students only when session is available
+    if (!hasFetched && session?.data?.user?._id) {
       dispatch(
         fetchTrainersTodayClasses({
           trainerId: session.data.user._id,
@@ -49,8 +52,14 @@ const TrainerClasses = () => {
         })
       );
       dispatch(fetchAllStudents());
+      setHasFetched(true);
     }
-  }, [session]);
+  }, [session, hasFetched]);
+
+  // get initial course data
+  useEffect(() => {
+    dispatch(getAllCourses());
+  }, []);
 
   return (
     <div className="flex w-full">
@@ -61,16 +70,28 @@ const TrainerClasses = () => {
             selectedTodaysClass={selectedTodaysClass}
             setapplyToAllClicked={setapplyToAllClicked}
             setapplyTopic={setapplyTopic}
+            selectedCourseLessons={selectedCourseLessons}
           />
         </div>
         <div className="activity-section flex-1 p-3 px-6 bg-white rounded-md shadow-md">
-          <StudentActivity
-            selectedStudentList={selectedStudentList}
-            selectedTodaysClass={selectedTodaysClass}
-            setapplyToAllClicked={setapplyToAllClicked}
-            applyToAllClicked={applyToAllClicked}
-            applyTopic={applyTopic}
-          />
+          {selectedTodaysClass ? (
+            <StudentActivity
+              selectedStudentList={selectedStudentList}
+              selectedTodaysClass={selectedTodaysClass}
+              setapplyToAllClicked={setapplyToAllClicked}
+              applyToAllClicked={applyToAllClicked}
+              applyTopic={applyTopic}
+              selectedCourseLessons={selectedCourseLessons}
+            />
+          ) : (
+            // no assigned class selected
+            <div className="noassignedclass h-full w-full flex items-center justify-center">
+              <p className="text-lg flex items-center">
+                <BrowserNotSupportedIcon />
+                <span className="ml-2">Assigned class not selected</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
       <div className="todays-classes flex-[0.3] ml-4">

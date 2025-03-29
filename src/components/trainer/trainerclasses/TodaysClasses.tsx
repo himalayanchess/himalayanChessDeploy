@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import BrowserNotSupportedIcon from "@mui/icons-material/BrowserNotSupported";
+
 import { useDispatch, useSelector } from "react-redux";
 import { selectTodaysClass } from "@/redux/trainerSlice";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -68,7 +70,10 @@ const TodaysClasses = ({
         ) : (
           <div className="assigned-classes-list mt-2 flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto pb-4">
             {trainersTodaysClasses?.length === 0 ? (
-              <p>No assigned Classes</p>
+              <p className="flex items-center">
+                <BrowserNotSupportedIcon />
+                <span className="ml-2">No assigned Classes</span>
+              </p>
             ) : (
               trainersTodaysClasses?.map((todaysClass) => (
                 <div

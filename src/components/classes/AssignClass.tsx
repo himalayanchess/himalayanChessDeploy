@@ -35,7 +35,7 @@ const instituteColors = {
   school: "bg-yellow-100",
 };
 
-const AssignClass = ({ selectedBatch }) => {
+const AssignClass = () => {
   const dis = useDispatch<any>();
   const { allActiveAssignedClasses, status, error } = useSelector(
     (state) => state.assignedClassesReducer
@@ -240,11 +240,7 @@ const AssignClass = ({ selectedBatch }) => {
       </div>
       {/* Middle Section (ManageClass) */}
       <div className="flex-1 w-full ">
-        {!selectedBatch ? (
-          <p>Batch not selected</p>
-        ) : (
-          <ManageClass selectedDate={selectedDate} />
-        )}
+        <ManageClass selectedDate={selectedDate} />
       </div>
       {/* Rignt Section (AssignedClasses) */}
       <div className="flex-[0.5] w-full ">

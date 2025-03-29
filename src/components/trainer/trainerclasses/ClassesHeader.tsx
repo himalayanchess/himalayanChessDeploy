@@ -23,6 +23,7 @@ const ClassesHeader = ({
   selectedTodaysClass,
   setapplyToAllClicked,
   setapplyTopic,
+  selectedCourseLessons,
 }: any) => {
   // state variables
   const [studyMaterialModalOpen, setstudyMaterialModalOpen] = useState(false);
@@ -40,12 +41,19 @@ const ClassesHeader = ({
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       selectedStudyTopic: "",
     },
   }); // Access form context
+
+  // reset the selectedStudyTopic value to null if
+  // selected todays class changes
+  useEffect(() => {
+    setValue("selectedStudyTopic", "");
+  }, [selectedTodaysClass]);
 
   async function onSubmit(data) {
     console.log(data);
@@ -149,8 +157,8 @@ const ClassesHeader = ({
                   rules={{ required: "Study topic is required" }} // Validation rule
                   render={({ field }) => (
                     <Dropdown
-                      options={["asd", "pih", "rt"]}
-                      selected={field.value}
+                      options={selectedCourseLessons || []}
+                      selected={field.value || ""}
                       onChange={(value) => field.onChange(value)}
                       error={!!errors.selectedStudyTopic} // Pass error state
                       helperText={errors.selectedStudyTopic?.message} // Error message
@@ -174,7 +182,10 @@ const ClassesHeader = ({
           </div>
         </div>
       ) : (
-        "no"
+        // class not selected
+        <div className="classnotselected mt-2">
+          <p>Please select assigned class.</p>
+        </div>
       )}
     </div>
   );

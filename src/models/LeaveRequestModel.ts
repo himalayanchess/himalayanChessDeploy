@@ -8,13 +8,16 @@ const LeaveRequestSchema = new mongoose.Schema(
     utcDate: {
       type: Date,
     },
-    trainerName: {
+    userName: {
       type: String,
       required: true,
     },
-    trainerId: {
+    userId: {
       type: mongoose.Schema.Types.Mixed,
       ref: "User",
+    },
+    userRole: {
+      type: String,
     },
     fromDate: {
       type: Date,

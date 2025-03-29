@@ -45,6 +45,22 @@ export const fetchAllStudents = createAsyncThunk(
   }
 );
 
+// get all users list
+export const getAllCourses = createAsyncThunk(
+  "courses/getAllCourses",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.get("/api/courses/getAllCourses");
+
+      return resData.allCourses;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const trainerSlice = createSlice({
   name: "assignClass",
   initialState: {
@@ -53,6 +69,11 @@ const trainerSlice = createSlice({
     studentList: [],
     allStudentActiveList: [],
     selectedStudentList: [],
+    // course
+    allCourseList: [],
+    allActiveCourseList: [],
+    selectedCourseLessons: [],
+
     // for attendance analysis
     attendanceStudentRecordsList: [],
     status: "idle", // "idle" | "loading" | "succeeded" | "failed"
@@ -68,7 +89,7 @@ const trainerSlice = createSlice({
       //   "Inside select todays class reducer selected class",
       //   selectedClass
       // );
-      console.log("inside select todays class studentlist", state.studentList);
+      console.log("selected todays class", selectedClass);
 
       const batchId = selectedClass.batchId;
       // Filter students who have a batch with the given 'batchId' and 'activeStatus' as true
@@ -80,7 +101,30 @@ const trainerSlice = createSlice({
             !batch.endDate
         )
       );
+
+      // also filter lessons of selected classes course
       state.selectedStudentList = filteredStudents;
+
+      // Find the matching course from allActiveCourseList based on selectedClass.courseId
+      const matchingCourse = state.allActiveCourseList.find(
+        (course) => course._id === selectedClass.courseId
+      );
+
+      let tempFilteredLessons = [];
+      if (matchingCourse) {
+        // Process and filter active chapters
+        tempFilteredLessons = matchingCourse.chapters
+          .filter((chapter) => chapter.activeStatus) // Only active chapters
+          .flatMap((chapter) =>
+            chapter.subChapters.length > 0
+              ? chapter.subChapters
+              : [chapter.chapterName]
+          );
+      }
+      // console.log("filtered lessons", tempFilteredLessons);
+
+      // Set filtered lessons to selectedCourseLessons state
+      state.selectedCourseLessons = tempFilteredLessons;
     },
 
     // update todays classes record when trainer updates the student record
@@ -138,6 +182,24 @@ const trainerSlice = createSlice({
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         state.allStudentActiveList = sortedStudents;
+      })
+
+      // for all course list
+      .addCase(getAllCourses.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getAllCourses.fulfilled, (state, action: any) => {
+        state.status = "succeeded";
+        state.allCourseList = action.payload;
+        // console.log("alactive courses", JSON.stringify(action.payload));
+
+        const sortedCourses = action.payload
+          ?.filter((course) => course.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        state.allActiveCourseList = sortedCourses;
       });
   },
 });

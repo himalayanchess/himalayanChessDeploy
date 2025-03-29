@@ -15,7 +15,7 @@ const Input = ({
   extraClasses,
   label = "",
   ...props
-}) => {
+}: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   // generate random password and update form state

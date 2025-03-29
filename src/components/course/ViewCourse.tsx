@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -14,7 +14,19 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewCourse = ({ courseRecord }: any) => {
-  console.log(courseRecord);
+  // console.log(courseRecord);
+
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (courseRecord) {
+      setLoaded(true);
+    }
+  }, [courseRecord]);
+
+  if (!loaded)
+    return (
+      <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7"></div>
+    );
 
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7">

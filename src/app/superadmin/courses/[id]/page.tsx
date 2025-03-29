@@ -50,13 +50,13 @@ const page = ({ params }: any) => {
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 flex flex-col h-[91dvh]  py-5 px-14 ">
-          {loading || !courseId ? (
+          {loading ? (
             <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
               <CircularProgress />
               <span className="mt-2">Loading record...</span>
             </div>
           ) : invalidId ? (
-            <p>Invalid user id</p>
+            <p>Invalid course id</p>
           ) : (
             <ViewCourse courseRecord={courseRecord} />
           )}

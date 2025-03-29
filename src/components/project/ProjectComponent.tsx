@@ -3,13 +3,14 @@ import Dropdown from "../Dropdown";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
 import AddIcon from "@mui/icons-material/Add";
+import LockIcon from "@mui/icons-material/Lock";
 
 import { Button, Pagination, Stack } from "@mui/material";
 import ProjectList from "./ProjectList";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProjects, filterProjectsList } from "@/redux/allListSlice";
 
-const ProjectComponent = () => {
+const ProjectComponent = ({ role }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -96,13 +97,26 @@ const ProjectComponent = () => {
               onChange={(e) => setsearchText(e.target.value)}
             />
 
-            {/* add student button */}
-            <Link href={"/superadmin/projects/addproject"}>
-              <Button variant="contained" size="small">
-                <AddIcon />
+            {/* add project button */}
+
+            {role?.toLowerCase() == "superadmin" ? (
+              <Link href={"/superadmin/projects/addproject"}>
+                <Button variant="contained" size="small">
+                  <AddIcon />
+                  <span className="ml-1">Add Project</span>
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                variant="contained"
+                size="small"
+                className="w-max h-max"
+                disabled
+              >
+                <LockIcon sx={{ fontSize: "1.2rem" }} />
                 <span className="ml-1">Add Project</span>
               </Button>
-            </Link>
+            )}
           </div>
         </div>
       </div>
@@ -113,6 +127,7 @@ const ProjectComponent = () => {
         currentPage={currentPage}
         projectsPerPage={projectsPerPage}
         allProjectsLoading={allProjectsLoading}
+        role={role}
       />
 
       <Stack spacing={2} className="mx-auto w-max mt-7">

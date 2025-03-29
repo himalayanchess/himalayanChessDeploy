@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
+import LockIcon from "@mui/icons-material/Lock";
 import AddIcon from "@mui/icons-material/Add";
 import Header from "@/components/Header";
 import Dropdown from "@/components/Dropdown";
@@ -24,7 +25,9 @@ import { filterUsersList, getAllUsers } from "@/redux/allListSlice";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
 
-const UsersComponent = () => {
+const UsersComponent = ({ role = "" }: any) => {
+  console.log("role inside users comp", role);
+
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -112,13 +115,25 @@ const UsersComponent = () => {
                 onChange={(e) => setsearchText(e.target.value)}
               />
 
-              {/* add student button */}
-              <Link href={"/superadmin/users/adduser"}>
-                <Button variant="contained" size="small">
-                  <AddIcon />
+              {/* add user button */}
+              {role?.toLowerCase() == "superadmin" ? (
+                <Link href={"/superadmin/users/adduser"}>
+                  <Button variant="contained" size="small">
+                    <AddIcon />
+                    <span className="ml-1">Add User</span>
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  variant="contained"
+                  size="small"
+                  className="w-max h-max"
+                  disabled
+                >
+                  <LockIcon sx={{ fontSize: "1.2rem" }} />
                   <span className="ml-1">Add User</span>
                 </Button>
-              </Link>
+              )}
             </div>
           </div>
         </div>
@@ -129,6 +144,7 @@ const UsersComponent = () => {
           currentPage={currentPage}
           usersPerPage={usersPerPage}
           allUsersLoading={allUsersLoading}
+          role={role}
         />
 
         <Stack spacing={2} className="mx-auto w-max mt-7">

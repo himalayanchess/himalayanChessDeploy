@@ -2,6 +2,8 @@ import { Box, Button, CircularProgress, Modal } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
+import LockIcon from "@mui/icons-material/Lock";
+
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -16,6 +18,7 @@ const CourseList = ({
   currentPage,
   coursesPerPage,
   allCoursesLoading,
+  role,
 }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
@@ -118,87 +121,98 @@ const CourseList = ({
                   <span className="text-sm text-gray-700">
                     {course?.affiliatedTo}
                   </span>
-
-                  <div className="text-sm text-gray-500">
-                    <>
-                      {/* edit  */}
-                      <Link
-                        href={`/superadmin/courses/updatecourse/${course?._id}`}
-                        title="Edit"
-                        className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
-                      >
-                        <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
-                      </Link>
-
-                      {/* delete modal */}
-                      {course?.activeStatus == true && (
-                        <button
-                          title="Delete"
-                          className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
-                          onClick={() =>
-                            handleDeleteModalOpen(course?._id, course?.name)
-                          }
+                  {role?.toLowerCase() == "superadmin" ? (
+                    <div className="text-sm text-gray-500">
+                      <>
+                        {/* edit  */}
+                        <Link
+                          href={`/superadmin/courses/updatecourse/${course?._id}`}
+                          title="Edit"
+                          className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
                         >
-                          <DeleteIcon />
-                        </button>
-                      )}
-                      <Modal
-                        open={deleteModalOpen}
-                        onClose={handleDeleteModalClose}
-                        aria-labelledby="modal-modal-title"
-                        aria-describedby="modal-modal-description"
-                        className="flex items-center justify-center"
-                        BackdropProps={{
-                          style: {
-                            backgroundColor: "rgba(0,0,0,0.3)", // Make the backdrop transparent
-                          },
-                        }}
-                      >
-                        <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
-                          <DeleteIcon
-                            className="text-white bg-red-600 rounded-full"
-                            sx={{ fontSize: "3rem", padding: "0.5rem" }}
-                          />
+                          <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
+                        </Link>
 
-                          <p className="text-md mt-1 font-bold ">
-                            Delete Course?
-                          </p>
-                          <span className="text-center mt-2">
-                            <span className="font-bold text-xl">
-                              {selectedCourseName}
+                        {/* delete modal */}
+                        {course?.activeStatus == true && (
+                          <button
+                            title="Delete"
+                            className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
+                            onClick={() =>
+                              handleDeleteModalOpen(course?._id, course?.name)
+                            }
+                          >
+                            <DeleteIcon />
+                          </button>
+                        )}
+                        <Modal
+                          open={deleteModalOpen}
+                          onClose={handleDeleteModalClose}
+                          aria-labelledby="modal-modal-title"
+                          aria-describedby="modal-modal-description"
+                          className="flex items-center justify-center"
+                          BackdropProps={{
+                            style: {
+                              backgroundColor: "rgba(0,0,0,0.3)", // Make the backdrop transparent
+                            },
+                          }}
+                        >
+                          <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
+                            <DeleteIcon
+                              className="text-white bg-red-600 rounded-full"
+                              sx={{ fontSize: "3rem", padding: "0.5rem" }}
+                            />
+
+                            <p className="text-md mt-1 font-bold ">
+                              Delete Course?
+                            </p>
+                            <span className="text-center mt-2">
+                              <span className="font-bold text-xl">
+                                {selectedCourseName}
+                              </span>
+                              <br />
+                              will be deleted permanently.
                             </span>
-                            <br />
-                            will be deleted permanently.
-                          </span>
-                          <div className="buttons mt-5">
-                            <Button
-                              variant="outlined"
-                              sx={{
-                                marginRight: ".5rem",
-                                paddingInline: "2rem",
-                              }}
-                              onClick={handleDeleteModalClose}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              sx={{
-                                marginLeft: ".5rem",
-                                paddingInline: "2rem",
-                              }}
-                              onClick={() =>
-                                handleCourseDelete(selectedCourseId)
-                              }
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </Box>
-                      </Modal>
-                    </>
-                  </div>
+                            <div className="buttons mt-5">
+                              <Button
+                                variant="outlined"
+                                sx={{
+                                  marginRight: ".5rem",
+                                  paddingInline: "2rem",
+                                }}
+                                onClick={handleDeleteModalClose}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                sx={{
+                                  marginLeft: ".5rem",
+                                  paddingInline: "2rem",
+                                }}
+                                onClick={() =>
+                                  handleCourseDelete(selectedCourseId)
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </Box>
+                        </Modal>
+                      </>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      className="w-max h-max"
+                      disabled
+                    >
+                      <LockIcon sx={{ fontSize: "1.2rem" }} />
+                      <span className="ml-1">Unauthorized</span>
+                    </Button>
+                  )}
                 </div>
               );
             })}

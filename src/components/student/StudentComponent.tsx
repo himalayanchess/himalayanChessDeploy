@@ -17,7 +17,7 @@ import {
   getAllStudents,
 } from "@/redux/allListSlice";
 
-const StudentComponent = () => {
+const StudentComponent = ({ role }: any) => {
   // dispatch
   const dispath = useDispatch<any>();
   // use selector
@@ -124,7 +124,9 @@ const StudentComponent = () => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h1 className="text-2xl font-bold">Student Management</h1>
+      <h2 className="text-3xl mb-2 font-medium text-gray-700">
+        Student Management
+      </h2>{" "}
       {/* student header */}
       <div className="student-header my-2 flex items-end justify-between">
         {/* dropdown */}
@@ -159,7 +161,7 @@ const StudentComponent = () => {
           />
 
           {/* add student button */}
-          <Link href={"/superadmin/students/addstudent"}>
+          <Link href={`/${role?.toLowerCase()}/students/addstudent`}>
             <Button variant="contained" size="small">
               <AddIcon />
               <span className="ml-1">Add Student</span>
@@ -173,6 +175,7 @@ const StudentComponent = () => {
         currentPage={currentPage}
         studentsPerPage={studentsPerPage}
         allStudentsLoading={allStudentsLoading}
+        role={role}
       />
       {/* pagination */}
       <Stack spacing={2} className="mx-auto w-max mt-7">

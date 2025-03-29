@@ -16,9 +16,11 @@ const LeaveApproval = () => {
   const dispatch = useDispatch<any>();
 
   // useselector
-  const { allFilteredLeaveRequests, allLeaveRequests } = useSelector(
-    (state: any) => state.leaveApprovalReducer
-  );
+  const {
+    allFilteredLeaveRequests,
+    allLeaveRequests,
+    allLeaveRequestsLoading,
+  } = useSelector((state: any) => state.leaveApprovalReducer);
   // get all users form alnother reduer (slice)
   const { allActiveTrainerList } = useSelector(
     (state: any) => state.allListReducer
@@ -112,6 +114,7 @@ const LeaveApproval = () => {
           allFilteredLeaveRequests={allFilteredLeaveRequests}
           currentPage={currentPage}
           leaveRequestsPerPage={leaveRequestsPerPage}
+          allLeaveRequestsLoading={allLeaveRequestsLoading}
         />
 
         {/* pagination */}

@@ -6,8 +6,6 @@ export const fetchAllTrainersActivityRecords = createAsyncThunk(
   "trainerHistory/fetchAllTrainersActivityRecords",
   async ({ trainerId }: any, { rejectWithValue }) => {
     try {
-      console.log("fetchAllTrainersLeaveRequests thunk");
-
       const response = await axios.post(
         "/api/trainer/getAllTrainersActivityRecords",
         {

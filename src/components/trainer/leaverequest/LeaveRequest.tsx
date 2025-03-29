@@ -27,7 +27,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const LeaveRequest = () => {
+const LeaveRequest = ({ role = "" }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
   // session
@@ -189,15 +189,19 @@ const LeaveRequest = () => {
       fromDay,
       toDay,
       leaveDurationDays,
-      trainerId: sessionData?.user?._id,
-      trainerName: sessionData?.user?.name,
+      userId: sessionData?.user?._id,
+      userName: sessionData?.user?.name,
+      userRole: sessionData?.user?.role,
     };
+
+    let savedNewLeaveRequest: any = null;
 
     // add new leave request record api
     const { data: resData } = await axios.post(
       "/api/leaverequest/addNewLeaveRequest",
       temp
     );
+    savedNewLeaveRequest = resData.savedNewLeaveRequest;
 
     // new request added
     if (resData?.statusCode == 200) {
@@ -248,9 +252,10 @@ const LeaveRequest = () => {
           );
         }
         //update redux state
+        savedNewLeaveRequest = tempsavedLeaveRequest;
         // it adds just added leaveRequest with or without supportReasonFileUrl
-        dispatch(addLeaveRequest(tempsavedLeaveRequest));
       }
+      dispatch(addLeaveRequest(savedNewLeaveRequest));
       // resData from addLeqveRequest (not file api)
       notify(resData?.msg, resData?.statusCode);
       return;
@@ -481,7 +486,7 @@ const LeaveRequest = () => {
       </div>
       {/* requested leave list */}
       <div className="requestedLeaveList flex-[0.3] px-6 py-5 rounded-md shadow-md bg-white">
-        <TrainersLeaveRequestList />
+        <TrainersLeaveRequestList role={role} />
       </div>
     </div>
   );

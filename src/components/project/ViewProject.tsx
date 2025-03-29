@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -11,7 +11,19 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewProjectDetail = ({ projectRecord }: any) => {
-  console.log(projectRecord);
+  // console.log(projectRecord);
+
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (projectRecord) {
+      setLoaded(true);
+    }
+  }, [projectRecord]);
+
+  if (!loaded)
+    return (
+      <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7"></div>
+    );
 
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7">

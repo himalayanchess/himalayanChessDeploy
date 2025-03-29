@@ -6,6 +6,8 @@ import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import LockIcon from "@mui/icons-material/Lock";
+
 import Header from "@/components/Header";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
@@ -29,7 +31,7 @@ import SearchInput from "../SearchInput";
 import Link from "next/link";
 import BatchList from "./BatchList";
 
-const BatchComponent = () => {
+const BatchComponent = ({ role = "" }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -134,7 +136,7 @@ const BatchComponent = () => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-2xl mb-2 font-bold text-gray-700">Batch List</h2>
+      <h2 className="text-3xl mb-2 font-medium text-gray-700">Batch List</h2>{" "}
       {/* title and Dropdown */}
       <div className="batches-header my-2 flex items-end justify-between">
         <div className="title-options">
@@ -176,27 +178,36 @@ const BatchComponent = () => {
             onChange={(e) => setsearchText(e.target.value)}
           />
 
-          {/* add student button */}
-          <Link href={"/superadmin/batches/addbatch"}>
-            <Button variant="contained" size="small">
-              <AddIcon />
+          {/* add batch button */}
+          {role?.toLowerCase() == "superadmin" ? (
+            <Link href={"/superadmin/batches/addbatch"}>
+              <Button variant="contained" size="small">
+                <AddIcon />
+                <span className="ml-1">Add Batch</span>
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              variant="contained"
+              size="small"
+              className="w-max h-max"
+              disabled
+            >
+              <LockIcon sx={{ fontSize: "1.2rem" }} />
               <span className="ml-1">Add Batch</span>
             </Button>
-          </Link>
+          )}
         </div>
       </div>
-
       {/* Table */}
-
       <BatchList
         allFilteredActiveBatches={allFilteredActiveBatches}
         currentPage={currentPage}
         batchesPerPage={batchesPerPage}
         allBatchesLoading={allBatchesLoading}
+        role={role}
       />
-
       {/* pagination */}
-
       <Stack spacing={2} className="mx-auto w-max mt-7">
         <Pagination
           count={Math.ceil(filteredBatchCount / batchesPerPage)} // Total pages

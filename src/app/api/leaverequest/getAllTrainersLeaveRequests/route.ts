@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     console.log("getting leave data", reqBody);
 
     const allTrainersLeaveRequests = await LeaveRequest.find({
-      trainerId: reqBody?.trainerId,
+      userId: reqBody?.userId,
     });
     if (allTrainersLeaveRequests) {
       return NextResponse.json({

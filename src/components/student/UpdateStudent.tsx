@@ -25,6 +25,8 @@ dayjs.extend(utc);
 const timeZone = "Asia/Kathmandu";
 
 const UpdateStudent = ({ studentRecord }: any) => {
+  console.log("updateStudent", studentRecord);
+
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
   const statusOptions = ["Ongoing", "Left"];
@@ -210,10 +212,17 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
   useEffect(() => {
     if (studentRecord) {
+      const activeBatches = studentRecord.batches?.filter(
+        (batch: any) => batch.activeStatus
+      );
+      const activeEnrolledCourses = studentRecord.enrolledCourses?.filter(
+        (course: any) => course.activeStatus
+      );
+
       reset({
         ...studentRecord,
-        batches: studentRecord.batches || [],
-        enrolledCourses: studentRecord.enrolledCourses || [],
+        batches: activeBatches || [],
+        enrolledCourses: activeEnrolledCourses || [],
       });
       setselectedAffiliatedTo(studentRecord.affiliatedTo);
       setLoaded(true);
@@ -882,6 +891,11 @@ const UpdateStudent = ({ studentRecord }: any) => {
                       aria-labelledby="modal-modal-title"
                       aria-describedby="modal-modal-description"
                       className="flex items-center justify-center"
+                      BackdropProps={{
+                        style: {
+                          backgroundColor: "rgba(0,0,0,0.3)", // Make the backdrop transparent
+                        },
+                      }}
                     >
                       <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
                         <p className="font-semibold mb-4 text-2xl">
@@ -901,7 +915,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
                           <Button
                             variant="contained"
-                            color="info"
+                            color="error"
                             onClick={() => {
                               removeBatch(Number(selectedDeleteBatchIndex));
                               notify("Batch deleted", 200);
@@ -1063,7 +1077,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
                         <Button
                           variant="contained"
-                          color="info"
+                          color="error"
                           onClick={() => {
                             remove(Number(selectedDeleteCourseIndex));
                             notify("Enrolled course deleted", 200);

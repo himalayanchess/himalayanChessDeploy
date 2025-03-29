@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { Button, Divider } from "@mui/material";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllStudents } from "@/redux/allListSlice";
+import BatchStudentList from "./BatchStudentList";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -11,7 +14,73 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewBatch = ({ batchRecord }: any) => {
-  console.log(batchRecord);
+  const dispatch = useDispatch<any>();
+  // console.log(batchRecord);
+  const { allActiveStudentsList } = useSelector(
+    (state: any) => state.allListReducer
+  );
+
+  //state vars
+  const [selectedStudentStatus, setselectedStudentStatus] = useState("active");
+  const [loaded, setLoaded] = useState(false);
+  const [filteredStudentList, setfilteredStudentList] = useState([]);
+  const [studentCount, setstudentCount] = useState({
+    total: 0,
+    active: 0,
+    completed: 0,
+  });
+
+  // filter studnet based on student batch status
+  useEffect(() => {
+    let tempFilteredStudents = [];
+
+    const activeStudents = allActiveStudentsList.filter((student: any) =>
+      student.batches.some(
+        (batch: any) => batch.batchId == batchRecord?._id && !batch.endDate // Batch is active, no endDate
+      )
+    );
+
+    const completedStudents = allActiveStudentsList.filter((student: any) =>
+      student.batches.some(
+        (batch: any) => batch.batchId === batchRecord?._id && batch.endDate
+      )
+    );
+
+    //total count
+    setstudentCount((prev) => ({
+      ...prev,
+      total: allActiveStudentsList?.length,
+      active: activeStudents?.length,
+      completed: completedStudents?.length,
+    }));
+
+    // active students
+    if (selectedStudentStatus?.toLowerCase() == "active") {
+      tempFilteredStudents = activeStudents;
+    }
+    // batch completed students
+    else if (selectedStudentStatus?.toLowerCase() == "completed") {
+      tempFilteredStudents = completedStudents;
+    }
+
+    setfilteredStudentList(tempFilteredStudents);
+  }, [allActiveStudentsList, selectedStudentStatus]);
+
+  // get intital all students
+  useEffect(() => {
+    dispatch(getAllStudents());
+  }, []);
+
+  useEffect(() => {
+    if (batchRecord) {
+      setLoaded(true);
+    }
+  }, [batchRecord]);
+
+  if (!loaded)
+    return (
+      <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7"></div>
+    );
 
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7">
@@ -83,43 +152,75 @@ const ViewBatch = ({ batchRecord }: any) => {
             </h3>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="font-bold text-xs text-gray-500">Project ID:</p>
-                <p>{batchRecord?.projectId || "N/A"}</p>
-              </div>
-              <div>
                 <p className="font-bold text-xs text-gray-500">Project Name:</p>
                 <p>{batchRecord?.projectName || "N/A"}</p>
               </div>
             </div>
           </div>
 
-          {/* Additional Information */}
-          <div className="col-span-3 mt-4">
-            <h3 className="font-bold text-sm text-gray-700 mb-2">
-              Additional Information
-            </h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <p className="font-bold text-xs text-gray-500">Created At:</p>
+          <div className="students-list col-span-3">
+            <h1 className="font-bold">Students</h1>
+            <div className="buttons mt-2 flex gap-4">
+              <Button
+                variant={`${
+                  selectedStudentStatus?.toLowerCase() == "active"
+                    ? "contained"
+                    : "outlined"
+                }`}
+                onClick={() => setselectedStudentStatus("active")}
+              >
+                Active
+              </Button>
+              <Button
+                variant={`${
+                  selectedStudentStatus?.toLowerCase() == "completed"
+                    ? "contained"
+                    : "outlined"
+                }`}
+                onClick={() => setselectedStudentStatus("completed")}
+              >
+                Completed
+              </Button>
+            </div>
+
+            {/* count details */}
+            <div className="count-details mt-5 flex gap-8">
+              {/* total students */}
+              <div className="total">
                 <p>
-                  {batchRecord?.createdAt
-                    ? dayjs(batchRecord.createdAt)
-                        .tz(timeZone)
-                        .format("MMMM D, YYYY h:mm A")
-                    : "N/A"}
+                  Total:
+                  <span className="bg-gray-400 text-white rounded-md ml-2 px-2 py-1 font-bold">
+                    {studentCount?.total}
+                  </span>
                 </p>
               </div>
-              <div>
-                <p className="font-bold text-xs text-gray-500">Updated At:</p>
+
+              {/* Active students */}
+              <div className="active">
                 <p>
-                  {batchRecord?.updatedAt
-                    ? dayjs(batchRecord.updatedAt)
-                        .tz(timeZone)
-                        .format("MMMM D, YYYY h:mm A")
-                    : "N/A"}
+                  Active:
+                  <span className="bg-gray-400 text-white rounded-md ml-2 px-2 py-1 font-bold">
+                    {studentCount?.active}
+                  </span>
+                </p>
+              </div>
+
+              {/* completed students */}
+              <div className="completed">
+                <p>
+                  Completed:
+                  <span className="bg-gray-400 text-white rounded-md ml-2 px-2 py-1 font-bold">
+                    {studentCount?.completed}
+                  </span>
                 </p>
               </div>
             </div>
+
+            {/* studentlist */}
+            <BatchStudentList
+              studentList={filteredStudentList}
+              batchId={batchRecord?._id}
+            />
           </div>
         </div>
       </div>

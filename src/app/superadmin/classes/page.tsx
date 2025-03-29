@@ -7,20 +7,19 @@ import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import React, { useState } from "react";
 
 const page = () => {
-  const [selectedBatch, setselectedBatch] = useState(true);
   return (
     <div>
       <Sidebar
         role="Superadmin"
         menuItems={superadminMenuItems}
-        activeMenu="Classes"
+        activeMenu="Assign Class"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw]">
         <Header />
         <div className="h-[91dvh] flex py-5 px-14 ">
           {/* assignClass */}
           <div className="assign-class flex-1 flex p-5  rounded-lg bg-white">
-            <AssignClass selectedBatch={selectedBatch} />
+            <AssignClass />
           </div>
         </div>
       </div>

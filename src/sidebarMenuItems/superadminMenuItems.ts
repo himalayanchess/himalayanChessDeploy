@@ -1,26 +1,37 @@
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import AutoStoriesIcon from "@mui/icons-material/AutoStories";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import GroupsIcon from "@mui/icons-material/Groups";
-import SchoolIcon from "@mui/icons-material/School";
-import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
-import LuggageIcon from "@mui/icons-material/Luggage";
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  CircleUser,
+  Users,
+  BookCopy,
+  School,
+  Component,
+  Luggage,
+} from "lucide-react";
+
+// import DashboardIcon from "@mui/icons-material/Dashboard";
+// import PeopleIcon from "@mui/icons-material/People";
+// import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+// import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+// import GroupsIcon from "@mui/icons-material/Groups";
+// import SchoolIcon from "@mui/icons-material/School";
+// import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
+// import LuggageIcon from "@mui/icons-material/Luggage";
 
 export const superadminMenuItems = [
-  { icon: DashboardIcon, label: "Dashboard", linkName: "dashboard" },
-  { icon: SchoolIcon, label: "Classes", linkName: "classes" },
-  { icon: SupervisedUserCircleIcon, label: "Users", linkName: "users" },
+  { icon: LayoutDashboard, label: "Dashboard", linkName: "dashboard" },
+  { icon: BookOpenCheck, label: "Assign Class", linkName: "classes" },
+  { icon: CircleUser, label: "Users", linkName: "users" },
+  { icon: BookCopy, label: "Courses", linkName: "courses" },
+  { icon: School, label: "Projects", linkName: "projects" },
+  { icon: Component, label: "Batches", linkName: "batches" },
   {
-    icon: PeopleIcon,
+    icon: Users,
     label: "Students",
     linkName: "students",
   },
-  { icon: AutoStoriesIcon, label: "Courses", linkName: "courses" },
-  { icon: ReceiptLongIcon, label: "Projects", linkName: "projects" },
-  { icon: GroupsIcon, label: "Batches", linkName: "batches" },
   {
-    icon: LuggageIcon,
+    icon: Luggage,
     label: "Leave Approval",
     linkName: "leaveapproval",
   },

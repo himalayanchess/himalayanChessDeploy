@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@mui/material";
 import InputWithIcon from "@/components/InputWithIcon";
@@ -9,9 +9,12 @@ import { getSession, signIn } from "next-auth/react";
 import { notify } from "@/index";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Link from "next/link";
+import { LoadingButton } from "@mui/lab";
 
 const page = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const {
     handleSubmit,
@@ -20,6 +23,7 @@ const page = () => {
   } = useForm();
 
   const onSubmit = async (data: any) => {
+    setLoading(true);
     const { data: resData } = await axios.post("/api/users/login", data);
 
     notify(resData?.msg, resData?.statusCode);
@@ -31,7 +35,8 @@ const page = () => {
       });
     }
     const session = await getSession();
-    console.log(session?.user);
+    // console.log(session?.user);
+    setLoading(false);
 
     setTimeout(() => {
       let redirectRoute = "/";
@@ -118,17 +123,34 @@ const page = () => {
             )}
           />
 
-          <p className="text-sm mb-7 w-max ml-auto">Forgot password?</p>
+          {/* forgot password */}
+          <div className="forgot-password w-full mb-4 flex justify-end">
+            <Link href={`/forgotpassword`} className="text-sm">
+              <span className="underline text-blue-600">Forgot password?</span>
+            </Link>
+          </div>
 
-          <Button
-            type="submit"
-            variant="contained"
-            color="info"
-            size="large"
-            className="w-full"
-          >
-            <span className="text-lg">Login</span>
-          </Button>
+          {loading ? (
+            <LoadingButton
+              size="large"
+              loading={loading}
+              loadingPosition="start"
+              variant="contained"
+              className="mt-7 w-full"
+            >
+              <span>Logging in</span>
+            </LoadingButton>
+          ) : (
+            <Button
+              type="submit"
+              variant="contained"
+              color="info"
+              size="medium"
+              className="w-full"
+            >
+              <span className="">Login</span>
+            </Button>
+          )}
         </form>
       </div>
 

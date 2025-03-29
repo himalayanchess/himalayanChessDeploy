@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { Box, Button, Modal, Paper, Avatar, Chip } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Modal,
+  Paper,
+  Avatar,
+  Chip,
+  Divider,
+} from "@mui/material";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch } from "react-redux";
@@ -9,18 +17,18 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { updateApprovedLeaveRequest } from "@/redux/leaveApprovalSlice";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ViewLeaveRequest = ({
-  leaveRequest,
-  handleviewLeaveRequestModalClose,
-  role = "trainer",
-}: any) => {
+const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
+  const router = useRouter();
   const dispatch = useDispatch<any>();
+
+  const [loaded, setLoaded] = useState(false);
   const [deleteLeaveRequestModalOpen, setDeleteLeaveRequestModalOpen] =
     useState(false);
   const [
@@ -50,13 +58,24 @@ const ViewLeaveRequest = ({
     try {
       const { data: resData } = await axios.post(
         "/api/leaverequest/deleteLeaveRequest",
-        leaveRequest
+        leaveRequestRecord
       );
       if (resData?.statusCode === 200) {
-        handleviewLeaveRequestModalClose();
-        dispatch(removeLeaveRequest(leaveRequest));
+        // dispatch(removeLeaveRequest(leaveRequestRecord));
+        notify(resData.msg, resData.statusCode);
+        setTimeout(() => {
+          const lowercaseRole = role?.toLowerCase();
+          const path =
+            lowercaseRole === "superadmin"
+              ? `/${lowercaseRole}/leaveapproval`
+              : `/${lowercaseRole}/leaverequest`;
+
+          router.push(path);
+        }, 500);
+        return;
       }
       notify(resData.msg, resData.statusCode);
+      return;
     } catch (error) {
       console.log("Error in view assigned class (deleteClass route)");
     }
@@ -70,43 +89,67 @@ const ViewLeaveRequest = ({
     const { data: resData } = await axios.post(
       "/api/leaverequest/updateLeaveRequest",
       {
-        ...leaveRequest,
+        ...leaveRequestRecord,
         approvalStatus: selectedApproveStatusMode,
         isResponded: true,
       }
     );
     if (resData?.statusCode === 200) {
+      // dispatch(updateApprovedLeaveRequest(resData.updatedLeaveRequest));
       notify("Responded", 200);
-      dispatch(updateApprovedLeaveRequest(resData.updatedLeaveRequest));
-      handleviewLeaveRequestModalClose();
-    } else {
-      notify(resData?.msg, resData?.statusCode);
+      setTimeout(() => {
+        router.push(`/${role?.toLowerCase()}/leaveapproval`);
+      }, 500);
+      return;
     }
+    notify(resData?.msg, resData?.statusCode);
+    return;
   };
 
+  useEffect(() => {
+    if (leaveRequestRecord) {
+      setLoaded(true);
+    }
+  }, [leaveRequestRecord]);
+
+  if (!loaded)
+    return (
+      <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7"></div>
+    );
+
   return (
-    <Box className=" bg-white rounded-lg  ">
+    <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7">
       {/* Header */}
-      <Box className="flex justify-between items-center mb-6">
-        <p className="font-bold text-2xl ">Leave Request Details</p>
-        {role.toLowerCase() === "trainer" && (
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleDeleteLeaveRequestModalOpen}
-            className="hover:bg-red-50"
-          >
-            Delete
-          </Button>
-        )}
-      </Box>
+
+      <div className="header flex items-end justify-between">
+        <h1 className="text-2xl font-bold">Leave Request Details</h1>
+
+        <Box className="flex justify-between items-center ">
+          <p className="font-bold text-2xl "></p>
+          {(role?.toLowerCase() === "superadmin" ||
+            (!leaveRequestRecord?.isResponded &&
+              (role?.toLowerCase() === "trainer" ||
+                role?.toLowerCase() === "admin"))) && (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDeleteLeaveRequestModalOpen}
+            >
+              Delete
+            </Button>
+          )}
+        </Box>
+      </div>
+
+      {/* divider */}
+      <Divider style={{ margin: ".7rem 0" }} />
 
       {/* Leave Details */}
       <div className="flex flex-col gap-4 ">
         <Box>
           <p className="text-gray-500 text-xs font-bold ">Issued Date</p>
           <p className="">
-            {dayjs(leaveRequest?.nepaliTodaysDate)
+            {dayjs(leaveRequestRecord?.nepaliTodaysDate)
               .tz(timeZone)
               .format("MMMM D, YYYY, dddd")}
           </p>
@@ -117,57 +160,73 @@ const ViewLeaveRequest = ({
           <Box>
             <p className="text-gray-500 text-xs font-bold">From</p>
             <p className="">
-              {dayjs(leaveRequest?.fromDate)
+              {dayjs(leaveRequestRecord?.fromDate)
                 .tz(timeZone)
-                .format("MMMM D, YYYY, dddd")}
+                .format("MMMM D, YYYY, ddd")}
             </p>
           </Box>
 
           <Box>
             <p className="text-gray-500 text-xs font-bold">To</p>
             <p className="">
-              {dayjs(leaveRequest?.toDate)
+              {dayjs(leaveRequestRecord?.toDate)
                 .tz(timeZone)
-                .format("MMMM D, YYYY, dddd")}
+                .format("MMMM D, YYYY, ddd")}
             </p>
           </Box>
           <Box>
             <p className="text-gray-500 text-xs font-bold">Leave Duration</p>
-            <p className="">{leaveRequest?.leaveDurationDays} day(s)</p>
+            <p className="">{leaveRequestRecord?.leaveDurationDays} day(s)</p>
           </Box>
         </div>
 
-        {/* trainer name and approval status  */}
+        {/* user name and approval status  */}
         <div className="from-to grid grid-cols-3">
           <Box>
-            <p className="text-gray-500 text-xs font-bold">Issued Trainer</p>
-            <p className="">{leaveRequest?.trainerName}</p>
+            <p className="text-gray-500 text-xs font-bold">Issued User</p>
+            <p className="">{leaveRequestRecord?.userName}</p>
           </Box>
           <Box>
             <p className="text-gray-500 text-xs font-bold">Approval Status</p>
-            <p className="">{leaveRequest?.approvalStatus}</p>
+            <span
+              className={`px-3 py-1 text-sm  text-white rounded-full ${
+                leaveRequestRecord?.approvalStatus?.toLowerCase() === "pending"
+                  ? "bg-gray-400"
+                  : leaveRequestRecord?.approvalStatus?.toLowerCase() ===
+                    "approved"
+                  ? "bg-green-400"
+                  : "bg-red-400"
+              }`}
+            >
+              {leaveRequestRecord?.approvalStatus}
+            </span>
+          </Box>
+
+          <Box>
+            <p className="text-gray-500 text-xs font-bold">User role</p>
+            <p className="">{leaveRequestRecord?.userRole} </p>
           </Box>
         </div>
 
         <Box>
           <p className="text-gray-500 text-xs font-bold">Subject</p>
-          <p className="">{leaveRequest?.leaveSubject}</p>
+          <p className="">{leaveRequestRecord?.leaveSubject}</p>
         </Box>
 
         <Box>
           <p className="text-gray-500 text-xs font-bold">Reason</p>
-          <p className="">{leaveRequest?.leaveReason}</p>
+          <p className="">{leaveRequestRecord?.leaveReason}</p>
         </Box>
 
-        {leaveRequest?.affectedClasses?.length > 0 && (
+        {leaveRequestRecord?.affectedClasses?.length > 0 && (
           <Box>
             <p className="text-gray-500 text-xs font-bold">Affected Classes</p>
-            <div className="flex-wrap">
-              {leaveRequest?.affectedClasses?.map(
+            <div className="flex-wrap mt-2">
+              {leaveRequestRecord?.affectedClasses?.map(
                 (field: any, index: number) => (
                   <p
                     key={`affectedClassName-${index}`}
-                    className="border border-gray-600 px-2 rounded-full py-1 w-max text-sm"
+                    className="border border-gray-400 px-2 rounded-full py-1 w-max text-xs"
                   >
                     {field?.affectedClassName}
                   </p>
@@ -177,7 +236,7 @@ const ViewLeaveRequest = ({
           </Box>
         )}
 
-        {leaveRequest?.supportReasonFileUrl && (
+        {leaveRequestRecord?.supportReasonFileUrl && (
           <Box>
             <p className="text-gray-500 text-xs font-bold">
               Support for Reason
@@ -185,7 +244,7 @@ const ViewLeaveRequest = ({
             <Button
               variant="outlined"
               startIcon={<InsertDriveFileIcon />}
-              href={leaveRequest?.supportReasonFileUrl}
+              href={leaveRequestRecord?.supportReasonFileUrl}
               target="_blank"
               className="text-blue-600 border-blue-600 hover:bg-blue-50"
             >
@@ -196,44 +255,51 @@ const ViewLeaveRequest = ({
       </div>
 
       {/* Approve/Reject Buttons */}
-      {role.toLowerCase() === "superadmin" && !leaveRequest?.isResponded && (
-        <Box className="mt-8 flex gap-4">
-          <Button
-            variant="contained"
-            color="success"
-            className="bg-green-600 hover:bg-green-700"
-            onClick={() =>
-              handleConfirmApproveStatusLeaveRequestModalOpen("approved")
-            }
-          >
-            Approve
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            className="bg-red-600 hover:bg-red-700"
-            onClick={() =>
-              handleConfirmApproveStatusLeaveRequestModalOpen("rejected")
-            }
-          >
-            Reject
-          </Button>
-        </Box>
-      )}
+      {role?.toLowerCase() === "superadmin" &&
+        !leaveRequestRecord?.isResponded && (
+          <Box className="mt-8 flex gap-4">
+            <Button
+              variant="contained"
+              color="success"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() =>
+                handleConfirmApproveStatusLeaveRequestModalOpen("approved")
+              }
+            >
+              Approve
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() =>
+                handleConfirmApproveStatusLeaveRequestModalOpen("rejected")
+              }
+            >
+              Reject
+            </Button>
+          </Box>
+        )}
 
       {/* Delete Confirmation Modal */}
       <Modal
         open={deleteLeaveRequestModalOpen}
         onClose={handleDeleteLeaveRequestModalClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        className="flex  items-center justify-center"
       >
-        <Box className="flex items-center justify-center">
-          <Paper className="w-[400px] p-6 rounded-lg ">
-            <p className="font-semibold mb-4 ">Confirm Delete</p>
-            <p className="mb-6 text-gray-600">
-              Are you sure you want to delete this leave request? This action
-              cannot be undone.
+        <Box
+          onClick={handleDeleteLeaveRequestModalClose}
+          className="flex h-screen w-screen  items-center justify-center"
+        >
+          <Paper className="w-[400px] p-6 rounded-lg flex flex-col items-center ">
+            <p className=" mb-4 text-2xl font-bold">Confirm Delete</p>
+            <p className="mb-6 text-gray-600 text-center text-sm">
+              Are you sure you want to delete this leave request? <br />
+              This action cannot be undone.
             </p>
-            <Box className="flex justify-end gap-2">
+            <Box className="flex justify-end gap-4">
               <Button
                 variant="outlined"
                 onClick={handleDeleteLeaveRequestModalClose}
@@ -259,9 +325,12 @@ const ViewLeaveRequest = ({
         open={confirmApproveStatusLeaveRequestModalOpen}
         onClose={handleConfirmApproveStatusLeaveRequestModalClose}
       >
-        <Box className="flex items-center justify-center">
-          <Paper className="w-[400px] p-6 rounded-lg shadow-lg">
-            <p className="font-semibold mb-4 ">Confirm Action</p>
+        <Box
+          onClick={handleConfirmApproveStatusLeaveRequestModalClose}
+          className="flex h-screen w-screen items-center justify-center"
+        >
+          <Paper className="w-[400px] p-6 rounded-lg shadow-lg flex flex-col items-center">
+            <p className="font-bold mb-4 text-2xl  ">Confirm Action</p>
             <p className="mb-6 text-gray-600">
               {selectedApproveStatusMode === "approved"
                 ? "You are about to approve this leave request."
@@ -277,6 +346,9 @@ const ViewLeaveRequest = ({
               </Button>
               <Button
                 variant="contained"
+                color={`${
+                  selectedApproveStatusMode == "approved" ? "success" : "error"
+                }`}
                 onClick={handleApproveLeaveRequest}
                 className={
                   selectedApproveStatusMode === "approved"
@@ -284,13 +356,15 @@ const ViewLeaveRequest = ({
                     : "bg-red-600 hover:bg-red-700"
                 }
               >
-                Confirm
+                {`${
+                  selectedApproveStatusMode == "approved" ? "Approve" : "Reject"
+                }`}
               </Button>
             </Box>
           </Paper>
         </Box>
       </Modal>
-    </Box>
+    </div>
   );
 };
 

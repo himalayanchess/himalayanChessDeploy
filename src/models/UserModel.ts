@@ -54,6 +54,9 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // forgot password
+    forgotPasswordOtp: { type: String },
+    forgotPasswordExpires: { type: Number },
     // add later when login
     loginLogRecord: {
       type: Array,

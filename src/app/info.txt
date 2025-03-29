@@ -1,0 +1,8 @@
+Setting loading in layout.tsx was giving error as 
+
+hook.js:608 In HTML, <div> cannot be a child of <#document>.
+This will cause a hydration error. Error Component Stack
+    at div (<anonymous>)
+    at RootLayout (layout.tsx:39:3)
+
+So, created a new tsx file named RootClient.tsx

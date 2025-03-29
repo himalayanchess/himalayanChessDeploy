@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
+import LockIcon from "@mui/icons-material/Lock";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box, Button, Modal, Radio, FormControlLabel } from "@mui/material";
@@ -21,6 +22,7 @@ const UserList = ({
   currentPage,
   usersPerPage,
   allUsersLoading,
+  role = "",
 }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
@@ -122,75 +124,93 @@ const UserList = ({
                   <span className="text-sm text-gray-700">{user?.email}</span>
                   <span className="text-sm text-gray-700">{user?.gender}</span>
                   <span className="text-sm text-gray-500">{user?.role}</span>
-                  <div className="text-sm text-gray-500">
-                    {/* edit modal */}
-                    <Link
-                      href={`/superadmin/users/updateuser/${user?._id}`}
-                      title="Edit"
-                      className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
-                    >
-                      <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
-                    </Link>
-
-                    {/* delete modal */}
-                    {user?.activeStatus == true && (
-                      <button
-                        title="Delete"
-                        className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
-                        onClick={() =>
-                          handleDeleteModalOpen(user._id, user.name)
-                        }
+                  {role?.toLowerCase() == "superadmin" ? (
+                    <div className="text-sm text-gray-500">
+                      {/* edit modal */}
+                      <Link
+                        href={`/superadmin/users/updateuser/${user?._id}`}
+                        title="Edit"
+                        className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
                       >
-                        <DeleteIcon />
-                      </button>
-                    )}
-                    <Modal
-                      open={deleteModalOpen}
-                      onClose={handleDeleteModalClose}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
-                      className="flex items-center justify-center"
-                      BackdropProps={{
-                        style: {
-                          backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
-                        },
-                      }}
-                    >
-                      <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
-                        <DeleteIcon
-                          className="text-white bg-red-600 rounded-full"
-                          sx={{ fontSize: "3rem", padding: "0.5rem" }}
-                        />
-                        <p className="text-md mt-1 font-bold ">
-                          Delete Account?
-                        </p>
-                        <span className="text-center mt-2">
-                          <span className="font-bold text-xl">
-                            {selectedUserName}
+                        <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
+                      </Link>
+
+                      {/* delete modal */}
+                      {user?.activeStatus == true && (
+                        <button
+                          title="Delete"
+                          className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
+                          onClick={() =>
+                            handleDeleteModalOpen(user._id, user.name)
+                          }
+                        >
+                          <DeleteIcon />
+                        </button>
+                      )}
+                      <Modal
+                        open={deleteModalOpen}
+                        onClose={handleDeleteModalClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                        className="flex items-center justify-center"
+                        BackdropProps={{
+                          style: {
+                            backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                          },
+                        }}
+                      >
+                        <Box className="w-96 p-5 border-y-4 border-red-400 flex flex-col items-center bg-white">
+                          <DeleteIcon
+                            className="text-white bg-red-600 rounded-full"
+                            sx={{ fontSize: "3rem", padding: "0.5rem" }}
+                          />
+                          <p className="text-md mt-1 font-bold ">
+                            Delete Account?
+                          </p>
+                          <span className="text-center mt-2">
+                            <span className="font-bold text-xl">
+                              {selectedUserName}
+                            </span>
+                            <br />
+                            will be deleted permanently.
                           </span>
-                          <br />
-                          will be deleted permanently.
-                        </span>
-                        <div className="buttons mt-5">
-                          <Button
-                            variant="outlined"
-                            sx={{ marginRight: ".5rem", paddingInline: "2rem" }}
-                            onClick={handleDeleteModalClose}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            sx={{ marginLeft: ".5rem", paddingInline: "2rem" }}
-                            onClick={() => handleUserDelete(selectedUserId)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </Box>
-                    </Modal>
-                  </div>
+                          <div className="buttons mt-5">
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                marginRight: ".5rem",
+                                paddingInline: "2rem",
+                              }}
+                              onClick={handleDeleteModalClose}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              sx={{
+                                marginLeft: ".5rem",
+                                paddingInline: "2rem",
+                              }}
+                              onClick={() => handleUserDelete(selectedUserId)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </Box>
+                      </Modal>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      className="w-max h-max"
+                      disabled
+                    >
+                      <LockIcon sx={{ fontSize: "1.2rem" }} />
+                      <span className="ml-1">Unauthorized</span>
+                    </Button>
+                  )}
                 </div>
               );
             })}

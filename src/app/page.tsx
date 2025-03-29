@@ -9,18 +9,15 @@ export default function Home() {
     const session = await getSession();
     const role = session?.user.role;
     let redirectRoute = "/";
-    switch (session?.user?.role) {
-      case "Superadmin":
+    switch (session?.user?.role?.toLowerCase()) {
+      case "superadmin":
         redirectRoute = "/superadmin/dashboard";
         break;
-      case "Admin":
+      case "admin":
         redirectRoute = "/admin/dashboard";
         break;
-      case "Trainer":
+      case "trainer":
         redirectRoute = "/trainer/dashboard";
-        break;
-      case "Student":
-        redirectRoute = "/student/dashboard";
         break;
       default:
         break;

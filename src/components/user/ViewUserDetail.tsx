@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -11,12 +11,24 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewUserDetail = ({ userRecord }: any) => {
-  console.log(userRecord);
+  // console.log(userRecord);
+
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (userRecord) {
+      setLoaded(true);
+    }
+  }, [userRecord]);
+
+  if (!loaded)
+    return (
+      <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7"></div>
+    );
 
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7 ">
       <div className="header flex items-end justify-between  ">
-        <h1 className="text-2xl font-bold">Activity Record Detail</h1>
+        <h1 className="text-2xl font-bold">User Record Detail</h1>
       </div>
 
       {/* divider */}

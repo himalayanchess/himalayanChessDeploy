@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     // Check if user with the same name exists (case-insensitive)
     const userExists = await User.findOne({
       name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
+      email: { $regex: new RegExp(`^${reqBody.email}$`, "i") },
     });
     if (userExists) {
       return NextResponse.json({ msg: "User already exists", statusCode: 204 });

@@ -20,10 +20,10 @@ const page = () => {
         role="superadmin"
         activeMenu="Dashboard"
       />
-      <main className="ml-[3rem] w-[96%]  min-h-[100dvh] ">
+      <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="dashboard-container py-6 px-14">Dashboard</div>
-      </main>
+        <div className="pb-6 h-[91dvh] flex py-5 px-14 ">Dashboard</div>
+      </div>
     </div>
   );
 };

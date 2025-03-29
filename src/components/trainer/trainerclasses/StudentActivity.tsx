@@ -18,6 +18,7 @@ const StudentActivity = ({
   setapplyToAllClicked,
   applyToAllClicked,
   applyTopic,
+  selectedCourseLessons,
 }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
@@ -180,28 +181,35 @@ const StudentActivity = ({
 
   return (
     <>
-      {/* main study topic */}
-      <div className="main-study-topic mb-2"></div>
       <form
         className="overflow-x-auto rounded-md "
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="mainStudyTopic mb-3">
-          <Controller
-            name="mainStudyTopic" // Name of the field
-            control={control}
-            rules={{ required: "Main study topic is required" }} // Validation rule
-            render={({ field }) => (
-              <Dropdown
-                options={["asd", "pih", "rt"]}
-                selected={field.value || ""}
-                label="Main study topic"
-                onChange={(value) => field.onChange(value)}
-                error={!!errors.mainStudyTopic} // Pass error state
-                helperText={errors.mainStudyTopic?.message} // Error message
-              />
-            )}
-          />
+        {/* mainstudytopic-assigneduser */}
+        <div className="mainstudytopic-assigneduser flex justify-between items-center">
+          <div className="mainStudyTopic mb-3 ">
+            <Controller
+              name="mainStudyTopic" // Name of the field
+              control={control}
+              rules={{ required: "Main study topic is required" }} // Validation rule
+              render={({ field }) => (
+                <Dropdown
+                  options={selectedCourseLessons || []}
+                  selected={field.value || ""}
+                  label="Main study topic"
+                  // disabled={}
+                  onChange={(value) => field.onChange(value)}
+                  error={!!errors.mainStudyTopic} // Pass error state
+                  helperText={errors.mainStudyTopic?.message} // Error message
+                />
+              )}
+            />
+          </div>
+
+          <p className="text-sm">
+            <span className="font-bold mr-2">Assigned by:</span>
+            {selectedTodaysClass?.assignedByName}
+          </p>
         </div>
         <div className="min-w-full flex flex-col gap-2">
           {/* Header row */}
@@ -223,11 +231,12 @@ const StudentActivity = ({
           </div>
 
           {/* Body content */}
+
           <div className="studentlist-container max-h-[370px] overflow-y-auto">
-            {students?.length === 0 ? (
+            {students?.length === 0 && selectedTodaysClass ? (
               <div className="text-sm grid grid-cols-6">
-                <div className="col-span-4 text-center px-4 py-2">
-                  No students
+                <div className="col-span-7 text-center px-4 py-2">
+                  No Students.
                 </div>
               </div>
             ) : (
@@ -244,7 +253,7 @@ const StudentActivity = ({
                     {student?.studyTopics?.map((topic: any, index: any) => (
                       <span
                         key={"topic" + index}
-                        className="text-black border text-xs shadow-sm outline-none w-max h-max py-1  rounded-full flex items-center gap-1"
+                        className="text-black border text-xs shadow-sm outline-none w-max h-max py-1 px-1.5  rounded-full flex items-center gap-1"
                       >
                         {topic}
                         <button
@@ -361,7 +370,7 @@ const StudentActivity = ({
                           {...field}
                           title="Remark"
                           placeholder="Add remark"
-                          className="border border-gray-400 rounded-md text-xs w-full  py-1"
+                          className="border border-gray-400 rounded-md text-xs w-full  py-1 px-2"
                         />
                       )}
                     />
