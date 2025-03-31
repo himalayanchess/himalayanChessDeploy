@@ -23,7 +23,7 @@ const timeZone = "Asia/Kathmandu";
 
 const TrainerHistory = () => {
   //getnepali date
-  const getTodaysNepaliDate = () => dayjs().tz(timeZone).format("YYYY-MM-DD");
+  const getTodaysNepaliMonth = () => dayjs().tz(timeZone).format("YYYY-MM");
 
   // dispatch
   const dis = useDispatch<any>();
@@ -47,7 +47,7 @@ const TrainerHistory = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [activityRecordsPerPage] = useState(7);
   const [selectedBatchName, setselectedBatchName] = useState("All");
-  const [selectedDate, setselectedDate] = useState(getTodaysNepaliDate());
+  const [selectedDate, setselectedDate] = useState(getTodaysNepaliMonth());
   const [useDateFilter, setuseDateFilter] = useState(false);
 
   // handle page change
@@ -65,6 +65,9 @@ const TrainerHistory = () => {
               activityRecord.batchName.toLowerCase() ==
               selectedBatchName.toLowerCase()
           );
+
+    // selected date is in form 2025-02
+
     // Apply date filtering only if useDateFilter is true
     if (useDateFilter && selectedDate) {
       tempfilteredActivityRecordsList = tempfilteredActivityRecordsList.filter(
@@ -72,16 +75,17 @@ const TrainerHistory = () => {
           // Convert `selectedDate` and `nepaliDate` to Nepali timezone
           const selectedDateNepali = dayjs(selectedDate)
             .tz(timeZone)
-            .format("YYYY-MM-DD");
+            .format("YYYY-MM");
 
           const recordNepaliDate = dayjs(activityRecord?.nepaliDate)
             .tz(timeZone)
-            .format("YYYY-MM-DD");
+            .format("YYYY-MM");
 
           return selectedDateNepali == recordNepaliDate;
         }
       );
     }
+    console.log("selected month", selectedDate);
 
     // Sort by createdAt descending
     tempfilteredActivityRecordsList = [...tempfilteredActivityRecordsList].sort(
@@ -107,14 +111,15 @@ const TrainerHistory = () => {
 
   return (
     <div className="flex w-full ">
-      <div className="requestForm flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
+      <div className="historycontiner flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
         {/* title */}
-        <p className="text-2xl font-bold flex items-center">
+        <p className="text-2xl  flex items-center">
           <AssignmentIcon sx={{ fontSize: "2rem" }} />
           <span className="ml-1">Activity History</span>
         </p>
-        {/* batchlist dropdown */}
-        <div className="approvestatus-date mt-4 flex items-end gap-4 ">
+
+        <div className="batch-date mt-4 flex items-end gap-4 ">
+          {/* batchlist dropdown */}
           <Dropdown
             label="Batch"
             options={[
@@ -134,14 +139,14 @@ const TrainerHistory = () => {
           >
             <Input
               label="Date"
-              type="date"
+              type="month"
               value={selectedDate}
               onChange={(e) => setselectedDate(e.target.value)}
             />
             <button
               className="ml-2 pb-2"
               title="Reset date"
-              onClick={() => setselectedDate(getTodaysNepaliDate())}
+              onClick={() => setselectedDate(getTodaysNepaliMonth())}
             >
               <RestartAltIcon sx={{ fontSize: "1.8rem" }} />
             </button>

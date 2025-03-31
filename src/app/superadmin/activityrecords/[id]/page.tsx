@@ -7,42 +7,43 @@ import TrainerHistory from "@/components/trainer/trainerhistory/TrainerHistory";
 import ViewActivityRecordDetail from "@/components/activityrecord/ViewActivityRecordDetail";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
-import UpdateStudent from "@/components/student/UpdateStudent";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 
 const page = ({ params }: any) => {
-  const { id: studentId }: any = use(params);
+  const { id: activityRecordId }: any = use(params);
 
-  const [loading, setLoading] = useState(false);
-  const [invalidId, setinvalidId] = useState(false);
-  const [studentRecord, setstudentRecord] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activityRecord, setactivityRecord] = useState<any>(null);
+  console.log("ac record", activityRecord);
 
-  async function getStudentRecord() {
+  async function getActivityRecord() {
     try {
       setLoading(true);
-      const { data: resData } = await axios.post("/api/students/getStudent", {
-        studentId,
-      });
-      setstudentRecord(resData.studentRecord);
-      if (resData?.statusCode == 204) {
-        setinvalidId(true);
-      }
+      const { data: resData } = await axios.post(
+        "/api/activityrecord/getActivityRecord",
+        { activityRecordId }
+      );
+      setactivityRecord(resData.activityRecord);
+      console.log(resData);
       setLoading(false);
     } catch (error) {
-      console.log("error in updatestudent : [id], getStudentRecord api", error);
+      console.log(
+        "error in traierhistory : [id], getActivityRecord api",
+        error
+      );
     }
   }
   // initial fecth of selected activity record
   useEffect(() => {
-    getStudentRecord();
-  }, [studentId]);
+    getActivityRecord();
+  }, [activityRecordId]);
   return (
     <div>
       <Sidebar
         menuItems={superadminMenuItems}
         // role={session?.data?.user.role}
-        role="superadmin"
-        activeMenu="Students"
+        role="Superadmin"
+        activeMenu="Activity Records"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
@@ -52,10 +53,8 @@ const page = ({ params }: any) => {
               <CircularProgress />
               <span className="mt-2">Loading record...</span>
             </div>
-          ) : invalidId ? (
-            <p>Invalid student id</p>
           ) : (
-            <UpdateStudent studentRecord={studentRecord} />
+            <ViewActivityRecordDetail activityRecord={activityRecord} />
           )}
         </div>
       </div>

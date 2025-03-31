@@ -1,28 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import CircularProgress from "@mui/material/CircularProgress";
 import ViewKanbanOutlinedIcon from "@mui/icons-material/ViewKanbanOutlined";
 import { Box, Button, Modal } from "@mui/material";
-import ViewActivityRecordDetail from "../../activityrecord/ViewActivityRecordDetail";
+import ViewActivityRecordDetail from "./ViewActivityRecordDetail";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const TrainerHistoryList = ({
+const ActivityRecordList = ({
   loading,
-  filteredTrainersActivityRecords,
+  allFilteredActiveActivityRecords,
   activityRecordsPerPage,
   currentPage,
 }: any) => {
   const [selectedActivityRecord, setSelectedActivityRecord] =
     useState<any>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  // session
+  const session = useSession();
 
   // Handle view modal open
   const handleViewModalOpen = (activityRecord: any) => {
@@ -35,10 +40,16 @@ const TrainerHistoryList = ({
     setViewModalOpen(false);
   };
 
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+
+  if (!loaded) return <div></div>;
+
   return (
-    <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
+    <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
@@ -50,6 +61,9 @@ const TrainerHistoryList = ({
         </span>
         <span className="py-3  col-span-2 text-left text-sm font-bold text-gray-600">
           Study Topic
+        </span>
+        <span className="py-3  text-left text-sm font-bold text-gray-600">
+          Trainer
         </span>
         <span className="py-3  text-left text-sm font-bold text-gray-600">
           Attendance
@@ -65,7 +79,7 @@ const TrainerHistoryList = ({
       )}
 
       {/* No Records Found */}
-      {filteredTrainersActivityRecords.length === 0 && !loading && (
+      {allFilteredActiveActivityRecords.length === 0 && !loading && (
         <div className="flex-1 flex items-center text-gray-500 w-max mx-auto my-3">
           <SearchOffIcon className="mr-1" sx={{ fontSize: "1.5rem" }} />
           <p className="text-md">No records found</p>
@@ -73,9 +87,9 @@ const TrainerHistoryList = ({
       )}
 
       {/* List of Records */}
-      <div className="record-list flex-1 grid grid-rows-7 ">
-        {!loading &&
-          filteredTrainersActivityRecords
+      {!loading && (
+        <div className="table-contents overflow-y-auto h-full  flex-1 grid grid-cols-1 grid-rows-7">
+          {allFilteredActiveActivityRecords
             ?.slice(
               (currentPage - 1) * activityRecordsPerPage,
               currentPage * activityRecordsPerPage
@@ -95,24 +109,26 @@ const TrainerHistoryList = ({
               });
               return (
                 <Link
-                  href={`/trainer/trainerhistory/${activityRecord?._id}`}
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/activityrecords/${
+                    activityRecord?._id
+                  }`}
                   // target="_blank"
                   key={activityRecord?._id}
-                  className="grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className="grid grid-cols-[70px,repeat(6,1fr)] border-b  border-gray-200 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
                   </span>
-                  <span className=" text-left text-sm font-medium text-gray-600">
+                  <span className=" text-left px-1 text-sm font-medium text-gray-600">
                     {dayjs(activityRecord?.nepaliDate)
                       .tz(timeZone)
                       .format("MMMM D, YYYY, ddd")}
                   </span>
-                  <span className=" text-left text-sm font-medium text-gray-600">
+                  <span className=" text-left px-1 text-sm font-medium text-gray-600">
                     {activityRecord?.batchName}
                   </span>
                   {/* all unique topics */}
-                  <div className=" flex gap-1 flex-wrap col-span-2 text-left text-xs font-medium text-gray-600">
+                  <div className=" flex gap-1 flex-wrap col-span-2 text-left px-1 text-xs font-medium text-gray-600">
                     {[...uniqueTopics]?.map((topic: any, index: any) => {
                       return (
                         <p
@@ -124,12 +140,20 @@ const TrainerHistoryList = ({
                       );
                     })}
                   </div>
-                  <span className=" text-left text-sm font-medium text-gray-600">
+
+                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
+                    {activityRecord?.trainerName}
+                  </span>
+
+                  <span className=" text-left px-1 text-sm font-medium text-gray-600">
                     <span
                       className={`text-xs text-white font-bold rounded-full px-2 py-1 ${
                         activityRecord?.trainerPresentStatus?.toLowerCase() ===
                         "present"
                           ? "bg-green-400"
+                          : activityRecord?.trainerPresentStatus?.toLowerCase() ===
+                            "holiday"
+                          ? "bg-gray-400"
                           : "bg-red-400"
                       }`}
                     >
@@ -139,30 +163,10 @@ const TrainerHistoryList = ({
                 </Link>
               );
             })}
-      </div>
-
-      {/* Modal for Viewing Activity Record Details */}
-      <Modal
-        open={viewModalOpen}
-        onClose={handleViewModalClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        className="flex items-center justify-center"
-        BackdropProps={{
-          style: {
-            backgroundColor: "rgba(0,0,0,0.5)",
-          },
-        }}
-      >
-        <Box className="w-[60%] max-h-[90%] py-6 px-10 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
-          <ViewActivityRecordDetail
-            activityRecord={selectedActivityRecord}
-            handleViewModalClose={handleViewModalClose}
-          />
-        </Box>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };
 
-export default TrainerHistoryList;
+export default ActivityRecordList;

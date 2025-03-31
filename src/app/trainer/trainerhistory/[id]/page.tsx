@@ -4,7 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import TrainerHistory from "@/components/trainer/trainerhistory/TrainerHistory";
-import ViewActivityRecordDetail from "@/components/trainer/trainerhistory/ViewActivityRecordDetail";
+import ViewActivityRecordDetail from "@/components/activityrecord/ViewActivityRecordDetail";
 import { trainerMenuItems } from "@/sidebarMenuItems/trainerMenuItems";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";

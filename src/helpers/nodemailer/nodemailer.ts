@@ -1,71 +1,61 @@
 import nodemailer from "nodemailer";
+import {
+  getLeaveRequestEmailContent,
+  getLeaveRequestResponseEmailContent,
+  getOTPEmailContent,
+} from "./emailTemplates";
+import User from "@/models/UserModel";
 
-function getEmailContent(otp: any) {
-  const emailContent = `
-    <html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-          }
-          .container {
-            width: 100%;
-            max-width: 600px;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin: 0 auto;
-          }
-          .header {
-            text-align: center;
-            padding-bottom: 20px;
-          }
-          .header h1 {
-            color: #4CAF50;
-            font-size: 24px;
-            margin-bottom: 5px;
-          }
-          .otp-box {
-            background-color: #4CAF50;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-            font-size: 36px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-bottom: 20px;
-          }
-          .footer {
-            font-size: 12px;
-            text-align: center;
-            color: #888888;
-            margin-top: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Himalayan Chess Academy</h1>
-            <p>We received a request to reset your password. Use the OTP below to continue.</p>
-          </div>
-          <div class="otp-box">
-            <p>Your OTP: <strong>${otp}</strong></p>
-          </div>
-          <div class="footer">
-            <p>© Himalayan Chess Academy, All rights reserved.</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-  return emailContent;
+export async function sendOtpMail({ otp, email, subject }: any) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_EMAIL_ADDRESS,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+    const options = {
+      from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
+      to: email,
+      subject,
+      html: getOTPEmailContent(otp),
+    };
+    const info = await transporter.sendMail(options);
+    console.log("OTP email sent successfully");
+    return info;
+  } catch (error) {
+    console.log("Error sending otp email", error);
+  }
 }
 
-export async function sendOtpMail({ email, otp }: any) {
+export async function sendLeaveRequestMail({ subject, leaveRequest }: any) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_EMAIL_ADDRESS,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+    const options = {
+      from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
+      to: process.env.SUPERADMIN_GMAIL_ADDRESS,
+      subject,
+      html: getLeaveRequestEmailContent(leaveRequest),
+    };
+    const info = await transporter.sendMail(options);
+    console.log("Leave request email sent successfully");
+    return info;
+  } catch (error) {
+    console.log("Error sending leave request email", error);
+  }
+}
+
+export async function sendLeaveRequestResponseMail({
+  subject,
+  leaveRequest,
+}: any) {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -75,16 +65,26 @@ export async function sendOtpMail({ email, otp }: any) {
       },
     });
 
+    const user = await User.findById(leaveRequest?.userId);
+    if (!user) {
+      console.log("User not found");
+      return;
+    }
+
+    const userEmail = user.email;
+    const leaveStatus =
+      leaveRequest.approvalStatus === "approved" ? "approved" : "rejected";
+
     const options = {
       from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
-      to: email,
-      subject: "OTP for Forgot Password",
-      html: getEmailContent(otp),
+      to: userEmail,
+      subject,
+      html: getLeaveRequestResponseEmailContent(leaveRequest, leaveStatus),
     };
     const info = await transporter.sendMail(options);
-    console.log("Email sent successfully");
+    console.log("Leave request response email sent successfully");
     return info;
   } catch (error) {
-    console.log("Error sending email", error);
+    console.log("Error sending leave request response email", error);
   }
 }

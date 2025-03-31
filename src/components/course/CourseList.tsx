@@ -23,6 +23,7 @@ const CourseList = ({
   // dispatch
   const dispatch = useDispatch<any>();
 
+  const [loaded, setloaded] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedCourseName, setSelectedCourseName] = useState("");
   // Delete Modal
@@ -53,6 +54,12 @@ const CourseList = ({
       console.log("error in handleUserDelete", error);
     }
   }
+
+  useEffect(() => {
+    setloaded(true);
+  }, []);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">

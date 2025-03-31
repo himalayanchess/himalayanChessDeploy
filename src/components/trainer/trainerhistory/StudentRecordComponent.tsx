@@ -1,7 +1,10 @@
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 const StudentRecordComponent = ({ studentRecords }: any) => {
+  const session = useSession();
+
   const [attendanceStats, setAttendanceStats] = useState({
     totalStudents: 0,
     presentStudents: 0,
@@ -63,9 +66,16 @@ const StudentRecordComponent = ({ studentRecords }: any) => {
           >
             <span className="py-2 px-4 border-b break-words">{index + 1}</span>
             <Link
-              href={`/student/${student?._id}`}
+              href={`/${session?.data?.user?.role?.toLowerCase()}/students/${
+                student?._id
+              }`}
               target="_blank"
-              className="py-2 px-4 border-b break-words transition-all ease duration-150 hover:underline hover:text-blue-500"
+              className={`py-2 px-4 border-b break-words transition-all ease duration-150 hover:underline hover:text-blue-500
+                ${
+                  session?.data?.user?.role?.toLowerCase() == "trainer" &&
+                  "pointer-events-none"
+                }
+                `}
             >
               {student.name}
             </Link>

@@ -10,12 +10,14 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { signOut } from "next-auth/react";
 import { Box, Button, Modal } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { LoadingButton } from "@mui/lab";
 
 const Sidebar = ({ menuItems, role, activeMenu }: any) => {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [signoutModalOpen, setsignoutModalOpen] = useState(false);
+  const [logoutLoading, setlogoutLoading] = useState(false);
 
   return (
     <motion.div
@@ -116,22 +118,37 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
                   Are you sure you want to logout?
                 </p>
                 <div className="flex justify-center">
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    size="medium"
-                    color="error"
-                    onClick={async () => {
-                      console.log("logout");
-
-                      await signOut({ redirect: false });
-                      router.push("/login");
-                    }}
-                    sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
-                  >
-                    {/* <DeleteForeverOutlinedIcon /> */}
-                    Logout
-                  </Button>
+                  {logoutLoading ? (
+                    <LoadingButton
+                      variant="contained"
+                      size="medium"
+                      color="error"
+                      loading={logoutLoading}
+                      loadingPosition="start"
+                      sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
+                      className="mt-7 w-max"
+                    >
+                      {/* You can add an icon if needed */}
+                      Logging out
+                    </LoadingButton>
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      size="medium"
+                      color="error"
+                      onClick={async () => {
+                        console.log("logout");
+                        setlogoutLoading(true);
+                        await signOut({ redirect: false });
+                        setlogoutLoading(false);
+                        router.push("/login");
+                      }}
+                      sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
+                    >
+                      Logout
+                    </Button>
+                  )}
                   <Button
                     variant="outlined"
                     size="medium"

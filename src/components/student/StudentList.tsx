@@ -23,6 +23,8 @@ const StudentList = ({
 }: any) => {
   //dispatch
   const dispatch = useDispatch();
+
+  const [loaded, setloaded] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudentId, setselectedStudentId] = useState(null);
   const [selectedStudentName, setselectedStudentName] = useState(null);
@@ -62,35 +64,11 @@ const StudentList = ({
     }
   }
 
-  // filter effect
-  // useEffect(() => {
-  //   console.log("affiliated to", selectedAffiliatedTo);
+  useEffect(() => {
+    setloaded(true);
+  }, []);
 
-  //   // Determine which list to use based on selectedAffiliatedTo
-  //   let tempAllStudents =
-  //     selectedAffiliatedTo?.toLowerCase() === "hca"
-  //       ? [...allHcaStudents]
-  //       : [...allSchoolStudents];
-  //   console.log("tempAllStudents", tempAllStudents);
-
-  //   // Sort students by createdAt in descending order (latest first)
-  //   const sortedStudents = tempAllStudents.sort(
-  //     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  //   );
-
-  //   // Apply search filter if searchText is provided
-  //   let filteredStudents = sortedStudents;
-  //   if (searchText.trim() !== "") {
-  //     filteredStudents = filteredStudents.filter((student) =>
-  //       student.name.toLowerCase().includes(searchText.toLowerCase())
-  //     );
-  //   }
-
-  //   // Update filtered students and count
-  //   setFilteredStudents(filteredStudents);
-  //   setfilteredStudentCount(filteredStudents.length);
-  //   setCurrentPage(1); // Reset to the first page whenever filters change
-  // }, [allHcaStudents, allSchoolStudents, selectedAffiliatedTo, searchText]);
+  if (!loaded) return <div></div>;
 
   return (
     <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">
@@ -147,7 +125,7 @@ const StudentList = ({
               return (
                 <div
                   key={student?._id}
-                  className="table-headings  grid grid-cols-[70px,repeat(6,1fr)] items-center w-full cursor-pointer border-b border-gray-200 hover:bg-gray-100"
+                  className="table-headings  grid grid-cols-[70px,repeat(6,1fr)] items-center w-full cursor-pointer border-b border-gray-2  hover:bg-gray-100"
                 >
                   {/* SN */}
                   <span className="text-center text-sm font-medium text-gray-600">

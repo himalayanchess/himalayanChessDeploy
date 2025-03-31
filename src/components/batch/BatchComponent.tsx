@@ -43,9 +43,6 @@ const BatchComponent = ({ role = "" }: any) => {
     allBatchesLoading,
   } = useSelector((state: any) => state.allListReducer);
 
-  // session
-  const session = useSession();
-
   const affilatedToOptions = ["All", "HCA", "School"];
   const completedStatusOptions = ["All", "Ongoing", "Completed"];
 
@@ -138,35 +135,38 @@ const BatchComponent = ({ role = "" }: any) => {
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
       <h2 className="text-3xl mb-2 font-medium text-gray-700">Batch List</h2>{" "}
       {/* title and Dropdown */}
-      <div className="batches-header my-2 flex items-end justify-between">
-        <div className="title-options">
-          <div className="dropdown flex gap-4 items-end">
-            <Dropdown
-              label="Status"
-              options={completedStatusOptions}
-              selected={selectedCompleteStatus}
-              onChange={setselectedCompleteStatus}
-            />
-            <Dropdown
-              label="Affiliated to"
-              options={affilatedToOptions}
-              selected={selectedAffiliatedTo}
-              onChange={setselectedAffiliatedTo}
-            />{" "}
-            <Dropdown
-              label="Project"
-              options={[
-                "All",
-                ...(allActiveProjects?.map((project) => project.name) || []),
-              ]}
-              disabled={selectedAffiliatedTo.toLowerCase() != "school"}
-              selected={selectedProject}
-              onChange={setselectedProject}
-            />
-            <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
-              {filteredBatchCount}
-            </span>
-          </div>
+      <div className="batches-header my-0 flex items-end justify-between">
+        <div className="dropdowns flex gap-4 items-end">
+          <Dropdown
+            label="Status"
+            options={completedStatusOptions}
+            selected={selectedCompleteStatus}
+            onChange={setselectedCompleteStatus}
+          />
+          <Dropdown
+            label="Affiliated to"
+            options={affilatedToOptions}
+            selected={selectedAffiliatedTo}
+            onChange={setselectedAffiliatedTo}
+          />{" "}
+          <Dropdown
+            label="Project"
+            options={[
+              "All",
+              ...(allActiveProjects?.map((project) => project.name) || []),
+            ]}
+            disabled={selectedAffiliatedTo.toLowerCase() != "school"}
+            selected={selectedProject}
+            onChange={setselectedProject}
+          />
+          <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
+            {Math.min(
+              batchesPerPage,
+              allFilteredActiveBatches?.length -
+                (currentPage - 1) * batchesPerPage
+            )}{" "}
+            of {allFilteredActiveBatches?.length}
+          </span>
         </div>
 
         {/* Search */}
@@ -208,7 +208,7 @@ const BatchComponent = ({ role = "" }: any) => {
         role={role}
       />
       {/* pagination */}
-      <Stack spacing={2} className="mx-auto w-max mt-7">
+      <Stack spacing={2} className="mx-auto w-max mt-3">
         <Pagination
           count={Math.ceil(filteredBatchCount / batchesPerPage)} // Total pages
           page={currentPage} //allCoursesLoading Current page

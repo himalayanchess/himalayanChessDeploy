@@ -26,6 +26,7 @@ const ProjectList = ({
 }: any) => {
   const dispatch = useDispatch<any>();
 
+  const [loaded, setloaded] = useState(false);
   const [selectedProjectId, setselectedProjectId] = useState(null);
   const [selectedProjectName, setselectedProjectName] = useState("");
   // Delete Modal
@@ -75,6 +76,12 @@ const ProjectList = ({
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
+
+  useEffect(() => {
+    setloaded(true);
+  }, []);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">

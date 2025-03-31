@@ -128,7 +128,7 @@ const StudentComponent = ({ role }: any) => {
         Student Management
       </h2>{" "}
       {/* student header */}
-      <div className="student-header my-2 flex items-end justify-between">
+      <div className="student-header my-0 flex items-end justify-between">
         {/* dropdown */}
         <div className="dropdown flex gap-4 items-end">
           <Dropdown
@@ -147,8 +147,13 @@ const StudentComponent = ({ role }: any) => {
             onChange={setselectedBatch}
           />
           {/* Student count */}
-          <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
-            {filteredStudentCount}
+          <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
+            {Math.min(
+              studentsPerPage,
+              allFilteredActiveStudents?.length -
+                (currentPage - 1) * studentsPerPage
+            )}{" "}
+            of {allFilteredActiveStudents?.length}
           </span>
         </div>
         {/* search-filter-menus */}
@@ -178,7 +183,7 @@ const StudentComponent = ({ role }: any) => {
         role={role}
       />
       {/* pagination */}
-      <Stack spacing={2} className="mx-auto w-max mt-7">
+      <Stack spacing={2} className="mx-auto w-max mt-3">
         <Pagination
           count={Math.ceil(filteredStudentCount / studentsPerPage)} // Total pages
           page={currentPage} // Current page

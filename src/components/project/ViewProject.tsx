@@ -4,6 +4,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { Button, Divider } from "@mui/material";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -13,7 +14,10 @@ const timeZone = "Asia/Kathmandu";
 const ViewProjectDetail = ({ projectRecord }: any) => {
   // console.log(projectRecord);
 
+  const session = useSession();
+
   const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     if (projectRecord) {
       setLoaded(true);
@@ -151,10 +155,16 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
               <div className="grid grid-cols-5 gap-3">
                 {projectRecord.assignedTrainers.map((trainer, index) => (
                   <div key={index} className="border rounded p-2 bg-gray-50">
-                    <div>
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
+                        trainer?.trainerId
+                      }`}
+                    >
                       <p className="font-bold text-xs text-gray-500">Name:</p>
-                      <p className="text-sm">{trainer.trainerName || "N/A"}</p>
-                    </div>
+                      <p className="text-sm hover:underline hover:text-blue-600">
+                        {trainer.trainerName || "N/A"}
+                      </p>
+                    </Link>
                     <div className="mt-2">
                       <p className="font-bold text-xs text-gray-500">Role:</p>
                       <p className="text-sm">{trainer.trainerRole || "N/A"}</p>

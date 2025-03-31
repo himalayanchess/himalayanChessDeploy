@@ -5,6 +5,7 @@ import trainerReducer from "@/redux/trainerSlice";
 import leaveRequestReducer from "@/redux/leaveRequestSlice";
 import leaveApprovalReducer from "@/redux/leaveApprovalSlice";
 import trainerHistoryReducer from "@/redux/trainerHistorySlice";
+import activityRecordReducer from "@/redux/activityRecordSlice";
 
 export const myStore = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const myStore = configureStore({
     leaveRequestReducer,
     leaveApprovalReducer,
     trainerHistoryReducer,
+    activityRecordReducer,
   },
 });

@@ -23,9 +23,13 @@ export async function POST(request: NextRequest) {
     // bcrypt only accept string not numbers
     const generatedOtp = generateOTP(6);
 
-    sendOtpMail({ email: reqBody?.email, otp: generatedOtp });
+    sendOtpMail({
+      otp: generatedOtp,
+      email: reqBody?.email,
+      subject: "OTP for Forgot Password",
+    });
 
-    console.log("generated otp", generatedOtp);
+    // console.log("generated otp", generatedOtp);
 
     // hash otp
     const salt = await bcrypt.genSalt(10);

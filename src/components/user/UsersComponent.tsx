@@ -86,21 +86,26 @@ const UsersComponent = ({ role = "" }: any) => {
   return (
     <div className="flex w-full">
       <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
-        <div className="title-search-container mb-4 flex justify-between items-end">
+        <div className="title-search-container mb-0 flex justify-between items-end">
           {/* title and Dropdown */}
           <div className="title-options">
             <h2 className="text-3xl mb-2 font-medium text-gray-700">
               Users List
             </h2>
-            <div className="dropdown flex gap-4 items-end">
+            <div className="dropdown flex gap-4  mb-1 items-end">
               <Dropdown
                 label="Role"
                 options={options}
                 selected={selectedRole}
                 onChange={setSelectedRole}
               />
-              <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
-                {filteredUsersCount}
+              <span className=" text-white  bg-gray-400 rounded-md py-1 px-3 ">
+                {Math.min(
+                  usersPerPage,
+                  allFilteredActiveUsersList?.length -
+                    (currentPage - 1) * usersPerPage
+                )}{" "}
+                of {allFilteredActiveUsersList?.length}
               </span>
             </div>
           </div>
@@ -147,7 +152,7 @@ const UsersComponent = ({ role = "" }: any) => {
           role={role}
         />
 
-        <Stack spacing={2} className="mx-auto w-max mt-7">
+        <Stack spacing={2} className="mx-auto w-max mt-3">
           <Pagination
             count={Math.ceil(filteredUsersCount / usersPerPage)} // Total pages
             page={currentPage} // Current page

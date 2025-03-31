@@ -34,22 +34,25 @@ const ViewBatch = ({ batchRecord }: any) => {
   useEffect(() => {
     let tempFilteredStudents = [];
 
-    const activeStudents = allActiveStudentsList.filter((student: any) =>
+    // students of this batch
+    const totalFilteredStudents = allActiveStudentsList.filter((student: any) =>
+      student.batches.some((batch: any) => batch.batchId == batchRecord?._id)
+    );
+
+    const activeStudents = totalFilteredStudents.filter((student: any) =>
       student.batches.some(
-        (batch: any) => batch.batchId == batchRecord?._id && !batch.endDate // Batch is active, no endDate
+        (batch: any) => !batch.endDate // Batch is active, no endDate
       )
     );
 
-    const completedStudents = allActiveStudentsList.filter((student: any) =>
-      student.batches.some(
-        (batch: any) => batch.batchId === batchRecord?._id && batch.endDate
-      )
+    const completedStudents = totalFilteredStudents.filter((student: any) =>
+      student.batches.some((batch: any) => batch.endDate)
     );
 
     //total count
     setstudentCount((prev) => ({
       ...prev,
-      total: allActiveStudentsList?.length,
+      total: totalFilteredStudents?.length,
       active: activeStudents?.length,
       completed: completedStudents?.length,
     }));

@@ -24,6 +24,7 @@ const BatchList = ({
   const dispatch = useDispatch<any>();
   // console.log("inside batchlist", allFilteredActiveBatches);
 
+  const [loaded, setloaded] = useState(false);
   const [selectedBatchId, setSelectedBatchId] = useState(null);
   const [selectedBatchName, setSelectedBatchName] = useState("");
   // Delete Modal
@@ -55,6 +56,12 @@ const BatchList = ({
       console.log("error in handleBatchDelete", error);
     }
   }
+
+  useEffect(() => {
+    setloaded(true);
+  }, []);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">

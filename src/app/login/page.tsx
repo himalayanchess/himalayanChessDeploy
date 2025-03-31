@@ -36,9 +36,9 @@ const page = () => {
     }
     const session = await getSession();
     // console.log(session?.user);
-    setLoading(false);
 
     setTimeout(() => {
+      setLoading(false);
       let redirectRoute = "/";
       switch (session?.user?.role) {
         case "Superadmin":

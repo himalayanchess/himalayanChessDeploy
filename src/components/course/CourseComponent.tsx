@@ -71,7 +71,7 @@ const CourseComponent = ({ role = "" }: any) => {
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
       <h2 className="text-3xl mb-2 font-medium text-gray-700">Course List</h2>
-      <div className="courses-header my-2 flex items-end justify-between">
+      <div className="courses-header my-0 flex items-end justify-between">
         {/* title and Dropdown */}
         <div className="title-options">
           <div className="dropdown flex gap-4 items-end">
@@ -81,8 +81,13 @@ const CourseComponent = ({ role = "" }: any) => {
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
             />
-            <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
-              {filteredCourseCount}
+            <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
+              {Math.min(
+                coursesPerPage,
+                allFilteredActiveCoursesList?.length -
+                  (currentPage - 1) * coursesPerPage
+              )}{" "}
+              of {allFilteredActiveCoursesList?.length}
             </span>
           </div>
         </div>
@@ -119,7 +124,7 @@ const CourseComponent = ({ role = "" }: any) => {
       />
 
       {/* pagination */}
-      <Stack spacing={2} className="mx-auto w-max mt-7">
+      <Stack spacing={2} className="mx-auto w-max mt-3">
         <Pagination
           count={Math.ceil(filteredCourseCount / coursesPerPage)} // Total pages
           page={currentPage} // Current page

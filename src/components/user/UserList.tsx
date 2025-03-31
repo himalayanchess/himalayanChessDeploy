@@ -27,6 +27,7 @@ const UserList = ({
   // dispatch
   const dispatch = useDispatch<any>();
   //state vars
+  const [loaded, setloaded] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedUserName, setSelectedUserName] = useState("");
   // Delete Modal
@@ -59,6 +60,12 @@ const UserList = ({
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
+
+  useEffect(() => {
+    setloaded(true);
+  }, []);
+
+  if (!loaded) return <div></div>;
 
   return (
     <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">

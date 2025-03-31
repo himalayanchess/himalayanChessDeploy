@@ -74,7 +74,7 @@ const Input = ({
         id={label}
         type={type === "password" ? (showPassword ? "text" : type) : type}
         placeholder={placeholder}
-        onClick={(e) => {
+        onClick={(e: any) => {
           if (type === "date") {
             e.preventDefault(); // Prevent default focus behavior
             e.target.showPicker(); // Open the date picker

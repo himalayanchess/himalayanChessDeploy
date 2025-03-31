@@ -2,6 +2,7 @@ import Input from "@/components/Input";
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import {
+  Box,
   Button,
   Divider,
   Modal,
@@ -21,6 +22,8 @@ import { useSession } from "next-auth/react";
 import { useDispatch, useSelector } from "react-redux";
 import { addLeaveRequest } from "@/redux/leaveRequestSlice";
 import { fetchAllBatches } from "@/redux/allListSlice";
+import { sendLeaveRequestMail } from "@/helpers/nodemailer/nodemailer";
+import { LoadingButton } from "@mui/lab";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -42,11 +45,24 @@ const LeaveRequest = ({ role = "" }: any) => {
     dayjs().tz(timeZone).startOf("day")
   );
   const [supportReasonFile, setsupportReasonFile] = useState<File | any>(null);
-  const [selectedAffectedClass, setselectedAffectedClass] = useState("");
-  const [filteredBatchesOptions, setfilteredBatchesOptions] = useState([]);
+  const [selectedAffectedClass, setselectedAffectedClass] = useState<any>("");
+  const [filteredBatchesOptions, setfilteredBatchesOptions] = useState<any>([]);
+  const [requestLoading, setrequestLoading] = useState(false);
 
   // modal
   const [affectedClassModalOpen, setaffectedClassModalOpen] = useState(false);
+  // confirm modal
+  const [confirmModalOpen, setconfirmModalOpen] = useState(false);
+
+  // handleconfirmModalOpen
+  function handleconfirmModalOpen() {
+    setconfirmModalOpen(true);
+  }
+  // handleconfirmModalClose
+  function handleconfirmModalClose() {
+    setconfirmModalOpen(false);
+  }
+
   // modal operations
   // handleaffectedClassModalOpen
   function handleaffectedClassModalOpen() {
@@ -63,7 +79,7 @@ const LeaveRequest = ({ role = "" }: any) => {
     handleSubmit,
     control,
     watch,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<any>({
     defaultValues: {
       fromDate: "",
@@ -89,14 +105,14 @@ const LeaveRequest = ({ role = "" }: any) => {
   const toDate = watch("toDate");
 
   // Function to validate dates
-  const validateFromDate = (fromDate) => {
+  const validateFromDate = (fromDate: any) => {
     if (!fromDate) return "From date is required";
     return dayjs(fromDate).isBefore(nepaliTodaysDate)
       ? "Date cannot be in the past"
       : true;
   };
 
-  const validateToDate = (toDate) => {
+  const validateToDate = (toDate: any) => {
     if (!toDate) return "To date is required";
     if (!fromDate) return "Select a from date first";
 
@@ -173,12 +189,13 @@ const LeaveRequest = ({ role = "" }: any) => {
   }, []);
 
   //   submit function
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     // check if affectedClassesFields is empty or not
     if (affectedClassesFields?.length == 0) {
       notify("Include affected classes", 204);
       return;
     }
+    setrequestLoading(true);
     let fileUrl = "";
 
     const fromDay = dayjs(data.fromDate).tz(timeZone).format("dddd");
@@ -255,14 +272,17 @@ const LeaveRequest = ({ role = "" }: any) => {
         savedNewLeaveRequest = tempsavedLeaveRequest;
         // it adds just added leaveRequest with or without supportReasonFileUrl
       }
+      handleconfirmModalClose();
       dispatch(addLeaveRequest(savedNewLeaveRequest));
       // resData from addLeqveRequest (not file api)
       notify(resData?.msg, resData?.statusCode);
+      setrequestLoading(false);
       return;
     }
     // failed to add request
     else {
       notify(resData?.msg, resData?.statusCode);
+      setrequestLoading(false);
       return;
     }
   }
@@ -280,6 +300,12 @@ const LeaveRequest = ({ role = "" }: any) => {
         {/* form */}
         <form
           className="grid grid-cols-2 gap-4   overflow-y-auto"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleconfirmModalOpen(); // Open modal instead of submitting form
+            }
+          }}
           onSubmit={handleSubmit(onSubmit)}
         >
           {/* nepaliTodaysDate */}
@@ -479,9 +505,71 @@ const LeaveRequest = ({ role = "" }: any) => {
           </div>
 
           {/* submit button */}
-          <Button type="submit" className="w-max" variant="contained">
+          <Button
+            onClick={handleconfirmModalOpen}
+            className="w-max"
+            variant="contained"
+          >
             Submit
           </Button>
+
+          {/* Hidden Submit Button (Inside Form) */}
+          <button type="submit" id="hiddenSubmit" hidden></button>
+          {/* confirm modal */}
+          <Modal
+            open={confirmModalOpen}
+            onClose={handleconfirmModalClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            className="flex items-center justify-center"
+          >
+            <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
+              <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
+              <p className="mb-6 text-gray-600">You want to request a leave.</p>
+              <div className="buttons flex gap-5">
+                <Button
+                  variant="outlined"
+                  onClick={handleconfirmModalClose}
+                  className="text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+
+                {requestLoading ? (
+                  <LoadingButton
+                    variant="contained"
+                    size="medium"
+                    loading={requestLoading}
+                    loadingPosition="start"
+                    sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
+                    className="mt-7 w-max"
+                  >
+                    Requesting
+                  </LoadingButton>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="info"
+                    onClick={() => {
+                      if (typeof document !== "undefined") {
+                        const hiddenSubmit =
+                          document.getElementById("hiddenSubmit");
+                        if (hiddenSubmit) {
+                          hiddenSubmit.click();
+                        }
+                      }
+
+                      if (!isValid) {
+                        handleconfirmModalClose();
+                      }
+                    }}
+                  >
+                    Submit
+                  </Button>
+                )}
+              </div>
+            </Box>
+          </Modal>
         </form>
       </div>
       {/* requested leave list */}

@@ -1,4 +1,5 @@
 import { dbconnect } from "@/helpers/dbconnect/dbconnect";
+import { sendLeaveRequestResponseMail } from "@/helpers/nodemailer/nodemailer";
 import LeaveRequest from "@/models/LeaveRequestModel";
 import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
@@ -13,6 +14,12 @@ export async function POST(request: NextRequest) {
       { new: true }
     );
     if (updatedLeaveRequest) {
+      // send responded mail
+      await sendLeaveRequestResponseMail({
+        subject: "Update on Your Leave Request",
+        leaveRequest: updatedLeaveRequest,
+      });
+
       return NextResponse.json({
         msg: "LeaveRequest updated",
         statusCode: 200,

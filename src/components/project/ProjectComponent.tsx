@@ -68,21 +68,26 @@ const ProjectComponent = ({ role }: any) => {
   }, []);
   return (
     <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
-      <div className="title-search-container mb-4 flex justify-between items-end">
+      <div className="title-search-container  flex justify-between items-end">
         {/* title and Dropdown */}
         <div className="title-options">
           <h2 className="text-3xl mb-2 font-medium text-gray-700">
             Projects List
           </h2>
-          <div className="dropdown flex gap-4 items-end">
+          <div className="dropdown flex gap-4 mb-1 items-end">
             <Dropdown
               label="Status"
               options={options}
               selected={selectedStatus}
               onChange={setselectedStatus}
             />
-            <span className="text-xl text-white bg-gray-400 rounded-md py-1 px-3 font-bold">
-              {filteredProjectCount}
+            <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
+              {Math.min(
+                projectsPerPage,
+                allFilteredActiveProjects?.length -
+                  (currentPage - 1) * projectsPerPage
+              )}{" "}
+              of {allFilteredActiveProjects?.length}
             </span>
           </div>
         </div>
@@ -130,7 +135,7 @@ const ProjectComponent = ({ role }: any) => {
         role={role}
       />
 
-      <Stack spacing={2} className="mx-auto w-max mt-7">
+      <Stack spacing={2} className="mx-auto w-max mt-3">
         <Pagination
           count={Math.ceil(filteredProjectCount / projectsPerPage)} // Total pages
           page={currentPage} // Current page

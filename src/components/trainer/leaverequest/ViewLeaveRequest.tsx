@@ -8,6 +8,11 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import { SquareX } from "lucide-react";
+
+import ApprovalIcon from "@mui/icons-material/Approval";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch } from "react-redux";
@@ -18,6 +23,7 @@ import utc from "dayjs/plugin/utc";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { updateApprovedLeaveRequest } from "@/redux/leaveApprovalSlice";
 import { useRouter } from "next/navigation";
+import { LoadingButton } from "@mui/lab";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -29,6 +35,7 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
   const dispatch = useDispatch<any>();
 
   const [loaded, setLoaded] = useState(false);
+  const [responseLoading, setresponseLoading] = useState(false);
   const [deleteLeaveRequestModalOpen, setDeleteLeaveRequestModalOpen] =
     useState(false);
   const [
@@ -86,6 +93,7 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
       notify("Invalid selected approveStatusState", 204);
       return;
     }
+    setresponseLoading(true);
     const { data: resData } = await axios.post(
       "/api/leaverequest/updateLeaveRequest",
       {
@@ -102,6 +110,7 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
       }, 500);
       return;
     }
+    setresponseLoading(true);
     notify(resData?.msg, resData?.statusCode);
     return;
   };
@@ -135,7 +144,8 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
               color="error"
               onClick={handleDeleteLeaveRequestModalOpen}
             >
-              Delete
+              <DeleteIcon />
+              <span className="ml-1">Delete</span>
             </Button>
           )}
         </Box>
@@ -266,7 +276,8 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
                 handleConfirmApproveStatusLeaveRequestModalOpen("approved")
               }
             >
-              Approve
+              <ApprovalIcon />
+              <span className="ml-1">Approve</span>
             </Button>
             <Button
               variant="contained"
@@ -276,7 +287,8 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
                 handleConfirmApproveStatusLeaveRequestModalOpen("rejected")
               }
             >
-              Reject
+              <SquareX />
+              <span className="ml-1">Reject</span>
             </Button>
           </Box>
         )}
@@ -324,26 +336,36 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
       <Modal
         open={confirmApproveStatusLeaveRequestModalOpen}
         onClose={handleConfirmApproveStatusLeaveRequestModalClose}
+        className="flex items-center justify-center"
       >
-        <Box
-          onClick={handleConfirmApproveStatusLeaveRequestModalClose}
-          className="flex h-screen w-screen items-center justify-center"
-        >
-          <Paper className="w-[400px] p-6 rounded-lg shadow-lg flex flex-col items-center">
-            <p className="font-bold mb-4 text-2xl  ">Confirm Action</p>
-            <p className="mb-6 text-gray-600">
-              {selectedApproveStatusMode === "approved"
-                ? "You are about to approve this leave request."
-                : "You are about to reject this leave request."}
-            </p>
-            <Box className="flex justify-end gap-2">
-              <Button
-                variant="outlined"
-                onClick={handleConfirmApproveStatusLeaveRequestModalClose}
-                className="text-gray-600 hover:bg-gray-50"
+        <Paper className="w-[400px] p-6 rounded-lg shadow-lg flex flex-col items-center">
+          <p className="font-bold mb-4 text-2xl  ">Confirm Action</p>
+          <p className="mb-6 text-gray-600">
+            {selectedApproveStatusMode === "approved"
+              ? "You are about to approve this leave request."
+              : "You are about to reject this leave request."}
+          </p>
+          <Box className="flex justify-end gap-2">
+            <Button
+              variant="outlined"
+              onClick={handleConfirmApproveStatusLeaveRequestModalClose}
+              className="text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </Button>
+
+            {responseLoading ? (
+              <LoadingButton
+                variant="contained"
+                size="medium"
+                loading={responseLoading}
+                loadingPosition="start"
+                sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
+                className="mt-7 w-max"
               >
-                Cancel
-              </Button>
+                Responding
+              </LoadingButton>
+            ) : (
               <Button
                 variant="contained"
                 color={`${
@@ -360,9 +382,9 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
                   selectedApproveStatusMode == "approved" ? "Approve" : "Reject"
                 }`}
               </Button>
-            </Box>
-          </Paper>
-        </Box>
+            )}
+          </Box>
+        </Paper>
       </Modal>
     </div>
   );

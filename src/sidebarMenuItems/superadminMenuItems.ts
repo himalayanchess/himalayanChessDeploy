@@ -7,6 +7,7 @@ import {
   School,
   Component,
   Luggage,
+  LayoutList,
 } from "lucide-react";
 
 // import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -30,6 +31,7 @@ export const superadminMenuItems = [
     label: "Students",
     linkName: "students",
   },
+  { icon: LayoutList, label: "Activity Records", linkName: "activityrecords" },
   {
     icon: Luggage,
     label: "Leave Approval",

@@ -1,5 +1,5 @@
-import React from "react";
-import StudentRecordComponent from "./StudentRecordComponent";
+import React, { useEffect, useState } from "react";
+import StudentRecordComponent from "../trainer/trainerhistory/StudentRecordComponent";
 import StudyMaterialListComponent from "@/components/StudyMaterialListComponent";
 import DownloadIcon from "@mui/icons-material/Download";
 import { exportActivityRecordToExcel } from "@/helpers/exportToExcel/exportActivityRecordToExcel";
@@ -7,6 +7,8 @@ import { Button } from "@mui/material";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -14,6 +16,17 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewActivityRecordDetail = ({ activityRecord }: any) => {
+  const [loaded, setLoaded] = useState(false);
+  const session = useSession();
+
+  useEffect(() => {
+    if (activityRecord) {
+      setLoaded(true);
+    }
+  }, [activityRecord]);
+
+  if (!loaded) return <div></div>;
+
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7 ">
       <div className="header flex items-end justify-between mb-8 ">
@@ -57,7 +70,14 @@ const ViewActivityRecordDetail = ({ activityRecord }: any) => {
           <div className="emptycell"></div>
           <div>
             <p className="font-bold text-xs text-gray-500">Trainer Name:</p>
-            <p>{activityRecord.trainerName}</p>
+            <Link
+              href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
+                activityRecord?.trainerId
+              }`}
+              className="underline hover:text-blue-600"
+            >
+              <p>{activityRecord.trainerName}</p>
+            </Link>
           </div>
           <div>
             <p className="font-bold text-xs text-gray-500">Course Name:</p>

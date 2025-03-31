@@ -6,6 +6,7 @@ import isoWeek from "dayjs/plugin/isoWeek";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import LeaveRequest from "@/models/LeaveRequestModel";
+import { sendLeaveRequestMail } from "@/helpers/nodemailer/nodemailer";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek);
@@ -72,6 +73,14 @@ export async function POST(req: NextRequest) {
     });
 
     const savedNewLeaveRequest = await newLeaveRequest.save();
+
+    // send mail to super admin (superadmin mail from env inside this function)
+    if (savedNewLeaveRequest) {
+      await sendLeaveRequestMail({
+        subject: "Request for leave",
+        leaveRequest: savedNewLeaveRequest,
+      });
+    }
 
     if (savedNewLeaveRequest) {
       return NextResponse.json({
