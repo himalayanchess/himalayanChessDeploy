@@ -57,7 +57,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
       // pass date = selectedDate from state variable to server side
       trainerName: assignedClass?.trainerName,
       trainerId: assignedClass?.trainerId,
-      trainerPresentStatus: assignedClass?.trainerPresentStatus,
+      userPresentStatus: assignedClass?.userPresentStatus,
     },
   });
 
@@ -267,14 +267,14 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
           {assignedClass?.holidayStatus ? (
             <Input
               label="Attendance"
-              value={assignedClass?.trainerPresentStatus}
+              value={assignedClass?.userPresentStatus}
               onChange={() => {}}
               disabled
               required={true}
             />
           ) : (
             <Controller
-              name="trainerPresentStatus"
+              name="userPresentStatus"
               control={control}
               rules={{ required: "Attendance is required" }}
               render={({ field }) => (
@@ -286,8 +286,8 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
                   onChange={(value) => {
                     field.onChange(value);
                   }}
-                  error={errors.trainerPresentStatus}
-                  helperText={errors.trainerPresentStatus?.message}
+                  error={errors.userPresentStatus}
+                  helperText={errors.userPresentStatus?.message}
                   width="full"
                   required
                 />

@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       trainerId: trainerId,
       utcDate: { $gte: startOfDay, $lte: endOfDay }, // Filter within that day
       activeStatus: true, // Optional: filter only active records
-      trainerPresentStatus: "present",
+      userPresentStatus: "present",
     });
 
     if (trainersClasses) {

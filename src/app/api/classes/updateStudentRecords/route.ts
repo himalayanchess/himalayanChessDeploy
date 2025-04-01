@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       {
         studentRecords,
         recordUpdatedByTrainer: true,
-        trainerPresentStatus: "present",
+        userPresentStatus: "present",
         mainStudyTopic,
       },
       { new: true }

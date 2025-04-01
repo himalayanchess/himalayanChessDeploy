@@ -36,30 +36,24 @@ const ActivityRecordSchema = new mongoose.Schema(
     },
     batchName: {
       type: String,
-      required: true,
     },
     batchId: {
       type: mongoose.Schema.Types.Mixed,
       ref: "Batch",
-      required: true,
     },
     trainerName: {
       type: String,
-      required: true,
     },
     trainerId: {
       type: mongoose.Schema.Types.Mixed,
       ref: "User",
-      required: true,
     },
     courseName: {
       type: String,
-      required: true,
     },
     courseId: {
       type: mongoose.Schema.Types.Mixed,
       ref: "Course",
-      required: true,
     },
     mainStudyTopic: { type: String },
     holidayStatus: { type: Boolean },
@@ -69,7 +63,7 @@ const ActivityRecordSchema = new mongoose.Schema(
     studentRecords: {
       type: Array,
     },
-    trainerPresentStatus: {
+    userPresentStatus: {
       type: String,
       enum: ["present", "absent", "holiday"],
     },

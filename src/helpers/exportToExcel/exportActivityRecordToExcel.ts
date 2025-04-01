@@ -7,7 +7,7 @@ export const exportActivityRecordToExcel = (activityRecord: any) => {
   const basicData = {
     "Affiliated To": activityRecord.affiliatedTo || "N/A",
     "Nepali Date": new Date(activityRecord.nepaliDate).toLocaleDateString(),
-    "Trainer Present Status": activityRecord.trainerPresentStatus,
+    "Present Status": activityRecord.userPresentStatus,
     "Trainer Name": activityRecord.trainerName,
     "Course Name": activityRecord.courseName,
     "Batch Name": activityRecord.batchName,

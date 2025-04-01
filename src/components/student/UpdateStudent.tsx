@@ -10,7 +10,11 @@ import { LoadingButton } from "@mui/lab";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllBatches, fetchAllProjects } from "@/redux/allListSlice";
+import {
+  fetchAllBatches,
+  fetchAllProjects,
+  getAllCourses,
+} from "@/redux/allListSlice";
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import isoWeek from "dayjs/plugin/isoWeek";
@@ -38,9 +42,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
   ];
 
   const dispatch = useDispatch<any>();
-  const { allActiveBatches, allActiveProjects } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveBatches, allActiveProjects, allActiveCoursesList } =
+    useSelector((state: any) => state.allListReducer);
 
   const [loaded, setLoaded] = useState(false);
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
@@ -208,6 +211,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
   useEffect(() => {
     dispatch(fetchAllBatches());
     dispatch(fetchAllProjects());
+    dispatch(getAllCourses());
   }, []);
 
   useEffect(() => {
@@ -965,12 +969,12 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     render={({ field }) => (
                       <Dropdown
                         label="Course"
-                        options={coursesList.map((c) => c.value)}
+                        options={allActiveCoursesList.map((c) => c.name)}
                         selected={field.value || ""}
                         onChange={(value) => {
                           field.onChange(value);
-                          const selectedCourse = coursesList.find(
-                            (course) => course.value == value
+                          const selectedCourse = allActiveCoursesList.find(
+                            (course) => course.name == value
                           );
                           setValue(
                             `enrolledCourses.${index}.courseId`,

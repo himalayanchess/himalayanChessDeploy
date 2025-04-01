@@ -69,7 +69,6 @@ const assignedClassesSlice = createSlice({
       })
       .addCase(fetchAssignedClasses.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
       });
   },
 });

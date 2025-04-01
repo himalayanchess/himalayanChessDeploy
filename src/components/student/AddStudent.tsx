@@ -12,7 +12,11 @@ import { LoadingButton } from "@mui/lab";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllBatches, fetchAllProjects } from "@/redux/allListSlice";
+import {
+  fetchAllBatches,
+  fetchAllProjects,
+  getAllCourses,
+} from "@/redux/allListSlice";
 
 const AddStudent = () => {
   const affiliatedToOptions = ["HCA", "School"];
@@ -28,9 +32,8 @@ const AddStudent = () => {
   const dispatch = useDispatch<any>();
 
   // use selector
-  const { allActiveBatches, allActiveProjects } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveBatches, allActiveProjects, allActiveCoursesList } =
+    useSelector((state: any) => state.allListReducer);
 
   // state variable
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
@@ -265,6 +268,7 @@ const AddStudent = () => {
   useEffect(() => {
     dispatch(fetchAllBatches());
     dispatch(fetchAllProjects());
+    dispatch(getAllCourses());
   }, []);
 
   return (
@@ -967,7 +971,7 @@ const AddStudent = () => {
                 </div>
               ))
           )}
-          {/* add course button */}
+          {/* add batch button */}
           <Button title="Add Batch" variant="outlined" onClick={addBatch}>
             <AddIcon />
             <span>Add batch</span>
@@ -1001,12 +1005,12 @@ const AddStudent = () => {
                     render={({ field }) => (
                       <Dropdown
                         label="Course"
-                        options={coursesList.map((c) => c.value)}
+                        options={allActiveCoursesList.map((c) => c.name)}
                         selected={field.value}
                         onChange={(value) => {
                           field.onChange(value);
-                          const selectedCourse = coursesList.find(
-                            (course) => course.value == value
+                          const selectedCourse = allActiveCoursesList.find(
+                            (course: any) => course.name == value
                           );
                           setValue(
                             `enrolledCourses.${index}.courseId`,

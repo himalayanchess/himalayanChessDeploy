@@ -38,7 +38,10 @@ const Header = () => {
 
   return (
     <div className="h-[9dvh] shadow-sm px-14 bg-white flex justify-between items-center">
-      <div className="logo flex items-center">
+      <Link
+        href={`/${session?.data?.user?.role?.toLowerCase()}/dashboard`}
+        className="logo flex items-center"
+      >
         <Image
           alt="hca"
           className="w-[30px] h-auto"
@@ -49,7 +52,7 @@ const Header = () => {
           <p className="w-full text-sm tracking-[0.2rem]">HIMALAYAN</p>
           <p className="w-full text-xs tracking-wider">CHESS ACADEMY</p>
         </div>
-      </div>
+      </Link>
       <div className="user-details text-right flex z-40" ref={dropdownRef}>
         {session?.data?.user ? (
           <div className="loggedin-user relative">

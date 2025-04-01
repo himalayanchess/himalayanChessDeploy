@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       endTime,
       holidayStatus,
       holidayDescription,
-      trainerPresentStatus,
+      userPresentStatus,
     } = reqBody;
 
     // first convert date to nepali time format (understanding)

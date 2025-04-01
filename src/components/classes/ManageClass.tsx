@@ -85,7 +85,7 @@ const ManageClass = ({ selectedDate }: any) => {
       // holiday status from state variable
 
       holidayDescription: "",
-      trainerPresentStatus: "absent",
+      userPresentStatus: "absent",
     },
   });
   // time order validation
@@ -112,7 +112,7 @@ const ManageClass = ({ selectedDate }: any) => {
         date: selectedDate,
         holidayStatus,
         affiliatedTo,
-        trainerPresentStatus: holidayStatus ? "holiday" : "absent",
+        userPresentStatus: holidayStatus ? "holiday" : "absent",
         assignedById: session?.data?.user?._id,
         assignedByName: session?.data?.user?.name,
       });
@@ -145,7 +145,7 @@ const ManageClass = ({ selectedDate }: any) => {
       endTime: "",
       // holiday status from state variable
       holidayDescription: "",
-      trainerPresentStatus: "absent",
+      userPresentStatus: "absent",
     });
     setBatchId(""); // Reset batchId state
     setprojectId(""); // Reset projectId state
@@ -495,12 +495,12 @@ const ManageClass = ({ selectedDate }: any) => {
           <p>No Students</p>
         ) : (
           <div className="flex gap-4">
-            {selectedBatchStudents.map((student, i) => (
+            {selectedBatchStudents.map((student: any, i) => (
               <p
                 key={i}
                 className="border px-4 rounded-full text-sm shadow-md py-1"
               >
-                {student.name}
+                {student?.name}
               </p>
             ))}
           </div>

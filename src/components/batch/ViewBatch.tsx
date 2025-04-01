@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 import { Button, Divider } from "@mui/material";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllStudents } from "@/redux/allListSlice";
 import BatchStudentList from "./BatchStudentList";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -21,7 +21,7 @@ const ViewBatch = ({ batchRecord }: any) => {
   );
 
   //state vars
-  const [selectedStudentStatus, setselectedStudentStatus] = useState("active");
+  const [selectedStudentStatus, setselectedStudentStatus] = useState("all");
   const [loaded, setLoaded] = useState(false);
   const [filteredStudentList, setfilteredStudentList] = useState([]);
   const [studentCount, setstudentCount] = useState({
@@ -58,7 +58,11 @@ const ViewBatch = ({ batchRecord }: any) => {
     }));
 
     // active students
-    if (selectedStudentStatus?.toLowerCase() == "active") {
+    if (selectedStudentStatus?.toLowerCase() == "all") {
+      tempFilteredStudents = totalFilteredStudents;
+    }
+    // active students
+    else if (selectedStudentStatus?.toLowerCase() == "active") {
       tempFilteredStudents = activeStudents;
     }
     // batch completed students
@@ -164,6 +168,16 @@ const ViewBatch = ({ batchRecord }: any) => {
           <div className="students-list col-span-3">
             <h1 className="font-bold">Students</h1>
             <div className="buttons mt-2 flex gap-4">
+              <Button
+                variant={`${
+                  selectedStudentStatus?.toLowerCase() == "all"
+                    ? "contained"
+                    : "outlined"
+                }`}
+                onClick={() => setselectedStudentStatus("all")}
+              >
+                All
+              </Button>
               <Button
                 variant={`${
                   selectedStudentStatus?.toLowerCase() == "active"

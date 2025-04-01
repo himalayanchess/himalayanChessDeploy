@@ -127,13 +127,13 @@ const TrainerHistoryList = ({
                   <span className=" text-left text-sm font-medium text-gray-600">
                     <span
                       className={`text-xs text-white font-bold rounded-full px-2 py-1 ${
-                        activityRecord?.trainerPresentStatus?.toLowerCase() ===
+                        activityRecord?.userPresentStatus?.toLowerCase() ===
                         "present"
                           ? "bg-green-400"
                           : "bg-red-400"
                       }`}
                     >
-                      {activityRecord?.trainerPresentStatus}
+                      {activityRecord?.userPresentStatus}
                     </span>
                   </span>
                 </Link>

@@ -57,73 +57,51 @@ const ViewUserDetail = ({ userRecord }: any) => {
 
   // Filter activity records based on the selected month and trainerId
   const filterAttendanceByMonth = () => {
-    const filteredRecords = allActiveTrainersActivityRecords.filter(
-      (record: any) => {
-        const recordDate = dayjs(record.utcDate).tz("Asia/Kathmandu");
-        return (
-          recordDate.format("YYYY-MM") === selectedMonth &&
-          record.trainerId === userRecord._id
-        );
-      }
-    );
+    // Ensure selectedMonth is in "YYYY-MM" format
+    const selectedMonthFormatted = dayjs(selectedMonth).format("YYYY-MM");
 
-    // Use a Set to store unique dates
-    const uniqueDays = new Set();
-    const dailyAttendanceTemp: any[] = [];
+    // Object to store daily attendance with unique dates
+    const dailyAttendanceMap: Record<string, string> = {};
 
     let totalPresent = 0;
     let totalAbsent = 0;
     let totalHoliday = 0;
 
-    filteredRecords.forEach((record: any) => {
+    allActiveTrainersActivityRecords.forEach((record: any) => {
       const recordDate = dayjs(record.utcDate)
         .tz("Asia/Kathmandu")
-        .format("YYYY-MM-DD"); // Convert to Nepali time
+        .format("YYYY-MM-DD");
 
-      // Add to unique days
-      uniqueDays.add(recordDate);
-
-      const status = record.trainerPresentStatus;
-
-      // Increment status count for totals
-      if (status === "present") {
-        totalPresent += 1;
-      } else if (status === "absent") {
-        totalAbsent += 1;
-      } else if (status === "holiday") {
-        totalHoliday += 1;
-      }
-
-      // Add the record to the daily attendance array
-      dailyAttendanceTemp.push({
-        date: recordDate,
-        status: status,
-      });
-    });
-
-    // Determine the final attendance status for each unique day
-    const finalAttendance: any[] = [];
-    uniqueDays.forEach((date: any) => {
-      const dayRecords = dailyAttendanceTemp.filter(
-        (record: any) => record.date === date
-      );
-
-      // Check if any record for this day has a status of 'present'
-      const isPresent = dayRecords.some(
-        (record: any) => record.status === "present"
-      );
-
-      // If any record for the day is present, mark the trainer as present
-      if (isPresent) {
-        finalAttendance.push({ date, status: "present" });
-      } else {
-        finalAttendance.push({ date, status: "absent" });
+      // Ensure the record belongs to the selected month and trainer
+      if (
+        dayjs(recordDate).format("YYYY-MM") === selectedMonthFormatted &&
+        record.trainerId === userRecord._id
+      ) {
+        // If any record for this date has "present", set the day's status to "present"
+        if (record.userPresentStatus === "present") {
+          dailyAttendanceMap[recordDate] = "present";
+        } else {
+          // Only set "absent" or "holiday" if the day is not already marked "present"
+          if (!dailyAttendanceMap[recordDate]) {
+            dailyAttendanceMap[recordDate] = record.userPresentStatus;
+          }
+        }
       }
     });
+
+    // Convert the object into an array and calculate totals
+    const finalAttendance = Object.entries(dailyAttendanceMap).map(
+      ([date, status]) => {
+        if (status === "present") totalPresent += 1;
+        if (status === "absent") totalAbsent += 1;
+        if (status === "holiday") totalHoliday += 1;
+        return { date, status };
+      }
+    );
 
     // Update attendance chart data and daily attendance table
     setAttendanceData([
-      { name: "Total", value: totalHoliday + totalPresent + totalAbsent },
+      { name: "Total", value: finalAttendance.length },
       { name: "Present", value: totalPresent },
       { name: "Absent", value: totalAbsent },
       { name: "Holiday", value: totalHoliday },
@@ -247,6 +225,10 @@ const ViewUserDetail = ({ userRecord }: any) => {
             <p>{userRecord?.phone}</p>
           </div>
           <div>
+            <p className="font-bold text-xs text-gray-500">Gender:</p>
+            <p>{userRecord?.gender}</p>
+          </div>
+          <div>
             <p className="font-bold text-xs text-gray-500">Address:</p>
             <p>{userRecord?.address}</p>
           </div>
@@ -257,9 +239,19 @@ const ViewUserDetail = ({ userRecord }: any) => {
           <div>
             <p className="font-bold text-xs text-gray-500">Joined Date:</p>
             <p>
-              {dayjs(userRecord?.joinedDate)
-                .tz(timeZone)
-                .format("MMMM D, YYYY")}
+              {userRecord?.joinedDate
+                ? dayjs(userRecord?.joinedDate)
+                    .tz(timeZone)
+                    .format("MMMM D, YYYY")
+                : "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="font-bold text-xs text-gray-500">End Date:</p>
+            <p>
+              {userRecord?.endDate
+                ? dayjs(userRecord?.endDate).tz(timeZone).format("MMMM D, YYYY")
+                : "N/A"}
             </p>
           </div>
           <div>
@@ -273,8 +265,10 @@ const ViewUserDetail = ({ userRecord }: any) => {
             <p>{userRecord?.emergencyContactName}</p>
           </div>
           <div>
-            <p className="font-bold text-xs text-gray-500">Gender:</p>
-            <p>{userRecord?.gender}</p>
+            <p className="font-bold text-xs text-gray-500">
+              Emergency Contact no:
+            </p>
+            <p>{userRecord?.emergencyContactNo}</p>
           </div>
           <div>
             <p className="font-bold text-xs text-gray-500">Title:</p>
@@ -301,7 +295,6 @@ const ViewUserDetail = ({ userRecord }: any) => {
               </Link>
             </div>
           )}
-
           {/* active status */}
           <div>
             <p className="font-bold text-xs text-gray-500">Active Status:</p>
@@ -313,35 +306,38 @@ const ViewUserDetail = ({ userRecord }: any) => {
               {userRecord?.activeStatus ? "Active" : "Inactive"}
             </p>
           </div>
-
           {/* Assigned Projects */}
-          <div className="col-span-3">
-            <p className="font-bold text-xs text-gray-500">Assigned Projects</p>
-            {trainerProjects?.length == 0 ? (
-              <p>No assigned projects</p>
-            ) : (
-              <div className="assignedprojects mt-2 grid grid-cols-3 gap-5">
-                {trainerProjects?.map((trainerProject: any) => {
-                  return (
-                    <Link
-                      href={`/${session?.data?.user?.role?.toLowerCase()}/projects/${
-                        trainerProject?.projectId
-                      }`}
-                      key={trainerProject?.projectId}
-                      className="trainer-project border bg-blue-50 p-3 rounded-md transition-all ease duration-150 hover:bg-blue-100"
-                    >
-                      <p className="text-md hover:underline hover:text-blue-600">
-                        {trainerProject?.projectName}
-                      </p>
-                      <p className="text-xs">
-                        Role: {trainerProject?.trainerRole}
-                      </p>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          {userRecord?.role?.toLowerCase() == "trainer" && (
+            <div className="col-span-3">
+              <p className="font-bold text-xs text-gray-500">
+                Assigned Projects
+              </p>
+              {trainerProjects?.length == 0 ? (
+                <p>No assigned projects</p>
+              ) : (
+                <div className="assignedprojects mt-2 grid grid-cols-3 gap-5">
+                  {trainerProjects?.map((trainerProject: any) => {
+                    return (
+                      <Link
+                        href={`/${session?.data?.user?.role?.toLowerCase()}/projects/${
+                          trainerProject?.projectId
+                        }`}
+                        key={trainerProject?.projectId}
+                        className="trainer-project border bg-blue-50 p-3 rounded-md transition-all ease duration-150 hover:bg-blue-100"
+                      >
+                        <p className="text-md hover:underline hover:text-blue-600">
+                          {trainerProject?.projectName}
+                        </p>
+                        <p className="text-xs">
+                          Role: {trainerProject?.trainerRole}
+                        </p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="attendance-container w-[25%] mr-7 flex flex-col gap-2">

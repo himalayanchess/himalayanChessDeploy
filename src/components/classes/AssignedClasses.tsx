@@ -12,7 +12,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
-const AssignedClasses = ({ selectedDate }) => {
+const AssignedClasses = ({ selectedDate }: any) => {
   const dispatch = useDispatch<any>();
   const { allActiveAssignedClasses, status, error } = useSelector(
     (state: any) => state.assignedClassesReducer
@@ -100,16 +100,16 @@ const AssignedClasses = ({ selectedDate }) => {
                     {/* trainer present status */}
                     <p
                       className={`text-xs px-2 rounded-full py-0.5 w-max ${
-                        assignedClass?.trainerPresentStatus?.toLowerCase() ==
+                        assignedClass?.userPresentStatus?.toLowerCase() ==
                         "present"
                           ? " bg-green-500 text-white "
-                          : assignedClass?.trainerPresentStatus?.toLowerCase() ==
+                          : assignedClass?.userPresentStatus?.toLowerCase() ==
                             "absent"
                           ? " bg-red-500 text-white "
                           : " bg-gray-500 text-white "
                       } `}
                     >
-                      {assignedClass?.trainerPresentStatus}
+                      {assignedClass?.userPresentStatus}
                     </p>
                   </div>
                 </div>

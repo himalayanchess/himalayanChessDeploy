@@ -148,16 +148,16 @@ const ActivityRecordList = ({
                   <span className=" text-left px-1 text-sm font-medium text-gray-600">
                     <span
                       className={`text-xs text-white font-bold rounded-full px-2 py-1 ${
-                        activityRecord?.trainerPresentStatus?.toLowerCase() ===
+                        activityRecord?.userPresentStatus?.toLowerCase() ===
                         "present"
                           ? "bg-green-400"
-                          : activityRecord?.trainerPresentStatus?.toLowerCase() ===
+                          : activityRecord?.userPresentStatus?.toLowerCase() ===
                             "holiday"
                           ? "bg-gray-400"
                           : "bg-red-400"
                       }`}
                     >
-                      {activityRecord?.trainerPresentStatus}
+                      {activityRecord?.userPresentStatus}
                     </span>
                   </span>
                 </Link>

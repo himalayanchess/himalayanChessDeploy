@@ -140,9 +140,9 @@ const AssignClass = () => {
               {filteredProjectNames.length == 0 ? (
                 <p className="text-sm text-gray-500">Class not assigned</p>
               ) : (
-                filteredProjectNames?.map((uniqueProject) => (
+                filteredProjectNames?.map((uniqueProject: any, index: any) => (
                   <p
-                    key={uniqueProject}
+                    key={`uniqueProject${index}`}
                     className={`bg-gray-400 text-white w-max rounded-full px-3 py-1 text-sm`}
                   >
                     {uniqueProject}

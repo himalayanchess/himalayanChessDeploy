@@ -57,13 +57,12 @@ const ViewActivityRecordDetail = ({ activityRecord }: any) => {
             </p>
             <p
               className={`text-xs text-white w-max font-bold rounded-full px-2 py-1 ${
-                activityRecord?.trainerPresentStatus?.toLowerCase() ===
-                "present"
+                activityRecord?.userPresentStatus?.toLowerCase() === "present"
                   ? "bg-green-400"
                   : "bg-red-400"
               }`}
             >
-              {activityRecord.trainerPresentStatus}
+              {activityRecord.userPresentStatus}
             </p>
           </div>
           {/* empty cell */}

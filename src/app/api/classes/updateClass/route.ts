@@ -14,8 +14,9 @@ export async function POST(request: NextRequest) {
       endTime,
       trainerName,
       trainerId,
-      trainerPresentStatus,
+      userPresentStatus,
     } = reqBody;
+    console.log("update reqBody", reqBody);
 
     // const selectedDateOnly = dayjs(date).startOf("day"); // Strip time for comparison
     // const selectedStartTime = dayjs(startTime).startOf("day"); // Strip time
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
       {
         trainerName,
         trainerId,
-        trainerPresentStatus,
+        userPresentStatus,
       },
       { new: true }
     );
