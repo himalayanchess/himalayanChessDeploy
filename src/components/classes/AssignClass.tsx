@@ -38,33 +38,25 @@ const instituteColors = {
 const AssignClass = () => {
   const dis = useDispatch<any>();
   const { allActiveAssignedClasses, status, error } = useSelector(
-    (state) => state.assignedClassesReducer
+    (state: any) => state.assignedClassesReducer
   );
   const [filteredProjectNames, setfilteredProjectNames] = useState<any>([]);
 
-  // Use dayjs() instead of new Date() to get the current date
-  // giving utc even after adding time zone
-  // it is giving object but in hadle click it is formattin format()
-  // convert to nepali date first in route.ts
-
-  const today = dayjs().tz(timeZone, true);
+  const today = dayjs().tz(timeZone);
   const [currentDate, setCurrentDate] = useState<any>(today);
   const [selectedDate, setSelectedDate] = useState<any>(today);
 
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+  const nextMonth = () => setCurrentDate(currentDate.add(1, "month"));
+  const prevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));
 
   const handleMonthChange = (event) => {
-    const selectedMonth = parse(event.target.value, "yyyy-MM", new Date());
+    const selectedMonth = dayjs(event.target.value);
     setCurrentDate(selectedMonth);
   };
 
   const handleDateClick = (day) => {
     if (day) {
-      // send nepali timeze zone date
-      // console.log("Selected day", dayjs(day).tz(timeZone).format());
-
-      setSelectedDate(dayjs(day).tz(timeZone).format());
+      setSelectedDate(dayjs(day).tz(timeZone));
     } else {
       console.error("Invalid date selected");
     }
@@ -75,7 +67,9 @@ const AssignClass = () => {
     setSelectedDate(today);
   };
 
-  const monthStart = startOfMonth(currentDate);
+  // Convert dayjs to Date for date-fns functions
+  const currentDateAsDate = currentDate.toDate();
+  const monthStart = startOfMonth(currentDateAsDate);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
@@ -93,27 +87,17 @@ const AssignClass = () => {
   }
 
   useEffect(() => {
-    // Convert selectedDate to YYYY-MM-DD format using dayjs
-
-    const selectedNepaliDateOnly = dayjs(selectedDate)
-      .tz(timeZone)
+    const selectedNepaliDateOnly = selectedDate
       .startOf("day")
       .format("YYYY-MM-DD");
 
-    // Filter allActiveAssignedClasses by the selectedDate
     const filteredClasses = allActiveAssignedClasses.filter((assignedClass) => {
-      // Convert assignedClass.date to YYYY-MM-DD format using dayjs
       const assignedClassDate = dayjs(assignedClass.nepaliDate).format(
         "YYYY-MM-DD"
       );
-
-      // Compare only the date part
-      return assignedClassDate == selectedNepaliDateOnly;
+      return assignedClassDate === selectedNepaliDateOnly;
     });
 
-    console.log(filteredClasses);
-    // - If affiliatedTo is "hca", we just add "hca"
-    // - If affiliatedTo is "school", we add the projectName
     const uniqueProjectNames = [
       ...new Set(
         filteredClasses.map((assignedClass) =>
@@ -124,7 +108,7 @@ const AssignClass = () => {
       ),
     ];
 
-    setfilteredProjectNames(uniqueProjectNames); // Logs unique affiliations for the selectedDate
+    setfilteredProjectNames(uniqueProjectNames);
   }, [selectedDate, allActiveAssignedClasses]);
 
   return (
@@ -137,7 +121,7 @@ const AssignClass = () => {
 
           {selectedDate ? (
             <div className="uniqueprojects flex flex-wrap gap-2">
-              {filteredProjectNames.length == 0 ? (
+              {filteredProjectNames.length === 0 ? (
                 <p className="text-sm text-gray-500">Class not assigned</p>
               ) : (
                 filteredProjectNames?.map((uniqueProject: any, index: any) => (
@@ -162,7 +146,7 @@ const AssignClass = () => {
           {/* Selected Date and Day */}
           <div className="mb-4">
             <h2 className="text-md font-bold">
-              {format(selectedDate, "EEEE, yyyy-MM-dd")}
+              {selectedDate.format("dddd, YYYY-MM-DD")}
             </h2>
           </div>
 
@@ -172,14 +156,14 @@ const AssignClass = () => {
               <select
                 id="month-select"
                 onChange={handleMonthChange}
-                value={format(currentDate, "yyyy-MM")}
+                value={currentDate.format("YYYY-MM")}
                 className="p-2 border rounded text-sm"
               >
                 {Array.from({ length: 12 }, (_, i) => {
-                  const monthDate = new Date(currentDate.year(), i, 1);
+                  const monthDate = currentDate.month(i);
                   return (
-                    <option key={i} value={format(monthDate, "yyyy-MM")}>
-                      {format(monthDate, "MMMM yyyy")}
+                    <option key={i} value={monthDate.format("YYYY-MM")}>
+                      {monthDate.format("MMMM YYYY")}
                     </option>
                   );
                 })}
@@ -214,7 +198,7 @@ const AssignClass = () => {
               const dayKey = day ? format(day, "yyyy-MM-dd") : null;
               const isTodayDate = day ? isToday(day) : false;
               const isSelectedDate =
-                day && selectedDate && isSameDay(day, selectedDate);
+                day && selectedDate && isSameDay(day, selectedDate.toDate());
               const isCurrentMonth = day && isSameMonth(day, monthStart);
 
               return (
@@ -242,10 +226,10 @@ const AssignClass = () => {
       <div className="flex-1 w-full ">
         <ManageClass selectedDate={selectedDate} />
       </div>
-      {/* Rignt Section (AssignedClasses) */}
+      {/* Right Section (AssignedClasses) */}
       <div className="flex-[0.5] w-full ">
         <AssignedClasses selectedDate={selectedDate} />
-      </div>{" "}
+      </div>
     </div>
   );
 };

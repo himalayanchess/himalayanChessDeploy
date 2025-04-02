@@ -8,6 +8,7 @@ import {
   Component,
   Luggage,
   CircleFadingArrowUp,
+  CalendarCheck2,
 } from "lucide-react";
 
 // import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -21,6 +22,8 @@ import {
 
 export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard", linkName: "dashboard" },
+  { icon: CalendarCheck2, label: "Attendance", linkName: "attendance" },
+
   { icon: BookOpenCheck, label: "Assign Class", linkName: "classes" },
   { icon: CircleUser, label: "Users", linkName: "users" },
   { icon: BookCopy, label: "Courses", linkName: "courses" },

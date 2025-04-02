@@ -1,7 +1,6 @@
 "use client";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
 import ViewUserDetail from "@/components/user/ViewUserDetail";
@@ -42,14 +41,7 @@ const page = ({ params }: any) => {
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 flex flex-col h-[91dvh]  py-5 px-14 ">
-          {loading ? (
-            <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
-              <CircularProgress />
-              <span className="mt-2">Loading record...</span>
-            </div>
-          ) : (
-            <ViewUserDetail userRecord={userRecord} />
-          )}
+          <ViewUserDetail userRecord={userRecord} loading={loading} />
         </div>
       </div>
     </div>

@@ -36,6 +36,8 @@ dayjs.extend(weekOfYear);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+const timeZone = "Asia/Kathmandu";
+
 const ManageClass = ({ selectedDate }: any) => {
   // console.log("selectedDate in manage class", selectedDate);
 
@@ -233,8 +235,10 @@ const ManageClass = ({ selectedDate }: any) => {
         </Button>
       </div>
       <p className="mb-2">
-        {dayjs(selectedDate).format("MMMM D, YYYY, dddd")}
-        <span className="ml-4">#Week{dayjs(selectedDate).week()}</span>
+        {dayjs().tz(timeZone).startOf("day").format("MMMM D, YYYY - dddd")}
+        <span className="ml-4">
+          #Week{dayjs().tz(timeZone).startOf("day").week()}
+        </span>
       </p>
       <div className=" flex justify-between gap-2 mb-2">
         <div className="buttons flex gap-2 items-center">

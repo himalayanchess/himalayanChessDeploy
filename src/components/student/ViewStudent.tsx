@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import Link from "next/link";
 import { Button, Divider } from "@mui/material";
 import { useSession } from "next-auth/react";
+import StudentAttendance from "./StudentAttendance";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -16,9 +17,9 @@ const ViewStudent = ({ studentRecord }: any) => {
 
   const [studentBatches, setstudentBatches] = useState([]);
   const [studentEnrolledCourses, setstudentEnrolledCourses] = useState([]);
-  const [selectedBatchStatus, setselectedBatchStatus] = useState("Active");
+  const [selectedBatchStatus, setselectedBatchStatus] = useState("All");
   const [selectedEnrolledCourseStatus, setselectedEnrolledCourseStatus] =
-    useState("Active");
+    useState("All");
 
   // fitler student batches
   useEffect(() => {
@@ -142,7 +143,32 @@ const ViewStudent = ({ studentRecord }: any) => {
 
           {/* chess info */}
           <div className="chessinfo col-span-3">
-            <p className="font-bold mb-2">Chess Info</p>
+            <p className="font-bold mb-2">Guardian Information</p>
+            <div className="details grid grid-cols-3">
+              <div>
+                <p className="font-bold text-xs text-gray-500">
+                  Guardian name:
+                </p>
+                <p>{studentRecord?.guardianInfo?.name || "N/A"}</p>
+              </div>
+              <div>
+                <p className="font-bold text-xs text-gray-500">
+                  Guardian phone:
+                </p>
+                <p>{studentRecord?.guardianInfo?.phone || "N/A"}</p>
+              </div>
+              <div>
+                <p className="font-bold text-xs text-gray-500">
+                  Guardian email:
+                </p>
+                <p>{studentRecord?.guardianInfo?.email || "N/A"}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Guardian info */}
+          <div className="chessinfo col-span-3">
+            <p className="font-bold mb-2">Chess Information</p>
             <div className="details grid grid-cols-3">
               <div>
                 <p className="font-bold text-xs text-gray-500">Title:</p>
@@ -193,6 +219,16 @@ const ViewStudent = ({ studentRecord }: any) => {
             <div className="buttons mt-2 flex gap-4">
               <Button
                 variant={`${
+                  selectedBatchStatus?.toLowerCase() == "all"
+                    ? "contained"
+                    : "outlined"
+                }`}
+                onClick={() => setselectedBatchStatus("all")}
+              >
+                All
+              </Button>
+              <Button
+                variant={`${
                   selectedBatchStatus?.toLowerCase() == "active"
                     ? "contained"
                     : "outlined"
@@ -211,6 +247,10 @@ const ViewStudent = ({ studentRecord }: any) => {
               >
                 Completed
               </Button>
+
+              <span className="px-3 text-white flex items-center justify-center bg-gray-400 rounded-md">
+                {studentBatches?.length} of {studentRecord?.batches?.length}
+              </span>
             </div>
 
             {/* batchlist */}
@@ -263,6 +303,16 @@ const ViewStudent = ({ studentRecord }: any) => {
             <div className="buttons mt-2 flex gap-4">
               <Button
                 variant={`${
+                  selectedEnrolledCourseStatus?.toLowerCase() == "all"
+                    ? "contained"
+                    : "outlined"
+                }`}
+                onClick={() => setselectedEnrolledCourseStatus("all")}
+              >
+                All
+              </Button>
+              <Button
+                variant={`${
                   selectedEnrolledCourseStatus?.toLowerCase() == "active"
                     ? "contained"
                     : "outlined"
@@ -281,6 +331,11 @@ const ViewStudent = ({ studentRecord }: any) => {
               >
                 Completed
               </Button>
+
+              <span className="px-3 text-white flex items-center justify-center bg-gray-400 rounded-md">
+                {studentEnrolledCourses?.length} of{" "}
+                {studentRecord?.enrolledCourses?.length}
+              </span>
             </div>
 
             {/* batchlist */}
@@ -324,6 +379,11 @@ const ViewStudent = ({ studentRecord }: any) => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* attendance */}
+        <div className="attendance-container w-[25%] mr-7 flex flex-col gap-2">
+          <StudentAttendance studentRecord={studentRecord} />
         </div>
       </div>
     </div>

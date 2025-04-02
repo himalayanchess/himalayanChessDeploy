@@ -133,7 +133,7 @@ const BatchComponent = ({ role = "" }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700">Batch List</h2>{" "}
+      <h2 className="text-3xl mb-2 font-medium text-gray-700">Batch List</h2>
       {/* title and Dropdown */}
       <div className="batches-header my-0 flex items-end justify-between">
         <div className="dropdowns flex gap-4 items-end">

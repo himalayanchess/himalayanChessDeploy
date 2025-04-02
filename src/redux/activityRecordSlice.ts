@@ -47,9 +47,10 @@ const activityRecordSlice = createSlice({
         );
 
         // set all (active) assigned classes
-        state.allActiveActivityRecords = action.payload?.filter(
-          (activityRecord: any) => activityRecord?.activeStatus === true
-        );
+        //commented
+        // state.allActiveActivityRecords = action.payload?.filter(
+        //   (activityRecord: any) => activityRecord?.activeStatus === true
+        // );
 
         const sortedActivityRecords = action.payload
           ?.filter((activityRecord: any) => activityRecord.activeStatus)
