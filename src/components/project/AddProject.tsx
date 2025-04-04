@@ -85,7 +85,15 @@ const AddProject = () => {
       mapLocation: "",
       // contractPaper in onSubmit function
       contractDriveLink: "",
-      assignedTrainers: [{ trainerId: "", trainerName: "", trainerRole: "" }],
+      assignedTrainers: [
+        {
+          trainerId: "",
+          trainerName: "",
+          startDate: "",
+          endDate: "",
+          trainerRole: "",
+        },
+      ],
       timeSlots: [{ day: "", fromTime: "", toTime: "" }],
     },
   });
@@ -128,7 +136,13 @@ const AddProject = () => {
   });
   // Function to add a new course
   const addAssignedTrainer = () => {
-    appendAssignedTrainer({ trainerId: "", trainerName: "", trainerRole: "" });
+    appendAssignedTrainer({
+      trainerId: "",
+      trainerName: "",
+      startDate: "",
+      endDate: "",
+      trainerRole: "",
+    });
   };
 
   // Watch enrolledCourses for validation
@@ -586,6 +600,52 @@ const AddProject = () => {
                     />
                   )}
                 />
+
+                {/* Trainer start date */}
+                <Controller
+                  name={`assignedTrainers.${index}.startDate`}
+                  control={control}
+                  rules={{
+                    required: "Start date is required",
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      label="Start Date"
+                      type="date"
+                      required
+                      error={errors?.assignedTrainers?.[index]?.startDate}
+                      helperText={
+                        errors?.assignedTrainers?.[index]?.startDate?.message
+                      }
+                    />
+                  )}
+                />
+
+                {/* Trainer end date */}
+                <Controller
+                  name={`assignedTrainers.${index}.endDate`}
+                  control={control}
+                  rules={
+                    {
+                      // required: "End date is required",
+                    }
+                  }
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      label="End Date"
+                      type="date"
+                      error={errors?.assignedTrainers?.[index]?.endDate}
+                      helperText={
+                        errors?.assignedTrainers?.[index]?.endDate?.message
+                      }
+                    />
+                  )}
+                />
+
                 {/* trainer role Selection */}
                 <Controller
                   name={`assignedTrainers.${index}.trainerRole`}

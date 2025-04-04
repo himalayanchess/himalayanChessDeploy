@@ -113,7 +113,15 @@ const UpdateProject = ({ projectRecord }: any) => {
       address: "",
       mapLocation: "",
       contractDriveLink: "",
-      assignedTrainers: [{ trainerId: "", trainerName: "", trainerRole: "" }],
+      assignedTrainers: [
+        {
+          trainerId: "",
+          trainerName: "",
+          startDate: "",
+          endDate: "",
+          trainerRole: "",
+        },
+      ],
       timeSlots: [{ day: "", fromTime: "", toTime: "" }],
     },
   });
@@ -158,6 +166,8 @@ const UpdateProject = ({ projectRecord }: any) => {
     appendTrainer({
       trainerId: "",
       trainerName: "",
+      startDate: "",
+      endDate: "",
       trainerRole: "",
     });
   };
@@ -171,7 +181,7 @@ const UpdateProject = ({ projectRecord }: any) => {
   };
 
   // handle update file change
-  const handleUpadteFileChange = (e: any) => {
+  const handleUpdateFileChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
       setupdatedcontractFile(file);
@@ -598,7 +608,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                   </label>
                   <input
                     accept="application/pdf,image/*" // allow pdf and image
-                    onChange={handleUpadteFileChange}
+                    onChange={handleUpdateFileChange}
                     type="file"
                     id="contractInput"
                     name="contractInput"
@@ -641,7 +651,7 @@ const UpdateProject = ({ projectRecord }: any) => {
           ) : (
             trainerFields.map((trainer, index) => (
               <div key={trainer.id} className="col-span-2 mb-2">
-                <div className="grid grid-cols-3 items-center place-items-start gap-4">
+                <div className="grid grid-cols-5 items-center place-items-start gap-4">
                   {/* Trainer Name */}
                   <Controller
                     name={`assignedTrainers.${index}.trainerName`}
@@ -674,6 +684,51 @@ const UpdateProject = ({ projectRecord }: any) => {
                         helperText={
                           errors?.assignedTrainers?.[index]?.trainerName
                             ?.message
+                        }
+                      />
+                    )}
+                  />
+
+                  {/* Trainer start date */}
+                  <Controller
+                    name={`assignedTrainers.${index}.startDate`}
+                    control={control}
+                    rules={{
+                      required: "Start date is required",
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        label="Start Date"
+                        type="date"
+                        required
+                        error={errors?.assignedTrainers?.[index]?.startDate}
+                        helperText={
+                          errors?.assignedTrainers?.[index]?.startDate?.message
+                        }
+                      />
+                    )}
+                  />
+
+                  {/* Trainer end date */}
+                  <Controller
+                    name={`assignedTrainers.${index}.endDate`}
+                    control={control}
+                    rules={
+                      {
+                        // required: "End date is required",
+                      }
+                    }
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        label="End Date"
+                        type="date"
+                        error={errors?.assignedTrainers?.[index]?.endDate}
+                        helperText={
+                          errors?.assignedTrainers?.[index]?.endDate?.message
                         }
                       />
                     )}
@@ -736,7 +791,7 @@ const UpdateProject = ({ projectRecord }: any) => {
           ) : (
             timeSlotFields.map((timeSlot, index) => (
               <div key={timeSlot.id} className="col-span-2 mb-2">
-                <div className="grid grid-cols-4 items-center place-items-start gap-4">
+                <div className="grid grid-cols-5 items-center place-items-start gap-4">
                   {/* Day */}
                   <Controller
                     name={`timeSlots.${index}.day`}
@@ -779,6 +834,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                         onChange={(value) => {
                           field.onChange(value);
                         }}
+                        required
                         width="full"
                         error={errors?.timeSlots?.[index]?.fromTime}
                         helperText={
@@ -807,6 +863,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                           field.onChange(value);
                           // trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                         }}
+                        required
                         width="full"
                         error={errors?.timeSlots?.[index]?.toTime}
                         helperText={errors?.timeSlots?.[index]?.toTime?.message}

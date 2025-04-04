@@ -27,6 +27,8 @@ const ProjectSchema = new mongoose.Schema(
       {
         trainerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         trainerName: { type: String },
+        startDate: { type: Date },
+        endDate: { type: Date },
         trainerRole: { type: String, enum: ["Primary", "Secondary"] }, // Track trainer type
       },
     ],

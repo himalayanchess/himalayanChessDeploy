@@ -17,30 +17,28 @@ import { useSession } from "next-auth/react";
 import { Box, Button, Divider, Modal, Pagination, Stack } from "@mui/material";
 import * as XLSX from "xlsx";
 import { exportTrainerActivityRecordsToExcel } from "@/helpers/exportToExcel/exportTrainerActivityRecordsToExcel";
+import { fetchAllActivityRecords } from "@/redux/activityRecordSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const UserActivityRecords = ({ userRecord }: any) => {
+const ProjectActivityRecords = ({ projectRecord }: any) => {
   // Redux hooks
   const dispatch = useDispatch<any>();
 
   // Selectors
-  const {
-    allActiveTrainersActivityRecords,
-    allTrainersActivityRecordsLoading,
-  } = useSelector((state: any) => state.trainerHistoryReducer);
-  const { allActiveProjects, allActiveBatches } = useSelector(
+
+  const { allActiveActivityRecords, allActivityRecordsLoading } = useSelector(
+    (state: any) => state.activityRecordReducer
+  );
+  const { allActiveBatches } = useSelector(
     (state: any) => state.allListReducer
   );
 
   // session
   const session = useSession();
-
-  // Options
-  const affilatedToOptions = ["All", "HCA", "School"];
 
   // Default values
   const defaultMonth = dayjs().tz(timeZone).format("YYYY-MM");
@@ -52,8 +50,6 @@ const UserActivityRecords = ({ userRecord }: any) => {
 
   // State variables
   const [loaded, setloaded] = useState(false);
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
-  const [selectedProject, setselectedProject] = useState("All");
   const [selectedBatch, setselectedBatch] = useState("All");
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [selectedMonth, setselectedMonth] = useState(defaultMonth);
@@ -84,37 +80,24 @@ const UserActivityRecords = ({ userRecord }: any) => {
 
   // Fetch initial data
   useEffect(() => {
-    if (userRecord) {
+    if (projectRecord) {
       setloaded(true);
-      dispatch(fetchAllTrainersActivityRecords({ trainerId: userRecord?._id }));
+      dispatch(
+        fetchAllTrainersActivityRecords({ trainerId: projectRecord?._id })
+      );
       dispatch(fetchAllBatches());
+      dispatch(fetchAllActivityRecords());
     }
-  }, [userRecord]);
+  }, [projectRecord]);
 
-  // Filter batches based on "Affiliated To" and "Project"
+  // Filter batches based on  projectId
   useEffect(() => {
-    let tempFilteredBatches = allActiveBatches.slice();
-
-    if (selectedAffiliatedTo.toLowerCase() !== "all") {
-      tempFilteredBatches = tempFilteredBatches.filter(
-        (batch) =>
-          batch?.affiliatedTo.toLowerCase() ===
-          selectedAffiliatedTo.toLowerCase()
-      );
-    }
-
-    if (
-      selectedAffiliatedTo.toLowerCase() === "school" &&
-      selectedProject.toLowerCase() !== "all"
-    ) {
-      tempFilteredBatches = tempFilteredBatches.filter(
-        (batch) =>
-          batch?.projectName?.toLowerCase() === selectedProject?.toLowerCase()
-      );
-    }
+    let tempFilteredBatches = allActiveBatches
+      .slice()
+      .filter((batch) => batch?.projectId == projectRecord?._id);
 
     setFilteredBatches(tempFilteredBatches || []);
-  }, [selectedAffiliatedTo, allActiveBatches, selectedProject]);
+  }, [projectRecord, allActiveBatches]);
 
   // Reset start and end date when toggling advanced date selection
   useEffect(() => {
@@ -124,21 +107,12 @@ const UserActivityRecords = ({ userRecord }: any) => {
     }
   }, [useAdvancedDate]);
 
-  // Filter records whenever any filter changes
   useEffect(() => {
-    if (!allActiveTrainersActivityRecords) return;
+    if (!allActiveActivityRecords || !projectRecord) return;
 
-    const filtered = allActiveTrainersActivityRecords.filter((record) => {
-      // Filter by "Affiliated To"
-      if (
-        selectedAffiliatedTo !== "All" &&
-        record.affiliatedTo !== selectedAffiliatedTo
-      ) {
-        return false;
-      }
-
-      // Filter by "Project"
-      if (selectedProject !== "All" && record.projectName !== selectedProject) {
+    const filtered = allActiveActivityRecords.filter((record) => {
+      // First, filter by projectId
+      if (record.projectId !== projectRecord._id) {
         return false;
       }
 
@@ -164,14 +138,13 @@ const UserActivityRecords = ({ userRecord }: any) => {
     setFilteredRecords(filtered);
     setfilteredRecordCount(filtered?.length);
   }, [
-    allActiveTrainersActivityRecords,
-    selectedAffiliatedTo,
-    selectedProject,
+    allActiveActivityRecords,
     selectedBatch,
     useAdvancedDate,
     startDate,
     endDate,
     selectedMonth,
+    projectRecord,
   ]);
 
   // Calculate showing text
@@ -180,7 +153,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
   const showingText = `Showing ${startItem}-${endItem} of ${filteredRecordCount}`;
 
   const exportToExcel = () => {
-    exportTrainerActivityRecordsToExcel(filteredRecords, userRecord?.name);
+    exportTrainerActivityRecordsToExcel(filteredRecords, projectRecord?.name);
   };
 
   if (!loaded) return <div></div>;
@@ -190,27 +163,6 @@ const UserActivityRecords = ({ userRecord }: any) => {
       <div className="header w-full">
         {/* Top Filters */}
         <div className="topheader w-full grid grid-cols-4 gap-3 mt-3">
-          <Dropdown
-            label="Affiliated to"
-            options={affilatedToOptions}
-            width="full"
-            selected={selectedAffiliatedTo}
-            onChange={(value) => {
-              setselectedAffiliatedTo(value);
-              setselectedProject("All");
-            }}
-          />
-          <Dropdown
-            label="Project"
-            width="full"
-            options={[
-              "All",
-              ...(allActiveProjects?.map((project) => project.name) || []),
-            ]}
-            disabled={selectedAffiliatedTo.toLowerCase() !== "school"}
-            selected={selectedProject}
-            onChange={setselectedProject}
-          />
           <Dropdown
             label="Batch"
             width="full"
@@ -306,9 +258,10 @@ const UserActivityRecords = ({ userRecord }: any) => {
           </span>
         </div>
 
+        {/* record list */}
         <div className="table-contents flex-1 grid grid-cols-1 grid-rows-7">
           {/* loading */}
-          {allTrainersActivityRecordsLoading && (
+          {allActivityRecordsLoading && (
             <div className="bg-white rounded-md  flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
               <CircularProgress />
               <span className="mt-2">Loading records...</span>
@@ -316,16 +269,15 @@ const UserActivityRecords = ({ userRecord }: any) => {
           )}
 
           {/* no records */}
-          {!allTrainersActivityRecordsLoading &&
-            filteredRecords?.length == 0 && (
-              <p className="w-full py-4 flex items-center justify-center">
-                <BrowserNotSupportedIcon />
-                <span className="ml-2">No records found</span>
-              </p>
-            )}
+          {!allActivityRecordsLoading && filteredRecords?.length == 0 && (
+            <p className="w-full py-4 flex items-center justify-center">
+              <BrowserNotSupportedIcon />
+              <span className="ml-2">No records found</span>
+            </p>
+          )}
 
           {/* record list */}
-          {!allTrainersActivityRecordsLoading &&
+          {!allActivityRecordsLoading &&
             filteredRecords?.length > 0 &&
             filteredRecords
               .slice(
@@ -450,4 +402,4 @@ const UserActivityRecords = ({ userRecord }: any) => {
   );
 };
 
-export default UserActivityRecords;
+export default ProjectActivityRecords;

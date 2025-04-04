@@ -24,13 +24,6 @@ const timeZone = "Asia/Kathmandu";
 const ViewUserDetail = ({ userRecord, loading }: any) => {
   const dispatch = useDispatch<any>();
   const session = useSession();
-  // use selector
-  const { allActiveTrainersActivityRecords } = useSelector(
-    (state: any) => state.trainerHistoryReducer
-  );
-  const { allActiveProjects } = useSelector(
-    (state: any) => state.allListReducer
-  );
 
   const menuItems = [
     { label: "Basic Information", value: "basic" },
@@ -94,7 +87,7 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
           <span className="mt-2">Loading user details ...</span>
         </div>
       ) : (
-        <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-10 py-4 flex flex-col">
+        <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
           <div className="header flex items-center justify-start gap-7 ">
             <h1 className="text-2xl font-bold">User Record Detail</h1>
 

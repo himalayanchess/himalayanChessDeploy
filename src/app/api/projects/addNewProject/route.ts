@@ -17,17 +17,36 @@ export async function POST(req: NextRequest) {
     await dbconnect();
     const timeZone = "Asia/Kathmandu";
     const reqBody = await req.json();
-    console.log(reqBody);
+
+    // Convert start and end date of the project
     const utcStartDate = reqBody?.startDate
-      ? dayjs(reqBody?.startDate).tz(timeZone).startOf("day").utc()
-      : "";
+      ? dayjs(reqBody?.startDate).tz(timeZone).startOf("day").utc().toDate()
+      : null;
+
     const utcEndDate = reqBody?.endDate
-      ? dayjs(reqBody?.endDate).tz(timeZone).startOf("day").utc()
-      : "";
-    console.log(
-      "after converting startdate and enddate to utc",
-      utcStartDate,
-      utcEndDate
+      ? dayjs(reqBody?.endDate).tz(timeZone).startOf("day").utc().toDate()
+      : null;
+
+    // Convert startDate and endDate for assigned trainers
+    const updatedAssignedTrainers = reqBody.assignedTrainers?.map(
+      (trainer: any) => {
+        const updatedTrainer = { ...trainer };
+        if (trainer.startDate) {
+          updatedTrainer.startDate = dayjs(trainer.startDate)
+            .tz(timeZone)
+            .startOf("day")
+            .utc()
+            .toDate();
+        }
+        if (trainer.endDate) {
+          updatedTrainer.endDate = dayjs(trainer.endDate)
+            .tz(timeZone)
+            .startOf("day")
+            .utc()
+            .toDate();
+        }
+        return updatedTrainer;
+      }
     );
 
     const projectExists = await Project.findOne({
@@ -39,13 +58,16 @@ export async function POST(req: NextRequest) {
         statusCode: 204,
       });
     }
+
     const newProject = new Project({
       ...reqBody,
       startDate: utcStartDate,
       endDate: utcEndDate,
+      assignedTrainers: updatedAssignedTrainers,
     });
+
     const savednewProject = await newProject.save();
-    // new user added success
+
     if (savednewProject) {
       return NextResponse.json({
         statusCode: 200,
@@ -53,13 +75,13 @@ export async function POST(req: NextRequest) {
         savednewProject,
       });
     }
-    // user add fail
+
     return NextResponse.json({
       statusCode: 204,
       msg: "Failed to add new project",
     });
   } catch (error) {
-    console.log("Internal error in addnewProject route", error);
+    console.log("Internal error in addNewProject route", error);
 
     return NextResponse.json({
       statusCode: 204,

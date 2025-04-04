@@ -14,7 +14,7 @@ const page = ({ params }: any) => {
 
   const [loading, setLoading] = useState(true);
   const [activityRecord, setactivityRecord] = useState<any>(null);
-  console.log("ac record", activityRecord);
+  console.log("ac record", JSON.stringify(activityRecord));
 
   async function getActivityRecord() {
     try {
