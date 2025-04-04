@@ -55,7 +55,12 @@ const ActivityRecordSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       ref: "Course",
     },
-    mainStudyTopic: { type: String },
+    trainerRole: {
+      type: String,
+      enum: ["Primary", "Substitute"],
+      default: "Primary",
+    },
+    mainStudyTopic: { type: String, default: "" },
     holidayStatus: { type: Boolean },
     holidayDescription: { type: String },
     assignedByName: { type: String },

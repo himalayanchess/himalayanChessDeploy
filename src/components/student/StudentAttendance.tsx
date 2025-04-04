@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
 import {
   BarChart,
   Bar,
@@ -10,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +38,9 @@ const StudentAttendance = ({ studentRecord }: { studentRecord: any }) => {
   );
 
   const [dailyAttendance, setDailyAttendance] = useState<AttendanceDay[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().format("YYYY-MM"));
+  const [selectedMonth, setSelectedMonth] = useState(
+    dayjs().tz(timeZone).format("YYYY-MM")
+  );
   const [attendanceData, setAttendanceData] = useState<AttendanceData[]>([]);
 
   // Generate the calendar grid for the selected month

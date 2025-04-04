@@ -25,7 +25,7 @@ const Input = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full ">
       <label htmlFor={label} className="text-sm flex justify-between">
         <div className="label-icon flex justify-between">
           <span>

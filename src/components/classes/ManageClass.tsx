@@ -84,6 +84,7 @@ const ManageClass = ({ selectedDate }: any) => {
       batchId: "",
       startTime: "",
       endTime: "",
+      trainerRole: "Primary",
       // holiday status from state variable
 
       holidayDescription: "",
@@ -171,7 +172,7 @@ const ManageClass = ({ selectedDate }: any) => {
     }
   }, [batchId, allActiveStudentsList]);
 
-  // Filter batches based on affiliatedTo
+  // Filter batches based on affiliatedTo and projectId
   useEffect(() => {
     let tempFilteredBatches;
     if (affiliatedTo.toLowerCase() === "hca") {
@@ -386,7 +387,7 @@ const ManageClass = ({ selectedDate }: any) => {
       {/* Dropdowns */}
       <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
         {/* Project Name (only shown for School) */}
-        {affiliatedTo === "School" && (
+        {affiliatedTo?.toLowerCase() === "school" && (
           <Controller
             name="projectName"
             control={control}
@@ -485,6 +486,27 @@ const ManageClass = ({ selectedDate }: any) => {
               }}
               error={errors.trainerName}
               helperText={errors.trainerName?.message}
+              width="full"
+              required
+            />
+          )}
+        />
+
+        {/* trainer role */}
+        <Controller
+          name="trainerRole"
+          control={control}
+          rules={{ required: "Trainer role is required" }}
+          render={({ field }) => (
+            <Dropdown
+              label="Trainer Role"
+              options={["Primary", "Substitute"]}
+              selected={field.value}
+              onChange={(value) => {
+                field.onChange(value);
+              }}
+              error={errors.trainerRole}
+              helperText={errors.trainerRole?.message}
               width="full"
               required
             />

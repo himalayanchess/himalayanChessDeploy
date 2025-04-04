@@ -175,18 +175,24 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
 
         {/* Dropdowns */}
         <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
-          <div className="col-span-2">
+          <div className="col-span-2 ">
+            <Input
+              label="Course"
+              value={assignedClass?.courseName || "HCA"}
+              onChange={() => {}}
+              disabled
+            />
+          </div>
+          <div className="col-span-2 mb-2 grid grid-cols-2 gap-3">
             <Input
               label="Project"
               value={assignedClass?.projectName || "HCA"}
               onChange={() => {}}
               disabled
             />
-          </div>
-          <div className="col-span-2 mb-2">
             <Input
-              label="Course"
-              value={assignedClass?.courseName || "HCA"}
+              label="Trainer role"
+              value={assignedClass?.trainerRole || "N/A"}
               onChange={() => {}}
               disabled
             />

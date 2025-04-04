@@ -27,6 +27,8 @@ const activityRecordSlice = createSlice({
     allActivityRecordsLoading: true,
     status: "idle", // "idle" | "loading" | "succeeded" | "failed"
     error: null,
+
+    // trainers activity recordss
   },
   reducers: {
     filterActivityRecords: (state, action) => {

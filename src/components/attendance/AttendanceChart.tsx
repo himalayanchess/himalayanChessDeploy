@@ -84,7 +84,7 @@ const AttendanceChart = ({ allUsersLoading }: any) => {
                 <CartesianGrid strokeDasharray="3 3" />
 
                 <XAxis dataKey="name" />
-                <YAxis />
+                {/* <YAxis /> */}
                 <Tooltip />
                 {/* <Legend
                   wrapperStyle={{ fontSize: "12px" }} // Set font size of the legend text
@@ -92,20 +92,20 @@ const AttendanceChart = ({ allUsersLoading }: any) => {
                 {/* <Bar dataKey="total" fill="#EF9651" name="Total" barSize={35} /> */}
                 <Bar
                   dataKey="present"
-                  fill="#4CAF50"
+                  fill="#9ce09b"
                   name="Present"
                   barSize={40}
                 />
                 <Bar
                   dataKey="absent"
-                  fill="#d32f2f"
+                  fill="#f07878"
                   name="Absent"
                   barSize={40}
                 />
-                <Bar dataKey="leave" fill="#2196F3" name="Leave" barSize={40} />
+                <Bar dataKey="leave" fill="#8492e0" name="Leave" barSize={40} />
                 <Bar
                   dataKey="holiday"
-                  fill="#9C27B0"
+                  fill="#af7cde"
                   name="Holiday"
                   barSize={40}
                 />

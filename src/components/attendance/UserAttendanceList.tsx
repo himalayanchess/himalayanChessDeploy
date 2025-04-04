@@ -34,12 +34,7 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
-  // dispatch
   const dispatch = useDispatch<any>();
-  // selector
-  // const { attendanceChartData } = useSelector(
-  //   (state: any) => state.attendanceReducer
-  // );
   const session = useSession();
 
   const { control, handleSubmit, watch, reset } = useForm({
@@ -54,130 +49,135 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   });
 
   // state vars
-
-  const [userListLoaded, setuserListLoaded] = useState(false);
-  const [attendanceStatusChanged, setattendanceStatusChanged] = useState(false);
   const [saveAttendanceLoading, setsaveAttendanceLoading] = useState(false);
-  // confirm modal
+  const [attendanceStateChanged, setattendanceStateChanged] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
-
-  // handleconfirmModalOpen
-  function handleconfirmModalOpen() {
-    setconfirmModalOpen(true);
-  }
-  // handleconfirmModalClose
-  function handleconfirmModalClose() {
-    setconfirmModalOpen(false);
-  }
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Watch attendance data for real-time updates
   const userAttendance = watch("userAttendance");
 
   // Calculate chart data
   useEffect(() => {
-    const chartData = [
-      {
-        name: "Attendance",
-        present:
-          userAttendance?.filter((a) => a.status === "present").length || 0,
-        absent:
-          userAttendance?.filter((a) => a.status === "absent").length || 0,
-        leave: userAttendance?.filter((a) => a.status === "leave").length || 0,
-        holiday:
-          userAttendance?.filter((a) => a.status === "holiday").length || 0,
-        total: userAttendance?.length || 0,
-      },
-    ];
-
-    dispatch(updateAttendanceChartData(chartData));
-  }, [attendanceStatusChanged, userAttendance]);
-
-  // Reset form when users load
-  useEffect(() => {
-    if (allActiveUsersList && !userListLoaded) {
-      setuserListLoaded(false);
-
-      // First, replace with default values (initial load)
-      replace(
-        allActiveUsersList.map((user) => ({
-          userId: user._id,
-          userName: user.name,
-          userRole: user.role,
-          status: "absent",
-        }))
-      );
-
-      setuserListLoaded(true);
-    }
-  }, [allActiveUsersList, replace]);
-
-  // submit function
-  async function onSubmit(data: any) {
-    setsaveAttendanceLoading(true);
-    const { data: resData } = await axios.post(
-      "/api/attendance/addOrUpdateAttendance",
-      {
-        userAttendance,
-        updatedByUser: {
-          userId: session?.data?.user?._id,
-          userRole: session?.data?.user?.role,
-          userName: session?.data?.user?.name,
-          updatedAt: dayjs().tz(timeZone).utc(),
+    if (initialLoadComplete) {
+      const chartData = [
+        {
+          name: "Attendance",
+          present:
+            userAttendance?.filter((a) => a.status === "present").length || 0,
+          absent:
+            userAttendance?.filter((a) => a.status === "absent").length || 0,
+          leave:
+            userAttendance?.filter((a) => a.status === "leave").length || 0,
+          holiday:
+            userAttendance?.filter((a) => a.status === "holiday").length || 0,
+          total: userAttendance?.length || 0,
         },
-      }
-    );
-    if (resData?.statusCode == 200) {
-      handleconfirmModalClose();
-      // update updatedby reducer state
-      dispatch(
-        setattendanceUpdatedByData({
-          userId: session?.data?.user?._id,
-          userRole: session?.data?.user?.role,
-          userName: session?.data?.user?.name,
-          updatedAt: dayjs().tz(timeZone).utc().format(),
-        })
-      );
+      ];
+
+      dispatch(updateAttendanceChartData(chartData));
     }
+  }, [userAttendance, initialLoadComplete, attendanceStateChanged]);
 
-    notify(resData?.msg, resData?.statusCode);
-    setsaveAttendanceLoading(false);
-  }
-
-  async function checkForTodaysAttendance() {
-    const { data: resData } = await axios.get(
-      "/api/attendance/checkForTodaysAttendance"
-    );
-    if (resData?.statusCode == 200) {
-      replace(
-        resData?.attendanceRecord?.userAttendance?.map((user) => ({
-          userId: user.userId,
-          userName: user.userName,
-          userRole: user.userRole,
-          status: user.status,
-        }))
-      );
-      dispatch(
-        setattendanceUpdatedByData(
-          resData?.attendanceRecord?.updatedBy[
-            resData?.attendanceRecord?.updatedBy?.length - 1
-          ]
-        )
-      );
-    }
-  }
-
-  // get initial todays attendance
-  // for showing persistant data
+  // Set default values when users load
   useEffect(() => {
-    if (userListLoaded) {
-      // Ensure this is awaited properly before modifying the state
+    if (
+      allActiveUsersList &&
+      allActiveUsersList.length > 0 &&
+      !initialLoadComplete
+    ) {
+      // Set default values (all absent)
+      const defaultAttendance = allActiveUsersList.map((user) => ({
+        userId: user._id,
+        userName: user.name,
+        userRole: user.role,
+        status: "absent",
+      }));
+
+      replace(defaultAttendance);
+      setInitialLoadComplete(true);
+
+      // Then check for today's attendance
       checkForTodaysAttendance();
     }
-  }, [userListLoaded]);
+  }, [allActiveUsersList, initialLoadComplete]);
 
-  if (!userListLoaded) return <div></div>;
+  async function checkForTodaysAttendance() {
+    try {
+      const { data: resData } = await axios.get(
+        "/api/attendance/checkForTodaysAttendance"
+      );
 
-  if (allUsersLoading) {
+      if (resData?.statusCode === 200 && resData?.attendanceRecord) {
+        replace(
+          resData.attendanceRecord.userAttendance.map((user) => ({
+            userId: user.userId,
+            userName: user.userName,
+            userRole: user.userRole,
+            status: user.status,
+          }))
+        );
+
+        if (resData.attendanceRecord.updatedBy?.length > 0) {
+          dispatch(
+            setattendanceUpdatedByData(
+              resData.attendanceRecord.updatedBy[
+                resData.attendanceRecord.updatedBy.length - 1
+              ]
+            )
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error checking today's attendance:", error);
+    }
+  }
+
+  async function onSubmit(data: any) {
+    setsaveAttendanceLoading(true);
+    try {
+      const { data: resData } = await axios.post(
+        "/api/attendance/addOrUpdateAttendance",
+        {
+          userAttendance,
+          updatedByUser: {
+            userId: session?.data?.user?._id,
+            userRole: session?.data?.user?.role,
+            userName: session?.data?.user?.name,
+            updatedAt: dayjs().tz(timeZone).utc(),
+          },
+        }
+      );
+
+      if (resData?.statusCode === 200) {
+        handleconfirmModalClose();
+        dispatch(
+          setattendanceUpdatedByData({
+            userId: session?.data?.user?._id,
+            userRole: session?.data?.user?.role,
+            userName: session?.data?.user?.name,
+            updatedAt: dayjs().tz(timeZone).utc().format(),
+          })
+        );
+      }
+      notify(resData?.msg, resData?.statusCode);
+    } catch (error) {
+      console.error("Error saving attendance:", error);
+      notify("Failed to save attendance", 500);
+    } finally {
+      setsaveAttendanceLoading(false);
+    }
+  }
+
+  function handleconfirmModalOpen() {
+    setconfirmModalOpen(true);
+  }
+
+  function handleconfirmModalClose() {
+    setconfirmModalOpen(false);
+  }
+
+  if (allUsersLoading || !initialLoadComplete) {
     return (
       <div className="flex flex-col h-full bg-white p-5 rounded-md shadow-md">
         <Box
@@ -270,7 +270,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
                             }
                             onClick={() => {
                               field.onChange(status);
-                              setattendanceStatusChanged((prev) => !prev);
+                              setattendanceStateChanged((prev) => !prev);
                             }}
                             startIcon={
                               status === "present" ? (
@@ -304,6 +304,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
           ))}
         </div>
       </div>
+
       {/* submit button */}
       <Button
         onClick={handleconfirmModalOpen}
@@ -314,8 +315,9 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
         Save Attendance
       </Button>
 
-      {/* Hidden Submit Button (Inside Form) */}
+      {/* Hidden Submit Button */}
       <button type="submit" id="hiddenSubmit" hidden></button>
+
       {/* confirm modal */}
       <Modal
         open={confirmModalOpen}
