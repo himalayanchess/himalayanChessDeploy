@@ -68,7 +68,7 @@ const UserProjectsInformation = ({ userRecord }: any) => {
             Assigned Projects
           </h2>
 
-          {trainerProjects?.length === 0 && !allProjectsLoading  ? (
+          {trainerProjects?.length === 0 && !allProjectsLoading ? (
             <p className="text-gray-500">No assigned projects</p>
           ) : (
             <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">

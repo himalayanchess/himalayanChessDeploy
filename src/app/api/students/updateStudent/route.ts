@@ -3,14 +3,21 @@ import {
   getFinalUpdatedBatches,
   getFinalUpdatedEnrolledCourses,
 } from "@/helpers/updatestudent/finalUpdatedRecord";
-
 import HcaAffiliatedStudent from "@/models/HcaAffiliatedStudent";
 import NonAffiliatedStudent from "@/models/NonAffiliatedStudentModel";
 import User from "@/models/UserModel";
 import { NextRequest, NextResponse } from "next/server";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
 export async function POST(request: NextRequest) {
   try {
     await dbconnect();
+    const timeZone = "Asia/Kathmandu";
     const reqBody = await request.json();
     const {
       _id,
@@ -37,46 +44,71 @@ export async function POST(request: NextRequest) {
       emergencyContactNo,
     } = reqBody;
 
+    // Convert dates to UTC with timezone handling
+    const utcJoinedDate = joinedDate
+      ? dayjs(joinedDate).tz(timeZone).startOf("day").utc()
+      : null;
+    const utcEndDate = endDate
+      ? dayjs(endDate).tz(timeZone).startOf("day").utc()
+      : null;
+    const utcDob = dob ? dayjs(dob).tz(timeZone).startOf("day").utc() : null;
+
+    // Convert batches dates to UTC
+    const utcConvertedBatches = batches?.map((batch) => ({
+      ...batch,
+      startDate: dayjs(batch.startDate).tz(timeZone).startOf("day").utc(),
+      endDate: batch?.endDate
+        ? dayjs(batch.endDate).tz(timeZone).startOf("day").utc()
+        : null,
+    }));
+
+    // Convert enrolledCourses dates to UTC
+    const utcConvertedEnrolledCourses = enrolledCourses?.map((course) => ({
+      ...course,
+      startDate: dayjs(course.startDate).tz(timeZone).startOf("day").utc(),
+      endDate: course?.endDate
+        ? dayjs(course.endDate).tz(timeZone).startOf("day").utc()
+        : null,
+    }));
+
     // update HCA affiliated student
     if (affiliatedTo.toLowerCase() == "hca") {
       // check if another student with same name exists
       const existingStudent = await HcaAffiliatedStudent.findOne({
-        name: { $regex: `^${name}$`, $options: "i" }, // Case-insensitive search
-        _id: { $ne: _id }, // Exclude the current student
+        name: { $regex: `^${name}$`, $options: "i" },
+        _id: { $ne: _id },
       });
       if (existingStudent) {
         return NextResponse.json({
           msg: "Student already exists",
-          statusCode: 409, // Conflict status
+          statusCode: 409,
         });
       }
 
       const dbStudent = await HcaAffiliatedStudent.findOne({ _id });
 
-      // MAKE BATCHES activeStatus to false if deleted
+      // Update batches with proper date conversion
       let finalUpdatedBatches = getFinalUpdatedBatches(
         dbStudent?.batches,
-        batches
+        utcConvertedBatches
       );
 
-      // MAKE COURSES activeStatus to false if deleted
+      // Update enrolled courses with proper date conversion
       let finalUpdatedEnrolledCourses = getFinalUpdatedEnrolledCourses(
         dbStudent?.enrolledCourses,
-        enrolledCourses
+        utcConvertedEnrolledCourses
       );
 
       const updatedStudent = await HcaAffiliatedStudent.findOneAndUpdate(
-        {
-          _id,
-        },
+        { _id },
         {
           affiliatedTo,
           name,
-          dob,
+          dob: utcDob,
           gender,
           batches: finalUpdatedBatches,
-          joinedDate,
-          endDate,
+          joinedDate: utcJoinedDate,
+          endDate: utcEndDate,
           address,
           phone,
           completedStatus,
@@ -90,6 +122,7 @@ export async function POST(request: NextRequest) {
         },
         { new: true }
       );
+
       if (updatedStudent) {
         return NextResponse.json({
           msg: "Student updated",
@@ -102,40 +135,39 @@ export async function POST(request: NextRequest) {
         statusCode: 204,
       });
     }
-    // update Non  affiliated student
+
+    // update Non-affiliated student
     if (affiliatedTo.toLowerCase() == "school") {
       // check if another student with same name exists
       const existingStudent = await NonAffiliatedStudent.findOne({
-        name: { $regex: `^${name}$`, $options: "i" }, // Case-insensitive search
-        _id: { $ne: _id }, // Exclude the current student
+        name: { $regex: `^${name}$`, $options: "i" },
+        _id: { $ne: _id },
       });
       if (existingStudent) {
         return NextResponse.json({
           msg: "Student already exists",
-          statusCode: 409, // Conflict status
+          statusCode: 409,
         });
       }
 
       const dbStudent = await NonAffiliatedStudent.findOne({ _id });
 
-      // MAKE BATCHES activeStatus to false if deleted
+      // Update batches with proper date conversion
       let finalUpdatedBatches = getFinalUpdatedBatches(
         dbStudent?.batches,
-        batches
+        utcConvertedBatches
       );
 
       const updatedStudent = await NonAffiliatedStudent.findOneAndUpdate(
-        {
-          _id,
-        },
+        { _id },
         {
           affiliatedTo,
           name,
-          dob,
+          dob: utcDob,
           gender,
           batches: finalUpdatedBatches,
-          joinedDate,
-          endDate,
+          joinedDate: utcJoinedDate,
+          endDate: utcEndDate,
           projectId,
           projectName,
           completedStatus,
@@ -145,6 +177,7 @@ export async function POST(request: NextRequest) {
         },
         { new: true }
       );
+
       if (updatedStudent) {
         return NextResponse.json({
           msg: "Student updated",
@@ -157,6 +190,7 @@ export async function POST(request: NextRequest) {
         statusCode: 204,
       });
     }
+
     return NextResponse.json({
       msg: "Student update failed",
       statusCode: 204,
@@ -165,7 +199,7 @@ export async function POST(request: NextRequest) {
     console.log("Internal error in updateStudent route", error);
     return NextResponse.json({
       msg: "Internal error in updateStudent route",
-      statusCode: 204,
+      statusCode: 500,
       error,
     });
   }

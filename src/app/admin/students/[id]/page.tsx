@@ -10,32 +10,32 @@ import UpdateBatch from "@/components/batch/UpdateBatch";
 import ViewStudent from "@/components/student/ViewStudent";
 
 const page = ({ params }: any) => {
-  const { id: batchId }: any = use(params);
+  const { id: studentId }: any = use(params);
 
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
-  const [batchRecord, setbatchRecord] = useState<any>(null);
+  const [studentRecord, setstudentRecord] = useState<any>(null);
 
-  async function getbatchRecord() {
+  async function getstudentRecord() {
     try {
       setLoading(true);
-      const { data: resData } = await axios.post("/api/batches/getBatch", {
-        batchId,
+      const { data: resData } = await axios.post("/api/students/getStudent", {
+        studentId,
       });
-      setbatchRecord(resData.batchRecord);
+      setstudentRecord(resData.studentRecord);
 
       if (resData?.statusCode == 204) {
         setinvalidId(true);
       }
       setLoading(false);
     } catch (error) {
-      console.log("error in updatestudent : [id], getbatchRecord api", error);
+      console.log("error in updatestudent : [id], getstudentRecord api", error);
     }
   }
   // initial fecth of selected activity record
   useEffect(() => {
-    getbatchRecord();
-  }, [batchId]);
+    getstudentRecord();
+  }, [studentId]);
   return (
     <div>
       <Sidebar
@@ -55,7 +55,7 @@ const page = ({ params }: any) => {
           ) : invalidId ? (
             <p>Invalid student id</p>
           ) : (
-            <ViewStudent />
+            <ViewStudent studentRecord={studentRecord} loading={loading} />
           )}
         </div>
       </div>

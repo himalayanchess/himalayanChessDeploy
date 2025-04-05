@@ -30,11 +30,11 @@ const statusColors = {
 };
 
 interface UserAttendanceChartProps {
-  studentId: string;
+  userId: string;
 }
 
 const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
-  studentId = "",
+  userId = "",
 }) => {
   const dispatch = useDispatch<any>();
   const { allActiveAttedanceRecordsList, allAttedanceRecordsListLoading } =
@@ -50,9 +50,9 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
     dispatch(getAllAttendanceRecords());
   }, [dispatch]);
 
-  // Filter data when selected month or studentId changes
+  // Filter data when selected month or userId changes
   useEffect(() => {
-    if (allActiveAttedanceRecordsList.length === 0 || !studentId) {
+    if (allActiveAttedanceRecordsList.length === 0 || !userId) {
       setFilteredData([]);
       return;
     }
@@ -76,7 +76,7 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
       })
       .map((record) => {
         const studentAttendance = record.userAttendance?.find(
-          (ua: any) => ua.userId === studentId
+          (ua: any) => ua.userId === userId
         );
 
         return {
@@ -90,7 +90,7 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
       });
 
     setFilteredData(filtered);
-  }, [selectedMonth, allActiveAttedanceRecordsList, studentId]);
+  }, [selectedMonth, allActiveAttedanceRecordsList, userId]);
 
   // Generate the calendar grid with fixed 6 rows
   const generateCalendar = () => {

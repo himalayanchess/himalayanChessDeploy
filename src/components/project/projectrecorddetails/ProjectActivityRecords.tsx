@@ -233,7 +233,7 @@ const ProjectActivityRecords = ({ projectRecord }: any) => {
       </div>
 
       {/* Filtered Records Table */}
-      <div className="mt-2">
+      <div className="mt-2 border rounded-md">
         <div className="table-headings mb-2 grid gap-2 grid-cols-[70px,repeat(7,1fr)] w-full bg-gray-200">
           <span className="py-3 text-center text-sm font-bold text-gray-600">
             SN

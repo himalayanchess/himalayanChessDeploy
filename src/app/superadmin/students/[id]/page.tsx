@@ -55,7 +55,7 @@ const page = ({ params }: any) => {
           ) : invalidId ? (
             <p>Invalid student id</p>
           ) : (
-            <ViewStudent studentRecord={studentRecord} />
+            <ViewStudent studentRecord={studentRecord} loading={loading} />
           )}
         </div>
       </div>

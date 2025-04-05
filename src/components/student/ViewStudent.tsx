@@ -1,25 +1,74 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button, Divider } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+
 import { useSession } from "next-auth/react";
 import StudentAttendance from "./StudentAttendance";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import BasicStudentInfo from "./studentrecorddetails/BasicStudentInfo";
+import StudentBatchesInfo from "./studentrecorddetails/StudentBatchesInfo";
+import StudentCoursesInfo from "./studentrecorddetails/StudentCoursesInfo";
+import StudentTestHistory from "./studentrecorddetails/StudentTestHistory";
+import StudentActivityRecords from "./studentrecorddetails/StudentActivityRecords";
+import StudentPayment from "./studentrecorddetails/StudentPayment";
+import StudentEventInfo from "./studentrecorddetails/StudentEventInfo";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ViewStudent = ({ studentRecord }: any) => {
+const ViewStudent = ({ studentRecord, loading }: any) => {
   const session = useSession();
 
+  const [loaded, setLoaded] = useState(false);
   const [studentBatches, setstudentBatches] = useState([]);
   const [studentEnrolledCourses, setstudentEnrolledCourses] = useState([]);
   const [selectedBatchStatus, setselectedBatchStatus] = useState("All");
   const [selectedEnrolledCourseStatus, setselectedEnrolledCourseStatus] =
     useState("All");
+  const [selectedMenu, setSelectedMenu] = useState("basic");
+
+  const handleMenuClick = (menuValue: any) => {
+    setSelectedMenu(menuValue); // Update the selected menu
+  };
+
+  const menuItems = [
+    { label: "Basic Information", value: "basic" },
+    { label: "Batches", value: "batches" },
+    { label: "Enrolled Courses", value: "courses" },
+    { label: "Test History", value: "testhistory" },
+    { label: "Activity Records", value: "activity" },
+    { label: "Payment", value: "payment" },
+    { label: "Tournaments & Events", value: "events" },
+  ];
+
+  // show dynamic compnent
+  const showComponent = () => {
+    if (studentRecord) {
+      switch (selectedMenu) {
+        case "basic":
+          return <BasicStudentInfo studentRecord={studentRecord} />;
+        case "batches":
+          return <StudentBatchesInfo studentRecord={studentRecord} />;
+        case "courses":
+          return <StudentCoursesInfo studentRecord={studentRecord} />;
+        case "testhistory":
+          return <StudentTestHistory studentRecord={studentRecord} />;
+        case "activity":
+          return <StudentActivityRecords studentRecord={studentRecord} />;
+        case "payment":
+          return <StudentPayment studentRecord={studentRecord} />;
+        case "events":
+          return <StudentEventInfo studentRecord={studentRecord} />;
+        default:
+          return <BasicStudentInfo studentRecord={studentRecord} />;
+      }
+    }
+  };
 
   // fitler student batches
   useEffect(() => {
@@ -65,326 +114,65 @@ const ViewStudent = ({ studentRecord }: any) => {
     }
   }, [studentRecord, selectedEnrolledCourseStatus]);
 
+  // loaded
+  useEffect(() => {
+    if (studentRecord) {
+      setLoaded(true);
+    }
+  }, [studentRecord]);
+
+  if (!loaded)
+    return (
+      <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5"></div>
+    );
+
   return (
-    <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7">
-      <div className="header flex items-end justify-between">
-        <h1 className="text-2xl ">Student Detail</h1>
-      </div>
-      {/* divider */}
-      <Divider style={{ margin: ".7rem 0" }} />
+    <div className="  flex-1 h-full flex w-full  ">
+      {loaded && loading ? (
+        <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
+          <CircularProgress />
+          <span className="mt-2">Loading user details ...</span>
+        </div>
+      ) : (
+        <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
+          <div className="header flex flex-col items-start justify-between  gap-2 ">
+            <div className="title flex flex-col">
+              <h1 className="text-2xl font-bold">Student Detail</h1>
+              <p>of {studentRecord?.name}</p>
+            </div>
 
-      <div className=" h-full flex  overflow-y-auto">
-        <div className="flex-1 mt-3  mr-7 grid grid-cols-3 gap-5 overflow-y-auto h-max">
-          <div>
-            <p className="font-bold text-xs text-gray-500">Name:</p>
-            <p>{studentRecord?.name}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Affiliated To:</p>
-            <p>{studentRecord?.affiliatedTo}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Date of Birth:</p>
-            <p>
-              {dayjs(studentRecord?.dob).tz(timeZone).format("MMMM D, YYYY")}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Gender:</p>
-            <p>{studentRecord?.gender}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Joined Date:</p>
-            <p>
-              {studentRecord?.joinedDate
-                ? dayjs(studentRecord?.joinedDate)
-                    .tz(timeZone)
-                    .format("MMMM D, YYYY")
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">End Date:</p>
-            <p>
-              {studentRecord?.endDate
-                ? dayjs(studentRecord?.endDate)
-                    .tz(timeZone)
-                    .format("MMMM D, YYYY")
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Phone:</p>
-            <p>{studentRecord?.phone}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Address:</p>
-            <p>{studentRecord?.address}</p>
-          </div>
-
-          {/* emergency contact */}
-          <div className="emergencycontact col-span-3">
-            <p className="font-bold mb-2">Emergency Details</p>
-            <div className="details grid grid-cols-3">
-              <div>
-                <p className="font-bold text-xs text-gray-500">
-                  Emergency Contact:
-                </p>
-                <p>{studentRecord?.emergencyContactName}</p>
-              </div>
-              <div>
-                <p className="font-bold text-xs text-gray-500">
-                  Emergency Contact:
-                </p>
-                <p>{studentRecord?.emergencyContactNo}</p>
-              </div>
+            {/* menu buttons */}
+            <div className="menuButtons grid grid-cols-7 gap-2">
+              {menuItems.map((item) => (
+                <Button
+                  key={item.value}
+                  variant={
+                    selectedMenu === item.value ? "contained" : "outlined"
+                  }
+                  size="small"
+                  onClick={() => handleMenuClick(item.value)}
+                  disabled={
+                    item?.value?.toLowerCase() != "basic" &&
+                    studentRecord?.affiliatedTo?.toLowerCase() != "hca"
+                  }
+                >
+                  {item.label}
+                </Button>
+              ))}
             </div>
           </div>
 
-          {/* chess info */}
-          <div className="chessinfo col-span-3">
-            <p className="font-bold mb-2">Guardian Information</p>
-            <div className="details grid grid-cols-3">
-              <div>
-                <p className="font-bold text-xs text-gray-500">
-                  Guardian name:
-                </p>
-                <p>{studentRecord?.guardianInfo?.name || "N/A"}</p>
-              </div>
-              <div>
-                <p className="font-bold text-xs text-gray-500">
-                  Guardian phone:
-                </p>
-                <p>{studentRecord?.guardianInfo?.phone || "N/A"}</p>
-              </div>
-              <div>
-                <p className="font-bold text-xs text-gray-500">
-                  Guardian email:
-                </p>
-                <p>{studentRecord?.guardianInfo?.email || "N/A"}</p>
-              </div>
-            </div>
-          </div>
+          {/* divider */}
+          <Divider style={{ margin: ".8rem 0" }} />
 
-          {/* Guardian info */}
-          <div className="chessinfo col-span-3">
-            <p className="font-bold mb-2">Chess Information</p>
-            <div className="details grid grid-cols-3">
-              <div>
-                <p className="font-bold text-xs text-gray-500">Title:</p>
-                <p>{studentRecord?.title || "N/A"}</p>
-              </div>
-              <div>
-                <p className="font-bold text-xs text-gray-500">FIDE ID:</p>
-                <p>{studentRecord?.fideId || "N/A"}</p>
-              </div>
-              <div>
-                <p className="font-bold text-xs text-gray-500">Rating:</p>
-                <p>{studentRecord?.rating}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* cv if trainer */}
-          {studentRecord?.role?.toLowerCase() == "trainer" && (
-            <div>
-              <p className="font-bold text-xs text-gray-500">Trainers CV:</p>
-              <Link
-                href={studentRecord?.trainerCvUrl}
-                target="_blank"
-                title="View CV"
-              >
-                <Button variant="outlined">View CV</Button>
-              </Link>
-            </div>
-          )}
-
-          {/* active status */}
-          <div>
-            <p className="font-bold text-xs text-gray-500">Active Status:</p>
-            <p
-              className={`text-xs text-white w-max font-bold rounded-full px-2 py-1 ${
-                studentRecord?.activeStatus ? "bg-green-400" : "bg-red-400"
-              }`}
-            >
-              {studentRecord?.activeStatus ? "Active" : "Inactive"}
-            </p>
-          </div>
-
-          {/* Batches */}
-          <div className="col-span-3">
-            <p className="font-bold mb-2">Batches</p>
-
-            {/* batches toggle button */}
-            <div className="buttons mt-2 flex gap-4">
-              <Button
-                variant={`${
-                  selectedBatchStatus?.toLowerCase() == "all"
-                    ? "contained"
-                    : "outlined"
-                }`}
-                onClick={() => setselectedBatchStatus("all")}
-              >
-                All
-              </Button>
-              <Button
-                variant={`${
-                  selectedBatchStatus?.toLowerCase() == "active"
-                    ? "contained"
-                    : "outlined"
-                }`}
-                onClick={() => setselectedBatchStatus("active")}
-              >
-                Active
-              </Button>
-              <Button
-                variant={`${
-                  selectedBatchStatus?.toLowerCase() == "completed"
-                    ? "contained"
-                    : "outlined"
-                }`}
-                onClick={() => setselectedBatchStatus("completed")}
-              >
-                Completed
-              </Button>
-
-              <span className="px-3 text-white flex items-center justify-center bg-gray-400 rounded-md">
-                {studentBatches?.length} of {studentRecord?.batches?.length}
-              </span>
-            </div>
-
-            {/* batchlist */}
-
-            {studentBatches?.length === 0 ? (
-              <p>No Batches</p>
-            ) : (
-              <div className="assignedprojects mt-2 grid grid-cols-3 gap-5">
-                {studentBatches?.map((batch: any) => {
-                  return (
-                    <Link
-                      href={`/${session?.data?.user?.role?.toLowerCase()}/projects/${
-                        batch?.batchId
-                      }`}
-                      key={batch?.batchId}
-                      className="trainer-project border bg-blue-50 p-3 rounded-md transition-all ease duration-150 hover:bg-blue-100"
-                    >
-                      <p className="text-md hover:underline hover:text-blue-600">
-                        {batch?.batchName}
-                      </p>
-                      <p className="text-sm mt-1">
-                        <span className="font-bold mr-2">Start Date:</span>
-
-                        {batch?.startDate
-                          ? dayjs(batch.startDate)
-                              .tz(timeZone)
-                              .format("D MMMM, YYYY")
-                          : "N/A"}
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-bold mr-2">End Date:</span>
-                        {batch?.endDate
-                          ? dayjs(batch.endDate)
-                              .tz(timeZone)
-                              .format("D MMMM, YYYY")
-                          : "N/A"}
-                      </p>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Enrolled courses */}
-          <div className="col-span-3">
-            <p className="font-bold mb-2">Enrolled Courses</p>
-
-            {/* batches toggle button */}
-            <div className="buttons mt-2 flex gap-4">
-              <Button
-                variant={`${
-                  selectedEnrolledCourseStatus?.toLowerCase() == "all"
-                    ? "contained"
-                    : "outlined"
-                }`}
-                onClick={() => setselectedEnrolledCourseStatus("all")}
-              >
-                All
-              </Button>
-              <Button
-                variant={`${
-                  selectedEnrolledCourseStatus?.toLowerCase() == "active"
-                    ? "contained"
-                    : "outlined"
-                }`}
-                onClick={() => setselectedEnrolledCourseStatus("active")}
-              >
-                Active
-              </Button>
-              <Button
-                variant={`${
-                  selectedEnrolledCourseStatus?.toLowerCase() == "completed"
-                    ? "contained"
-                    : "outlined"
-                }`}
-                onClick={() => setselectedEnrolledCourseStatus("completed")}
-              >
-                Completed
-              </Button>
-
-              <span className="px-3 text-white flex items-center justify-center bg-gray-400 rounded-md">
-                {studentEnrolledCourses?.length} of{" "}
-                {studentRecord?.enrolledCourses?.length}
-              </span>
-            </div>
-
-            {/* batchlist */}
-
-            {studentEnrolledCourses?.length === 0 ? (
-              <p>No Batches</p>
-            ) : (
-              <div className="assignedprojects mt-2 grid grid-cols-3 gap-5">
-                {studentEnrolledCourses?.map((course: any) => {
-                  return (
-                    <Link
-                      href={`/${session?.data?.user?.role?.toLowerCase()}/projects/${
-                        course?.courseId
-                      }`}
-                      key={course?.courseId}
-                      className="trainer-project border bg-blue-50 p-3 rounded-md transition-all ease duration-150 hover:bg-blue-100"
-                    >
-                      <p className="text-md hover:underline hover:text-blue-600">
-                        {course?.course}
-                      </p>
-                      <p className="text-sm mt-1">
-                        <span className="font-bold mr-2">Start Date:</span>
-
-                        {course?.startDate
-                          ? dayjs(course.startDate)
-                              .tz(timeZone)
-                              .format("D MMMM, YYYY")
-                          : "N/A"}
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-bold mr-2">End Date:</span>
-                        {course?.endDate
-                          ? dayjs(course.endDate)
-                              .tz(timeZone)
-                              .format("D MMMM, YYYY")
-                          : "N/A"}
-                      </p>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+          <div className="flex-1 h-full flex  overflow-y-auto">
+            {showComponent()}
           </div>
         </div>
-
-        {/* attendance */}
-        <div className="attendance-container w-[25%] mr-7 flex flex-col gap-2">
-          <StudentAttendance studentRecord={studentRecord} />
-        </div>
+      )}
+      {/* user attendance chart */}
+      <div className="userattendancechart w-[35%] h-full flex flex-col justify-between ">
+        <StudentAttendance studentRecord={studentRecord} />
       </div>
     </div>
   );

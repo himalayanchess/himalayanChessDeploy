@@ -25,6 +25,12 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
   const dispatch = useDispatch<any>();
   const session = useSession();
 
+  const [selectedMenu, setSelectedMenu] = useState("basic");
+
+  const handleMenuClick = (menuValue: any) => {
+    setSelectedMenu(menuValue); // Update the selected menu
+  };
+
   const menuItems = [
     { label: "Basic Information", value: "basic" },
     { label: "Projects", value: "projects" },
@@ -45,12 +51,6 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
           return <BasicUserInformation userRecord={userRecord} />;
       }
     }
-  };
-
-  const [selectedMenu, setSelectedMenu] = useState("basic");
-
-  const handleMenuClick = (menuValue: any) => {
-    setSelectedMenu(menuValue); // Update the selected menu
   };
 
   // console.log("all activeprojects ", allActiveProjects);
@@ -88,11 +88,14 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
         </div>
       ) : (
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
-          <div className="header flex items-center justify-start gap-7 ">
-            <h1 className="text-2xl font-bold">User Record Detail</h1>
+          <div className="header flex items-start justify-start gap-7 ">
+            <div className="title flex flex-col">
+              <h1 className="text-2xl font-bold">User Record Detail</h1>
+              <p>of {userRecord?.name}</p>
+            </div>
 
             {/* menu buttons */}
-            <div className="menuButtons my-2 flex gap-3">
+            <div className="menuButtons flex gap-3">
               {menuItems.map((item) => (
                 <Button
                   key={item.value}
@@ -122,7 +125,7 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
       )}
       {/* user attendance chart */}
       <div className="userattendancechart w-[35%] h-full flex flex-col justify-between ">
-        <UserAttendanceChart studentId={userRecord?._id} />
+        <UserAttendanceChart userId={userRecord?._id} />
       </div>
     </div>
   );
