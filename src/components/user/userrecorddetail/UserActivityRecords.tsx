@@ -116,6 +116,8 @@ const UserActivityRecords = ({ userRecord }: any) => {
     setFilteredBatches(tempFilteredBatches || []);
   }, [selectedAffiliatedTo, allActiveBatches, selectedProject]);
 
+  //
+
   // Reset start and end date when toggling advanced date selection
   useEffect(() => {
     if (!useAdvancedDate) {
@@ -198,6 +200,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
             onChange={(value) => {
               setselectedAffiliatedTo(value);
               setselectedProject("All");
+              setselectedBatch("All");
             }}
           />
           <Dropdown
@@ -209,7 +212,10 @@ const UserActivityRecords = ({ userRecord }: any) => {
             ]}
             disabled={selectedAffiliatedTo.toLowerCase() !== "school"}
             selected={selectedProject}
-            onChange={setselectedProject}
+            onChange={(value) => {
+              setselectedProject(value);
+              setselectedBatch("All");
+            }}
           />
           <Dropdown
             label="Batch"
@@ -290,7 +296,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
             Date
           </span>
           <span className="py-3 text-left col-span-2 text-sm font-bold text-gray-600">
-            Study Topic
+            Main Study Topic
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Batch

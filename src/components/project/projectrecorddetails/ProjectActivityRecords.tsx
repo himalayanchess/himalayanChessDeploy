@@ -24,15 +24,15 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ProjectActivityRecords = ({ projectRecord }: any) => {
+const ProjectActivityRecords = ({
+  projectRecord,
+  allActiveActivityRecords,
+  allActivityRecordsLoading,
+}: any) => {
   // Redux hooks
   const dispatch = useDispatch<any>();
 
   // Selectors
-
-  const { allActiveActivityRecords, allActivityRecordsLoading } = useSelector(
-    (state: any) => state.activityRecordReducer
-  );
   const { allActiveBatches } = useSelector(
     (state: any) => state.allListReducer
   );
@@ -82,11 +82,9 @@ const ProjectActivityRecords = ({ projectRecord }: any) => {
   useEffect(() => {
     if (projectRecord) {
       setloaded(true);
-      dispatch(
-        fetchAllTrainersActivityRecords({ trainerId: projectRecord?._id })
-      );
+
       dispatch(fetchAllBatches());
-      dispatch(fetchAllActivityRecords());
+      // dispatch(fetchAllActivityRecords());
     }
   }, [projectRecord]);
 
@@ -248,10 +246,10 @@ const ProjectActivityRecords = ({ projectRecord }: any) => {
             Batch
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
-            Attendance
+            Trainer Name
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
-            Trainer role
+            Attendance
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Materials
@@ -313,6 +311,10 @@ const ProjectActivityRecords = ({ projectRecord }: any) => {
                     <span className="py-3 text-left text-xs text-gray-600">
                       {record?.batchName}
                     </span>
+
+                    <span className="py-3 text-left text-xs text-gray-600">
+                      {record?.trainerName ? record?.trainerName : "N/A"}
+                    </span>
                     <span className="py-3 text-left text-xs text-gray-600 px-2 rounded">
                       <span
                         className={`text-xs font-bold px-2 py-1 rounded-full ${
@@ -329,9 +331,6 @@ const ProjectActivityRecords = ({ projectRecord }: any) => {
                       >
                         {record?.userPresentStatus || "N/A"}
                       </span>
-                    </span>
-                    <span className="py-3 text-left text-xs text-gray-600">
-                      {record?.trainerRole ? record?.trainerRole : "N/A"}
                     </span>
                     <div className="text-left flex items-center text-xs text-gray-600">
                       <Button

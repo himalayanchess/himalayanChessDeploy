@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button, Divider } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,6 +15,9 @@ import StudentTestHistory from "./studentrecorddetails/StudentTestHistory";
 import StudentActivityRecords from "./studentrecorddetails/StudentActivityRecords";
 import StudentPayment from "./studentrecorddetails/StudentPayment";
 import StudentEventInfo from "./studentrecorddetails/StudentEventInfo";
+import { fetchAllStudentsActivityRecords } from "@/redux/activityRecordSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,6 +26,14 @@ const timeZone = "Asia/Kathmandu";
 
 const ViewStudent = ({ studentRecord, loading }: any) => {
   const session = useSession();
+
+  const {
+    allActiveStudentsActivityRecords,
+    allStudentsActivityRecordsLoading,
+  } = useSelector((state: any) => state.activityRecordReducer);
+
+  // dispatch
+  const dispatch = useDispatch<any>();
 
   const [loaded, setLoaded] = useState(false);
   const [studentBatches, setstudentBatches] = useState([]);
@@ -59,7 +70,17 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
         case "testhistory":
           return <StudentTestHistory studentRecord={studentRecord} />;
         case "activity":
-          return <StudentActivityRecords studentRecord={studentRecord} />;
+          return (
+            <StudentActivityRecords
+              studentRecord={studentRecord}
+              allActiveStudentsActivityRecords={
+                allActiveStudentsActivityRecords
+              }
+              allStudentsActivityRecordsLoading={
+                allStudentsActivityRecordsLoading
+              }
+            />
+          );
         case "payment":
           return <StudentPayment studentRecord={studentRecord} />;
         case "events":
@@ -118,6 +139,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
   useEffect(() => {
     if (studentRecord) {
       setLoaded(true);
+      dispatch(fetchAllStudentsActivityRecords(studentRecord?._id));
     }
   }, [studentRecord]);
 
@@ -131,7 +153,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       {loaded && loading ? (
         <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
           <CircularProgress />
-          <span className="mt-2">Loading user details ...</span>
+          <span className="mt-2">Loading student details ...</span>
         </div>
       ) : (
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">

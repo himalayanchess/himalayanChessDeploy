@@ -9,6 +9,8 @@ import BasicProjectInformation from "./projectrecorddetails/BasicProjectInformat
 import ProjectAssignedTrainers from "./projectrecorddetails/ProjectAssignedTrainers";
 import ProjectTimeSlots from "./projectrecorddetails/ProjectTimeSlots";
 import ProjectActivityRecords from "./projectrecorddetails/ProjectActivityRecords";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllActivityRecords } from "@/redux/activityRecordSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -17,6 +19,12 @@ const timeZone = "Asia/Kathmandu";
 
 const ViewProjectDetail = ({ projectRecord }: any) => {
   // console.log(projectRecord);
+  // selector
+  const { allActiveActivityRecords, allActivityRecordsLoading } = useSelector(
+    (state: any) => state.activityRecordReducer
+  );
+
+  const dispatch = useDispatch<any>();
 
   const session = useSession();
 
@@ -47,7 +55,13 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
         case "timeslots":
           return <ProjectTimeSlots projectRecord={projectRecord} />;
         case "activity":
-          return <ProjectActivityRecords projectRecord={projectRecord} />;
+          return (
+            <ProjectActivityRecords
+              projectRecord={projectRecord}
+              allActiveActivityRecords={allActiveActivityRecords}
+              allActivityRecordsLoading={allActivityRecordsLoading}
+            />
+          );
         default:
           return <BasicProjectInformation projectRecord={projectRecord} />;
       }
@@ -57,6 +71,7 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
   useEffect(() => {
     if (projectRecord) {
       setLoaded(true);
+      dispatch(fetchAllActivityRecords());
     }
   }, [projectRecord]);
 

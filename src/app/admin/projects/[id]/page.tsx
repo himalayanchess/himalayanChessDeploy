@@ -10,10 +10,14 @@ import React, { use, useEffect, useState } from "react";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import UpdateProject from "@/components/project/UpdateProject";
 import ViewProject from "@/components/project/ViewProject";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllActivityRecords } from "@/redux/activityRecordSlice";
 
 const page = ({ params }: any) => {
   const { id: projectId }: any = use(params);
 
+
+  const dispatch = useDispatch<any>();
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
   const [projectRecord, setprojectRecord] = useState<any>(null);
@@ -37,6 +41,9 @@ const page = ({ params }: any) => {
   // initial fecth of selected activity record
   useEffect(() => {
     getprojectRecord();
+    console.log("fetch all activity records");
+
+    dispatch(fetchAllActivityRecords());
   }, [projectId]);
   return (
     <div>

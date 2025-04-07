@@ -145,8 +145,10 @@ const StudentAttendance = ({ studentRecord }: { studentRecord: any }) => {
   };
 
   useEffect(() => {
-    if (allActiveActivityRecords.length > 0 && studentRecord) {
-      filterAttendanceByMonth();
+    if (allActiveActivityRecords) {
+      if (allActiveActivityRecords?.length > 0 && studentRecord) {
+        filterAttendanceByMonth();
+      }
     }
   }, [selectedMonth, allActiveActivityRecords, studentRecord]);
 

@@ -6,12 +6,32 @@ export const fetchAllActivityRecords = createAsyncThunk(
   "activityrecords/fetchAllActivityRecords",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("thunkkkkkkkkkk");
+      console.log("thunkkkkkkkkkk all activity records");
 
       const { data: resData } = await axios.get(
         "/api/activityrecord/getAllActivityRecords"
       );
       return resData.allActivityRecords;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// fetch all students activity records
+export const fetchAllStudentsActivityRecords = createAsyncThunk(
+  "activityrecords/fetchAllStudentsActivityRecords",
+  async (studentId: any, { rejectWithValue }) => {
+    try {
+      console.log("thunkkkkkkkkkk student id", studentId);
+
+      const { data: resData } = await axios.post(
+        "/api/activityrecord/getAllStudentsActivityRecords",
+        { studentId }
+      );
+      // console.log("getAllStudentsActivityRecords", resData);
+
+      return resData.allStudentsActivityRecords;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -28,7 +48,10 @@ const activityRecordSlice = createSlice({
     status: "idle", // "idle" | "loading" | "succeeded" | "failed"
     error: null,
 
-    // trainers activity recordss
+    // students activity records
+    allStudentsActivityRecords: [],
+    allActiveStudentsActivityRecords: [],
+    allStudentsActivityRecordsLoading: true,
   },
   reducers: {
     filterActivityRecords: (state, action) => {
@@ -37,6 +60,7 @@ const activityRecordSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // all activity records
       .addCase(fetchAllActivityRecords.pending, (state) => {
         state.allActivityRecordsLoading = true;
       })
@@ -47,12 +71,6 @@ const activityRecordSlice = createSlice({
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-
-        // set all (active) assigned classes
-        //commented
-        // state.allActiveActivityRecords = action.payload?.filter(
-        //   (activityRecord: any) => activityRecord?.activeStatus === true
-        // );
 
         const sortedActivityRecords = action.payload
           ?.filter((activityRecord: any) => activityRecord.activeStatus)
@@ -68,6 +86,33 @@ const activityRecordSlice = createSlice({
       .addCase(fetchAllActivityRecords.rejected, (state, action) => {
         state.status = "failed";
         state.allActivityRecordsLoading = false;
+      })
+
+      // students activity records
+      .addCase(fetchAllStudentsActivityRecords.pending, (state) => {
+        state.allStudentsActivityRecordsLoading = true;
+      })
+      .addCase(fetchAllStudentsActivityRecords.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        // set all assigned classes
+        state.allStudentsActivityRecords = action.payload?.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        const sortedStudentsActivityRecords = action.payload
+          ?.filter((activityRecord: any) => activityRecord.activeStatus)
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        state.allActiveStudentsActivityRecords = sortedStudentsActivityRecords;
+        state.allStudentsActivityRecordsLoading = false;
+      })
+      .addCase(fetchAllStudentsActivityRecords.rejected, (state, action) => {
+        state.status = "failed";
+        state.allStudentsActivityRecordsLoading = false;
       });
   },
 });
