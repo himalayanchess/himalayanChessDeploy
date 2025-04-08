@@ -289,7 +289,7 @@ const StudentActivityRecords = ({
       </div>
 
       {/* Filtered Records Table */}
-      <div className="mt-2">
+      <div className="mt-2 border rounded-md">
         <div className="table-headings mb-2 grid gap-2 grid-cols-[70px,repeat(7,1fr)] w-full bg-gray-200">
           <span className="py-3 text-center text-sm font-bold text-gray-600">
             SN
@@ -314,25 +314,24 @@ const StudentActivityRecords = ({
           </span>
         </div>
 
+        {/* loading */}
+        {allStudentsActivityRecordsLoading && (
+          <div className="bg-white rounded-md  flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
+            <CircularProgress />
+            <span className="mt-2">Loading records...</span>
+          </div>
+        )}
+
+        {/* no records */}
+        {!allStudentsActivityRecordsLoading && filteredRecords?.length == 0 && (
+          <p className="w-full py-4 flex items-center justify-center">
+            <BrowserNotSupportedIcon />
+            <span className="ml-2">No records found</span>
+          </p>
+        )}
+
+        {/* record list */}
         <div className="table-contents flex-1 grid grid-cols-1 grid-rows-7">
-          {/* loading */}
-          {allStudentsActivityRecordsLoading && (
-            <div className="bg-white rounded-md  flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
-              <CircularProgress />
-              <span className="mt-2">Loading records...</span>
-            </div>
-          )}
-
-          {/* no records */}
-          {!allStudentsActivityRecordsLoading &&
-            filteredRecords?.length == 0 && (
-              <p className="w-full py-4 flex items-center justify-center">
-                <BrowserNotSupportedIcon />
-                <span className="ml-2">No records found</span>
-              </p>
-            )}
-
-          {/* record list */}
           {!allStudentsActivityRecordsLoading &&
             filteredRecords?.length > 0 &&
             filteredRecords
@@ -346,7 +345,7 @@ const StudentActivityRecords = ({
                 return (
                   <div
                     key={record?._id}
-                    className="grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                    className="grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-3  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                   >
                     <span className="text-center text-xs text-gray-600">
                       {serialNumber}

@@ -15,12 +15,13 @@ const timeZone = "Asia/Kathmandu";
 
 const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
   const dispatch = useDispatch<any>();
-  const { attendanceChartData, attendanceUpdatedByData } = useSelector(
+  const { attendanceUpdatedByData } = useSelector(
     (state: any) => state.attendanceReducer
   );
 
   const [currentMonth, setCurrentMonth] = useState(dayjs());
   const [selectedDay, setSelectedDay] = useState<dayjs.Dayjs>(dayjs());
+  const [attendanceStatCount, setattendanceStatCount] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
     dayjs().format("YYYY-MM")
   );
@@ -36,12 +37,27 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
   useEffect(() => {
     if (selectedDay) {
       const attendance = getAttendanceForDay(selectedDay);
-      const lastUpdatedBy =
-        attendance.length > 0
-          ? attendance[0]?.updatedBy?.[attendance[0]?.updatedBy.length - 1]
-          : null;
-      dispatch(setattendanceUpdatedByData(lastUpdatedBy));
-      dispatch(setselectedDatesAttendanceRecord(attendance[0]));
+
+      if (attendance.length > 0) {
+        const record = attendance[0];
+
+        const lastUpdatedBy =
+          record?.updatedBy?.[record.updatedBy.length - 1] || null;
+
+        // 👇 Reduce directly here to calculate status counts
+        const statusCount = record.userAttendance?.reduce(
+          (acc: any, curr: { status: any }) => {
+            acc[curr.status] = (acc[curr.status] || 0) + 1;
+            return acc;
+          },
+          { present: 0, absent: 0, leave: 0, holiday: 0 }
+        );
+        setattendanceStatCount(statusCount);
+        console.log("Status Count ➜", statusCount); // or dispatch to store if needed
+
+        dispatch(setattendanceUpdatedByData(lastUpdatedBy));
+        dispatch(setselectedDatesAttendanceRecord(record));
+      }
     }
   }, [selectedDay, attendanceRecords]);
 
@@ -103,16 +119,16 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
       {/* Calendar Section */}
       <div className="bg-white h-[70%] shadow-md rounded-md p-2 flex-1 flex flex-col items-center">
         {/* Month Selector Input */}
-        <div className="mb-2 mt-1 w-[90%]">
+        <div className="mb-1 mt-1 w-[90%]">
           <Input
-            label="Date"
+            label="Month"
             type="month"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
         </div>
 
-        <div className="flex justify-center w-[90%]">
+        <div className="flex justify-center w-[80%]">
           {/* Weekdays */}
           <div className="w-full max-w-md bg-white rounded-lg">
             <div className="grid grid-cols-7 gap-2 text-center text-gray-700 font-medium text-xs">
@@ -124,7 +140,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
             </div>
 
             {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1 mt-0.5">
+            <div className="grid grid-cols-7 gap-1 mt-0.5 mb-1">
               {days.map((day) => {
                 const isCurrentMonth = day.month() === currentMonth.month();
                 const hasAttendance =
@@ -137,7 +153,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
                   <div
                     key={day.format("YYYY-MM-DD")}
                     onClick={() => handleDayClick(day)}
-                    className={`py-2 text-center rounded cursor-pointer text-xs ${
+                    className={`py-1.5 text-center rounded cursor-pointer text-xs ${
                       isDisabled ? "text-gray-400 cursor-default" : "text-black"
                     } ${
                       isSelected
@@ -157,11 +173,45 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
       </div>
 
       {/* Selected Day Attendance */}
-      <div className="bg-white h-[30%] shadow-md rounded-md p-4 flex-1 flex flex-col">
-        <h3 className="font-semibold mb-2 text-center text-xl">
+      <div className="bg-white h-[30%] shadow-md rounded-md p-2 flex-1 flex flex-col">
+        <div className="counts px-3 grid grid-cols-2 gap-2 mt-1 mb-2">
+          {/* present */}
+          <div className="total flex flex-col items-center bg-[#d9ffdb] p-1 rounded-md text-sm">
+            <p>Present</p>
+            <span className="text-lg font-bold">
+              {attendanceStatCount?.present || 0}
+            </span>
+          </div>
+
+          {/* absent */}
+          <div className="total flex flex-col items-center bg-[#ffdede] p-1 rounded-md text-sm">
+            <p>Absent</p>
+            <span className="text-lg font-bold">
+              {attendanceStatCount?.absent || 0}
+            </span>
+          </div>
+
+          {/* leave */}
+          <div className="total flex flex-col items-center bg-[#f0f7ff] py-1 rounded-md text-sm">
+            <p>Leave</p>
+            <span className="text-lg font-bold">
+              {attendanceStatCount?.leave || 0}
+            </span>
+          </div>
+
+          {/* holiday */}
+          <div className="total flex flex-col items-center bg-[#f0deff] p-1 rounded-md text-sm">
+            <p>Holiday</p>
+            <span className="text-lg font-bold">
+              {attendanceStatCount?.holiday || 0}
+            </span>
+          </div>
+        </div>
+
+        <h3 className="font-semibold px-3 mb-1 text-left text-xl">
           Latest Update
         </h3>
-        <div className="mt-4 px-3">
+        <div className="mt-1 px-3">
           {attendanceUpdatedByData ? (
             <>
               <p className="text-md">

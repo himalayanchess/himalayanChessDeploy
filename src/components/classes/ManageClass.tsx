@@ -51,6 +51,7 @@ const ManageClass = ({ selectedDate }: any) => {
 
   const [affiliatedTo, setaffiliatedTo] = useState("HCA");
   const [holidayStatus, setholidayStatus] = useState(false);
+  const [isPlayDay, setisPlayDay] = useState(false);
   const [trainersList, setTrainersList] = useState([]);
   const [courseList, setCourseList] = useState([]);
   const [projectList, setProjectList] = useState([]);
@@ -85,6 +86,7 @@ const ManageClass = ({ selectedDate }: any) => {
       startTime: "",
       endTime: "",
       trainerRole: "Primary",
+      // isPlayDay from state variable
       // holiday status from state variable
 
       holidayDescription: "",
@@ -115,6 +117,7 @@ const ManageClass = ({ selectedDate }: any) => {
         date: selectedDate,
         holidayStatus,
         affiliatedTo,
+        isPlayDay,
         userPresentStatus: holidayStatus ? "holiday" : "absent",
         assignedById: session?.data?.user?._id,
         assignedByName: session?.data?.user?.name,
@@ -142,7 +145,7 @@ const ManageClass = ({ selectedDate }: any) => {
       courseId: "",
       projectName: affiliatedTo.toLowerCase() === "school" ? "" : "",
       projectId: affiliatedTo.toLowerCase() === "school" ? "" : "",
-      batchName: "",
+      batchName: isPlayDay ? "All HCA Batches" : "",
       batchId: "",
       startTime: "",
       endTime: "",
@@ -152,25 +155,38 @@ const ManageClass = ({ selectedDate }: any) => {
     });
     setBatchId(""); // Reset batchId state
     setprojectId(""); // Reset projectId state
-  }, [affiliatedTo, holidayStatus, reset]);
+  }, [affiliatedTo, holidayStatus, isPlayDay, reset]);
 
+  // fitler selected batch students
   useEffect(() => {
-    if (batchId !== "") {
+    if (isPlayDay) {
+      // Filter all HCA students in active, non-ended batches
+      const hcaStudents = allActiveStudentsList.filter(
+        (student) =>
+          student.affiliatedTo?.toLowerCase() === "hca" &&
+          student.batches.some((batch) => batch.activeStatus && !batch.endDate)
+      );
+
+      // Optional: remove duplicate students if needed (based on _id)
+      const uniqueStudents = Array.from(
+        new Map(hcaStudents.map((s) => [s._id, s])).values()
+      );
+
+      console.log("Playday HCA students:", uniqueStudents);
+      setselectedBatchStudents(uniqueStudents);
+    } else if (batchId !== "") {
       const tempAllStudents = allActiveStudentsList.filter((student) =>
         student.batches.some(
           (batch) =>
-            batch.batchId == batchId &&
-            batch.activeStatus && // Ensure batch is active
-            !batch.endDate // Exclude completed batches
+            batch.batchId == batchId && batch.activeStatus && !batch.endDate
         )
       );
-      console.log("batch change", allActiveStudentsList, tempAllStudents);
-
+      console.log("Batch-specific students:", tempAllStudents);
       setselectedBatchStudents(tempAllStudents);
     } else {
-      setselectedBatchStudents([]); // Clear students if no batchId is selected
+      setselectedBatchStudents([]);
     }
-  }, [batchId, allActiveStudentsList]);
+  }, [isPlayDay, batchId, allActiveStudentsList]);
 
   // Filter batches based on affiliatedTo and projectId
   useEffect(() => {
@@ -265,8 +281,10 @@ const ManageClass = ({ selectedDate }: any) => {
           <FormControlLabel
             control={
               <Radio
-                checked={!holidayStatus} // Holiday is selected when holidayStatus is true
+                checked={!isPlayDay && !holidayStatus} // Workday is selected when both are false
                 onChange={() => {
+                  // Deselect both holiday and play day for work day
+                  setisPlayDay(false);
                   setholidayStatus(false);
                 }}
                 color="default"
@@ -277,9 +295,25 @@ const ManageClass = ({ selectedDate }: any) => {
           <FormControlLabel
             control={
               <Radio
-                checked={holidayStatus} // Holiday is selected when holidayStatus is true
+                checked={isPlayDay}
                 onChange={() => {
+                  // Select play day, deselect holiday
+                  setisPlayDay(true);
+                  setholidayStatus(false);
+                }}
+                color="default"
+              />
+            }
+            label="Playday"
+          />
+          <FormControlLabel
+            control={
+              <Radio
+                checked={holidayStatus}
+                onChange={() => {
+                  // Select holiday, deselect play day
                   setholidayStatus(true);
+                  setisPlayDay(false);
                 }}
                 color="default"
               />
@@ -384,6 +418,21 @@ const ManageClass = ({ selectedDate }: any) => {
         </div>
       )}
       {/* time selection */}
+
+      {/* playday and all batch students includes message */}
+      {isPlayDay && (
+        <div className="message bg-yellow-100 rounded-md p-2 my-3 border-2 border-yellow-200 text-sm">
+          <p>
+            Please select the <b>"Playday"</b> option only on the designated
+            day, i.e.
+            <b> Sunday</b>.
+          </p>
+          <p>
+            This option applies to students from <b>all HCA batches</b> and
+            should be used accordingly.
+          </p>
+        </div>
+      )}
       {/* Dropdowns */}
       <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
         {/* Project Name (only shown for School) */}
@@ -417,55 +466,59 @@ const ManageClass = ({ selectedDate }: any) => {
         )}
 
         {/* Batch Name */}
-        <Controller
-          name="batchName"
-          control={control}
-          rules={{ required: "Batch is required" }}
-          render={({ field }) => (
-            <Dropdown
-              label="Batch"
-              options={filteredBatches.map((batch) => batch.batchName)}
-              selected={field.value}
-              onChange={(value) => {
-                field.onChange(value);
-                const selectedBatch = filteredBatches.find(
-                  (batch) => batch.batchName === value
-                );
-                setValue("batchId", selectedBatch?._id || "");
-                setBatchId(selectedBatch?._id);
-              }}
-              error={errors.batchName}
-              helperText={errors.batchName?.message}
-              width="full"
-              required
-            />
-          )}
-        />
+        {!isPlayDay && (
+          <Controller
+            name="batchName"
+            control={control}
+            rules={{ required: "Batch is required" }}
+            render={({ field }) => (
+              <Dropdown
+                label="Batch"
+                options={filteredBatches.map((batch) => batch.batchName)}
+                selected={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  const selectedBatch = filteredBatches.find(
+                    (batch) => batch.batchName === value
+                  );
+                  setValue("batchId", selectedBatch?._id || "");
+                  setBatchId(selectedBatch?._id);
+                }}
+                error={errors.batchName}
+                helperText={errors.batchName?.message}
+                width="full"
+                required
+              />
+            )}
+          />
+        )}
 
         {/* Course Name */}
-        <Controller
-          name="courseName"
-          control={control}
-          rules={{ required: "Course is required" }}
-          render={({ field }) => (
-            <Dropdown
-              label="Course name"
-              options={courseList.map((course) => course.name)}
-              selected={field.value}
-              onChange={(value) => {
-                field.onChange(value);
-                const selectedCourse = courseList.find(
-                  (course) => course.name === value
-                );
-                setValue("courseId", selectedCourse?._id || "");
-              }}
-              error={errors.courseName}
-              helperText={errors.courseName?.message}
-              width="full"
-              required
-            />
-          )}
-        />
+        {!isPlayDay && (
+          <Controller
+            name="courseName"
+            control={control}
+            rules={{ required: "Course is required" }}
+            render={({ field }) => (
+              <Dropdown
+                label="Course name"
+                options={courseList.map((course) => course.name)}
+                selected={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  const selectedCourse = courseList.find(
+                    (course) => course.name === value
+                  );
+                  setValue("courseId", selectedCourse?._id || "");
+                }}
+                error={errors.courseName}
+                helperText={errors.courseName?.message}
+                width="full"
+                required
+              />
+            )}
+          />
+        )}
 
         {/* Trainer Name */}
         <Controller
@@ -520,14 +573,27 @@ const ManageClass = ({ selectedDate }: any) => {
         {selectedBatchStudents.length === 0 ? (
           <p>No Students</p>
         ) : (
-          <div className="flex gap-4">
-            {selectedBatchStudents.map((student: any, i) => (
-              <p
-                key={i}
-                className="border px-4 rounded-full text-sm shadow-md py-1"
+          <div className="flex flex-col rounded-md overflow-y-auto border">
+            {/* heading */}
+
+            <div className="heading grid grid-cols-[70px,repeat(4,1fr)] bg-gray-200 text-sm">
+              <span className="py-2 text-center">SN</span>
+              <span className="py-2 col-span-2">Name</span>
+              <span className="py-2  col-span-2">Gender</span>
+            </div>
+
+            {/* students list */}
+            {selectedBatchStudents.map((student: any, i: any) => (
+              <div
+                key={`${student?.name}${i}`}
+                className="heading grid grid-cols-[70px,repeat(4,1fr)] border-b text-sm"
               >
-                {student?.name}
-              </p>
+                <span className="py-2 text-center ">{i + 1}</span>
+                <span className="py-2  col-span-2">{student?.name}</span>
+                <span className="py-2   col-span-2">
+                  {student?.gender}
+                </span>{" "}
+              </div>
             ))}
           </div>
         )}

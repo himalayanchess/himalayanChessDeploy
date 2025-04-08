@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       projectId,
       batchName,
       batchId,
+      isPlayDay,
       startTime,
       endTime,
       holidayStatus,

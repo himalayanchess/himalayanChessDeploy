@@ -71,12 +71,15 @@ const AssignedClasses = ({ selectedDate }: any) => {
           filteredAssignedClasses.map((assignedClass: any) => (
             <div key={assignedClass?._id}>
               <div
-                className={`py-2 px-3 ${
-                  assignedClass?.affiliatedTo?.toLowerCase() === "hca"
-                    ? "bg-blue-100"
-                    : "bg-gray-100"
-                } shadow-sm rounded-md cursor-pointer hover:opacity-80`}
-                onClick={() => handleEditAssignedModalOpen(assignedClass)} // Pass the assignedClass to the handler
+                className={`py-2 px-3 shadow-sm rounded-md cursor-pointer hover:opacity-80
+    ${
+      assignedClass?.isPlayDay
+        ? "bg-yellow-100 border border-yellow-200"
+        : assignedClass?.affiliatedTo?.toLowerCase() === "hca"
+        ? "bg-blue-100"
+        : "bg-gray-100"
+    }`}
+                onClick={() => handleEditAssignedModalOpen(assignedClass)}
               >
                 <p className="text-sm">{assignedClass?.batchName}</p>
 

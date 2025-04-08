@@ -78,6 +78,10 @@ const ActivityRecordSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    isPlayDay: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
