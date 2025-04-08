@@ -84,7 +84,7 @@ const StudentActivityRecords = ({
 
   // function export to excel
   function exportToExcel() {
-    exportStudentActivityRecordsToExcel(filteredRecords, studentRecord?.name);
+    exportStudentActivityRecordsToExcel(filteredRecords, studentRecord);
   }
 
   // Calculate showing text

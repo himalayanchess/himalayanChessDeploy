@@ -24,7 +24,9 @@ import { CalendarCheck2 } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getAllAttendanceRecords,
   setattendanceUpdatedByData,
+  setNewAttendanceUpdated,
   updateAttendanceChartData,
 } from "@/redux/attendanceSlice";
 
@@ -151,6 +153,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
 
       if (resData?.statusCode === 200) {
         handleconfirmModalClose();
+        // update the attendanceUpdateByData
         dispatch(
           setattendanceUpdatedByData({
             userId: session?.data?.user?._id,
@@ -159,6 +162,9 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
             updatedAt: dayjs().tz(timeZone).utc().format(),
           })
         );
+
+        // update attendance record list of today
+        dispatch(getAllAttendanceRecords());
       }
       notify(resData?.msg, resData?.statusCode);
     } catch (error) {

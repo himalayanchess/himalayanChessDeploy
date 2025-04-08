@@ -30,6 +30,9 @@ const attendaceSlice = createSlice({
     // attendanceChartData
     attendanceChartData: [],
     attendanceUpdatedByData: null,
+
+    // selectedDatesAttendanceRecords
+    selectedDatesAttendanceRecord: null,
   },
   reducers: {
     // attendace chart data
@@ -42,6 +45,15 @@ const attendaceSlice = createSlice({
     setattendanceUpdatedByData: (state, action) => {
       state.attendanceUpdatedByData = action.payload;
     },
+
+    //selectedDatesAttendanceRecord
+    setselectedDatesAttendanceRecord: (state, action) => {
+      console.log("attendance reord in redux ", action.payload);
+
+      state.selectedDatesAttendanceRecord = action.payload;
+    },
+
+ 
   },
   extraReducers: (builder) => {
     builder
@@ -69,7 +81,11 @@ const attendaceSlice = createSlice({
   },
 });
 
-export const { updateAttendanceChartData, setattendanceUpdatedByData } =
-  attendaceSlice.actions;
+export const {
+  updateAttendanceChartData,
+  setattendanceUpdatedByData,
+  setselectedDatesAttendanceRecord,
+  setNewAttendanceUpdated,
+} = attendaceSlice.actions;
 
 export default attendaceSlice.reducer;

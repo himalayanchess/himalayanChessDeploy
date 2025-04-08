@@ -11,13 +11,53 @@ const timeZone = "Asia/Kathmandu";
 
 export function exportStudentActivityRecordsToExcel(
   filteredRecords: any,
-  studentName: any
+  studentInfo: any // This should be a HcaAffiliatedStudent document
 ) {
+  // Format basic student information
+  const basicInfo = {
+    "Student Name": studentInfo?.name || "N/A",
+    "Date of Birth": studentInfo?.dob
+      ? dayjs(studentInfo.dob).tz(timeZone).format("DD MMMM, YYYY")
+      : "N/A",
+    Gender: studentInfo?.gender || "N/A",
+    "Educational Institute": studentInfo?.educationalInstitute || "N/A",
+    "Affiliated To": studentInfo?.affiliatedTo || "N/A",
+    "Joined Date": studentInfo?.joinedDate
+      ? dayjs(studentInfo.joinedDate).tz(timeZone).format("DD MMMM, YYYY")
+      : "N/A",
+    "End Date": studentInfo?.endDate
+      ? dayjs(studentInfo.endDate).tz(timeZone).format("DD MMMM, YYYY")
+      : "N/A",
+    Address: studentInfo?.address || "N/A",
+    Phone: studentInfo?.phone || "N/A",
+    "Completed Status": studentInfo?.completedStatus || "N/A",
+    "FIDE ID": studentInfo?.fideId || "N/A",
+    "Emergency Contact": `${studentInfo?.emergencyContactName || "N/A"} - ${
+      studentInfo?.emergencyContactNo || "N/A"
+    }`,
+    "Current Batches":
+      studentInfo?.batches
+        ?.filter((b: any) => b.activeStatus)
+        ?.map((b: any) => b.batchName)
+        ?.join(", ") || "N/A",
+    "Enrolled Courses":
+      studentInfo?.enrolledCourses
+        ?.filter((c: any) => c.activeStatus)
+        ?.map((c: any) => c.course)
+        ?.join(", ") || "N/A",
+    Rating: studentInfo?.rating || "N/A",
+    "Active Status": studentInfo?.activeStatus ? "Active" : "Inactive",
+  };
+
+  // Create basic info sheet
+  const basicInfoSheet = XLSX.utils.json_to_sheet([basicInfo]);
+
+  // Format activity records
   const dataToExport = filteredRecords.map((record: any, index: number) => {
     const studentRecord = record.studentRecords?.[0] || {};
 
     // Format day in Nepali
-    const dayInNepali = dayjs(record.utcDate).tz(timeZone).format("dddd"); // Full day name in Nepali
+    const dayInNepali = dayjs(record.utcDate).tz(timeZone).format("dddd");
 
     // Format study topics
     const studyTopics = studentRecord?.studyTopics?.join(", ") || "N/A";
@@ -26,7 +66,7 @@ export function exportStudentActivityRecordsToExcel(
     const studyMaterials =
       record.studyMaterials
         ?.map((material: any) => `${material.fileName}: ${material.fileUrl}`)
-        .join("\n") || "N/A";
+        ?.join("\n") || "N/A";
 
     return {
       SN: index + 1,
@@ -54,12 +94,11 @@ export function exportStudentActivityRecordsToExcel(
     };
   });
 
-  // Create workbook and worksheet
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.json_to_sheet(dataToExport);
+  // Create activity records sheet
+  const activitySheet = XLSX.utils.json_to_sheet(dataToExport);
 
-  // Set column widths
-  ws["!cols"] = [
+  // Set column widths for activity sheet
+  activitySheet["!cols"] = [
     { wch: 5 }, // SN
     { wch: 15 }, // Date
     { wch: 15 }, // Day (Nepali)
@@ -78,50 +117,32 @@ export function exportStudentActivityRecordsToExcel(
     { wch: 20 }, // Holiday Description
     { wch: 10 }, // Study Materials Count
     { wch: 40 }, // Study Materials Details
-    { wch: 10 }, // Active Status
   ];
 
-  // Initialize rows array if it doesn't exist
-  if (!ws["!rows"]) {
-    ws["!rows"] = [];
-  }
+  // Set column widths for basic info sheet
+  basicInfoSheet["!cols"] = [
+    { wch: 25 }, // Field names
+    { wch: 40 }, // Values
+  ];
 
-  // Process each row to set appropriate height
-  const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    // Skip header row (R=0)
-    if (R === 0) {
-      ws["!rows"][R] = { hpx: 20 }; // Header row height
-      continue;
-    }
+  // Set row heights for basic info sheet
+  basicInfoSheet["!rows"] = [
+    { hpx: 20 }, // Header row
+    ...Array(Object.keys(basicInfo).length).fill({ hpx: 20 }), // Data rows
+  ];
 
-    // Default row height
-    let rowHeight = 20;
+  // Create workbook
+  const wb = XLSX.utils.book_new();
 
-    // Check Study Materials Details column (column R, index 17)
-    const studyMaterialsCell = ws[XLSX.utils.encode_cell({ c: 17, r: R })];
-    if (studyMaterialsCell && studyMaterialsCell.v) {
-      const lineCount = studyMaterialsCell.v.toString().split("\n").length;
-      rowHeight = Math.max(rowHeight, lineCount * 15);
-    }
-
-    // Check Study Topics column (column G, index 6)
-    const studyTopicsCell = ws[XLSX.utils.encode_cell({ c: 6, r: R })];
-    if (studyTopicsCell && studyTopicsCell.v) {
-      const lineCount = studyTopicsCell.v.toString().split(", ").length;
-      rowHeight = Math.max(rowHeight, lineCount * 15);
-    }
-
-    // Set the row height
-    ws["!rows"][R] = { hpx: rowHeight };
-  }
-
-  // Add worksheet to workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Student Activity Records");
+  // Add sheets to workbook
+  XLSX.utils.book_append_sheet(wb, basicInfoSheet, "Student Profile");
+  XLSX.utils.book_append_sheet(wb, activitySheet, "Activity Records");
 
   // Generate the Excel file and trigger download
   XLSX.writeFile(
     wb,
-    `StudentActivityRecords_${studentName}_${dayjs().format("YYYY-MM-DD")}.xlsx`
+    `Student_${
+      studentInfo?.name?.replace(/\s+/g, "_") || "Profile"
+    }_${dayjs().format("YYYY-MM-DD")}.xlsx`
   );
 }

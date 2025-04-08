@@ -249,7 +249,7 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
             <XAxis dataKey="name" fontSize={12} />
             {/* <YAxis fontSize={10} /> */}
             <Tooltip />
-            <Bar dataKey="present" fill="#4CAF50" name="Present" barSize={40} />
+          <Bar dataKey="present" fill="#4CAF50" name="Present" barSize={40} />
             <Bar dataKey="absent" fill="#d32f2f" name="Absent" barSize={40} />
             <Bar dataKey="leave" fill="#2196F3" name="Leave" barSize={40} />
             <Bar dataKey="holiday" fill="#9C27B0" name="Holiday" barSize={40} />
