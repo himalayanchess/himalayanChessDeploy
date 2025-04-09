@@ -82,12 +82,14 @@ const TodaysClasses = ({
                 >
                   <div
                     className={`py-2 px-3 ${
-                      todaysClass?.affiliatedTo?.toLowerCase() === "hca"
-                        ? "bg-blue-100"
-                        : "bg-gray-100"
+                      todaysClass?.isPlayDay
+                        ? "bg-yellow-100" // If isPlayDay, set background to yellow
+                        : todaysClass?.affiliatedTo?.toLowerCase() === "hca"
+                        ? "bg-blue-100" // If affiliated to HCA, set background to blue
+                        : "bg-gray-100" // Default background color
                     } shadow-sm rounded-md cursor-pointer ${
                       selectedTodaysClass?._id === todaysClass?._id
-                        ? "border-2 border-blue-400"
+                        ? "border-2 border-blue-400" // If selected, add blue border
                         : ""
                     } hover:opacity-80`}
                   >

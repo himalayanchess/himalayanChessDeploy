@@ -112,14 +112,19 @@ const ActivityRecordList = ({
                   href={`/${session?.data?.user?.role?.toLowerCase()}/activityrecords/${
                     activityRecord?._id
                   }`}
-                  // target="_blank"
                   key={activityRecord?._id}
-                  className="grid grid-cols-[70px,repeat(6,1fr)] border-b  border-gray-200 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className={`grid grid-cols-[70px,repeat(6,1fr)] border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150
+                  ${
+                    activityRecord?.isPlayDay ||
+                    activityRecord?.mainStudyTopic?.toLowerCase() === "play"
+                      ? "bg-yellow-100"
+                      : "hover:bg-gray-100"
+                  }`}
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
                   </span>
-                  <span className=" text-left px-1 text-sm font-medium text-gray-600">
+                  <span className=" text-left px-1 text-sm font-medium text-gray-600 underline hover:text-blue-500">
                     {dayjs(activityRecord?.nepaliDate)
                       .tz(timeZone)
                       .format("MMMM D, YYYY, ddd")}

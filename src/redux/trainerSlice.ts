@@ -85,46 +85,56 @@ const trainerSlice = createSlice({
     selectTodaysClass: (state, action) => {
       const selectedClass = action.payload;
       state.selectedTodaysClass = selectedClass;
-      // console.log(
-      //   "Inside select todays class reducer selected class",
-      //   selectedClass
-      // );
-      console.log("selected todays class", selectedClass);
 
       const batchId = selectedClass.batchId;
-      // Filter students who have a batch with the given 'batchId' and 'activeStatus' as true
-      const filteredStudents = state.allStudentActiveList?.filter((student) =>
-        student.batches.some(
-          (batch) =>
-            batch.batchId === batchId &&
-            batch.activeStatus === true &&
-            !batch.endDate
-        )
-      );
+      const isPlayDay = selectedClass.isPlayDay; // Destructure isPlayDay from selectedClass
 
-      // also filter lessons of selected classes course
-      state.selectedStudentList = filteredStudents;
+      // If it's a PlayDay, filter HCA students with active batches and no endDate
+      if (isPlayDay) {
+        const filteredStudents = state.allStudentActiveList?.filter(
+          (student) =>
+            student.affiliatedTo?.toLowerCase() === "hca" &&
+            student.batches.some(
+              (batch) => batch.activeStatus === true && !batch.endDate
+            )
+        );
 
-      // Find the matching course from allActiveCourseList based on selectedClass.courseId
-      const matchingCourse = state.allActiveCourseList.find(
-        (course) => course._id === selectedClass.courseId
-      );
+        // Set filtered students to selectedStudentList
+        state.selectedStudentList = filteredStudents;
+      } else {
+        // Otherwise, filter based on batchId with activeStatus true and no endDate
+        const filteredStudents = state.allStudentActiveList?.filter((student) =>
+          student.batches.some(
+            (batch) =>
+              batch.batchId === batchId &&
+              batch.activeStatus === true &&
+              !batch.endDate
+          )
+        );
 
-      let tempFilteredLessons = [];
-      if (matchingCourse) {
-        // Process and filter active chapters
-        tempFilteredLessons = matchingCourse.chapters
-          .filter((chapter) => chapter.activeStatus) // Only active chapters
-          .flatMap((chapter) =>
-            chapter.subChapters.length > 0
-              ? chapter.subChapters
-              : [chapter.chapterName]
-          );
+        // Set filtered students to selectedStudentList
+        state.selectedStudentList = filteredStudents;
       }
-      // console.log("filtered lessons", tempFilteredLessons);
 
-      // Set filtered lessons to selectedCourseLessons state
-      state.selectedCourseLessons = tempFilteredLessons;
+      // Retrieve all lessons from all courses
+      let allLessons: any = [];
+      state.allActiveCourseList.forEach((course) => {
+        if (course.chapters) {
+          course.chapters
+            .filter((chapter) => chapter.activeStatus) // Only active chapters
+            .forEach((chapter) => {
+              // Flatten subChapters or include the chapter itself
+              const chapterLessons = chapter.subChapters.length
+                ? chapter.subChapters // If subChapters exist, use them
+                : [chapter.chapterName]; // Otherwise, use the chapter name itself
+
+              allLessons = allLessons.concat(chapterLessons); // Concatenate the lessons
+            });
+        }
+      });
+
+      // Set the all lessons to selectedCourseLessons state
+      state.selectedCourseLessons = ["Play", ...allLessons];
     },
 
     // update todays classes record when trainer updates the student record

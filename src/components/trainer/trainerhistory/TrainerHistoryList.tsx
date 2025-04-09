@@ -96,9 +96,12 @@ const TrainerHistoryList = ({
               return (
                 <Link
                   href={`/trainer/trainerhistory/${activityRecord?._id}`}
-                  // target="_blank"
                   key={activityRecord?._id}
-                  className="grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className={`grid grid-cols-[70px,repeat(5,1fr)] border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 ${
+                    activityRecord?.isPlayDay
+                      ? "bg-yellow-100"
+                      : "hover:bg-gray-100"
+                  }`}
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}

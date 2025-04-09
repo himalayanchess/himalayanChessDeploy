@@ -288,7 +288,13 @@ const ProjectActivityRecords = ({
                 return (
                   <div
                     key={record?._id}
-                    className="grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                    className={`grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150
+                    ${
+                      record?.isPlayDay ||
+                      record?.mainStudyTopic?.toLowerCase() === "play"
+                        ? "bg-yellow-100 "
+                        : "hover:bg-gray-100"
+                    }`}
                   >
                     <span className="py-3 text-center text-xs text-gray-600">
                       {serialNumber}
