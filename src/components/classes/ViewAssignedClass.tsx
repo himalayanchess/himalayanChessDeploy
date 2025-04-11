@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { Box, Button, Modal } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -107,12 +109,13 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
         <div className="submit-buttons flex gap-4">
           {/* delete */}
           <Button
-            variant="contained"
+            variant="outlined"
             color="error"
             disabled={assignedClass?.recordUpdatedByTrainer}
             onClick={handleDeleteModalOpen}
           >
-            Delete
+            <DeleteIcon />
+            <span className="ml-1">Delete</span>
           </Button>
           {/* delete Modal */}
           <Modal
@@ -146,7 +149,8 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
             type="submit"
             variant="contained"
           >
-            Edit
+            <EditIcon />
+            <span className="ml-1">Update</span>
           </Button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, TextareaAutosize } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import { Box, Button, Modal, TextareaAutosize } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -11,6 +13,7 @@ import {
   updateTodaysClassRecord,
 } from "@/redux/trainerSlice";
 import { useDispatch } from "react-redux";
+import { LoadingButton } from "@mui/lab";
 
 const StudentActivity = ({
   selectedStudentList,
@@ -28,6 +31,8 @@ const StudentActivity = ({
   const [studyTopicModalOpen, setstudyTopicModalOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(""); // Track selected dropdown option
+  const [confirmModalOpen, setconfirmModalOpen] = useState(false);
+  const [updateRecordsLoading, setupdateRecordsLoading] = useState(false);
 
   // handlestudyTopicModalOpen
   function handlestudyTopicModalOpen(studentId) {
@@ -39,12 +44,22 @@ const StudentActivity = ({
     setstudyTopicModalOpen(false);
   }
 
+  // modal operation
+  function handleconfirmModalOpen() {
+    setconfirmModalOpen(true);
+  }
+
+  function handleconfirmModalClose() {
+    setconfirmModalOpen(false);
+  }
+
   const {
     handleSubmit,
     control,
     watch,
     setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isValid },
   } = useForm({
     defaultValues: {
       students: [],
@@ -68,37 +83,54 @@ const StudentActivity = ({
     }
   }, [attendanceChanged, selectedTodaysClass, students]);
 
-  useEffect(() => {
-    let updatedStudents = [];
+  // In your StudentActivity component
+  const [isLoadingClass, setIsLoadingClass] = useState(false);
 
-    if (
-      selectedTodaysClass?.studentRecords &&
-      selectedTodaysClass.studentRecords.length > 0
-    ) {
-      console.log("Using selectedTodaysClass.studentRecords");
-      updatedStudents = selectedTodaysClass.studentRecords.map((student) => ({
+  useEffect(() => {
+    if (!selectedTodaysClass) return;
+
+    setIsLoadingClass(true);
+
+    const defaultFormValues = {
+      students: [],
+      mainStudyTopic: "",
+    };
+
+    if (selectedTodaysClass?.studentRecords?.length > 0) {
+      defaultFormValues.students = selectedTodaysClass.studentRecords.map(
+        (student) => ({
+          _id: student._id,
+          name: student.name,
+          studyTopics: student.studyTopics || [],
+          completedStatus: student.completedStatus || false,
+          attendance: student.attendance || "absent",
+          remark: student.remark || "",
+        })
+      );
+      defaultFormValues.mainStudyTopic =
+        selectedTodaysClass.mainStudyTopic || "";
+    } else {
+      defaultFormValues.students = selectedStudentList.map((student) => ({
         _id: student._id,
         name: student.name,
-        studyTopics: student.studyTopics || [],
-        completedStatus: student.completedStatus ?? false,
-        attendance: student.attendance || "absent",
-        remark: student.remark || "",
-      }));
-    } else if (selectedStudentList) {
-      console.log("Using selectedStudentList");
-      updatedStudents = selectedStudentList.map((student) => ({
-        _id: student._id,
-        name: student.name,
-        studyTopics: student.studyTopics || [],
+        studyTopics: [],
         completedStatus: false,
-        attendance: student.attendance ?? "absent",
-        remark: student.remark ?? "",
+        attendance: "absent",
+        remark: "",
       }));
     }
 
-    setValue("students", updatedStudents);
-    setValue("mainStudyTopic", selectedTodaysClass?.mainStudyTopic || "");
-  }, [selectedTodaysClass, selectedStudentList, setValue]);
+    // Use setTimeout to ensure state is fully updated
+    const timer = setTimeout(() => {
+      reset(defaultFormValues, {
+        keepDefaultValues: false,
+        keepDirty: false,
+      });
+      setIsLoadingClass(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [selectedTodaysClass?._id, JSON.stringify(selectedStudentList)]);
 
   // Effect to handle applying the topic to all students
   useEffect(() => {
@@ -161,6 +193,7 @@ const StudentActivity = ({
   const onSubmit = async (data) => {
     try {
       console.log(data); // This will contain all student records
+      setupdateRecordsLoading(true);
       const { data: resData } = await axios.post(
         "/api/classes/updateStudentRecords",
         {
@@ -171,19 +204,39 @@ const StudentActivity = ({
       );
 
       if (resData?.statusCode == 200) {
+        handleconfirmModalClose();
         dispatch(updateTodaysClassRecord(resData.updatedActivityRecord));
       }
       notify(resData.msg, resData.statusCode);
     } catch (error) {
       console.log("studentactivity.tsx updatestudentsrecord", error);
+    } finally {
+      setupdateRecordsLoading(false);
     }
   };
+
+  // Add loading indicator to your form
+  if (isLoadingClass) {
+    return (
+      <div className="bg-white rounded-md  flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
+        <CircularProgress />
+        <span className="mt-2">Loading record...</span>
+      </div>
+    );
+  }
 
   return (
     <>
       <form
         className="overflow-x-auto rounded-md "
         onSubmit={handleSubmit(onSubmit)}
+        key={selectedTodaysClass?._id || "new-class"}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleconfirmModalOpen(); // Open modal instead of submitting form
+          }
+        }}
       >
         {/* mainstudytopic-assigneduser */}
         <div className="mainstudytopic-assigneduser flex justify-between items-center">
@@ -347,13 +400,12 @@ const StudentActivity = ({
                     <Controller
                       name={`students[${i}].completedStatus`}
                       control={control}
-                      defaultValue={students[i]?.completedStatus ?? false} // Ensure it reflects the form data
                       render={({ field }) => (
                         <input
                           title="Assignment complete status"
                           type="checkbox"
                           {...field}
-                          checked={field.value}
+                          checked={field.value || false}
                           className="scale-125 cursor-pointer"
                         />
                       )}
@@ -410,11 +462,66 @@ const StudentActivity = ({
           {/* Update button */}
           {students?.length > 0 && selectedTodaysClass && (
             <div className="update-record-button mt-4 mb-2">
-              <Button type="submit" variant="contained" color="primary">
-                Update record
+              <Button
+                onClick={handleconfirmModalOpen}
+                variant="contained"
+                color="primary"
+              >
+                Update Records
               </Button>
             </div>
           )}
+
+          {/* Hidden Submit Button */}
+          <button type="submit" id="hiddenSubmit" hidden></button>
+
+          {/* confirm modal */}
+          <Modal
+            open={confirmModalOpen}
+            onClose={handleconfirmModalClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            className="flex items-center justify-center"
+          >
+            <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
+              <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
+              <p className="mb-6 text-gray-600">
+                You want update student activity records.
+              </p>
+              <div className="buttons flex gap-5">
+                <Button
+                  variant="outlined"
+                  onClick={handleconfirmModalClose}
+                  className="text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+
+                {updateRecordsLoading ? (
+                  <LoadingButton
+                    size="large"
+                    loading={updateRecordsLoading}
+                    loadingPosition="start"
+                    variant="contained"
+                    className="mt-7"
+                  >
+                    <span className="">Updating</span>
+                  </LoadingButton>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="info"
+                    disabled={!isValid}
+                    onClick={() => {
+                      document.getElementById("hiddenSubmit").click();
+                    }}
+                  >
+                    Update Records
+                  </Button>
+                )}
+              </div>
+            </Box>
+          </Modal>
         </div>
       </form>
     </>

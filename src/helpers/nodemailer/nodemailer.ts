@@ -1,10 +1,17 @@
 import nodemailer from "nodemailer";
 import {
+  getClassAssignedEmailContent,
   getLeaveRequestEmailContent,
   getLeaveRequestResponseEmailContent,
   getOTPEmailContent,
 } from "./emailTemplates";
 import User from "@/models/UserModel";
+
+// array of superadmin and admin emails
+const superadminAndAdminRecepients: any = [
+  process.env.SUPERADMIN_GMAIL_ADDRESS!,
+  "inttemp09@gmail.com",
+];
 
 export async function sendOtpMail({ otp, email, subject }: any) {
   try {
@@ -86,5 +93,35 @@ export async function sendLeaveRequestResponseMail({
     return info;
   } catch (error) {
     console.log("Error sending leave request response email", error);
+  }
+}
+
+// send assign class email
+export async function sendAssignClassMail({ subject, assignedClass }: any) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_EMAIL_ADDRESS,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    console.log(
+      "indise send assign class mail function",
+      superadminAndAdminRecepients
+    );
+
+    const options = {
+      from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
+      to: superadminAndAdminRecepients,
+      subject,
+      html: getClassAssignedEmailContent(assignedClass),
+    };
+    const info = await transporter.sendMail(options);
+    console.log("Assign class email sent successfully");
+    return info;
+  } catch (error) {
+    console.log("Error sending assign class email", error);
   }
 }

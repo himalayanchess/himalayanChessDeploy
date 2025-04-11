@@ -7,6 +7,7 @@ import weekOfYear from "dayjs/plugin/weekOfYear";
 import isoWeek from "dayjs/plugin/isoWeek";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { sendAssignClassMail } from "@/helpers/nodemailer/nodemailer";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek);
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
       holidayDescription,
       userPresentStatus,
     } = reqBody;
+    console.log("assinged class", reqBody);
 
     // first convert date to nepali time format (understanding)
     const passedNepaliDate = dayjs(date).startOf("day").tz(timeZone);
@@ -137,6 +139,7 @@ export async function POST(request: NextRequest) {
     // }
 
     // add to assign class
+
     const newAssignClass = new ActivityRecord({
       ...reqBody,
       nepaliDate: passedNepaliDate.format(),
@@ -148,6 +151,10 @@ export async function POST(request: NextRequest) {
     const savedNewAssignClass = await newAssignClass.save();
 
     if (savedNewAssignClass) {
+      await sendAssignClassMail({
+        subject: "Class assignment to trainer",
+        assignedClass: reqBody,
+      });
       return NextResponse.json({
         statusCode: 200,
         msg: "Class Assigned",

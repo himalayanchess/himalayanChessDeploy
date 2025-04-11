@@ -8,8 +8,13 @@ import {
   FormLabel,
   Button,
   Checkbox,
+  Modal,
+  Box,
 } from "@mui/material";
+import { School, BookOpenCheck, Users } from "lucide-react";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import axios from "axios";
 import Input from "../Input";
 import { useForm, Controller } from "react-hook-form";
@@ -31,6 +36,7 @@ import {
   getAllStudents,
 } from "@/redux/allListSlice";
 import { useSession } from "next-auth/react";
+import { LoadingButton } from "@mui/lab";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utc);
@@ -59,10 +65,21 @@ const ManageClass = ({ selectedDate }: any) => {
   const [selectedBatchStudents, setselectedBatchStudents] = useState([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
+  const [assignClassLoading, setassignClassLoading] = useState(false);
+  const [confirmModalOpen, setconfirmModalOpen] = useState(false);
 
   const selectedDateUTC = dayjs(selectedDate).startOf("day");
   const todayUTC = dayjs().startOf("day");
   const isPastDate = selectedDateUTC.isBefore(todayUTC, "day");
+
+  // modal operation
+  function handleconfirmModalOpen() {
+    setconfirmModalOpen(true);
+  }
+
+  function handleconfirmModalClose() {
+    setconfirmModalOpen(false);
+  }
 
   const {
     register,
@@ -111,6 +128,7 @@ const ManageClass = ({ selectedDate }: any) => {
   // form submit function (assign class)
   const onSubmit = async (data) => {
     try {
+      setassignClassLoading(true);
       const { data: resData } = await axios.post("/api/classes/assignClass", {
         ...data,
         // date = selected date to get weekStartDate , weekEndDate, weekNumber in server side (assignClass route)
@@ -123,6 +141,7 @@ const ManageClass = ({ selectedDate }: any) => {
         assignedByName: session?.data?.user?.name,
       });
       if (resData.statusCode === 200) {
+        handleconfirmModalClose();
         // Notify success
         notify(resData.msg, resData.statusCode);
 
@@ -133,6 +152,8 @@ const ManageClass = ({ selectedDate }: any) => {
       }
     } catch (error) {
       console.log("Internal error in manageclass (assignclassroute)");
+    } finally {
+      setassignClassLoading(false);
     }
   };
 
@@ -241,15 +262,79 @@ const ManageClass = ({ selectedDate }: any) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleconfirmModalOpen(); // Open modal instead of submitting form
+        }
+      }}
       className="bg-white px-4 rounded-lg"
     >
       {/* Project Selection */}
       <div className="header flex justify-between items-center">
-        <h1 className="text-lg  font-bold ">Assign Class for {affiliatedTo}</h1>
+        <h1 className="text-lg  font-bold flex items-center">
+          <BookOpenCheck />
+          <span className="ml-2">Assign Class for {affiliatedTo}</span>
+        </h1>
         {/* <Button type="submit" variant="contained" disabled={isPastDate}> */}
-        <Button type="submit" variant="contained">
-          Assign
+
+        <Button
+          onClick={handleconfirmModalOpen}
+          variant="contained"
+          disabled={isPastDate}
+        >
+          <AssignmentTurnedInIcon />
+          <span className="ml-2">Assign</span>
         </Button>
+        {/* Hidden Submit Button */}
+        <button type="submit" id="hiddenSubmit" hidden></button>
+
+        {/* confirm modal */}
+        <Modal
+          open={confirmModalOpen}
+          onClose={handleconfirmModalClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          className="flex items-center justify-center"
+        >
+          <Box className="w-[400px] h-max p-6  flex flex-col items-center bg-white rounded-xl shadow-lg">
+            <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
+            <p className="mb-6 text-gray-600">
+              You want to assign class to trainer.
+            </p>
+            <div className="buttons flex gap-5">
+              <Button
+                variant="outlined"
+                onClick={handleconfirmModalClose}
+                className="text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+
+              {assignClassLoading ? (
+                <LoadingButton
+                  size="large"
+                  loading={assignClassLoading}
+                  loadingPosition="start"
+                  variant="contained"
+                  className="mt-7"
+                >
+                  <span className="">Assigning</span>
+                </LoadingButton>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="info"
+                  onClick={() => {
+                    document.getElementById("hiddenSubmit").click();
+                  }}
+                >
+                  Assign Class
+                </Button>
+              )}
+            </div>
+          </Box>
+        </Modal>
       </div>
       <p className="mb-2">
         {dayjs().tz(timeZone).startOf("day").format("MMMM D, YYYY - dddd")}
@@ -265,7 +350,8 @@ const ManageClass = ({ selectedDate }: any) => {
             disableElevation
             onClick={() => handleContractTypeChange("HCA")}
           >
-            HCA
+            <SchoolOutlinedIcon />
+            <span className="ml-2">HCA</span>
           </Button>
           <Button
             variant={affiliatedTo === "School" ? "contained" : "outlined"}
@@ -273,7 +359,8 @@ const ManageClass = ({ selectedDate }: any) => {
             disableElevation
             onClick={() => handleContractTypeChange("School")}
           >
-            School
+            <School />
+            <span className="ml-2">School</span>
           </Button>
         </div>
         {/* holiday status container */}
@@ -568,21 +655,23 @@ const ManageClass = ({ selectedDate }: any) => {
       </div>
       <Divider sx={{ margin: "1rem 0" }} />
       {/* Students List */}
-      <div>
-        <h1 className="text-lg font-bold mb-2">Students</h1>
+      <div className="flex-1">
+        <h1 className="text-lg font-bold mb-2 flex items-center">
+          <Users />
+          <span className="ml-2 text-lg">Students</span>
+        </h1>
         {selectedBatchStudents.length === 0 ? (
           <p>No Students</p>
         ) : (
-          <div className="flex flex-col rounded-md overflow-y-auto border">
+          <div className="flex-1 h-[220px] flex flex-col rounded-md overflow-y-auto border">
             {/* heading */}
-
             <div className="heading grid grid-cols-[70px,repeat(4,1fr)] bg-gray-200 text-sm">
-              <span className="py-2 text-center">SN</span>
-              <span className="py-2 col-span-2">Name</span>
-              <span className="py-2  col-span-2">Gender</span>
+              <span className="py-2 text-center font-bold">SN</span>
+              <span className="py-2 col-span-2 font-bold">Name</span>
+              <span className="py-2  col-span-2 font-bold">Gender</span>
             </div>
-
             {/* students list */}
+
             {selectedBatchStudents.map((student: any, i: any) => (
               <div
                 key={`${student?.name}${i}`}

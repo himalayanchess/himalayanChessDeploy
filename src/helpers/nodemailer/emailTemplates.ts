@@ -366,3 +366,141 @@ export function getLeaveRequestResponseEmailContent(
     </html>
   `;
 }
+
+export function getClassAssignedEmailContent({
+  trainerName,
+  trainerId,
+  courseName,
+  courseId,
+  batchName,
+  batchId,
+  startTime,
+  endTime,
+  userPresentStatus,
+  trainerRole,
+  date,
+  affiliatedTo,
+  isPlayDay,
+  assignedByName,
+}: any) {
+  const formattedStartTime = dayjs(startTime)
+    .tz("Asia/Kathmandu")
+    .format("MMMM D, YYYY, h:mm A");
+  const formattedEndTime = dayjs(endTime)
+    .tz("Asia/Kathmandu")
+    .format("MMMM D, YYYY, h:mm A");
+
+  const assignedDate = dayjs(date)
+    .tz("Asia/Kathmandu")
+    .format("MMMM D, YYYY, h:mm A");
+
+  return `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f4f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+          }
+          .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+          }
+          .header {
+            background-color: #e3f2fd;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          .section {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+          }
+          .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+          }
+          .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 30px;
+            padding: 10px 0;
+          }
+          p {
+            margin: 6px 0;
+          }
+
+          @media (max-width: 600px) {
+            .header {
+              font-size: 20px;
+              padding: 15px;
+            }
+            .section {
+              padding: 10px 15px;
+            }
+            .section-title {
+              font-size: 15px;
+            }
+            .container {
+              padding: 15px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">Class Assigned Notification</div>
+
+          <p><strong>Dear Superadmin,</strong></p>
+          <p>A new class has been assigned to the following trainer:</p>
+
+          <div class="section">
+            <div class="section-title">Trainer Information</div>
+            <p><strong>Name:</strong> ${trainerName}</p>
+            <p><strong>Role:</strong> ${trainerRole}</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Class & Batch Details</div>
+            <p><strong>Course:</strong> ${courseName}</p>
+            <p><strong>Batch:</strong> ${batchName}</p>
+            <p><strong>Affiliated To:</strong> ${affiliatedTo}</p>
+            <p><strong>Play Day:</strong> ${isPlayDay ? "Yes" : "No"}</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Schedule</div>
+            <p><strong>Start:</strong> ${formattedStartTime}</p>
+            <p><strong>End:</strong> ${formattedEndTime}</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Assigned By</div>
+            <p><strong>Name:</strong> ${assignedByName}</p>
+            <p><strong>Date:</strong> ${assignedDate}</p>
+          </div>
+
+          <p>Thank you.</p>
+          <p><strong>Himalayan Chess Academy</strong></p>
+
+          <div class="footer">
+            &copy; Himalayan Chess Academy — All rights reserved.
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
