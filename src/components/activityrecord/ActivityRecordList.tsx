@@ -47,7 +47,7 @@ const ActivityRecordList = ({
   if (!loaded) return <div></div>;
 
   return (
-    <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">
+    <div className="overflow-y-auto mt-3 flex-1 h-full border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
       <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
@@ -113,7 +113,7 @@ const ActivityRecordList = ({
                     activityRecord?._id
                   }`}
                   key={activityRecord?._id}
-                  className={`grid grid-cols-[70px,repeat(6,1fr)] border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150
+                  className={` grid grid-cols-[70px,repeat(6,1fr)] border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150
                   ${
                     activityRecord?.isPlayDay ||
                     activityRecord?.mainStudyTopic?.toLowerCase() === "play"
@@ -121,15 +121,15 @@ const ActivityRecordList = ({
                       : "hover:bg-gray-100"
                   }`}
                 >
-                  <span className="text-sm text-center font-medium text-gray-600">
+                  <span className="text-xs text-center font-medium text-gray-600">
                     {serialNumber}
                   </span>
-                  <span className=" text-left px-1 text-sm font-medium text-gray-600 underline hover:text-blue-500">
+                  <span className=" text-left px-1 text-xs font-medium text-gray-600 underline hover:text-blue-500">
                     {dayjs(activityRecord?.nepaliDate)
                       .tz(timeZone)
                       .format("MMMM D, YYYY, ddd")}
                   </span>
-                  <span className=" text-left px-1 text-sm font-medium text-gray-600">
+                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
                     {activityRecord?.batchName}
                   </span>
                   {/* all unique topics */}
@@ -150,7 +150,7 @@ const ActivityRecordList = ({
                     {activityRecord?.trainerName}
                   </span>
 
-                  <span className=" text-left px-1 text-sm font-medium text-gray-600">
+                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
                     <span
                       className={`text-xs text-white font-bold rounded-full px-2 py-1 ${
                         activityRecord?.userPresentStatus?.toLowerCase() ===

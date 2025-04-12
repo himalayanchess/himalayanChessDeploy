@@ -197,7 +197,7 @@ const StudentActivityRecords = ({
       {/* header */}
       <div className="header w-full">
         {/* Top Filters */}
-        <div className="topheader w-full grid grid-cols-4 gap-3 mt-3">
+        <div className="topheader w-full grid grid-cols-4 gap-3 mt-0">
           <Dropdown
             label="Affiliated to"
             options={affilatedToOptions}
@@ -345,7 +345,7 @@ const StudentActivityRecords = ({
                 return (
                   <div
                     key={record?._id}
-                    className={`grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-3 items-center cursor-pointer transition-all ease duration-150
+                    className={`grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150
                     ${
                       record?.isPlayDay ||
                       record?.mainStudyTopic?.toLowerCase() === "play"
