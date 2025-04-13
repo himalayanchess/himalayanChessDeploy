@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import {
+  getBirthdayEmailContent,
   getClassAssignedEmailContent,
   getLeaveRequestEmailContent,
   getLeaveRequestResponseEmailContent,
@@ -120,6 +121,34 @@ export async function sendAssignClassMail({ subject, assignedClass }: any) {
     };
     const info = await transporter.sendMail(options);
     console.log("Assign class email sent successfully");
+    return info;
+  } catch (error) {
+    console.log("Error sending assign class email", error);
+  }
+}
+
+export async function sendBirthdayMail({
+  subject,
+  birthdayStudents,
+  todaysDate,
+}: any) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_EMAIL_ADDRESS,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+
+    const options = {
+      from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
+      to: superadminAndAdminRecepients,
+      subject,
+      html: getBirthdayEmailContent({ birthdayStudents, todaysDate }),
+    };
+    const info = await transporter.sendMail(options);
+    console.log("Birthday email email sent successfully");
     return info;
   } catch (error) {
     console.log("Error sending assign class email", error);

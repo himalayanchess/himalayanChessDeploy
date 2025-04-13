@@ -504,3 +504,91 @@ export function getClassAssignedEmailContent({
     </html>
   `;
 }
+
+export function getBirthdayEmailContent({ birthdayStudents, todaysDate }: any) {
+  const studentListHTML = birthdayStudents
+    .map(
+      (s) =>
+        `<p><strong>🎉 ${s.name}</strong> — ${s.phone || "No phone number"}</p>`
+    )
+    .join("");
+
+  return `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f4f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+          }
+          .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+          }
+          .header {
+            background-color: #ffe082;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #d84315;
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          .section {
+            background-color: #fff8e1;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+          }
+          .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 30px;
+            padding: 10px 0;
+          }
+          p {
+            margin: 6px 0;
+          }
+
+          @media (max-width: 600px) {
+            .header {
+              font-size: 20px;
+              padding: 15px;
+            }
+            .section {
+              padding: 10px 15px;
+            }
+            .container {
+              padding: 15px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">🎂 Students with Birthdays Today</div>
+
+          <p><strong>Date:</strong> ${todaysDate}</p>
+
+          <div class="section">
+            <p>The following students have birthdays today:</p>
+            ${studentListHTML}
+          </div>
+
+          <p>Let's wish them a wonderful day! 🎉</p>
+          <p><strong>Himalayan Chess Academy</strong></p>
+
+          <div class="footer">
+            &copy; Himalayan Chess Academy — All rights reserved.
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
