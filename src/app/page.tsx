@@ -10,7 +10,7 @@ export default function Home() {
     const role = session?.user.role;
     console.log("session role ", session);
 
-    let redirectRoute = "/";
+    let redirectRoute = "/login";
     switch (session?.user?.role?.toLowerCase()) {
       case "superadmin":
         redirectRoute = "/superadmin/dashboard";

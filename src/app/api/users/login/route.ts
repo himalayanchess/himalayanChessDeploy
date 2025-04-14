@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { email, password } = reqBody;
     const fetchedUser = await User.findOne({ email });
-    console.log(
-      "asdfashdfp asjdfpkasdf;lasjdf[o",
-      email,
-      password,
-      fetchedUser
-    );
+    // console.log(
+    //   "asdfashdfp asjdfpkasdf;lasjdf[o",
+    //   email,
+    //   password,
+    //   fetchedUser
+    // );
 
     // user not found
     if (!fetchedUser) {
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       msg: "Login success",
       statusCode: 200,
+      fetchedUser
     });
   } catch (error) {
     console.log("Internal error in login route", error);

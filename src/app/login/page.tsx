@@ -27,39 +27,45 @@ const page = () => {
     const { data: resData } = await axios.post("/api/users/login", data);
 
     notify(resData?.msg, resData?.statusCode);
+
     if (resData.statusCode == 200) {
       const signInResData = await signIn("credentials", {
         redirect: false,
         email: data?.email,
         password: data?.password,
       });
-    }
-    const session = await getSession();
-    // console.log(session?.user);
 
-    setTimeout(() => {
-      setLoading(false);
-      let redirectRoute = "/";
-      switch (session?.user?.role) {
-        case "Superadmin":
-          redirectRoute = "/superadmin/dashboard";
-          break;
-        case "Admin":
-          redirectRoute = "/admin/dashboard";
-          break;
-        case "Trainer":
-          redirectRoute = "/trainer/dashboard";
-          break;
-        case "Student":
-          redirectRoute = "/student/dashboard";
-          break;
-        default:
-          break;
+      // console.log(session?.user);
+
+      if (signInResData?.status == 200) {
+        const session = await getSession();
+
+        setTimeout(() => {
+          setLoading(false);
+          let redirectRoute = "/login";
+          switch (session?.user?.role) {
+            case "Superadmin":
+              redirectRoute = "/superadmin/dashboard";
+              break;
+            case "Admin":
+              redirectRoute = "/admin/dashboard";
+              break;
+            case "Trainer":
+              redirectRoute = "/trainer/dashboard";
+              break;
+            case "Student":
+              redirectRoute = "/student/dashboard";
+              break;
+            default:
+              break;
+          }
+          console.log(redirectRoute);
+
+          router.push(redirectRoute);
+        }, 1000);
       }
-      console.log(redirectRoute);
-
-      router.push(redirectRoute);
-    }, 1000);
+    }
+    setLoading(false);
   };
 
   return (

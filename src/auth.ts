@@ -4,6 +4,7 @@ import CredentialProvider from "next-auth/providers/credentials";
 import { dbconnect } from "./helpers/dbconnect/dbconnect";
 import User from "./models/UserModel";
 import bcryptjs from "bcryptjs";
+import axios from "axios";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialProvider({
@@ -19,37 +20,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       },
       authorize: async ({ email, password }): Promise<any> => {
-        await dbconnect();
+        console.log("starting authorize in auth");
 
-        const fetchedUser = await User.findOne({ email });
-        // checks are done in login route (repeated here) was giving response as configuartin,200
-        // // Check if user exists
-        if (!fetchedUser) {
-          throw new Error("User not found");
-        }
-        console.log("asasd", fetchedUser);
-
-        //check users activeStatus
-        if (!fetchedUser?.activeStatus) {
-          console.log("inactiveeeeeeeee");
-
-          throw new Error("User is inactive");
-        }
-        // // Check password match
-        const passMatch = await bcryptjs.compare(
-          String(password),
-          fetchedUser.password
+        const { data: resData } = await axios.post(
+          `${process.env.NEXTAUTH_URL}/api/users/login`,
+          {
+            email,
+            password,
+          }
         );
 
-        if (!passMatch) {
-          throw new Error("Incorrect password");
+        // console.log("authorzie resdata of login", resData);
+        if (resData?.statusCode != 200) {
+          throw new Error(resData?.msg);
         }
 
         const user = {
-          _id: fetchedUser._id,
-          name: fetchedUser.name,
-          role: fetchedUser.role,
+          _id: resData?.fetchedUser._id,
+          name: resData?.fetchedUser.name,
+          role: resData?.fetchedUser.role,
         };
+        // console.log("authorzie user final", user);
         return user;
       },
     }),
