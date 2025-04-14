@@ -1,12 +1,19 @@
 import mongoose from "mongoose";
 
-export async function dbconnect() {
+export const dbconnect = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
+
+  if (!process.env.MONGO_URL!) {
+    throw new Error("MONGO_URL! environment variable is not defined");
+  }
+
   try {
     await mongoose.connect(process.env.MONGO_URL!);
-    const conn = mongoose.connection;
-    conn.on("connected", () => console.log("connected to mongodb"));
-    conn.on("error", () => console.log("failed to connect"));
-  } catch (error: any) {
-    console.log(error);
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    throw error;
   }
-}
+};
