@@ -29,16 +29,17 @@ const page = () => {
     notify(resData?.msg, resData?.statusCode);
 
     if (resData.statusCode == 200) {
+      console.log("after login check success");
       const signInResData = await signIn("credentials", {
         redirect: false,
         email: data?.email,
         password: data?.password,
       });
-
-      // console.log(session?.user);
+      console.log("after authorize in nextauth ", signInResData);
 
       if (signInResData?.status == 200) {
         const session = await getSession();
+        console.log("after success overl login session is", session);
 
         setTimeout(() => {
           setLoading(false);
