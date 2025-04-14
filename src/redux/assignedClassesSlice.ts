@@ -16,14 +16,16 @@ export const fetchAssignedClasses = createAsyncThunk(
   }
 );
 
+const initialState: any = {
+  allAssignedClasses: [],
+  allActiveAssignedClasses: [],
+  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  error: null,
+};
+
 const assignedClassesSlice = createSlice({
   name: "assignClass",
-  initialState: {
-    allAssignedClasses: [],
-    allActiveAssignedClasses: [],
-    status: "idle", // "idle" | "loading" | "succeeded" | "failed"
-    error: null,
-  },
+  initialState,
   reducers: {
     // append new assigned class
     addActiveAssignedClass: (state, action) => {
@@ -35,14 +37,14 @@ const assignedClassesSlice = createSlice({
     removeActiveAssignedClass: (state, action) => {
       const classId = action.payload._id;
       state.allActiveAssignedClasses = state.allActiveAssignedClasses.filter(
-        (assignedClass) => assignedClass?._id !== classId // Ensure proper comparison
+        (assignedClass: any) => assignedClass?._id !== classId // Ensure proper comparison
       );
     },
     // update class from active assigned class
     updateActiveAssignedClass: (state, action) => {
       const classId = action.payload._id;
       state.allActiveAssignedClasses = state.allActiveAssignedClasses.map(
-        (assignedClass) => {
+        (assignedClass: any) => {
           if (assignedClass?._id != classId) {
             return assignedClass;
           } else {
@@ -64,7 +66,7 @@ const assignedClassesSlice = createSlice({
 
         // set all (active) assigned classes
         state.allActiveAssignedClasses = action.payload?.filter(
-          (assignedClass) => assignedClass?.activeStatus === true
+          (assignedClass: any) => assignedClass?.activeStatus === true
         );
       })
       .addCase(fetchAssignedClasses.rejected, (state, action) => {

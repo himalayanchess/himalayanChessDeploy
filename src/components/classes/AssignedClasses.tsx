@@ -18,13 +18,13 @@ const AssignedClasses = ({ selectedDate }: any) => {
     (state: any) => state.assignedClassesReducer
   );
 
-  const [selectedAssignedClass, setSelectedAssignedClass] = useState(null);
+  const [selectedAssignedClass, setSelectedAssignedClass] = useState<any>(null);
   const [filteredAssignedClasses, setFilteredAssignedClasses] = useState([]);
   const [editAssignedClassModalOpen, setEditAssignedClassModalOpen] =
     useState(false);
 
   // Open modal and set the selected class
-  const handleEditAssignedModalOpen = (assignedClass) => {
+  const handleEditAssignedModalOpen = (assignedClass: any) => {
     setSelectedAssignedClass(assignedClass);
     setEditAssignedClassModalOpen(true);
   };

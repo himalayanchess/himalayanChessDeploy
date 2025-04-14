@@ -508,7 +508,7 @@ export function getClassAssignedEmailContent({
 export function getBirthdayEmailContent({ birthdayStudents, todaysDate }: any) {
   const studentListHTML = birthdayStudents
     .map(
-      (s) =>
+      (s: any) =>
         `<p><strong>🎉 ${s.name}</strong> — ${s.phone || "No phone number"}</p>`
     )
     .join("");

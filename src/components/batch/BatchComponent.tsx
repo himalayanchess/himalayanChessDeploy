@@ -54,7 +54,7 @@ const BatchComponent = ({ role = "" }: any) => {
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [batchesPerPage] = useState(7);
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
   // Reset current page to 1 and search text when selectedStatus changes
@@ -76,7 +76,7 @@ const BatchComponent = ({ role = "" }: any) => {
       selectedCompleteStatus.toLowerCase() == "all"
         ? allActiveBatches
         : allActiveBatches.filter(
-            (batch) =>
+            (batch: any) =>
               batch.completedStatus.toLowerCase() ==
               selectedCompleteStatus.toLowerCase()
           );
@@ -86,7 +86,7 @@ const BatchComponent = ({ role = "" }: any) => {
       selectedAffiliatedTo.toLowerCase() == "all"
         ? tempFilteredBatchesList
         : tempFilteredBatchesList.filter(
-            (batch) =>
+            (batch: any) =>
               batch.affiliatedTo.toLowerCase() ==
               selectedAffiliatedTo.toLowerCase()
           );
@@ -97,14 +97,14 @@ const BatchComponent = ({ role = "" }: any) => {
         selectedProject.toLowerCase() == "all"
           ? tempFilteredBatchesList
           : tempFilteredBatchesList.filter(
-              (batch) =>
+              (batch: any) =>
                 batch.projectName.toLowerCase() == selectedProject.toLowerCase()
             );
     }
 
     if (searchText.trim() !== "") {
       tempFilteredBatchesList = tempFilteredBatchesList.filter(
-        (batch) =>
+        (batch: any) =>
           batch.batchName.toLowerCase().includes(searchText.toLowerCase()) ||
           batch.projectName.toLowerCase().includes(searchText.toLowerCase())
       );
@@ -112,7 +112,10 @@ const BatchComponent = ({ role = "" }: any) => {
 
     tempFilteredBatchesList = tempFilteredBatchesList
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
     setfilteredBatchCount(tempFilteredBatchesList?.length);
     setCurrentPage(1);
@@ -153,7 +156,7 @@ const BatchComponent = ({ role = "" }: any) => {
             label="Project"
             options={[
               "All",
-              ...(allActiveProjects?.map((project) => project.name) || []),
+              ...(allActiveProjects?.map((project: any) => project.name) || []),
             ]}
             disabled={selectedAffiliatedTo.toLowerCase() != "school"}
             selected={selectedProject}
@@ -175,7 +178,7 @@ const BatchComponent = ({ role = "" }: any) => {
           <SearchInput
             placeholder="Search"
             value={searchText}
-            onChange={(e) => setsearchText(e.target.value)}
+            onChange={(e: any) => setsearchText(e.target.value)}
           />
 
           {/* add batch button */}

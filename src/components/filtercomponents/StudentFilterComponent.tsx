@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { Box, Divider, FormControlLabel, Modal, Radio } from "@mui/material";
 
-const FilterComponent = ({ selectedActiveStatus, setselectedActiveStatus }) => {
+const FilterComponent = ({
+  selectedActiveStatus,
+  setselectedActiveStatus,
+}: any) => {
   const [filterModalOpen, setfilterModalOpen] = useState(false);
 
   // handle modal operations

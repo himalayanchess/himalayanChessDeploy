@@ -1,1 +1,1 @@
-export const presentStatusOptions = ["present", "absent"];
+export const presentStatusOptions: any = ["present", "absent"];

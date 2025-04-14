@@ -19,26 +19,30 @@ export const fetchAllLeaveRequests = createAsyncThunk(
   }
 );
 
+const initialState: any = {
+  allLeaveRequests: [],
+  allFilteredLeaveRequests: [],
+  allLeaveRequestsLoading: true,
+  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  error: null,
+};
+
 const leaveApprovalSlice = createSlice({
   name: "leaveApproval",
-  initialState: {
-    allLeaveRequests: [],
-    allFilteredLeaveRequests: [],
-    allLeaveRequestsLoading: true,
-    status: "idle", // "idle" | "loading" | "succeeded" | "failed"
-    error: null,
-  },
+  initialState,
   reducers: {
     // update state after approving or rejecting
     updateApprovedLeaveRequest: (state, action) => {
       const leaveRecordId = action.payload._id;
-      state.allLeaveRequests = state.allLeaveRequests.map((assignedClass) => {
-        if (assignedClass?._id != leaveRecordId) {
-          return assignedClass;
-        } else {
-          return action.payload;
+      state.allLeaveRequests = state.allLeaveRequests.map(
+        (assignedClass: any) => {
+          if (assignedClass?._id != leaveRecordId) {
+            return assignedClass;
+          } else {
+            return action.payload;
+          }
         }
-      });
+      );
     },
     // fileter all leave request based on mode and trainer
     filterLeaveRequests: (state, action) => {
@@ -56,8 +60,11 @@ const leaveApprovalSlice = createSlice({
         state.status = "succeeded";
         // Filtering active leave requests and sorting by latest createdAt
         const tempAllLeaveRequests = action.payload
-          .filter((request) => request.activeStatus === true) // Keep only active requests
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by latest
+          .filter((request: any) => request.activeStatus === true) // Keep only active requests
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          ); // Sort by latest
         state.allLeaveRequests = tempAllLeaveRequests;
         state.allFilteredLeaveRequests = tempAllLeaveRequests;
         state.allLeaveRequestsLoading = false;

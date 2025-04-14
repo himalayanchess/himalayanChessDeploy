@@ -206,7 +206,7 @@ const AddStudent = () => {
 
   // Function to check for duplicate courses
   const isDuplicateCourse = (course: string) => {
-    return enrolledCourses.filter((c) => c.course === course).length > 1;
+    return enrolledCourses.filter((c: any) => c.course === course).length > 1;
   };
 
   // Function to add a new batch
@@ -224,11 +224,11 @@ const AddStudent = () => {
 
   // Function to check for duplicate courses
   const isDuplicateBatch = (batchName: string) => {
-    return batches.filter((c) => c.batchName === batchName).length > 1;
+    return batches.filter((c: any) => c.batchName === batchName).length > 1;
   };
 
   // onSubmit Function
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     try {
       setaddStudentLoading(true);
       const { data: resData } = await axios.post(
@@ -253,10 +253,10 @@ const AddStudent = () => {
   // filter batchs list and projects and set to state vars
   useEffect(() => {
     let tempHcaBatches = allActiveBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "hca"
+      (batch: any) => batch.affiliatedTo.toLowerCase() == "hca"
     );
     let tempSchoolBatches = allActiveBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "school"
+      (batch: any) => batch.affiliatedTo.toLowerCase() == "school"
     );
     sethcaBatchList(tempHcaBatches);
     setschoolBatchList(tempSchoolBatches);
@@ -357,9 +357,9 @@ const AddStudent = () => {
             label="Affiliated to"
             options={affiliatedToOptions}
             selected={selectedAffiliatedTo}
-            onChange={(value) => {
+            onChange={(value: any) => {
               setselectedAffiliatedTo(value);
-              reset((prevValues) => ({
+              reset((prevValues: any) => ({
                 ...prevValues,
                 affiliatedTo: value,
                 address: "",
@@ -428,7 +428,7 @@ const AddStudent = () => {
                   label="Gender"
                   options={genderOptions}
                   selected={field.value}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                   }}
                   error={errors.gender}
@@ -596,12 +596,12 @@ const AddStudent = () => {
               render={({ field }) => (
                 <Dropdown
                   label="Project name"
-                  options={projectList.map((project) => project.name)}
+                  options={projectList.map((project: any) => project.name)}
                   selected={field.value}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
-                    const selectedProject = projectList.find(
-                      (project) => project.name == value
+                    const selectedProject: any = projectList.find(
+                      (project: any) => project.name == value
                     );
 
                     setValue("projectId", selectedProject._id);
@@ -626,7 +626,7 @@ const AddStudent = () => {
                 label="Status"
                 options={statusOptions}
                 selected={field.value}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
                 }}
                 required={true}
@@ -657,7 +657,7 @@ const AddStudent = () => {
                     label="Title"
                     options={titleOptions}
                     selected={field.value}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.title}
@@ -736,8 +736,10 @@ const AddStudent = () => {
                     value={field.value || ""}
                     label="Guardian Full Name"
                     type="text"
-                    error={errors?.guardianInfo?.name}
-                    helperText={errors?.guardianInfo?.name?.message}
+                    // error={errors?.guardianInfo?.name}
+                    // helperText={errors?.guardianInfo?.name?.message}
+                    error={!!errors["guardianInfo.name"]}
+                    helperText={errors["guardianInfo.name"]?.message as string}
                     required={true}
                   />
                 )}
@@ -760,8 +762,10 @@ const AddStudent = () => {
                     value={field.value || ""}
                     label="Guardian Phone no"
                     type="number"
-                    error={errors?.guardianInfo?.phone}
-                    helperText={errors?.guardianInfo?.phone?.message}
+                    // error={errors?.guardianInfo?.phone}
+                    // helperText={errors?.guardianInfo?.phone?.message}
+                    error={!!errors["guardianInfo.phone"]}
+                    helperText={errors["guardianInfo.phone"]?.message as string}
                     required={true}
                   />
                 )}
@@ -782,8 +786,10 @@ const AddStudent = () => {
                     value={field.value || ""}
                     label="Guardian email"
                     type="text"
-                    error={errors?.guardianInfo?.email}
-                    helperText={errors?.guardianInfo?.email?.message}
+                    // error={errors?.guardianInfo?.email}
+                    // helperText={errors?.guardianInfo?.email?.message}
+                    error={!!errors["guardianInfo.email"]}
+                    helperText={errors["guardianInfo.email"]?.message as string}
                   />
                 )}
               />
@@ -857,7 +863,7 @@ const AddStudent = () => {
             <p className="text-gray-500 mb-2  ">No Batch yet.</p>
           ) : (
             batchesFields
-              .filter((batch) => batch.activeStatus == true)
+              .filter((batch: any) => batch.activeStatus == true)
               .map((batch, index) => (
                 <div key={batch?.id} className="col-span-2 mb-2">
                   <div className="grid grid-cols-4 items-center place-items-start gap-3">
@@ -867,8 +873,8 @@ const AddStudent = () => {
                       control={control}
                       rules={{
                         required: "Batch is required",
-                        validate: (value) =>
-                          (value && !isDuplicateBatch(value, index)) ||
+                        validate: (value: any) =>
+                          (value && !isDuplicateBatch(value)) ||
                           "Duplicate batch selected",
                       }}
                       render={({ field }) => (
@@ -876,18 +882,22 @@ const AddStudent = () => {
                           label="Batch"
                           options={
                             selectedAffiliatedTo?.toLowerCase() == "hca"
-                              ? hcaBatchList.map((batch) => batch.batchName)
-                              : schoolBatchList.map((batch) => batch.batchName)
+                              ? hcaBatchList.map(
+                                  (batch: any) => batch.batchName
+                                )
+                              : schoolBatchList.map(
+                                  (batch: any) => batch.batchName
+                                )
                           }
                           selected={field.value || ""}
-                          onChange={(value) => {
+                          onChange={(value: any) => {
                             field.onChange(value);
                             let selectedBatchList =
                               selectedAffiliatedTo.toLowerCase() == "hca"
                                 ? hcaBatchList
                                 : schoolBatchList;
-                            const selectedBatch = selectedBatchList.find(
-                              (batch) => batch.batchName == value
+                            const selectedBatch: any = selectedBatchList.find(
+                              (batch: any) => batch.batchName == value
                             );
                             setValue(
                               `batches.${index}.batchId`,
@@ -895,9 +905,14 @@ const AddStudent = () => {
                             );
                           }}
                           width="full"
-                          error={errors?.batches?.[index]?.batchName}
+                          // error={errors?.batches?.[index]?.batchName}
+                          // helperText={
+                          //   errors?.batches?.[index]?.batchName?.message
+                          // }
+                          error={!!(errors.batches as any)?.[index]?.batchName}
                           helperText={
-                            errors?.batches?.[index]?.batchName?.message
+                            (errors.batches as any)?.[index]?.batchName
+                              ?.message as string
                           }
                         />
                       )}
@@ -922,9 +937,14 @@ const AddStudent = () => {
                                   .split("T")[0]
                               : ""
                           }
-                          error={errors?.batches?.[index]?.startDate}
+                          // error={errors?.batches?.[index]?.startDate}
+                          // helperText={
+                          //   errors?.batches?.[index]?.startDate?.message
+                          // }
+                          error={!!(errors.batches as any)?.[index]?.startDate}
                           helperText={
-                            errors?.batches?.[index]?.startDate?.message
+                            (errors.batches as any)?.[index]?.startDate
+                              ?.message as string
                           }
                           width="full"
                         />
@@ -951,9 +971,14 @@ const AddStudent = () => {
                                   .split("T")[0]
                               : ""
                           }
-                          error={errors?.batches?.[index]?.endDate}
+                          // error={errors?.batches?.[index]?.endDate}
+                          // helperText={
+                          //   errors?.batches?.[index]?.endDate?.message
+                          // }
+                          error={!!(errors.batches as any)?.[index]?.endDate}
                           helperText={
-                            errors?.batches?.[index]?.endDate?.message
+                            (errors.batches as any)?.[index]?.endDate
+                              ?.message as string
                           }
                           width="full"
                         />
@@ -999,15 +1024,15 @@ const AddStudent = () => {
                     rules={{
                       required: "Course is required",
                       validate: (value) =>
-                        (value && !isDuplicateCourse(value, index)) ||
+                        (value && !isDuplicateCourse(value)) ||
                         "Duplicate course selected",
                     }}
                     render={({ field }) => (
                       <Dropdown
                         label="Course"
-                        options={allActiveCoursesList.map((c) => c.name)}
+                        options={allActiveCoursesList.map((c: any) => c.name)}
                         selected={field.value}
-                        onChange={(value) => {
+                        onChange={(value: any) => {
                           field.onChange(value);
                           const selectedCourse = allActiveCoursesList.find(
                             (course: any) => course.name == value
@@ -1019,9 +1044,16 @@ const AddStudent = () => {
                           trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                         }}
                         width="full"
-                        error={errors?.enrolledCourses?.[index]?.course}
+                        // error={errors?.enrolledCourses?.[index]?.course}
+                        // helperText={
+                        //   errors?.enrolledCourses?.[index]?.course?.message
+                        // }
+                        error={
+                          !!(errors.enrolledCourses as any)?.[index]?.course
+                        }
                         helperText={
-                          errors?.enrolledCourses?.[index]?.course?.message
+                          (errors.enrolledCourses as any)?.[index]?.course
+                            ?.message as string
                         }
                       />
                     )}
@@ -1044,9 +1076,16 @@ const AddStudent = () => {
                             ? new Date(field.value).toISOString().split("T")[0]
                             : ""
                         }
-                        error={errors?.enrolledCourses?.[index]?.startDate}
+                        // error={errors?.enrolledCourses?.[index]?.startDate}
+                        // helperText={
+                        //   errors?.enrolledCourses?.[index]?.startDate?.message
+                        // }
+                        error={
+                          !!(errors.enrolledCourses as any)?.[index]?.startDate
+                        }
                         helperText={
-                          errors?.enrolledCourses?.[index]?.startDate?.message
+                          (errors.enrolledCourses as any)?.[index]?.startDate
+                            ?.message as string
                         }
                         width="full"
                       />
@@ -1071,9 +1110,16 @@ const AddStudent = () => {
                             ? new Date(field.value).toISOString().split("T")[0]
                             : ""
                         }
-                        error={errors?.enrolledCourses?.[index]?.endDate}
+                        // error={errors?.enrolledCourses?.[index]?.endDate}
+                        // helperText={
+                        //   errors?.enrolledCourses?.[index]?.endDate?.message
+                        // }
+                        error={
+                          !!(errors.enrolledCourses as any)?.[index]?.endDate
+                        }
                         helperText={
-                          errors?.enrolledCourses?.[index]?.endDate?.message
+                          (errors.enrolledCourses as any)?.[index]?.endDate
+                            ?.message as string
                         }
                         width="full"
                       />
@@ -1142,7 +1188,7 @@ const AddStudent = () => {
                     variant="contained"
                     color="info"
                     onClick={() => {
-                      document.getElementById("hiddenSubmit").click();
+                      document.getElementById("hiddenSubmit")?.click();
 
                       if (!isValid) {
                         handleconfirmModalClose();

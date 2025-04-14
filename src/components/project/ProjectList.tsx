@@ -36,7 +36,7 @@ const ProjectList = ({
   const [viewModalOpen, setViewModalOpen] = useState(false);
 
   // project Delete Function
-  async function handleProjectDelete(id) {
+  async function handleProjectDelete(id: any) {
     try {
       const { data: resData } = await axios.post(
         "/api/projects/deleteProject",
@@ -57,7 +57,7 @@ const ProjectList = ({
     }
   }
   // view modal open
-  function handleViewModalOpen(project) {
+  function handleViewModalOpen(project: any) {
     console.log(project);
     setselectedViewProject(project);
     setViewModalOpen(true);
@@ -68,7 +68,7 @@ const ProjectList = ({
     setViewModalOpen(false);
   }
 
-  function handleDeleteModalOpen(projectId, projectName) {
+  function handleDeleteModalOpen(projectId: any, projectName: any) {
     setselectedProjectId(projectId);
     setselectedProjectName(projectName);
     setDeleteModalOpen(true);
@@ -152,7 +152,7 @@ const ProjectList = ({
                     {project?.address}
                   </span>
                   <div className=" text-sm text-gray-700 flex gap-1">
-                    {project?.assignedTrainers?.map((trainer, i) => {
+                    {project?.assignedTrainers?.map((trainer: any, i: any) => {
                       return (
                         <span
                           key={trainer?.trainerId}

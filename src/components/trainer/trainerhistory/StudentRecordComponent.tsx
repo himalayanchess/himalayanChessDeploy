@@ -59,7 +59,7 @@ const StudentRecordComponent = ({ studentRecords }: any) => {
           <span className="py-2 px-4 border-b text-left">Remark</span>
           <span className="py-2 px-4 border-b text-left">Attendance</span>
         </div>
-        {studentRecords.map((student, index) => (
+        {studentRecords.map((student: any, index: any) => (
           <div
             key={"record" + student._id}
             className="grid grid-cols-[60px,repeat(5,1fr)] text-xs"
@@ -81,7 +81,7 @@ const StudentRecordComponent = ({ studentRecords }: any) => {
             </Link>
             <span className="py-2 px-4 border-b break-words">
               <ul>
-                {student.studyTopics.map((topic, i) => (
+                {student.studyTopics.map((topic: any, i: any) => (
                   <li key={"topic" + i}>{topic}</li>
                 ))}
               </ul>

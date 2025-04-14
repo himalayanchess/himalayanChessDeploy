@@ -24,13 +24,15 @@ export const fetchAllTrainersLeaveRequests = createAsyncThunk(
   }
 );
 
+const initialState: any = {
+  allTrainersLeaveRequests: [],
+  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  error: null,
+};
+
 const leaveRequestSlice = createSlice({
   name: "leaverequest",
-  initialState: {
-    allTrainersLeaveRequests: [],
-    status: "idle", // "idle" | "loading" | "succeeded" | "failed"
-    error: null,
-  },
+  initialState,
   reducers: {
     // append new leave request
     addLeaveRequest: (state: any, action: any) => {
@@ -47,7 +49,7 @@ const leaveRequestSlice = createSlice({
     removeLeaveRequest: (state: any, action: any) => {
       const leaveRequestId = action.payload._id;
       state.allTrainersLeaveRequests = state.allTrainersLeaveRequests.filter(
-        (leaveRequest) => leaveRequest?._id != leaveRequestId
+        (leaveRequest: any) => leaveRequest?._id != leaveRequestId
       );
     },
   },
@@ -61,8 +63,11 @@ const leaveRequestSlice = createSlice({
         // Filtering active leave requests and sorting by latest createdAt
         let tempallTrainersLeaveRequests = action.payload;
         state.allTrainersLeaveRequests = tempallTrainersLeaveRequests
-          ?.filter((leaveRequest) => leaveRequest?.activeStatus)
-          ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sorting by latest createdAt
+          ?.filter((leaveRequest: any) => leaveRequest?.activeStatus)
+          ?.sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          ); // Sorting by latest createdAt
       });
   },
 });

@@ -52,8 +52,6 @@ const attendaceSlice = createSlice({
 
       state.selectedDatesAttendanceRecord = action.payload;
     },
-
- 
   },
   extraReducers: (builder) => {
     builder
@@ -64,14 +62,14 @@ const attendaceSlice = createSlice({
         console.log("after all attendance records", action.payload);
 
         state.allAttedanceRecordsList = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
         const sortedAttendanceRecords = action.payload
           ?.filter((attendanceRecord: any) => attendanceRecord.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 
@@ -85,7 +83,6 @@ export const {
   updateAttendanceChartData,
   setattendanceUpdatedByData,
   setselectedDatesAttendanceRecord,
-  setNewAttendanceUpdated,
 } = attendaceSlice.actions;
 
 export default attendaceSlice.reducer;

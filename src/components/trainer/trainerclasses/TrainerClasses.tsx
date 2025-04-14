@@ -30,7 +30,7 @@ const TrainerClasses = () => {
     selectedCourseLessons,
     status,
     error,
-  } = useSelector((state) => state.trainerReducer);
+  } = useSelector((state: any) => state.trainerReducer);
 
   // console.log(selectedTodaysClass);
   const [hasFetched, setHasFetched] = useState(false);

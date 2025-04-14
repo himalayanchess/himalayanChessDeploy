@@ -51,7 +51,7 @@ const TrainerHistory = () => {
   const [useDateFilter, setuseDateFilter] = useState(false);
 
   // handle page change
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -141,7 +141,7 @@ const TrainerHistory = () => {
               label="Date"
               type="month"
               value={selectedDate}
-              onChange={(e) => setselectedDate(e.target.value)}
+              onChange={(e: any) => setselectedDate(e.target.value)}
             />
             <button
               className="ml-2 pb-2"
@@ -157,7 +157,7 @@ const TrainerHistory = () => {
               control={
                 <Checkbox
                   checked={useDateFilter}
-                  onChange={(e) => setuseDateFilter(e.target.checked)}
+                  onChange={(e: any) => setuseDateFilter(e.target.checked)}
                   color="primary"
                 />
               }

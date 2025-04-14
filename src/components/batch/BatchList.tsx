@@ -30,7 +30,7 @@ const BatchList = ({
   // Delete Modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  function handleDeleteModalOpen(batchId, batchName) {
+  function handleDeleteModalOpen(batchId: any, batchName: any) {
     setSelectedBatchId(batchId);
     setSelectedBatchName(batchName);
     setDeleteModalOpen(true);
@@ -39,7 +39,7 @@ const BatchList = ({
     setDeleteModalOpen(false);
   }
   // handleBatchDelete
-  async function handleBatchDelete(id) {
+  async function handleBatchDelete(id: any) {
     try {
       const { data: resData } = await axios.post("/api/batches/deleteBatch", {
         batchId: id,

@@ -1,1 +1,1 @@
-export const skillLevelOptions = ["Beginner", "Intermediate", "Advanced"];
+export const skillLevelOptions: any = ["Beginner", "Intermediate", "Advanced"];

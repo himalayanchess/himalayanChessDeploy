@@ -29,7 +29,7 @@ const CourseList = ({
   // Delete Modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  function handleDeleteModalOpen(courseId, courseName) {
+  function handleDeleteModalOpen(courseId: any, courseName: any) {
     setSelectedCourseId(courseId);
     setSelectedCourseName(courseName);
     setDeleteModalOpen(true);
@@ -37,7 +37,7 @@ const CourseList = ({
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
-  async function handleCourseDelete(id) {
+  async function handleCourseDelete(id: any) {
     try {
       const { data: resData } = await axios.post("/api/courses/deleteCourse", {
         courseId: id,

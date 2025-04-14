@@ -96,42 +96,42 @@ export const getAllCourses = createAsyncThunk(
   }
 );
 
+const initialState: any = {
+  allTrainerList: [],
+  allActiveTrainerList: [],
+  allTrainerListLoading: true,
+
+  allBatches: [],
+  allActiveBatches: [],
+  allFilteredActiveBatches: [],
+  allBatchesLoading: true,
+
+  allProjects: [],
+  allActiveProjects: [],
+  allFilteredActiveProjects: [],
+  allProjectsLoading: true,
+
+  allStudentsList: [],
+  allActiveStudentsList: [],
+  allFilteredActiveStudents: [],
+  allStudentsLoading: true,
+
+  allUsersList: [],
+  allActiveUsersList: [],
+  allFilteredActiveUsersList: [],
+  allUsersLoading: true,
+
+  allCoursesList: [],
+  allActiveCoursesList: [],
+  allFilteredActiveCoursesList: [],
+  allCoursesLoading: true,
+
+  status: "",
+};
+
 const allListSlice = createSlice({
   name: "allList",
-  initialState: {
-    // trainer list
-    allTrainerList: [],
-    allActiveTrainerList: [],
-    allTrainerListLoading: true,
-    // batches
-    allBatches: [],
-    allActiveBatches: [],
-    allFilteredActiveBatches: [],
-    allBatchesLoading: true,
-    // batches
-    allProjects: [],
-    allActiveProjects: [],
-    allFilteredActiveProjects: [],
-    allProjectsLoading: true,
-    // students
-    allStudentsList: [],
-    allActiveStudentsList: [],
-    allFilteredActiveStudents: [],
-    allStudentsLoading: true,
-    // users (trainers,admin,superadmin)
-    allUsersList: [],
-    allActiveUsersList: [],
-    allFilteredActiveUsersList: [],
-    allUsersLoading: true,
-    // courses
-    allCoursesList: [],
-    allActiveCoursesList: [],
-    allFilteredActiveCoursesList: [],
-    allCoursesLoading: true,
-
-    // status
-    status: "",
-  },
+  initialState,
   reducers: {
     // update allFilteredActiveStudents state
     filterStudentsList: (state, action) => {
@@ -215,7 +215,7 @@ const allListSlice = createSlice({
 
         // Sorting trainers by createdAt (latest first)
         const sortedTrainers = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
@@ -223,7 +223,7 @@ const allListSlice = createSlice({
 
         // Filtering active trainers after sorting
         state.allActiveTrainerList = sortedTrainers?.filter(
-          (trainer) => trainer.activeStatus
+          (trainer: any) => trainer.activeStatus
         );
 
         state.allTrainerListLoading = false;
@@ -242,14 +242,14 @@ const allListSlice = createSlice({
         console.log("after all batches", action.payload);
 
         state.allBatches = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         // Sorting batches by createdAt (assuming createdAt is a valid date string or timestamp)
         const sortedBatches = action.payload
-          ?.filter((batch) => batch.activeStatus)
+          ?.filter((batch: any) => batch.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 
@@ -268,15 +268,15 @@ const allListSlice = createSlice({
 
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
         state.allProjects = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
         const sortedProjects = action.payload
-          ?.filter((project) => project.activeStatus)
+          ?.filter((project: any) => project.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 
@@ -321,14 +321,14 @@ const allListSlice = createSlice({
         console.log("after all users", action.payload);
 
         state.allUsersList = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
         const sortedUsers = action.payload
-          ?.filter((user) => user.activeStatus)
+          ?.filter((user: any) => user.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 
@@ -347,14 +347,14 @@ const allListSlice = createSlice({
         console.log("after all courses", action.payload);
 
         state.allCoursesList = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
         const sortedCourses = action.payload
-          ?.filter((course) => course.activeStatus)
+          ?.filter((course: any) => course.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 

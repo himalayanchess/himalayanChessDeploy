@@ -61,25 +61,27 @@ export const getAllCourses = createAsyncThunk(
   }
 );
 
+const initialState: any = {
+  trainersTodaysClasses: [],
+  selectedTodaysClass: null,
+  studentList: [],
+  allStudentActiveList: [],
+  selectedStudentList: [],
+  // course
+  allCourseList: [],
+  allActiveCourseList: [],
+  selectedCourseLessons: [],
+
+  // for attendance analysis
+  attendanceStudentRecordsList: [],
+  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  error: null,
+  loadingTodaysClasses: true,
+};
+
 const trainerSlice = createSlice({
   name: "assignClass",
-  initialState: {
-    trainersTodaysClasses: [],
-    selectedTodaysClass: null,
-    studentList: [],
-    allStudentActiveList: [],
-    selectedStudentList: [],
-    // course
-    allCourseList: [],
-    allActiveCourseList: [],
-    selectedCourseLessons: [],
-
-    // for attendance analysis
-    attendanceStudentRecordsList: [],
-    status: "idle", // "idle" | "loading" | "succeeded" | "failed"
-    error: null,
-    loadingTodaysClasses: true,
-  },
+  initialState,
   reducers: {
     // set todays class and update the student list of that selected batch
     selectTodaysClass: (state, action) => {
@@ -92,10 +94,10 @@ const trainerSlice = createSlice({
       // If it's a PlayDay, filter HCA students with active batches and no endDate
       if (isPlayDay) {
         const filteredStudents = state.allStudentActiveList?.filter(
-          (student) =>
+          (student: any) =>
             student.affiliatedTo?.toLowerCase() === "hca" &&
             student.batches.some(
-              (batch) => batch.activeStatus === true && !batch.endDate
+              (batch: any) => batch.activeStatus === true && !batch.endDate
             )
         );
 
@@ -103,13 +105,14 @@ const trainerSlice = createSlice({
         state.selectedStudentList = filteredStudents;
       } else {
         // Otherwise, filter based on batchId with activeStatus true and no endDate
-        const filteredStudents = state.allStudentActiveList?.filter((student) =>
-          student.batches.some(
-            (batch) =>
-              batch.batchId === batchId &&
-              batch.activeStatus === true &&
-              !batch.endDate
-          )
+        const filteredStudents = state.allStudentActiveList?.filter(
+          (student: any) =>
+            student.batches.some(
+              (batch: any) =>
+                batch.batchId === batchId &&
+                batch.activeStatus === true &&
+                !batch.endDate
+            )
         );
 
         // Set filtered students to selectedStudentList
@@ -118,11 +121,11 @@ const trainerSlice = createSlice({
 
       // Retrieve all lessons from all courses
       let allLessons: any = [];
-      state.allActiveCourseList.forEach((course) => {
+      state.allActiveCourseList.forEach((course: any) => {
         if (course.chapters) {
           course.chapters
-            .filter((chapter) => chapter.activeStatus) // Only active chapters
-            .forEach((chapter) => {
+            .filter((chapter: any) => chapter.activeStatus) // Only active chapters
+            .forEach((chapter: any) => {
               // Flatten subChapters or include the chapter itself
               const chapterLessons = chapter.subChapters.length
                 ? chapter.subChapters // If subChapters exist, use them
@@ -186,9 +189,9 @@ const trainerSlice = createSlice({
         state.status = "succeeded";
         state.studentList = action.payload;
         const sortedStudents = action.payload
-          ?.filter((student) => student.activeStatus)
+          ?.filter((student: any) => student.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         state.allStudentActiveList = sortedStudents;
@@ -204,9 +207,9 @@ const trainerSlice = createSlice({
         // console.log("alactive courses", JSON.stringify(action.payload));
 
         const sortedCourses = action.payload
-          ?.filter((course) => course.activeStatus)
+          ?.filter((course: any) => course.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         state.allActiveCourseList = sortedCourses;

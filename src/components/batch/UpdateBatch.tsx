@@ -51,7 +51,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
     formState: { errors, isValid },
     setValue,
     watch,
-  } = useForm({
+  } = useForm<any>({
     defaultValues: {
       affiliatedTo: "HCA",
       batchName: "HCA_",
@@ -63,7 +63,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
     },
   });
   // on submit function
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     setupdateBatchLoading(true);
 
     const { data: resData } = await axios.post(
@@ -131,10 +131,10 @@ const UpdateBatch = ({ batchRecord }: any) => {
                   label="Affiliated to"
                   options={affiliatedOptions}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                     setselectedAffiliatedTo(value);
-                    reset((prev) => {
+                    reset((prev: any) => {
                       return {
                         ...prev,
                         batchName: value == "HCA" ? "HCA_" : "",
@@ -188,12 +188,14 @@ const UpdateBatch = ({ batchRecord }: any) => {
               render={({ field }) => (
                 <Dropdown
                   label="Project name"
-                  options={allActiveProjects.map((project) => project.name)}
+                  options={allActiveProjects.map(
+                    (project: any) => project.name
+                  )}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
-                    const selectedProject = allActiveProjects.find(
-                      (project) => project.name == value
+                    const selectedProject: any = allActiveProjects.find(
+                      (project: any) => project.name == value
                     );
                     console.log(selectedProject);
 
@@ -278,7 +280,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
                 label="Status"
                 options={["Ongoing", "Completed"]}
                 selected={field.value || ""}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
                 }}
                 error={errors.completeStatus}
@@ -335,7 +337,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
 
                     if (!isValid) {
                       handleconfirmModalClose();

@@ -1,7 +1,7 @@
 import React from "react";
 import SearchIcon from "@mui/icons-material/Search";
 
-const SearchInput = ({ placeholder = "Search", value, onChange }) => {
+const SearchInput = ({ placeholder = "Search", value, onChange }: any) => {
   return (
     <div className="border border-gray-300  py-1 px-2 rounded-md">
       <SearchIcon sx={{ color: "gray" }} />

@@ -245,7 +245,7 @@ export default function ChangePasswordComponent() {
                     size="medium"
                     color="primary"
                     onClick={() => {
-                      document.getElementById("hiddenSubmit").click();
+                      document.getElementById("hiddenSubmit")?.click();
 
                       if (!isValid) {
                         setconfirmModalOpen(false);

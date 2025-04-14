@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const utcDob = dob ? dayjs(dob).tz(timeZone).startOf("day").utc() : null;
 
     // Convert batches dates to UTC
-    const utcConvertedBatches = batches?.map((batch) => ({
+    const utcConvertedBatches = batches?.map((batch: any) => ({
       ...batch,
       startDate: dayjs(batch.startDate).tz(timeZone).startOf("day").utc(),
       endDate: batch?.endDate
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }));
 
     // Convert enrolledCourses dates to UTC
-    const utcConvertedEnrolledCourses = enrolledCourses?.map((course) => ({
+    const utcConvertedEnrolledCourses = enrolledCourses?.map((course: any) => ({
       ...course,
       startDate: dayjs(course.startDate).tz(timeZone).startOf("day").utc(),
       endDate: course?.endDate

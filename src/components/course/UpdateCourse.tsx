@@ -93,7 +93,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
   });
 
   // Function to add a new subchapter dynamically
-  const addSubChapter = (chapterIndex) => {
+  const addSubChapter = (chapterIndex: any) => {
     const updatedChapters = [...chapters];
     updatedChapters[chapterIndex].subChapters = [
       ...updatedChapters[chapterIndex].subChapters,
@@ -103,7 +103,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
   };
 
   // Function to remove a specific subchapter
-  const removeSubChapter = (chapterIndex, subIndex) => {
+  const removeSubChapter = (chapterIndex: any, subIndex: any) => {
     const updatedChapters = [...chapters];
     updatedChapters[chapterIndex].subChapters = updatedChapters[
       chapterIndex
@@ -180,7 +180,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
                   label="Affiliated to"
                   options={affiliatedToOptions}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                     setValue("nextCourseName", "None");
                     setselectedAffiliatedTo(value);
@@ -263,7 +263,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
                       ),
                     ]}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.nextCourseName}
@@ -472,7 +472,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
 
                     if (!isValid) {
                       handleconfirmModalClose();

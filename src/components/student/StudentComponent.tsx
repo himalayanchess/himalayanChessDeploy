@@ -47,7 +47,7 @@ const StudentComponent = ({ role }: any) => {
   }, [selectedAffiliatedTo]);
 
   // handle page change
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -58,7 +58,7 @@ const StudentComponent = ({ role }: any) => {
       selectedAffiliatedTo.toLowerCase() === "all"
         ? allActiveStudentsList
         : allActiveStudentsList.filter(
-            (student) =>
+            (student: any) =>
               student.affiliatedTo.toLowerCase() ==
               selectedAffiliatedTo.toLowerCase()
           );
@@ -66,42 +66,50 @@ const StudentComponent = ({ role }: any) => {
     console.log("affiliated to", tempFilteredStudentsList);
     // Apply search filter if searchText is provided
     if (searchText.trim() !== "") {
-      tempFilteredStudentsList = tempFilteredStudentsList.filter((student) =>
-        student.name.toLowerCase().includes(searchText.toLowerCase())
+      tempFilteredStudentsList = tempFilteredStudentsList.filter(
+        (student: any) =>
+          student.name.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
     // // Sort students by createdAt in descending order (latest first)
     tempFilteredStudentsList = tempFilteredStudentsList
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
     // filter batches
     let tempFilteredBatches =
       selectedAffiliatedTo.toLowerCase() == "all"
         ? allActiveBatches
         : allActiveBatches?.filter(
-            (batch) =>
+            (batch: any) =>
               batch?.affiliatedTo?.toLowerCase() ==
               selectedAffiliatedTo?.toLowerCase()
           );
 
     // sort student by batch if not "none"
     if (selectedBatch?.toLowerCase() != "none") {
-      tempFilteredStudentsList = tempFilteredStudentsList.filter((student) =>
-        student.batches.some(
-          (batch) =>
-            batch.activeStatus === true && // Active batch
-            !batch.endDate && // No end date
-            batch.batchName == selectedBatch // Match batchName
-        )
+      tempFilteredStudentsList = tempFilteredStudentsList.filter(
+        (student: any) =>
+          student.batches.some(
+            (batch: any) =>
+              batch.activeStatus === true && // Active batch
+              !batch.endDate && // No end date
+              batch.batchName == selectedBatch // Match batchName
+          )
       );
     }
 
     //sort
     tempFilteredBatches = tempFilteredBatches
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
     // update states
     setfilteredStudentCount(tempFilteredStudentsList?.length);
@@ -162,7 +170,7 @@ const StudentComponent = ({ role }: any) => {
           <SearchInput
             placeholder="Search"
             value={searchText}
-            onChange={(e) => setsearchText(e.target.value)}
+            onChange={(e: any) => setsearchText(e.target.value)}
           />
 
           {/* add student button */}

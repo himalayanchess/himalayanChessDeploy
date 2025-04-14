@@ -78,7 +78,7 @@ const StudentActivityRecords = ({
     setviewStudyMaterialsModalOpen(false);
   }
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -98,7 +98,7 @@ const StudentActivityRecords = ({
 
     if (selectedAffiliatedTo.toLowerCase() !== "all") {
       tempFilteredBatches = tempFilteredBatches.filter(
-        (batch) =>
+        (batch: any) =>
           batch?.affiliatedTo.toLowerCase() ===
           selectedAffiliatedTo.toLowerCase()
       );
@@ -109,7 +109,7 @@ const StudentActivityRecords = ({
       selectedProject.toLowerCase() !== "all"
     ) {
       tempFilteredBatches = tempFilteredBatches.filter(
-        (batch) =>
+        (batch: any) =>
           batch?.projectName?.toLowerCase() === selectedProject?.toLowerCase()
       );
     }
@@ -129,7 +129,7 @@ const StudentActivityRecords = ({
   useEffect(() => {
     if (!allActiveStudentsActivityRecords) return;
 
-    const filtered = allActiveStudentsActivityRecords.filter((record) => {
+    const filtered = allActiveStudentsActivityRecords.filter((record: any) => {
       // Filter by "Affiliated To"
       if (
         selectedAffiliatedTo?.toLowerCase() !== "all" &&
@@ -203,7 +203,7 @@ const StudentActivityRecords = ({
             options={affilatedToOptions}
             width="full"
             selected={selectedAffiliatedTo}
-            onChange={(value) => {
+            onChange={(value: any) => {
               setselectedAffiliatedTo(value);
               setselectedProject("All");
             }}
@@ -213,7 +213,7 @@ const StudentActivityRecords = ({
             width="full"
             options={[
               "All",
-              ...(allActiveProjects?.map((project) => project.name) || []),
+              ...(allActiveProjects?.map((project: any) => project.name) || []),
             ]}
             disabled={selectedAffiliatedTo.toLowerCase() !== "school"}
             selected={selectedProject}
@@ -224,7 +224,7 @@ const StudentActivityRecords = ({
             width="full"
             options={[
               "All",
-              ...(filteredBatches?.map((batch) => batch.batchName) || []),
+              ...(filteredBatches?.map((batch: any) => batch.batchName) || []),
             ]}
             selected={selectedBatch}
             onChange={setselectedBatch}
@@ -234,7 +234,7 @@ const StudentActivityRecords = ({
             type="month"
             value={selectedMonth}
             disabled={useAdvancedDate}
-            onChange={(e) => setselectedMonth(e.target.value)}
+            onChange={(e: any) => setselectedMonth(e.target.value)}
           />
         </div>
 
@@ -262,14 +262,14 @@ const StudentActivityRecords = ({
             type="date"
             value={startDate}
             disabled={!useAdvancedDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e: any) => setStartDate(e.target.value)}
           />
           <Input
             label="End Date"
             type="date"
             value={endDate}
             disabled={!useAdvancedDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e: any) => setEndDate(e.target.value)}
           />
         </div>
       </div>

@@ -99,7 +99,7 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleOtpChange = (e, index) => {
+  const handleOtpChange = (e: any, index: any) => {
     const value = e.target.value;
     if (!/^\d$/.test(value) && value !== "") return;
 
@@ -115,7 +115,7 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleOtpKeyDown = (e, index) => {
+  const handleOtpKeyDown = (e: any, index: any) => {
     if (e.key === "Backspace" && otp[index] === "") {
       if (index > 0) {
         const prevInput = document.getElementById(`otp-input-${index - 1}`);
@@ -330,7 +330,7 @@ export default function ForgotPassword() {
                 </div>
                 {errors.newPassword && (
                   <p className="text-red-600 text-xs mb-4">
-                    {errors.newPassword.message}
+                    {errors.newPassword.message as string}
                   </p>
                 )}
               </div>
@@ -368,7 +368,7 @@ export default function ForgotPassword() {
                 </div>
                 {errors.confirmPassword && (
                   <p className="text-red-600 text-xs mb-4">
-                    {errors.confirmPassword.message}
+                    {errors.confirmPassword.message as string}
                   </p>
                 )}
               </div>

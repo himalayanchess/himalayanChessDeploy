@@ -353,7 +353,7 @@ const AddProject = () => {
                 label="Status"
                 options={projectCompletedStatusOptions}
                 selected={field.value || ""}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
                 }}
                 error={errors.completedStatus}
@@ -572,15 +572,15 @@ const AddProject = () => {
                   rules={{
                     required: "Trainer name is required",
                     validate: (value) =>
-                      (value && !isDuplicateTrainer(value, index)) ||
+                      (value && !isDuplicateTrainer(value)) ||
                       "Duplicate trainer selected",
                   }}
                   render={({ field }) => (
                     <Dropdown
                       label="Trainer name"
-                      options={allActiveTrainerList.map((c) => c.name)}
+                      options={allActiveTrainerList.map((c: any) => c.name)}
                       selected={field.value || ""}
-                      onChange={(value) => {
+                      onChange={(value: any) => {
                         field.onChange(value);
                         const selectedTrainer = allActiveTrainerList.find(
                           (trainer: any) => trainer.name === value
@@ -661,7 +661,7 @@ const AddProject = () => {
                       label="Role"
                       options={trainerRoleOptions}
                       selected={field.value || ""}
-                      onChange={(value) => {
+                      onChange={(value: any) => {
                         field.onChange(value);
                         // should be same as above
                         setValue(
@@ -742,7 +742,7 @@ const AddProject = () => {
                     label="Day"
                     options={dayOptions}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                       // trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                     }}
@@ -767,7 +767,7 @@ const AddProject = () => {
                     label="From"
                     options={timeOptions}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                       // trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                     }}
@@ -792,7 +792,7 @@ const AddProject = () => {
                     label="To"
                     options={timeOptions}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                       // trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                     }}
@@ -882,7 +882,7 @@ const AddProject = () => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
 
                     if (!isValid) {
                       handleconfirmModalClose();

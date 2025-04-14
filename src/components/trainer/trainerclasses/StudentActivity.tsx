@@ -35,7 +35,7 @@ const StudentActivity = ({
   const [updateRecordsLoading, setupdateRecordsLoading] = useState(false);
 
   // handlestudyTopicModalOpen
-  function handlestudyTopicModalOpen(studentId) {
+  function handlestudyTopicModalOpen(studentId: any) {
     setSelectedStudentId(studentId);
     setstudyTopicModalOpen(true);
   }
@@ -60,7 +60,7 @@ const StudentActivity = ({
     setValue,
     reset,
     formState: { errors, isValid },
-  } = useForm({
+  } = useForm<any>({
     defaultValues: {
       students: [],
       mainStudyTopic: "",
@@ -98,7 +98,7 @@ const StudentActivity = ({
 
     if (selectedTodaysClass?.studentRecords?.length > 0) {
       defaultFormValues.students = selectedTodaysClass.studentRecords.map(
-        (student) => ({
+        (student: any) => ({
           _id: student._id,
           name: student.name,
           studyTopics: student.studyTopics || [],
@@ -110,7 +110,7 @@ const StudentActivity = ({
       defaultFormValues.mainStudyTopic =
         selectedTodaysClass.mainStudyTopic || "";
     } else {
-      defaultFormValues.students = selectedStudentList.map((student) => ({
+      defaultFormValues.students = selectedStudentList.map((student: any) => ({
         _id: student._id,
         name: student.name,
         studyTopics: [],
@@ -135,7 +135,7 @@ const StudentActivity = ({
   // Effect to handle applying the topic to all students
   useEffect(() => {
     if (applyToAllClicked && applyTopic) {
-      const updatedStudents = students.map((student) => {
+      const updatedStudents = students.map((student: any) => {
         // Check if the topic already exists in the student's studyTopics
         if (!student.studyTopics.includes(applyTopic)) {
           return {
@@ -163,7 +163,9 @@ const StudentActivity = ({
     }
 
     // Find the selected student
-    const selectedStudent = students.find((s) => s._id === selectedStudentId);
+    const selectedStudent = students.find(
+      (s: any) => s._id === selectedStudentId
+    );
 
     if (!selectedStudent) {
       notify("Student not found", 400);
@@ -177,7 +179,7 @@ const StudentActivity = ({
     }
 
     // Update students array
-    const updatedStudents = students.map((s) =>
+    const updatedStudents = students.map((s: any) =>
       s._id === selectedStudentId
         ? { ...s, studyTopics: [...s.studyTopics, selectedTopic] }
         : s
@@ -190,7 +192,7 @@ const StudentActivity = ({
   };
 
   // Handle form submission
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     try {
       console.log(data); // This will contain all student records
       setupdateRecordsLoading(true);
@@ -251,7 +253,7 @@ const StudentActivity = ({
                   selected={field.value || ""}
                   label="Main study topic"
                   // disabled={}
-                  onChange={(value) => field.onChange(value)}
+                  onChange={(value: any) => field.onChange(value)}
                   error={!!errors.mainStudyTopic} // Pass error state
                   helperText={errors.mainStudyTopic?.message} // Error message
                 />
@@ -372,7 +374,7 @@ const StudentActivity = ({
                           label="Study topic"
                           selected={selectedTopic}
                           width="full"
-                          onChange={(value) => setSelectedTopic(value)}
+                          onChange={(value: any) => setSelectedTopic(value)}
                         />
 
                         <div className="buttons flex justify-end gap-3 mt-5">
@@ -513,7 +515,7 @@ const StudentActivity = ({
                     color="info"
                     disabled={!isValid}
                     onClick={() => {
-                      document.getElementById("hiddenSubmit").click();
+                      document.getElementById("hiddenSubmit")?.click();
                     }}
                   >
                     Update Records

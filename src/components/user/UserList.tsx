@@ -34,7 +34,7 @@ const UserList = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // User Delete Function
-  async function handleUserDelete(id) {
+  async function handleUserDelete(id: any) {
     try {
       const { data: resData } = await axios.post("/api/users/deleteUser", {
         userId: id,
@@ -52,7 +52,7 @@ const UserList = ({
     }
   }
 
-  function handleDeleteModalOpen(userId, userName) {
+  function handleDeleteModalOpen(userId: any, userName: any) {
     setSelectedUserId(userId);
     setSelectedUserName(userName);
     setDeleteModalOpen(true);

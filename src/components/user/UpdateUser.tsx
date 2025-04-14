@@ -108,7 +108,7 @@ const UpdateUser = ({ userRecord }: any) => {
 
   const { errors, isValid } = formState;
   console.log(errors);
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     console.log("Form Submitted Successfully:", data);
     setupdateUserLoading(true);
     // add mode api call
@@ -122,7 +122,7 @@ const UpdateUser = ({ userRecord }: any) => {
     return;
   };
 
-  async function handleResetPassword(userId) {
+  async function handleResetPassword(userId: any) {
     if (randomPassword) {
       // reset password api
       const { data: resData } = await axios.post("/api/users/resetPassword", {
@@ -239,7 +239,7 @@ const UpdateUser = ({ userRecord }: any) => {
                     options={roleOptions}
                     selected={field.value || ""}
                     disabled={true}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                       // reset((prevValues) => ({
                       //   ...prevValues,
@@ -333,7 +333,7 @@ const UpdateUser = ({ userRecord }: any) => {
                     label="Gender"
                     options={genderOptions}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.gender}
@@ -581,7 +581,7 @@ const UpdateUser = ({ userRecord }: any) => {
                   label="completedStatus"
                   options={completedStatusOptions}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                   }}
                   required={true}
@@ -672,7 +672,7 @@ const UpdateUser = ({ userRecord }: any) => {
                     label="Title"
                     options={titleOptions}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.title}
@@ -833,7 +833,7 @@ const UpdateUser = ({ userRecord }: any) => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
 
                     if (!isValid) {
                       handleconfirmModalClose();

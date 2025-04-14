@@ -2,7 +2,7 @@ import React from "react";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
-const ViewUser = ({ user }) => {
+const ViewUser = ({ user }: any) => {
   return (
     <>
       {/* first */}
@@ -122,7 +122,7 @@ const ViewUser = ({ user }) => {
           {user?.enrolledCourses.length == 0 ? (
             <p className="text-gray-500">No courses</p>
           ) : (
-            user?.enrolledCourses.map((course, i) => {
+            user?.enrolledCourses.map((course: any, i: any) => {
               return (
                 <div key={`course${i}`} className=" text-gray-500">
                   <span>{course.course}</span>

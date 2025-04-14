@@ -5,7 +5,7 @@ import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import GroupIcon from "@mui/icons-material/Group";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-const SelectBatch = ({ selectedBatch, setselectedBatch }) => {
+const SelectBatch = ({ selectedBatch, setselectedBatch }: any) => {
   const arr = Array.from({ length: 7 }, (_, i) => i);
 
   return (

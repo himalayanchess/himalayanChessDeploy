@@ -1,4 +1,4 @@
-export const dayOptions = [
+export const dayOptions: any = [
   "Sunday",
   "Monday",
   "Tuesday",

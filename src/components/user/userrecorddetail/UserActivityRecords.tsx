@@ -78,7 +78,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
     setviewStudyMaterialsModalOpen(false);
   }
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -97,7 +97,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
 
     if (selectedAffiliatedTo.toLowerCase() !== "all") {
       tempFilteredBatches = tempFilteredBatches.filter(
-        (batch) =>
+        (batch: any) =>
           batch?.affiliatedTo.toLowerCase() ===
           selectedAffiliatedTo.toLowerCase()
       );
@@ -108,7 +108,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
       selectedProject.toLowerCase() !== "all"
     ) {
       tempFilteredBatches = tempFilteredBatches.filter(
-        (batch) =>
+        (batch: any) =>
           batch?.projectName?.toLowerCase() === selectedProject?.toLowerCase()
       );
     }
@@ -130,7 +130,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
   useEffect(() => {
     if (!allActiveTrainersActivityRecords) return;
 
-    const filtered = allActiveTrainersActivityRecords.filter((record) => {
+    const filtered = allActiveTrainersActivityRecords.filter((record: any) => {
       // Filter by "Affiliated To"
       if (
         selectedAffiliatedTo !== "All" &&
@@ -197,7 +197,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
             options={affilatedToOptions}
             width="full"
             selected={selectedAffiliatedTo}
-            onChange={(value) => {
+            onChange={(value: any) => {
               setselectedAffiliatedTo(value);
               setselectedProject("All");
               setselectedBatch("All");
@@ -208,11 +208,11 @@ const UserActivityRecords = ({ userRecord }: any) => {
             width="full"
             options={[
               "All",
-              ...(allActiveProjects?.map((project) => project.name) || []),
+              ...(allActiveProjects?.map((project: any) => project.name) || []),
             ]}
             disabled={selectedAffiliatedTo.toLowerCase() !== "school"}
             selected={selectedProject}
-            onChange={(value) => {
+            onChange={(value: any) => {
               setselectedProject(value);
               setselectedBatch("All");
             }}
@@ -222,7 +222,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
             width="full"
             options={[
               "All",
-              ...(filteredBatches?.map((batch) => batch.batchName) || []),
+              ...(filteredBatches?.map((batch: any) => batch.batchName) || []),
             ]}
             selected={selectedBatch}
             onChange={setselectedBatch}
@@ -232,7 +232,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
             type="month"
             value={selectedMonth}
             disabled={useAdvancedDate}
-            onChange={(e) => setselectedMonth(e.target.value)}
+            onChange={(e: any) => setselectedMonth(e.target.value)}
           />
         </div>
 
@@ -260,14 +260,14 @@ const UserActivityRecords = ({ userRecord }: any) => {
             type="date"
             value={startDate}
             disabled={!useAdvancedDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e: any) => setStartDate(e.target.value)}
           />
           <Input
             label="End Date"
             type="date"
             value={endDate}
             disabled={!useAdvancedDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e: any) => setEndDate(e.target.value)}
           />
         </div>
       </div>
@@ -426,22 +426,24 @@ const UserActivityRecords = ({ userRecord }: any) => {
                 {selectedRecord?.studyMaterials?.length === 0 ? (
                   <p className="text-gray-500">No study materials</p>
                 ) : (
-                  selectedRecord?.studyMaterials?.map((material, index) => (
-                    <Link
-                      href={`${material?.fileUrl}`}
-                      target="_blank"
-                      key={index}
-                      className="studyMaterial flex items-center justify-between cursor-pointer bg-gray-50 border px-3 py-2 rounded-md border-gray-00 transition-all duration-150 ease hover:bg-gray-200"
-                    >
-                      <div className="title flex items-center">
-                        <InsertDriveFileIcon sx={{ color: "gray" }} />
-                        <p className="ml-2 text-sm">{material?.fileName}</p>
-                      </div>
-                      <div className="view-button text-xs mr-2 border border-gray-400 rounded-full px-3 py-0.5">
-                        View
-                      </div>
-                    </Link>
-                  ))
+                  selectedRecord?.studyMaterials?.map(
+                    (material: any, index: any) => (
+                      <Link
+                        href={`${material?.fileUrl}`}
+                        target="_blank"
+                        key={index}
+                        className="studyMaterial flex items-center justify-between cursor-pointer bg-gray-50 border px-3 py-2 rounded-md border-gray-00 transition-all duration-150 ease hover:bg-gray-200"
+                      >
+                        <div className="title flex items-center">
+                          <InsertDriveFileIcon sx={{ color: "gray" }} />
+                          <p className="ml-2 text-sm">{material?.fileName}</p>
+                        </div>
+                        <div className="view-button text-xs mr-2 border border-gray-400 rounded-full px-3 py-0.5">
+                          View
+                        </div>
+                      </Link>
+                    )
+                  )
                 )}
               </div>
             </Box>

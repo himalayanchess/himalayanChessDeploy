@@ -20,18 +20,20 @@ export const fetchAllTrainersActivityRecords = createAsyncThunk(
   }
 );
 
+const initialState: any = {
+  // allTrainersActivityRecords list
+  allTrainersActivityRecords: [],
+  allActiveTrainersActivityRecords: [],
+  // filter only active
+  allFilteredActiveTrainersActivityRecords: [],
+  allTrainersActivityRecordsLoading: true,
+
+  status: "",
+};
+
 const trainersHistorySlice = createSlice({
   name: "trainerHistory",
-  initialState: {
-    // allTrainersActivityRecords list
-    allTrainersActivityRecords: [],
-    allActiveTrainersActivityRecords: [],
-    // filter only active
-    allFilteredActiveTrainersActivityRecords: [],
-    allTrainersActivityRecordsLoading: true,
-
-    status: "",
-  },
+  initialState,
   reducers: {
     filterAllTrainersActivityRecords: (state, action) => {
       state.allFilteredActiveTrainersActivityRecords = action.payload;
@@ -49,7 +51,7 @@ const trainersHistorySlice = createSlice({
 
         // Sorting trainers by createdAt (latest first)
         const sortedTrainersActivityRecrds = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
@@ -57,7 +59,7 @@ const trainersHistorySlice = createSlice({
 
         // Filtering active trainers after sorting
         let tempActiveRecords = sortedTrainersActivityRecrds?.filter(
-          (activityRecord) => activityRecord.activeStatus
+          (activityRecord: any) => activityRecord.activeStatus
         );
         state.allActiveTrainersActivityRecords = tempActiveRecords;
         state.allFilteredActiveTrainersActivityRecords = tempActiveRecords;

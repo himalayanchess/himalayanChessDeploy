@@ -59,7 +59,8 @@ const UpdateProject = ({ projectRecord }: any) => {
   const [confirmTimeSlotDeleteModalOpen, setConfirmTimeSlotDeleteModalOpen] =
     useState(false);
   const [updateContractPaperModalOpen, setupdateContractPaperModalOpen] =
-    useState<Boolean | null>();
+    useState<any>();
+
   const [updatedcontractFileName, setupdatedcontractFileName] =
     useState("Not Selected");
   const [selectedDeleteTrainerIndex, setSelectedDeleteTrainerIndex] =
@@ -247,7 +248,7 @@ const UpdateProject = ({ projectRecord }: any) => {
   }
 
   // submit function
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     try {
       setUpdateProjectLoading(true);
       const { data: resData } = await axios.post(
@@ -665,12 +666,12 @@ const UpdateProject = ({ projectRecord }: any) => {
                     render={({ field }) => (
                       <Dropdown
                         label="Trainer name"
-                        options={allActiveTrainerList.map((c) => c.name)}
+                        options={allActiveTrainerList.map((c: any) => c.name)}
                         selected={field.value || ""}
-                        onChange={(value) => {
+                        onChange={(value: any) => {
                           field.onChange(value);
                           const selectedTrainer = allActiveTrainerList.find(
-                            (trainer) => trainer.name === value
+                            (trainer: any) => trainer.name === value
                           );
                           if (selectedTrainer) {
                             setValue(
@@ -831,7 +832,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                         label="From"
                         options={timeOptions}
                         selected={field.value || ""}
-                        onChange={(value) => {
+                        onChange={(value: any) => {
                           field.onChange(value);
                         }}
                         required
@@ -859,7 +860,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                         label="To"
                         options={timeOptions}
                         selected={field.value || ""}
-                        onChange={(value) => {
+                        onChange={(value: any) => {
                           field.onChange(value);
                           // trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                         }}
@@ -1013,7 +1014,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                     variant="contained"
                     color="info"
                     onClick={() => {
-                      document.getElementById("hiddenSubmit").click();
+                      document.getElementById("hiddenSubmit")?.click();
                       if (!isValid) {
                         handleConfirmModalClose();
                       }

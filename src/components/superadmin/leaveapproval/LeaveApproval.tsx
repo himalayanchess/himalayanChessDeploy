@@ -34,7 +34,7 @@ const LeaveApproval = () => {
   const [leaveRequestsPerPage] = useState(7);
 
   // handle page change
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -44,21 +44,24 @@ const LeaveApproval = () => {
       selectedApprovalStatus.toLowerCase() === "all"
         ? allLeaveRequests
         : allLeaveRequests.filter(
-            (request) =>
+            (request: any) =>
               request.approvalStatus.toLowerCase() ==
               selectedApprovalStatus.toLowerCase()
           );
     // sort by trainer name
     if (selectedTrainer?.toLowerCase() !== "none") {
       tempFilteredLeaveRequests = tempFilteredLeaveRequests.filter(
-        (request) => request.trainerName === selectedTrainer
+        (request: any) => request.trainerName === selectedTrainer
       );
     }
     // cant directly update redux state
     //make shallow copy by adding slice()
     tempFilteredLeaveRequests = tempFilteredLeaveRequests
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
     // update total leave request count
     settotalLeaveRequests(tempFilteredLeaveRequests?.length);

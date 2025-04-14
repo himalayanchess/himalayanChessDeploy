@@ -102,7 +102,7 @@ const ActivityRecordList = ({
               // all uniqe topic for that day
               const uniqueTopics = new Set<string>();
 
-              activityRecord.studentRecords?.forEach((student) => {
+              activityRecord.studentRecords?.forEach((student: any) => {
                 student.studyTopics?.forEach((topic: string) => {
                   uniqueTopics.add(topic);
                 });

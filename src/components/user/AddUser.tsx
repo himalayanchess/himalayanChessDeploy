@@ -62,7 +62,7 @@ const AddUser = () => {
 
   const { errors, isValid } = formState;
   console.log(errors);
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     console.log("Form Submitted Successfully:", data);
     // add mode api call
     setaddUserLoading(true);
@@ -112,7 +112,7 @@ const AddUser = () => {
                     label="Role"
                     options={roleOptions}
                     selected={field.value}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                       // reset((prevValues) => ({
                       //   ...prevValues,
@@ -199,7 +199,7 @@ const AddUser = () => {
                     label="Gender"
                     options={genderOptions}
                     selected={field.value}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.gender}
@@ -336,7 +336,7 @@ const AddUser = () => {
                   label="completedStatus"
                   options={completedStatusOptions}
                   selected={field.value}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                   }}
                   required={true}
@@ -427,7 +427,7 @@ const AddUser = () => {
                     label="Title"
                     options={titleOptions}
                     selected={field.value}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.title}
@@ -584,7 +584,7 @@ const AddUser = () => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
 
                     if (!isValid) {
                       handleconfirmModalClose();

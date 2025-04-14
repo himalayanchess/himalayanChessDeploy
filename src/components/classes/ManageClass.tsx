@@ -62,7 +62,7 @@ const ManageClass = ({ selectedDate }: any) => {
   const [courseList, setCourseList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [filteredBatches, setFilteredBatches] = useState([]);
-  const [selectedBatchStudents, setselectedBatchStudents] = useState([]);
+  const [selectedBatchStudents, setselectedBatchStudents] = useState<any>([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
   const [assignClassLoading, setassignClassLoading] = useState(false);
@@ -121,12 +121,12 @@ const ManageClass = ({ selectedDate }: any) => {
     return true;
   };
 
-  const handleContractTypeChange = (contract) => {
+  const handleContractTypeChange = (contract: any) => {
     setaffiliatedTo(contract);
   };
 
   // form submit function (assign class)
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     try {
       setassignClassLoading(true);
       const { data: resData } = await axios.post("/api/classes/assignClass", {
@@ -183,22 +183,24 @@ const ManageClass = ({ selectedDate }: any) => {
     if (isPlayDay) {
       // Filter all HCA students in active, non-ended batches
       const hcaStudents = allActiveStudentsList.filter(
-        (student) =>
+        (student: any) =>
           student.affiliatedTo?.toLowerCase() === "hca" &&
-          student.batches.some((batch) => batch.activeStatus && !batch.endDate)
+          student.batches.some(
+            (batch: any) => batch.activeStatus && !batch.endDate
+          )
       );
 
       // Optional: remove duplicate students if needed (based on _id)
       const uniqueStudents = Array.from(
-        new Map(hcaStudents.map((s) => [s._id, s])).values()
+        new Map(hcaStudents.map((s: any) => [s._id, s])).values()
       );
 
       console.log("Playday HCA students:", uniqueStudents);
       setselectedBatchStudents(uniqueStudents);
     } else if (batchId !== "") {
-      const tempAllStudents = allActiveStudentsList.filter((student) =>
+      const tempAllStudents = allActiveStudentsList.filter((student: any) =>
         student.batches.some(
-          (batch) =>
+          (batch: any) =>
             batch.batchId == batchId && batch.activeStatus && !batch.endDate
         )
       );
@@ -214,15 +216,15 @@ const ManageClass = ({ selectedDate }: any) => {
     let tempFilteredBatches;
     if (affiliatedTo.toLowerCase() === "hca") {
       tempFilteredBatches = allActiveBatches.filter(
-        (batch) => batch?.affiliatedTo.toLowerCase() === "hca"
+        (batch: any) => batch?.affiliatedTo.toLowerCase() === "hca"
       );
     } else if (affiliatedTo.toLowerCase() === "school") {
       tempFilteredBatches = allActiveBatches.filter(
-        (batch) => batch?.affiliatedTo.toLowerCase() === "school"
+        (batch: any) => batch?.affiliatedTo.toLowerCase() === "school"
       );
       if (projectId !== "") {
         tempFilteredBatches = tempFilteredBatches.filter(
-          (batch) => batch?.projectId === projectId
+          (batch: any) => batch?.projectId === projectId
         );
       }
     }
@@ -326,7 +328,7 @@ const ManageClass = ({ selectedDate }: any) => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
                   }}
                 >
                   Assign Class
@@ -510,8 +512,8 @@ const ManageClass = ({ selectedDate }: any) => {
       {isPlayDay && (
         <div className="message bg-yellow-100 rounded-md p-2 my-3 border-2 border-yellow-200 text-sm">
           <p>
-            Please select the <b>"Playday"</b> option only on the designated
-            day, i.e.
+            Please select the <b>&quot;Playday&quot;</b> option only on the
+            designated day, i.e.
             <b> Sunday</b>.
           </p>
           <p>
@@ -531,12 +533,12 @@ const ManageClass = ({ selectedDate }: any) => {
             render={({ field }) => (
               <Dropdown
                 label="Project name"
-                options={projectList.map((project) => project.name)}
+                options={projectList.map((project: any) => project.name)}
                 selected={field.value}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
-                  const selectedProject = projectList.find(
-                    (project) => project.name === value
+                  const selectedProject: any = projectList.find(
+                    (project: any) => project.name === value
                   );
                   setValue("projectId", selectedProject?._id || "");
                   setprojectId(selectedProject?._id);
@@ -561,12 +563,12 @@ const ManageClass = ({ selectedDate }: any) => {
             render={({ field }) => (
               <Dropdown
                 label="Batch"
-                options={filteredBatches.map((batch) => batch.batchName)}
+                options={filteredBatches.map((batch: any) => batch.batchName)}
                 selected={field.value}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
-                  const selectedBatch = filteredBatches.find(
-                    (batch) => batch.batchName === value
+                  const selectedBatch: any = filteredBatches.find(
+                    (batch: any) => batch.batchName === value
                   );
                   setValue("batchId", selectedBatch?._id || "");
                   setBatchId(selectedBatch?._id);
@@ -589,12 +591,12 @@ const ManageClass = ({ selectedDate }: any) => {
             render={({ field }) => (
               <Dropdown
                 label="Course name"
-                options={courseList.map((course) => course.name)}
+                options={courseList.map((course: any) => course.name)}
                 selected={field.value}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
-                  const selectedCourse = courseList.find(
-                    (course) => course.name === value
+                  const selectedCourse: any = courseList.find(
+                    (course: any) => course.name === value
                   );
                   setValue("courseId", selectedCourse?._id || "");
                 }}
@@ -615,12 +617,12 @@ const ManageClass = ({ selectedDate }: any) => {
           render={({ field }) => (
             <Dropdown
               label="Trainer name"
-              options={trainersList.map((trainer) => trainer.name)}
+              options={trainersList.map((trainer: any) => trainer.name)}
               selected={field.value}
-              onChange={(value) => {
+              onChange={(value: any) => {
                 field.onChange(value);
-                const selectedTrainer = trainersList.find(
-                  (trainer) => trainer.name === value
+                const selectedTrainer: any = trainersList.find(
+                  (trainer: any) => trainer.name === value
                 );
                 setValue("trainerId", selectedTrainer?._id || "");
               }}
@@ -642,7 +644,7 @@ const ManageClass = ({ selectedDate }: any) => {
               label="Trainer Role"
               options={["Primary", "Substitute"]}
               selected={field.value}
-              onChange={(value) => {
+              onChange={(value: any) => {
                 field.onChange(value);
               }}
               error={errors.trainerRole}

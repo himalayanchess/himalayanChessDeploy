@@ -158,7 +158,7 @@ const AddCourse = () => {
   });
 
   // Function to add a new subchapter dynamically
-  const addSubChapter = (chapterIndex) => {
+  const addSubChapter = (chapterIndex: any) => {
     const updatedChapters = [...chapters];
     updatedChapters[chapterIndex].subChapters = [
       ...updatedChapters[chapterIndex].subChapters,
@@ -168,18 +168,18 @@ const AddCourse = () => {
   };
 
   // Function to remove a specific subchapter
-  const removeSubChapter = (chapterIndex, subIndex) => {
+  const removeSubChapter = (chapterIndex: any, subIndex: any) => {
     const updatedChapters = [...chapters];
     updatedChapters[chapterIndex].subChapters = updatedChapters[
       chapterIndex
-    ].subChapters.filter((_, i) => i !== subIndex);
+    ].subChapters.filter((_, i: any) => i !== subIndex);
     setValue("chapters", updatedChapters);
   };
   // watch syllabus
   const chapters = watch("chapters");
 
   // on submit function
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     setaddCourseLoading(true);
     const { data: resData } = await axios.post(
       "/api/courses/addNewCourse",
@@ -296,7 +296,7 @@ const AddCourse = () => {
                   label="Affiliated to"
                   options={affiliatedToOptions}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                     setValue("nextCourseName", "None");
                     setselectedAffiliatedTo(value);
@@ -379,7 +379,7 @@ const AddCourse = () => {
                       ),
                     ]}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.nextCourseName}
@@ -578,7 +578,7 @@ const AddCourse = () => {
                   variant="contained"
                   color="info"
                   onClick={() => {
-                    document.getElementById("hiddenSubmit").click();
+                    document.getElementById("hiddenSubmit")?.click();
 
                     if (!isValid) {
                       handleconfirmModalClose();

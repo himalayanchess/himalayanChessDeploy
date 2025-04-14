@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     const utcDob = dayjs(dob).tz(timeZone).startOf("day").utc();
 
     // batches to utcdate
-    const utcconvertedBatches = batches.map((batch) => ({
+    const utcconvertedBatches = batches.map((batch: any) => ({
       ...batch,
       startDate: dayjs(batch.startDate).tz(timeZone).startOf("day").utc(),
       endDate: batch?.endDate
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         : "",
     }));
     //enrolled courses to utc date
-    const utcconvertedEnrolledCourses = enrolledCourses.map((course) => ({
+    const utcconvertedEnrolledCourses = enrolledCourses.map((course: any) => ({
       ...course,
       startDate: dayjs(course.startDate).tz(timeZone).startOf("day").utc(),
       endDate: course?.endDate

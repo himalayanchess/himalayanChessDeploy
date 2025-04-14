@@ -49,12 +49,12 @@ const AssignClass = () => {
   const nextMonth = () => setCurrentDate(currentDate.add(1, "month"));
   const prevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));
 
-  const handleMonthChange = (event) => {
+  const handleMonthChange = (event: any) => {
     const selectedMonth = dayjs(event.target.value);
     setCurrentDate(selectedMonth);
   };
 
-  const handleDateClick = (day) => {
+  const handleDateClick = (day: any) => {
     if (day) {
       setSelectedDate(dayjs(day).tz(timeZone));
     } else {
@@ -91,16 +91,18 @@ const AssignClass = () => {
       .startOf("day")
       .format("YYYY-MM-DD");
 
-    const filteredClasses = allActiveAssignedClasses.filter((assignedClass) => {
-      const assignedClassDate = dayjs(assignedClass.nepaliDate).format(
-        "YYYY-MM-DD"
-      );
-      return assignedClassDate === selectedNepaliDateOnly;
-    });
+    const filteredClasses = allActiveAssignedClasses.filter(
+      (assignedClass: any) => {
+        const assignedClassDate = dayjs(assignedClass.nepaliDate).format(
+          "YYYY-MM-DD"
+        );
+        return assignedClassDate === selectedNepaliDateOnly;
+      }
+    );
 
     const uniqueProjectNames = [
       ...new Set(
-        filteredClasses.map((assignedClass) =>
+        filteredClasses.map((assignedClass: any) =>
           assignedClass?.affiliatedTo?.toLowerCase() === "hca"
             ? "HCA"
             : assignedClass.projectName
@@ -117,7 +119,7 @@ const AssignClass = () => {
       <div className="bg flex flex-col gap-2">
         {/* Today's Classes Section */}
         <div className="bg-gray-100 p-2 px-4 h-[25%] w-[330px]  overflow-y-auto rounded-lg ">
-          <h3 className="text-lg font-bold mb-1 ">Today's Classes</h3>
+          <h3 className="text-lg font-bold mb-1 ">Today&apos;s Classes</h3>
 
           {selectedDate ? (
             <div className="uniqueprojects flex flex-wrap gap-2">

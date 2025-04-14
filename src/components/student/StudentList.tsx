@@ -29,7 +29,7 @@ const StudentList = ({
   const [selectedStudentId, setselectedStudentId] = useState(null);
   const [selectedStudentName, setselectedStudentName] = useState(null);
   // delete modal open
-  function handleDeleteModalOpen(studentId, studentName) {
+  function handleDeleteModalOpen(studentId: any, studentName: any) {
     setselectedStudentId(studentId);
     setselectedStudentName(studentName);
     setDeleteModalOpen(true);
@@ -41,7 +41,7 @@ const StudentList = ({
   }
 
   // User Delete Function
-  async function handleStudentDelete(id, affiliatedTo) {
+  async function handleStudentDelete(id: any, affiliatedTo: any) {
     try {
       const { data: resData } = await axios.post(
         "/api/students/deleteStudent",
@@ -148,12 +148,12 @@ const StudentList = ({
                   {/* Batch */}
                   <div className="text-left text-sm font-medium text-gray-600">
                     {student?.batches?.filter(
-                      (batch) => batch.activeStatus && !batch.endDate // Exclude completed batches
+                      (batch: any) => batch.activeStatus && !batch.endDate // Exclude completed batches
                     ).length === 0
                       ? "Not Selected"
                       : student?.batches
                           ?.filter(
-                            (batch) => batch.activeStatus && !batch.endDate
+                            (batch: any) => batch.activeStatus && !batch.endDate
                           ) // Only show active, non-completed batches
                           .map((batch: any, index: any) => (
                             <p key={batch?.batchId || `batch${index}`}>

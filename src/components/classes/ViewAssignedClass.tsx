@@ -22,14 +22,14 @@ import { presentStatusOptions } from "@/options/activitiyRecordOptions";
 
 dayjs.extend(weekOfYear);
 
-const ViewAssignedClass = ({ assignedClass, handleClose }) => {
+const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
   const dis = useDispatch();
   // redux states
   const { allTrainerList, status } = useSelector(
-    (state) => state.allListReducer
+    (state: any) => state.allListReducer
   );
 
-  const [affiliatedTo, setaffiliatedTo] = useState(
+  const [affiliatedTo, setaffiliatedTo] = useState<any>(
     assignedClass?.affiliatedTo?.toLowerCase() == "hca" ? "HCA" : "School"
   );
   const [deleteModalOpen, setdeleteModalOpen] = useState(false);
@@ -81,7 +81,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
   }
 
   //onSubmit
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     try {
       const { data: resData } = await axios.post("/api/classes/updateClass", {
         ...assignedClass,
@@ -161,7 +161,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
             variant={affiliatedTo === "HCA" ? "contained" : "outlined"}
             color="success"
             disableElevation
-            onClick={() => handleContractTypeChange("HCA")}
+            // onClick={() => handleContractTypeChange("HCA")}
             disabled
           >
             HCA
@@ -170,7 +170,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
             variant={affiliatedTo === "School" ? "contained" : "outlined"}
             color="success"
             disableElevation
-            onClick={() => handleContractTypeChange("School")}
+            // onClick={() => handleContractTypeChange("School")}
             disabled
           >
             School
@@ -263,13 +263,13 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
             render={({ field }) => (
               <Dropdown
                 label="Trainer name"
-                options={allTrainerList.map((trainer) => trainer.name)}
+                options={allTrainerList.map((trainer: any) => trainer.name)}
                 selected={field.value}
                 disabled={assignedClass?.recordUpdatedByTrainer}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
-                  const selectedTrainer = allTrainerList.find(
-                    (trainer) => trainer.name === value
+                  const selectedTrainer: any = allTrainerList.find(
+                    (trainer: any) => trainer.name === value
                   );
                   setValue("trainerId", selectedTrainer?._id || "");
                 }}
@@ -301,7 +301,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }) => {
                   options={presentStatusOptions}
                   selected={field.value}
                   disabled={assignedClass?.recordUpdatedByTrainer}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                   }}
                   error={errors.userPresentStatus}

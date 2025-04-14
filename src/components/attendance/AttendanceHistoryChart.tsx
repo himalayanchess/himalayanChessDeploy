@@ -101,7 +101,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
       .startOf("day")
       .format("YYYY-MM-DD");
 
-    const filteredRecords = attendanceRecords.filter((record) => {
+    const filteredRecords = attendanceRecords.filter((record: any) => {
       const recordDate = dayjs(record.utcDate)
         .tz("Asia/Kathmandu")
         .startOf("day")
@@ -124,7 +124,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
             label="Month"
             type="month"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={(e: any) => setSelectedDate(e.target.value)}
           />
         </div>
 

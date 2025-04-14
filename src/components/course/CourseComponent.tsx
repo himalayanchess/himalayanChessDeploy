@@ -28,7 +28,7 @@ const CourseComponent = ({ role = "" }: any) => {
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [coursesPerPage] = useState(7);
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
   // Reset current page to 1 and searchtext when selectedAffiliatedTo changes
@@ -44,20 +44,23 @@ const CourseComponent = ({ role = "" }: any) => {
       selectedAffiliatedTo.toLowerCase() == "all"
         ? allActiveCoursesList
         : allActiveCoursesList.filter(
-            (course) =>
+            (course: any) =>
               course?.affiliatedTo?.toLowerCase() ==
               selectedAffiliatedTo.toLowerCase()
           );
 
     if (searchText.trim() !== "") {
-      tempFilteredCoursesList = tempFilteredCoursesList.filter((course) =>
+      tempFilteredCoursesList = tempFilteredCoursesList.filter((course: any) =>
         course.name.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
     tempFilteredCoursesList = tempFilteredCoursesList
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
     setFilteredCourseCount(tempFilteredCoursesList?.length);
     setCurrentPage(1);
@@ -99,7 +102,7 @@ const CourseComponent = ({ role = "" }: any) => {
             <SearchInput
               placeholder="Search"
               value={searchText}
-              onChange={(e) => setsearchText(e.target.value)}
+              onChange={(e: any) => setsearchText(e.target.value)}
             />
 
             {/* add course button */}

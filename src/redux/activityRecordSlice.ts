@@ -68,14 +68,14 @@ const activityRecordSlice = createSlice({
         state.status = "succeeded";
         // set all assigned classes
         state.allActivityRecords = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
         const sortedActivityRecords = action.payload
           ?.filter((activityRecord: any) => activityRecord.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 
@@ -96,14 +96,14 @@ const activityRecordSlice = createSlice({
         state.status = "succeeded";
         // set all assigned classes
         state.allStudentsActivityRecords = action.payload?.sort(
-          (a, b) =>
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
         const sortedStudentsActivityRecords = action.payload
           ?.filter((activityRecord: any) => activityRecord.activeStatus)
           .sort(
-            (a, b) =>
+            (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 

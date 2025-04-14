@@ -35,10 +35,10 @@ const TodaysClasses = ({
   useEffect(() => {
     const totalStudents = attendanceStudentRecordsList.length;
     const presentCount = attendanceStudentRecordsList.filter(
-      (student) => student.attendance === "present"
+      (student: any) => student.attendance === "present"
     ).length;
     const absentCount = attendanceStudentRecordsList.filter(
-      (student) => student.attendance === "absent"
+      (student: any) => student.attendance === "absent"
     ).length;
     const data = [
       { name: "Total", count: totalStudents },
@@ -75,7 +75,7 @@ const TodaysClasses = ({
                 <span className="ml-2">No assigned Classes</span>
               </p>
             ) : (
-              trainersTodaysClasses?.map((todaysClass) => (
+              trainersTodaysClasses?.map((todaysClass: any) => (
                 <div
                   key={todaysClass?._id}
                   onClick={() => handleSelectTodaysClass(todaysClass)}

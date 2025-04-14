@@ -64,7 +64,7 @@ const ActivityRecordComponent = () => {
   const [endDate, setEndDate] = useState(defaultEndDate);
 
   // handle page change
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -191,7 +191,7 @@ const ActivityRecordComponent = () => {
                 type="month"
                 value={selectedMonth}
                 disabled={useAdvancedDate}
-                onChange={(e) => setselectedMonth(e.target.value)}
+                onChange={(e: any) => setselectedMonth(e.target.value)}
               />
               <button
                 className="ml-2 pb-2"
@@ -229,14 +229,14 @@ const ActivityRecordComponent = () => {
                   type="date"
                   value={startDate}
                   disabled={!useAdvancedDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e: any) => setStartDate(e.target.value)}
                 />
                 <Input
                   label="End Date"
                   type="date"
                   value={endDate}
                   disabled={!useAdvancedDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={(e: any) => setEndDate(e.target.value)}
                 />
 
                 {/* count */}

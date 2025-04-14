@@ -1,4 +1,4 @@
-export const loadingMessages = [
+export const loadingMessages: any = [
   "Deploying the pawns",
   "Aligning the pieces for opening",
   "Calculating your opening theory",

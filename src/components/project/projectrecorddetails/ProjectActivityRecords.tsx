@@ -74,7 +74,7 @@ const ProjectActivityRecords = ({
     setviewStudyMaterialsModalOpen(false);
   }
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
@@ -92,7 +92,7 @@ const ProjectActivityRecords = ({
   useEffect(() => {
     let tempFilteredBatches = allActiveBatches
       .slice()
-      .filter((batch) => batch?.projectId == projectRecord?._id);
+      .filter((batch: any) => batch?.projectId == projectRecord?._id);
 
     setFilteredBatches(tempFilteredBatches || []);
   }, [projectRecord, allActiveBatches]);
@@ -108,7 +108,7 @@ const ProjectActivityRecords = ({
   useEffect(() => {
     if (!allActiveActivityRecords || !projectRecord) return;
 
-    const filtered = allActiveActivityRecords.filter((record) => {
+    const filtered = allActiveActivityRecords.filter((record: any) => {
       // First, filter by projectId
       if (record.projectId !== projectRecord._id) {
         return false;
@@ -166,7 +166,7 @@ const ProjectActivityRecords = ({
             width="full"
             options={[
               "All",
-              ...(filteredBatches?.map((batch) => batch.batchName) || []),
+              ...(filteredBatches?.map((batch: any) => batch.batchName) || []),
             ]}
             selected={selectedBatch}
             onChange={setselectedBatch}
@@ -176,7 +176,7 @@ const ProjectActivityRecords = ({
             type="month"
             value={selectedMonth}
             disabled={useAdvancedDate}
-            onChange={(e) => setselectedMonth(e.target.value)}
+            onChange={(e: any) => setselectedMonth(e.target.value)}
           />
         </div>
 
@@ -204,14 +204,14 @@ const ProjectActivityRecords = ({
             type="date"
             value={startDate}
             disabled={!useAdvancedDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e: any) => setStartDate(e.target.value)}
           />
           <Input
             label="End Date"
             type="date"
             value={endDate}
             disabled={!useAdvancedDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e: any) => setEndDate(e.target.value)}
           />
         </div>
       </div>
@@ -371,22 +371,24 @@ const ProjectActivityRecords = ({
                 {selectedRecord?.studyMaterials?.length === 0 ? (
                   <p className="text-gray-500">No study materials</p>
                 ) : (
-                  selectedRecord?.studyMaterials?.map((material, index) => (
-                    <Link
-                      href={`${material?.fileUrl}`}
-                      target="_blank"
-                      key={index}
-                      className="studyMaterial flex items-center justify-between cursor-pointer bg-gray-50 border px-3 py-2 rounded-md border-gray-00 transition-all duration-150 ease hover:bg-gray-200"
-                    >
-                      <div className="title flex items-center">
-                        <InsertDriveFileIcon sx={{ color: "gray" }} />
-                        <p className="ml-2 text-sm">{material?.fileName}</p>
-                      </div>
-                      <div className="view-button text-xs mr-2 border border-gray-400 rounded-full px-3 py-0.5">
-                        View
-                      </div>
-                    </Link>
-                  ))
+                  selectedRecord?.studyMaterials?.map(
+                    (material: any, index: any) => (
+                      <Link
+                        href={`${material?.fileUrl}`}
+                        target="_blank"
+                        key={index}
+                        className="studyMaterial flex items-center justify-between cursor-pointer bg-gray-50 border px-3 py-2 rounded-md border-gray-00 transition-all duration-150 ease hover:bg-gray-200"
+                      >
+                        <div className="title flex items-center">
+                          <InsertDriveFileIcon sx={{ color: "gray" }} />
+                          <p className="ml-2 text-sm">{material?.fileName}</p>
+                        </div>
+                        <div className="view-button text-xs mr-2 border border-gray-400 rounded-full px-3 py-0.5">
+                          View
+                        </div>
+                      </Link>
+                    )
+                  )
                 )}
               </div>
             </Box>

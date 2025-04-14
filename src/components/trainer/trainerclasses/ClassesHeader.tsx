@@ -43,7 +43,7 @@ const ClassesHeader = ({
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({
+  } = useForm<any>({
     defaultValues: {
       selectedStudyTopic: "",
     },
@@ -55,7 +55,7 @@ const ClassesHeader = ({
     setValue("selectedStudyTopic", "");
   }, [selectedTodaysClass]);
 
-  async function onSubmit(data) {
+  async function onSubmit(data: any) {
     console.log(data);
     setapplyToAllClicked(true);
     setapplyTopic(data?.selectedStudyTopic);
@@ -159,7 +159,7 @@ const ClassesHeader = ({
                     <Dropdown
                       options={selectedCourseLessons || []}
                       selected={field.value || ""}
-                      onChange={(value) => field.onChange(value)}
+                      onChange={(value: any) => field.onChange(value)}
                       error={!!errors.selectedStudyTopic} // Pass error state
                       helperText={errors.selectedStudyTopic?.message} // Error message
                     />

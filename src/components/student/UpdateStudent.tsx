@@ -154,7 +154,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
   const enrolledCourses = watch("enrolledCourses");
 
   const isDuplicateCourse = (course: string) => {
-    return enrolledCourses.filter((c) => c.course === course).length > 1;
+    return enrolledCourses.filter((c: any) => c.course === course).length > 1;
   };
 
   const addBatch = () => {
@@ -170,10 +170,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
   const batches = watch("batches");
 
   const isDuplicateBatch = (batchName: string) => {
-    return batches.filter((c) => c.batchName === batchName).length > 1;
+    return batches.filter((c: any) => c.batchName === batchName).length > 1;
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     try {
       setupdateStudentLoading(true);
       const { data: resData } = await axios.post(
@@ -197,10 +197,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
   useEffect(() => {
     let tempHcaBatches = allActiveBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "hca"
+      (batch: any) => batch.affiliatedTo.toLowerCase() == "hca"
     );
     let tempSchoolBatches = allActiveBatches.filter(
-      (batch) => batch.affiliatedTo.toLowerCase() == "school"
+      (batch: any) => batch.affiliatedTo.toLowerCase() == "school"
     );
     sethcaBatchList(tempHcaBatches);
     setschoolBatchList(tempSchoolBatches);
@@ -265,7 +265,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                 options={affiliatedToOptions}
                 selected={field.value || ""}
                 disabled={true}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   setselectedAffiliatedTo(value);
                 }}
                 width="full"
@@ -332,7 +332,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                   label="Gender"
                   options={genderOptions}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
                   }}
                   error={errors.gender}
@@ -513,15 +513,15 @@ const UpdateStudent = ({ studentRecord }: any) => {
               render={({ field }) => (
                 <Dropdown
                   label="Project name"
-                  options={projectList.map((project) => project.name)}
+                  options={projectList.map((project: any) => project.name)}
                   selected={field.value || ""}
-                  onChange={(value) => {
+                  onChange={(value: any) => {
                     field.onChange(value);
-                    const selectedProject = projectList.find(
-                      (project) => project.name == value
+                    const selectedProject: any = projectList.find(
+                      (project: any) => project.name == value
                     );
 
-                    setValue("projectId", selectedProject._id);
+                    setValue("projectId", selectedProject?._id);
                   }}
                   error={errors.projectName}
                   helperText={errors.projectName?.message}
@@ -543,7 +543,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                 label="Status"
                 options={statusOptions}
                 selected={field.value || ""}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   field.onChange(value);
                 }}
                 required={true}
@@ -574,7 +574,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     label="Title"
                     options={titleOptions}
                     selected={field.value || ""}
-                    onChange={(value) => {
+                    onChange={(value: any) => {
                       field.onChange(value);
                     }}
                     error={errors.title}
@@ -655,8 +655,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     value={field.value || ""}
                     label="Guardian Full Name"
                     type="text"
-                    error={errors?.guardianInfo?.name}
-                    helperText={errors?.guardianInfo?.name?.message}
+                    // error={errors?.guardianInfo?.name}
+                    // helperText={errors?.guardianInfo?.name?.message}
+                    error={!!errors["guardianInfo.name"]}
+                    helperText={errors["guardianInfo.name"]?.message as string}
                     required={true}
                   />
                 )}
@@ -679,8 +681,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     value={field.value || ""}
                     label="Guardian Phone no"
                     type="number"
-                    error={errors?.guardianInfo?.phone}
-                    helperText={errors?.guardianInfo?.phone?.message}
+                    // error={errors?.guardianInfo?.phone}
+                    // helperText={errors?.guardianInfo?.phone?.message}
+                    error={!!errors["guardianInfo.phone"]}
+                    helperText={errors["guardianInfo.phone"]?.message as string}
                     required={true}
                   />
                 )}
@@ -701,8 +705,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     value={field.value || ""}
                     label="Guardian email"
                     type="text"
-                    error={errors?.guardianInfo?.email}
-                    helperText={errors?.guardianInfo?.email?.message}
+                    // error={errors?.guardianInfo?.email}
+                    // helperText={errors?.guardianInfo?.email?.message}
+                    error={!!errors["guardianInfo.email"]}
+                    helperText={errors["guardianInfo.email"]?.message as string}
                   />
                 )}
               />
@@ -778,7 +784,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
             <p className="text-gray-500 mb-2  ">No Batch yet.</p>
           ) : (
             batchesFields
-              .filter((batch) => batch.activeStatus == true)
+              .filter((batch: any) => batch.activeStatus == true)
               .map((batch, index) => (
                 <div key={batch?.id} className="col-span-2 mb-2">
                   <div className="grid grid-cols-4 items-center place-items-start gap-4">
@@ -789,7 +795,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                       rules={{
                         required: "Batch is required",
                         validate: (value) =>
-                          (value && !isDuplicateBatch(value, index)) ||
+                          (value && !isDuplicateBatch(value)) ||
                           "Duplicate batch selected",
                       }}
                       render={({ field }) => (
@@ -797,18 +803,22 @@ const UpdateStudent = ({ studentRecord }: any) => {
                           label="Batch"
                           options={
                             selectedAffiliatedTo?.toLowerCase() == "hca"
-                              ? hcaBatchList.map((batch) => batch.batchName)
-                              : schoolBatchList.map((batch) => batch.batchName)
+                              ? hcaBatchList.map(
+                                  (batch: any) => batch.batchName
+                                )
+                              : schoolBatchList.map(
+                                  (batch: any) => batch.batchName
+                                )
                           }
                           selected={field.value || ""}
-                          onChange={(value) => {
+                          onChange={(value: any) => {
                             field.onChange(value);
                             let selectedBatchList =
                               selectedAffiliatedTo.toLowerCase() == "hca"
                                 ? hcaBatchList
                                 : schoolBatchList;
-                            const selectedBatch = selectedBatchList.find(
-                              (batch) => batch.batchName == value
+                            const selectedBatch: any = selectedBatchList.find(
+                              (batch: any) => batch.batchName == value
                             );
                             setValue(
                               `batches.${index}.batchId`,
@@ -816,9 +826,14 @@ const UpdateStudent = ({ studentRecord }: any) => {
                             );
                           }}
                           width="full"
-                          error={errors?.batches?.[index]?.batchName}
+                          // error={errors?.batches?.[index]?.batchName}
+                          // helperText={
+                          //   errors?.batches?.[index]?.batchName?.message
+                          // }
+                          error={!!(errors.batches as any)?.[index]?.batchName}
                           helperText={
-                            errors?.batches?.[index]?.batchName?.message
+                            (errors.batches as any)?.[index]?.batchName
+                              ?.message as string
                           }
                         />
                       )}
@@ -843,9 +858,14 @@ const UpdateStudent = ({ studentRecord }: any) => {
                                   .format("YYYY-MM-DD")
                               : ""
                           }
-                          error={errors?.batches?.[index]?.startDate}
+                          // error={errors?.batches?.[index]?.startDate}
+                          // helperText={
+                          //   errors?.batches?.[index]?.startDate?.message
+                          // }
+                          error={!!(errors.batches as any)?.[index]?.startDate}
                           helperText={
-                            errors?.batches?.[index]?.startDate?.message
+                            (errors.batches as any)?.[index]?.startDate
+                              ?.message as string
                           }
                           width="full"
                         />
@@ -872,9 +892,14 @@ const UpdateStudent = ({ studentRecord }: any) => {
                                   .format("YYYY-MM-DD")
                               : ""
                           }
-                          error={errors?.batches?.[index]?.endDate}
+                          // error={errors?.batches?.[index]?.endDate}
+                          // helperText={
+                          //   errors?.batches?.[index]?.endDate?.message
+                          // }
+                          error={!!(errors.batches as any)?.[index]?.endDate}
                           helperText={
-                            errors?.batches?.[index]?.endDate?.message
+                            (errors.batches as any)?.[index]?.endDate
+                              ?.message as string
                           }
                           width="full"
                         />
@@ -953,7 +978,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
             {fields.length === 0 && (
               <p className="text-gray-500 mb-2  ">No courses yet.</p>
             )}
-            {fields.map((course, index) => (
+            {fields.map((course: any, index: any) => (
               <div key={course.id} className="col-span-2 mb-2">
                 <div className="grid grid-cols-4 items-center place-items-start gap-4">
                   {/* Course Selection */}
@@ -963,18 +988,18 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     rules={{
                       required: "Course is required",
                       validate: (value) =>
-                        (value && !isDuplicateCourse(value, index)) ||
+                        (value && !isDuplicateCourse(value)) ||
                         "Duplicate course selected",
                     }}
                     render={({ field }) => (
                       <Dropdown
                         label="Course"
-                        options={allActiveCoursesList.map((c) => c.name)}
+                        options={allActiveCoursesList.map((c: any) => c.name)}
                         selected={field.value || ""}
-                        onChange={(value) => {
+                        onChange={(value: any) => {
                           field.onChange(value);
                           const selectedCourse = allActiveCoursesList.find(
-                            (course) => course.name == value
+                            (course: any) => course.name == value
                           );
                           setValue(
                             `enrolledCourses.${index}.courseId`,
@@ -983,9 +1008,16 @@ const UpdateStudent = ({ studentRecord }: any) => {
                           trigger(`enrolledCourses.${index}.status`); // Trigger validation on status
                         }}
                         width="full"
-                        error={errors?.enrolledCourses?.[index]?.course}
+                        // error={errors?.enrolledCourses?.[index]?.course}
+                        // helperText={
+                        //   errors?.enrolledCourses?.[index]?.course?.message
+                        // }
+                        error={
+                          !!(errors.enrolledCourses as any)?.[index]?.course
+                        }
                         helperText={
-                          errors?.enrolledCourses?.[index]?.course?.message
+                          (errors.enrolledCourses as any)?.[index]?.course
+                            ?.message as string
                         }
                       />
                     )}
@@ -1010,9 +1042,16 @@ const UpdateStudent = ({ studentRecord }: any) => {
                                 .format("YYYY-MM-DD")
                             : ""
                         }
-                        error={errors?.enrolledCourses?.[index]?.startDate}
+                        // error={errors?.enrolledCourses?.[index]?.startDate}
+                        // helperText={
+                        //   errors?.enrolledCourses?.[index]?.startDate?.message
+                        // }
+                        error={
+                          !!(errors.enrolledCourses as any)?.[index]?.startDate
+                        }
                         helperText={
-                          errors?.enrolledCourses?.[index]?.startDate?.message
+                          (errors.enrolledCourses as any)?.[index]?.startDate
+                            ?.message as string
                         }
                         width="full"
                       />
@@ -1039,9 +1078,16 @@ const UpdateStudent = ({ studentRecord }: any) => {
                                 .format("YYYY-MM-DD")
                             : ""
                         }
-                        error={errors?.enrolledCourses?.[index]?.endDate}
+                        // error={errors?.enrolledCourses?.[index]?.endDate}
+                        // helperText={
+                        //   errors?.enrolledCourses?.[index]?.endDate?.message
+                        // }
+                        error={
+                          !!(errors.enrolledCourses as any)?.[index]?.endDate
+                        }
                         helperText={
-                          errors?.enrolledCourses?.[index]?.endDate?.message
+                          (errors.enrolledCourses as any)?.[index]?.endDate
+                            ?.message as string
                         }
                         width="full"
                       />
@@ -1151,7 +1197,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     variant="contained"
                     color="info"
                     onClick={() => {
-                      document.getElementById("hiddenSubmit").click();
+                      document.getElementById("hiddenSubmit")?.click();
 
                       if (!isValid) {
                         handleconfirmModalClose();

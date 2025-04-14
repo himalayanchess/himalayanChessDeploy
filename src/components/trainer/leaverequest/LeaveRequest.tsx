@@ -126,7 +126,7 @@ const LeaveRequest = ({ role = "" }: any) => {
   };
 
   // Function to calculate days difference (including same-day leave)
-  const calculateleaveDurationDays = (from, to) => {
+  const calculateleaveDurationDays = (from: any, to: any) => {
     return from && to ? dayjs(to).diff(dayjs(from), "day") + 1 : 0;
   };
 
@@ -168,7 +168,7 @@ const LeaveRequest = ({ role = "" }: any) => {
   // filter allActiveBatches
   useEffect(() => {
     const tempfilteredBatchesOptions = new Set(
-      allActiveBatches.map((batch) => {
+      allActiveBatches.map((batch: any) => {
         if (batch?.affiliatedTo?.toLowerCase() === "school") {
           return batch.projectName;
         } else if (batch?.affiliatedTo?.toLowerCase() === "hca") {
@@ -415,7 +415,7 @@ const LeaveRequest = ({ role = "" }: any) => {
                   />
                   {errors?.leaveReason && (
                     <p className="text-xs text-red-500">
-                      {errors?.leaveReason?.message}
+                      {errors?.leaveReason?.message as string}
                     </p>
                   )}
                 </div>

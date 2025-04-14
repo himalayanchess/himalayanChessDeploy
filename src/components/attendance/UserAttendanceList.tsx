@@ -26,7 +26,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllAttendanceRecords,
   setattendanceUpdatedByData,
-  setNewAttendanceUpdated,
   updateAttendanceChartData,
 } from "@/redux/attendanceSlice";
 
@@ -39,7 +38,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   const dispatch = useDispatch<any>();
   const session = useSession();
 
-  const { control, handleSubmit, watch, reset } = useForm({
+  const { control, handleSubmit, watch, reset } = useForm<any>({
     defaultValues: {
       userAttendance: [],
     },
@@ -66,13 +65,17 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
         {
           name: "Attendance",
           present:
-            userAttendance?.filter((a) => a.status === "present").length || 0,
+            userAttendance?.filter((a: any) => a.status === "present").length ||
+            0,
           absent:
-            userAttendance?.filter((a) => a.status === "absent").length || 0,
+            userAttendance?.filter((a: any) => a.status === "absent").length ||
+            0,
           leave:
-            userAttendance?.filter((a) => a.status === "leave").length || 0,
+            userAttendance?.filter((a: any) => a.status === "leave").length ||
+            0,
           holiday:
-            userAttendance?.filter((a) => a.status === "holiday").length || 0,
+            userAttendance?.filter((a: any) => a.status === "holiday").length ||
+            0,
           total: userAttendance?.length || 0,
         },
       ];
@@ -89,7 +92,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       !initialLoadComplete
     ) {
       // Set default values (all absent)
-      const defaultAttendance = allActiveUsersList.map((user) => ({
+      const defaultAttendance = allActiveUsersList.map((user: any) => ({
         userId: user._id,
         userName: user.name,
         userRole: user.role,
@@ -112,7 +115,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
 
       if (resData?.statusCode === 200 && resData?.attendanceRecord) {
         replace(
-          resData.attendanceRecord.userAttendance.map((user) => ({
+          resData.attendanceRecord.userAttendance.map((user: any) => ({
             userId: user.userId,
             userName: user.userName,
             userRole: user.userRole,
@@ -360,7 +363,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
                 variant="contained"
                 color="info"
                 onClick={() => {
-                  document.getElementById("hiddenSubmit").click();
+                  document.getElementById("hiddenSubmit")?.click();
                 }}
               >
                 Save attendance

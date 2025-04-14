@@ -4,7 +4,6 @@ import CredentialProvider from "next-auth/providers/credentials";
 import { dbconnect } from "./helpers/dbconnect/dbconnect";
 import User from "./models/UserModel";
 import bcryptjs from "bcryptjs";
-import { fetchExternalImage } from "next/dist/server/image-optimizer";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialProvider({
@@ -19,7 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           type: "password",
         },
       },
-      authorize: async ({ email, password }) => {
+      authorize: async ({ email, password }): Promise<any> => {
         await dbconnect();
 
         const fetchedUser = await User.findOne({ email });
