@@ -10,22 +10,22 @@ export default function Home() {
     const role = session?.user.role;
     console.log("session role ", session);
 
-    // let redirectRoute = "/login";
-    // switch (session?.user?.role?.toLowerCase()) {
-    //   case "superadmin":
-    //     redirectRoute = "/superadmin/dashboard";
-    //     break;
-    //   case "admin":
-    //     redirectRoute = "/admin/dashboard";
-    //     break;
-    //   case "trainer":
-    //     redirectRoute = "/trainer/dashboard";
-    //     break;
-    //   default:
-    //     break;
-    // }
-    // console.log(redirectRoute);
-    // router.push(redirectRoute);
+    let redirectRoute = "/login";
+    switch (session?.user?.role?.toLowerCase()) {
+      case "superadmin":
+        redirectRoute = "/superadmin/dashboard";
+        break;
+      case "admin":
+        redirectRoute = "/admin/dashboard";
+        break;
+      case "trainer":
+        redirectRoute = "/trainer/dashboard";
+        break;
+      default:
+        break;
+    }
+    console.log(redirectRoute);
+    router.push(redirectRoute);
   }
   useEffect(() => {
     checkAuthorization();
