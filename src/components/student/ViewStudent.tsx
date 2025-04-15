@@ -1,8 +1,24 @@
 // import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  CircleUser,
+  Users,
+  BookCopy,
+  School,
+  Component,
+  Luggage,
+  LayoutList,
+  CircleFadingArrowUp,
+  CalendarCheck2,
+} from "lucide-react";
 import { Button, Divider } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import { useSession } from "next-auth/react";
 import StudentAttendance from "./StudentAttendance";
 import dayjs from "dayjs";
@@ -48,13 +64,25 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
   };
 
   const menuItems = [
-    { label: "Basic Information", value: "basic" },
-    { label: "Batches", value: "batches" },
-    { label: "Enrolled Courses", value: "courses" },
-    { label: "Test History", value: "testhistory" },
-    { label: "Activity Records", value: "activity" },
-    { label: "Payment", value: "payment" },
-    { label: "Tournaments & Events", value: "events" },
+    { label: "Overview", value: "basic", icon: <InfoOutlinedIcon /> },
+    {
+      label: "Batches",
+      value: "batches",
+      icon: <Component />,
+    },
+    { label: "Courses", value: "courses", icon: <BookOpenCheck /> },
+    {
+      label: "Test History",
+      value: "testhistory",
+      icon: <HistoryOutlinedIcon />,
+    },
+    { label: "Records", value: "activity", icon: <LayoutList /> },
+    { label: "Payment", value: "payment", icon: <AttachMoneyOutlinedIcon /> },
+    {
+      label: "Tournaments",
+      value: "events",
+      icon: <EmojiEventsOutlinedIcon />,
+    },
   ];
 
   // show dynamic compnent
@@ -159,26 +187,31 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
           <div className="header flex flex-col items-start justify-between  gap-2 ">
             <div className="title flex flex-col">
-              <h1 className="text-2xl font-bold">Student Detail</h1>
+              <h1 className="text-2xl font-bold flex items-center">
+                <Users />
+                <span className="ml-2">Student Detail</span>
+              </h1>
               <p>of {studentRecord?.name}</p>
             </div>
 
             {/* menu buttons */}
-            <div className="menuButtons grid grid-cols-7 gap-2">
+            <div className="w-full menuButtons flex  gap-2">
               {menuItems.map((item) => (
                 <Button
                   key={item.value}
                   variant={
                     selectedMenu === item.value ? "contained" : "outlined"
                   }
-                  size="small"
+                  size="medium"
                   onClick={() => handleMenuClick(item.value)}
                   disabled={
                     item?.value?.toLowerCase() != "basic" &&
                     studentRecord?.affiliatedTo?.toLowerCase() != "hca"
                   }
+                  sx={{ padding: "0.3rem 0.7rem" }}
                 >
-                  {item.label}
+                  {item.icon}
+                  <span className="ml-1.5">{item.label}</span>
                 </Button>
               ))}
             </div>

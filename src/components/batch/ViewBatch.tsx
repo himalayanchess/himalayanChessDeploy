@@ -1,5 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Button, Divider } from "@mui/material";
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  CircleUser,
+  Users,
+  BookCopy,
+  School,
+  Component,
+  LayoutList,
+  Luggage,
+  CircleFadingArrowUp,
+  CalendarCheck2,
+} from "lucide-react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllStudents } from "@/redux/allListSlice";
@@ -90,9 +103,12 @@ const ViewBatch = ({ batchRecord }: any) => {
     );
 
   return (
-    <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7">
+    <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       <div className="header flex items-end justify-between">
-        <h1 className="text-2xl font-bold">Batch Details</h1>
+        <h1 className="text-2xl font-bold flex items-center">
+          <Component />
+          <span className="ml-2">Batch Details</span>
+        </h1>
       </div>
 
       {/* divider */}

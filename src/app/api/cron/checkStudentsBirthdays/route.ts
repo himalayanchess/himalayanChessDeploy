@@ -19,26 +19,21 @@ export async function GET(request: NextRequest) {
 
   try {
     await dbconnect();
-
     const today = dayjs().tz("Asia/Kathmandu").format("MM-DD"); // format as MM-DD for comparison
     const students = await HcaAffiliatedStudent.find();
-
     const birthdayStudents = students.filter((student) => {
       if (!student.dob) return false;
       const dobFormatted = dayjs(student.dob).format("MM-DD");
       return dobFormatted === today;
     });
-
     if (birthdayStudents.length === 0) {
       return Response.json({ msg: "No birthdays today.", statusCode: 200 });
     }
-
     await sendBirthdayMail({
       subject: "🎂 Students with Birthday Today!",
       birthdayStudents,
       todaysDate: today,
     });
-
     return Response.json({
       msg: `Sent birthday email for ${birthdayStudents.length} student(s).`,
       statusCode: 200,

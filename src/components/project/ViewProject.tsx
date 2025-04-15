@@ -1,4 +1,19 @@
 import React, { useEffect, useState } from "react";
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  CircleUser,
+  Users,
+  BookCopy,
+  School,
+  Component,
+  LayoutList,
+  Luggage,
+  CircleFadingArrowUp,
+  CalendarCheck2,
+} from "lucide-react";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -38,10 +53,14 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
   };
   // menu items
   const menuItems = [
-    { label: "Basic Information", value: "basic" },
-    { label: "Assigned Trainers", value: "trainers" },
-    { label: "Time Slots", value: "timeslots" },
-    { label: "Activity Records", value: "activity" },
+    { label: "Basic Information", value: "basic", icon: <InfoOutlinedIcon /> },
+    { label: "Assigned Trainers", value: "trainers", icon: <CircleUser /> },
+    {
+      label: "Time Slots",
+      value: "timeslots",
+      icon: <AccessTimeOutlinedIcon />,
+    },
+    { label: "Activity Records", value: "activity", icon: <LayoutList /> },
   ];
 
   // show dynamic compnent
@@ -84,21 +103,25 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       {/* header */}
       <div className="header flex items-center justify-start gap-7 ">
-        <h1 className="text-2xl font-bold">Project Detail</h1>
-
-        {/* menu buttons */}
-        <div className="menuButtons my-2 flex gap-3">
-          {menuItems.map((item) => (
-            <Button
-              key={item.value}
-              variant={selectedMenu === item.value ? "contained" : "outlined"}
-              size="small"
-              onClick={() => handleMenuClick(item.value)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </div>
+        <h1 className="text-2xl font-bold flex items-center">
+          <School />
+          <span className="ml-2">Project Detail</span>
+        </h1>
+      </div>
+      {/* menu buttons */}
+      <div className="menuButtons my-2 flex gap-3">
+        {menuItems.map((item) => (
+          <Button
+            key={item.value}
+            variant={selectedMenu === item.value ? "contained" : "outlined"}
+            size="small"
+            onClick={() => handleMenuClick(item.value)}
+            sx={{ padding: "0.3rem 0.7rem" }}
+          >
+            {item.icon}
+            <span className="ml-1.5">{item.label}</span>
+          </Button>
+        ))}
       </div>
 
       {/* divider */}

@@ -61,7 +61,7 @@ const UserProjectsInformation = ({ userRecord }: any) => {
   }, [userRecord]);
 
   return (
-    <div className="flex-1 mt-3 mr-7  overflow-y-auto h-max">
+    <div className="flex-1 mt-0 mr-7  overflow-y-auto h-max">
       {userRecord?.role?.toLowerCase() === "trainer" && (
         <div className="col-span-3 bg-white rounded-md shadow-md">
           <h2 className="text-md font-bold text-gray-500 mb-4">

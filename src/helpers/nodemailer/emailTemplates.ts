@@ -572,7 +572,7 @@ export function getBirthdayEmailContent({ birthdayStudents, todaysDate }: any) {
       </head>
       <body>
         <div class="container">
-          <div class="header">🎂 Students with Birthdays Today</div>
+          <div class="">🎂 Students with Birthdays Today</div>
 
           <p><strong>Date:</strong> ${todaysDate}</p>
 

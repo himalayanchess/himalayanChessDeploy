@@ -117,7 +117,7 @@ const ActivityRecordList = ({
                   ${
                     activityRecord?.isPlayDay ||
                     activityRecord?.mainStudyTopic?.toLowerCase() === "play"
-                      ? "bg-yellow-100"
+                      ? "bg-green-100"
                       : "hover:bg-gray-100"
                   }`}
                 >
@@ -138,7 +138,7 @@ const ActivityRecordList = ({
                       return (
                         <p
                           key={"studytopic" + index}
-                          className="border border-gray-300 rounded-full px-2 py-0.5"
+                          className="border border-gray-300 rounded-full px-2 py-0"
                         >
                           {topic}
                         </p>

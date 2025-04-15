@@ -74,7 +74,7 @@ const AssignedClasses = ({ selectedDate }: any) => {
                 className={`py-2 px-3 shadow-sm rounded-md cursor-pointer hover:opacity-80
     ${
       assignedClass?.isPlayDay
-        ? "bg-yellow-100 border border-yellow-200"
+        ? "bg-green-100 border border-green-200"
         : assignedClass?.affiliatedTo?.toLowerCase() === "hca"
         ? "bg-blue-100"
         : "bg-gray-100"

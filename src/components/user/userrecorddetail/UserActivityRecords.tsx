@@ -191,7 +191,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
     <div className="w-full">
       <div className="header w-full">
         {/* Top Filters */}
-        <div className="topheader w-full grid grid-cols-4 gap-3 mt-3">
+        <div className="topheader w-full grid grid-cols-4 gap-3 mt-0">
           <Dropdown
             label="Affiliated to"
             options={affilatedToOptions}

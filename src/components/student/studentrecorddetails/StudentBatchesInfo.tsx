@@ -56,7 +56,7 @@ const StudentBatchesInfo = ({ studentRecord }: any) => {
         Affiliated Batches
       </h2>
       {/* buttons */}
-      <div className="buttons  flex gap-4">
+      <div className="buttons  flex gap-4 items-end">
         <Button
           size="small"
           variant={`${
@@ -91,8 +91,8 @@ const StudentBatchesInfo = ({ studentRecord }: any) => {
           Completed
         </Button>
 
-        <span className="px-3 text-white flex items-center justify-center bg-gray-400 rounded-md">
-          {studentBatches?.length} of {studentRecord?.batches?.length}
+        <span className="text-sm">
+          Showing {studentBatches?.length} of {studentRecord?.batches?.length}
         </span>
       </div>
 

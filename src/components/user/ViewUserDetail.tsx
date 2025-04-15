@@ -1,8 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  CircleUser,
+  Users,
+  BookCopy,
+  School,
+  LayoutList,
+  Component,
+  Luggage,
+  CircleFadingArrowUp,
+  CalendarCheck2,
+} from "lucide-react";
 import { Button, Divider } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTrainersActivityRecords } from "@/redux/trainerHistorySlice";
@@ -32,9 +45,9 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
   };
 
   const menuItems = [
-    { label: "Basic Information", value: "basic" },
-    { label: "Projects", value: "projects" },
-    { label: "Activity Records", value: "activity" },
+    { label: "Basic Information", value: "basic", icon: <InfoOutlinedIcon /> },
+    { label: "Projects", value: "projects", icon: <School /> },
+    { label: "Activity Records", value: "activity", icon: <LayoutList /> },
   ];
 
   // show dynamic compnent
@@ -90,33 +103,35 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
           <div className="header flex items-start justify-start gap-7 ">
             <div className="title flex flex-col">
-              <h1 className="text-2xl font-bold">User Record Detail</h1>
+              <h1 className="text-2xl font-bold flex items-center">
+                <CircleUser />
+                <span className="ml-2">User Record Detail</span>
+              </h1>
               <p>of {userRecord?.name}</p>
             </div>
-
-            {/* menu buttons */}
-            <div className="menuButtons flex gap-3">
-              {menuItems.map((item) => (
-                <Button
-                  key={item.value}
-                  variant={
-                    selectedMenu === item.value ? "contained" : "outlined"
-                  }
-                  size="small"
-                  onClick={() => handleMenuClick(item.value)}
-                  disabled={
-                    item?.value?.toLowerCase() != "basic" &&
-                    userRecord?.role?.toLowerCase() != "trainer"
-                  }
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
+          </div>
+          {/* menu buttons */}
+          <div className="menuButtons mt-2 flex gap-3">
+            {menuItems.map((item) => (
+              <Button
+                key={item.value}
+                variant={selectedMenu === item.value ? "contained" : "outlined"}
+                size="small"
+                onClick={() => handleMenuClick(item.value)}
+                disabled={
+                  item?.value?.toLowerCase() != "basic" &&
+                  userRecord?.role?.toLowerCase() != "trainer"
+                }
+                sx={{ padding: "0.3rem 0.7rem" }}
+              >
+                {item.icon}
+                <span className="ml-2">{item.label}</span>
+              </Button>
+            ))}
           </div>
 
           {/* divider */}
-          <Divider style={{ margin: ".4rem 0" }} />
+          <Divider style={{ margin: ".8rem 0" }} />
 
           <div className="flex-1 h-full flex  overflow-y-auto">
             {showComponent()}

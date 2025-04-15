@@ -345,11 +345,11 @@ const StudentActivityRecords = ({
                 return (
                   <div
                     key={record?._id}
-                    className={`grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150
+                    className={`grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-0.5 items-center cursor-pointer transition-all ease duration-150
                     ${
                       record?.isPlayDay ||
                       record?.mainStudyTopic?.toLowerCase() === "play"
-                        ? "bg-yellow-100 "
+                        ? "bg-green-100 "
                         : "hover:bg-gray-100"
                     }`}
                   >
@@ -371,7 +371,7 @@ const StudentActivityRecords = ({
                         (topic: any, index: any) => {
                           return (
                             <span
-                              className="border border-gray-400 px-2 py-0.5  rounded-full w-max"
+                              className="border border-gray-400 px-2 py-0  rounded-full w-max"
                               key={topic + " " + index}
                             >
                               {topic}

@@ -230,15 +230,16 @@ const StudentAttendance = ({ studentRecord }: { studentRecord: any }) => {
           <div className="total border flex flex-col items-center bg-[#f0f7ff] py-1.5 rounded-md text-sm">
             <p>Total</p>
             <span className="text-[1.1rem] font-bold">
-              {attendanceData.find((item) => item.name === "Total")?.value || 0}
+              {attendanceData.find((item: any) => item.name === "Total")
+                ?.value || 0}
             </span>
           </div>
           {/* Present */}
           <div className="total flex flex-col items-center bg-[#d9ffdb] p-1.5 rounded-md text-sm">
             <p>Present</p>
             <span className="text-[1.1rem] font-bold">
-              {attendanceData.find((item) => item.name === "Present")?.value ||
-                0}
+              {attendanceData.find((item: any) => item.name === "Present")
+                ?.value || 0}
             </span>
           </div>
 
@@ -246,8 +247,8 @@ const StudentAttendance = ({ studentRecord }: { studentRecord: any }) => {
           <div className="total flex flex-col items-center bg-[#ffdede] p-1.5 rounded-md text-sm">
             <p>Absent</p>
             <span className="text-[1.1rem] font-bold">
-              {attendanceData.find((item) => item.name === "Absent")?.value ||
-                0}
+              {attendanceData.find((item: any) => item.name === "Absent")
+                ?.value || 0}
             </span>
           </div>
         </div>

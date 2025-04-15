@@ -1,14 +1,31 @@
 import React, { useEffect, useState } from "react";
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  CircleUser,
+  Users,
+  BookCopy,
+  School,
+  Component,
+  Luggage,
+  LayoutList,
+  CalendarCheck2,
+} from "lucide-react";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+
 import StudentRecordComponent from "../trainer/trainerhistory/StudentRecordComponent";
 import StudyMaterialListComponent from "@/components/StudyMaterialListComponent";
 import DownloadIcon from "@mui/icons-material/Download";
 import { exportActivityRecordToExcel } from "@/helpers/exportToExcel/exportActivityRecordToExcel";
-import { Button } from "@mui/material";
+import { Button, Divider } from "@mui/material";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import BasicActivityRecordInformation from "./activityrecorddetails/BasicActivityRecordInformation";
+import ActivityRecordActivities from "./activityrecorddetails/ActivityRecordActivities";
+import ActivityRecordStudyMaterials from "./activityrecorddetails/ActivityRecordStudyMaterials";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -18,6 +35,40 @@ const timeZone = "Asia/Kathmandu";
 const ViewActivityRecordDetail = ({ activityRecord }: any) => {
   const [loaded, setLoaded] = useState(false);
   const session = useSession();
+  const [selectedMenu, setSelectedMenu] = useState("basic");
+
+  const handleMenuClick = (menuValue: any) => {
+    setSelectedMenu(menuValue); // Update the selected menu
+  };
+  const menuItems = [
+    { label: "Overview", value: "basic", icon: <InfoOutlinedIcon /> },
+    { label: "Activity Record", value: "activity", icon: <LayoutList /> },
+    { label: "Study Materials", value: "studymaterials", icon: <BookCopy /> },
+  ];
+
+  // show dynamic compnent
+  const showComponent = () => {
+    if (activityRecord) {
+      switch (selectedMenu) {
+        case "basic":
+          return (
+            <BasicActivityRecordInformation activityRecord={activityRecord} />
+          );
+
+        case "activity":
+          return <ActivityRecordActivities activityRecord={activityRecord} />;
+        case "studymaterials":
+          return (
+            <ActivityRecordStudyMaterials activityRecord={activityRecord} />
+          );
+
+        default:
+          return (
+            <BasicActivityRecordInformation activityRecord={activityRecord} />
+          );
+      }
+    }
+  };
 
   useEffect(() => {
     if (activityRecord) {
@@ -28,9 +79,12 @@ const ViewActivityRecordDetail = ({ activityRecord }: any) => {
   if (!loaded) return <div></div>;
 
   return (
-    <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-14 py-7 ">
-      <div className="header flex items-end justify-between mb-8 ">
-        <h1 className="text-2xl font-bold">Activity Record Detail</h1>
+    <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5 ">
+      <div className="header flex items-end justify-between mb-0 ">
+        <h1 className="text-2xl font-bold flex items-center">
+          <LayoutList />
+          <span className="ml-2">Activity Record Detail</span>
+        </h1>
         <Button
           variant="contained"
           color="success"
@@ -41,148 +95,28 @@ const ViewActivityRecordDetail = ({ activityRecord }: any) => {
           <span className="ml-2">Download Excel</span>
         </Button>
       </div>
-      <div className="space-y-4 h-full flex flex-col  overflow-y-auto">
-        <div className="grid grid-cols-3 gap-5 overflow-y-auto">
-          <div className="">
-            <p className="font-bold text-xs text-gray-500">Date:</p>
-            <p>
-              {dayjs(activityRecord?.nepaliDate)
-                .tz(timeZone)
-                .format("MMMM D, YYYY, dddd")}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">
-              Trainer Present Status:
-            </p>
-            <p
-              className={`text-xs text-white w-max font-bold rounded-full px-2 py-1 ${
-                activityRecord?.userPresentStatus?.toLowerCase() === "present"
-                  ? "bg-green-400"
-                  : "bg-red-400"
-              }`}
-            >
-              {activityRecord.userPresentStatus}
-            </p>
-          </div>
-          {/* empty cell */}
-          <div className="emptycell"></div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Trainer Name:</p>
-            <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
-                activityRecord?.trainerId
-              }`}
-              className="underline hover:text-blue-600"
-            >
-              <p>{activityRecord.trainerName}</p>
-            </Link>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Course Name:</p>
-            <p>{activityRecord.courseName}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Study Topic</p>
-            {/* <p>{activityRecord.courseName}</p> */}
-            my study topic Lorem ipsum
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Affiliated To:</p>
-            <p>{activityRecord.affiliatedTo || "N/A"}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Batch Name:</p>
-            <p>{activityRecord.batchName}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Project Name:</p>
-            <p>{activityRecord.projectName || "N/A"}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Week Start Date:</p>
-            <p>
-              {dayjs(activityRecord?.weekStartDate)
-                .tz(timeZone)
-                .format("MMMM D, YYYY, dddd")}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Week End Date:</p>
-            <p>
-              {" "}
-              {dayjs(activityRecord?.weekEndDate)
-                .tz(timeZone)
-                .format("MMMM D, YYYY, dddd")}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Week Number:</p>
-            <p>#{activityRecord.weekNumber || "N/A"}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Start Time:</p>
-            <p>
-              {dayjs(activityRecord?.startTime).tz(timeZone).format("hh:mm A")}
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">End Time:</p>
-            {dayjs(activityRecord?.startTime).tz(timeZone).format("hh:mm A")}
-          </div>
-          {/* empty */}
-          <div className="emptycell"></div>
 
-          <div>
-            <p className="font-bold text-xs text-gray-500">Arrival Time:</p>
-            <p>{activityRecord.arrivalTime || "N/A"}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Departure Time:</p>
-            <p>{activityRecord.departureTime || "N/A"}</p>
-          </div>
-          {/* empty */}
-          <div className="emptycell"></div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">Holiday Status:</p>
-            <p>{activityRecord.holidayStatus ? "Yes" : "No"}</p>
-          </div>
-          <div>
-            <p className="font-bold text-xs text-gray-500">
-              Holiday Description:
-            </p>
-            <p>{activityRecord.holidayDescription || "N/A"}</p>
-          </div>
+      {/* menu buttons */}
+      <div className="menuButtons mt-2 flex gap-3">
+        {menuItems.map((item) => (
+          <Button
+            key={item.value}
+            variant={selectedMenu === item.value ? "contained" : "outlined"}
+            size="small"
+            onClick={() => handleMenuClick(item.value)}
+            sx={{ padding: "0.3rem 0.7rem" }}
+          >
+            {item.icon}
+            <span className="ml-2">{item.label}</span>
+          </Button>
+        ))}
+      </div>
 
-          {/* empty cell */}
-          <div className="emptycell"></div>
-          {/* student activity Records */}
-          <div className="col-span-3">
-            <p className="font-bold text-xs text-gray-500">
-              Student activityRecords:
-            </p>
-            {activityRecord?.studentRecords?.length == 0 ? (
-              <p className="text-sm">Record not available</p>
-            ) : (
-              <StudentRecordComponent
-                studentRecords={activityRecord?.studentRecords}
-              />
-            )}
-          </div>
+      {/* divider */}
+      <Divider style={{ margin: ".8rem 0" }} />
 
-          <div className="col-span-3 mt-2">
-            <p className="font-bold text-xs text-gray-500">Study Materials:</p>
-            {activityRecord?.studyMaterials?.length == 0 ? (
-              <p className="text-sm">Study materials not available</p>
-            ) : (
-              <div className="mt-3 w-full">
-                <StudyMaterialListComponent
-                  studyMaterials={activityRecord?.studyMaterials}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="flex-1 h-full flex  overflow-y-auto">
+        {showComponent()}
       </div>
     </div>
   );

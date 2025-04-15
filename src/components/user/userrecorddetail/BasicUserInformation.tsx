@@ -11,7 +11,7 @@ const timeZone = "Asia/Kathmandu";
 
 const BasicUserInformation = ({ userRecord }: any) => {
   return (
-    <div className="flex-1 mt-3  mr-7 grid grid-cols-3 gap-5 overflow-y-auto h-max">
+    <div className="flex-1 mt-0  mr-7 grid grid-cols-3 gap-5 overflow-y-auto h-max">
       <div>
         <p className="font-bold text-xs text-gray-500">Name:</p>
         <p>{userRecord?.name}</p>

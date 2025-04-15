@@ -292,7 +292,7 @@ const ProjectActivityRecords = ({
                     ${
                       record?.isPlayDay ||
                       record?.mainStudyTopic?.toLowerCase() === "play"
-                        ? "bg-yellow-100 "
+                        ? "bg-green-100 "
                         : "hover:bg-gray-100"
                     }`}
                   >

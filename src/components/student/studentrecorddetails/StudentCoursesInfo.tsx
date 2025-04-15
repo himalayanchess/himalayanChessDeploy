@@ -55,7 +55,7 @@ const StudentCoursesInfo = ({ studentRecord }: any) => {
     <div className="flex-1  overflow-y-auto h-max">
       <h2 className="text-md font-bold text-gray-500 mb-1">Enrolled Courses</h2>
       {/* buttons */}
-      <div className="buttons  flex gap-4">
+      <div className="buttons  flex gap-4 items-end">
         <Button
           size="small"
           variant={`${
@@ -90,8 +90,8 @@ const StudentCoursesInfo = ({ studentRecord }: any) => {
           Completed
         </Button>
 
-        <span className="px-3 text-white flex items-center justify-center bg-gray-400 rounded-md">
-          {studentEnrolledCourses?.length} of{" "}
+        <span className="text-sm">
+          Showing {studentEnrolledCourses?.length} of{" "}
           {studentRecord?.enrolledCourses?.length}
         </span>
       </div>
