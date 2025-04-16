@@ -15,11 +15,13 @@ dayjs.extend(timezone);
 dayjs.extend(utc);
 const timeZone = "Asia/Kathmandu";
 
-const UserProjectsInformation = ({ userRecord }: any) => {
+const UserProjectsInformation = ({
+  userRecord,
+  allActiveProjects,
+  allProjectsLoading,
+}: any) => {
   const dispatch = useDispatch<any>();
-  const { allActiveProjects, allProjectsLoading } = useSelector(
-    (state: any) => state.allListReducer
-  );
+
   const session = useSession();
   const [trainerProjects, setTrainerProjects] = useState([]);
 
@@ -52,19 +54,11 @@ const UserProjectsInformation = ({ userRecord }: any) => {
     }
   }, [allActiveProjects, userRecord]);
 
-  // get initial all trainer activity records and projectlist (active)
-  useEffect(() => {
-    if (userRecord) {
-      dispatch(fetchAllTrainersActivityRecords({ trainerId: userRecord?._id }));
-      dispatch(fetchAllProjects());
-    }
-  }, [userRecord]);
-
   return (
     <div className="flex-1 mt-0 mr-7  overflow-y-auto h-max">
       {userRecord?.role?.toLowerCase() === "trainer" && (
         <div className="col-span-3 bg-white rounded-md shadow-md">
-          <h2 className="text-md font-bold text-gray-500 mb-4">
+          <h2 className="text-md font-bold text-gray-500 mb-1">
             Assigned Projects
           </h2>
 

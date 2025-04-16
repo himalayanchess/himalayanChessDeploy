@@ -41,6 +41,12 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewStudent = ({ studentRecord, loading }: any) => {
+  // birthday
+  const isBirthday = studentRecord?.dob
+    ? dayjs(studentRecord.dob).tz(timeZone).format("MM-DD") ==
+      dayjs().tz(timeZone).format("MM-DD")
+    : false;
+
   const session = useSession();
 
   const {
@@ -189,7 +195,20 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
             <div className="title flex flex-col">
               <h1 className="text-2xl font-bold flex items-center">
                 <Users />
-                <span className="ml-2">Student Detail</span>
+                <span className="ml-2">
+                  Student Detail{" "}
+                  {isBirthday && (
+                    <span className="ml-3 font-medium">
+                      (🎉 Birthday
+                      {studentRecord?.gender?.toLowerCase() === "male"
+                        ? " boy"
+                        : studentRecord?.gender?.toLowerCase() === "female"
+                        ? " girl"
+                        : ""}
+                      )
+                    </span>
+                  )}
+                </span>
               </h1>
               <p>of {studentRecord?.name}</p>
             </div>

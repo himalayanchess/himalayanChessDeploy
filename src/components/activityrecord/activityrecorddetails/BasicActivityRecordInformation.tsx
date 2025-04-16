@@ -145,7 +145,7 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
           </div>
 
           <div>
-            <p className="text-sm text-gray-500">Project</p>
+            <p className="text-sm text-gray-500 mb-1">Project</p>
             <div className="flex items-center">
               <School className="text-gray-500" />
               <p className="font-medium ml-1">
@@ -154,11 +154,11 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
             </div>
           </div>
           <div className={``}>
-            <p className="text-sm text-gray-500">Playday</p>
+            <p className="text-sm text-gray-500 mb-1">Playday</p>
             <div className="flex items-center">
               <Crown className="text-gray-500" />
               <p
-                className={`font-medium rounded-full text-sm px-3 py-0.5 w-max ${
+                className={`font-medium  ml-1 rounded-full text-sm px-3 py-0.5 w-max ${
                   activityRecord.isPlayDay ? " bg-green-200" : ""
                 }`}
               >

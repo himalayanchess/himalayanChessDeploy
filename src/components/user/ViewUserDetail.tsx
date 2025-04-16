@@ -8,11 +8,10 @@ import {
   BookCopy,
   School,
   LayoutList,
-  Component,
-  Luggage,
-  CircleFadingArrowUp,
-  CalendarCheck2,
+  IdCard,
 } from "lucide-react";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { Button, Divider } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -35,6 +34,15 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewUserDetail = ({ userRecord, loading }: any) => {
+  const { allActiveProjects, allProjectsLoading } = useSelector(
+    (state: any) => state.allListReducer
+  );
+  // Selectors
+  const {
+    allActiveTrainersActivityRecords,
+    allTrainersActivityRecordsLoading,
+  } = useSelector((state: any) => state.trainerHistoryReducer);
+
   const dispatch = useDispatch<any>();
   const session = useSession();
 
@@ -57,9 +65,25 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
         case "basic":
           return <BasicUserInformation userRecord={userRecord} />;
         case "projects":
-          return <UserProjectsInformation userRecord={userRecord} />;
+          return (
+            <UserProjectsInformation
+              userRecord={userRecord}
+              allActiveProjects={allActiveProjects}
+              allProjectsLoading={allProjectsLoading}
+            />
+          );
         case "activity":
-          return <UserActivityRecords userRecord={userRecord} />;
+          return (
+            <UserActivityRecords
+              userRecord={userRecord}
+              allActiveTrainersActivityRecords={
+                allActiveTrainersActivityRecords
+              }
+              allTrainersActivityRecordsLoading={
+                allTrainersActivityRecordsLoading
+              }
+            />
+          );
         default:
           return <BasicUserInformation userRecord={userRecord} />;
       }
@@ -101,14 +125,20 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
         </div>
       ) : (
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
-          <div className="header flex items-start justify-start gap-7 ">
+          <div className="header flex items-start justify-between  gap-7 ">
             <div className="title flex flex-col">
               <h1 className="text-2xl font-bold flex items-center">
-                <CircleUser />
-                <span className="ml-2">User Record Detail</span>
+                <PersonOutlineOutlinedIcon sx={{ fontSize: "1.8rem" }} />
+                <span className="ml-1">User Record Detail</span>
               </h1>
               <p>of {userRecord?.name}</p>
             </div>
+
+            {/* home button */}
+            <Button className="homebutton">
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
           </div>
           {/* menu buttons */}
           <div className="menuButtons mt-2 flex gap-3">
@@ -139,7 +169,7 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
         </div>
       )}
       {/* user attendance chart */}
-      <div className="userattendancechart w-[35%] h-full flex flex-col justify-between ">
+      <div className="userattendancechart w-[30%] h-full flex flex-col justify-between ">
         <UserAttendanceChart userId={userRecord?._id} />
       </div>
     </div>

@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
@@ -153,23 +154,44 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
   // Prepare data for the bar chart (monthly summary)
   const prepareChartData = () => {
     const summary = {
-      present: 0,
-      absent: 0,
-      leave: 0,
-      holiday: 0,
+      Present: 0,
+      Absent: 0,
+      Leave: 0,
+      Holiday: 0,
     };
 
     filteredData.forEach((record) => {
-      if (record.studentStatus && record.studentStatus !== "undefined") {
-        summary[record.studentStatus as keyof typeof summary]++;
+      const status = record.studentStatus;
+      if (status && status !== "undefined") {
+        const formattedStatus =
+          status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+        if (summary.hasOwnProperty(formattedStatus)) {
+          summary[formattedStatus as keyof typeof summary]++;
+        }
       }
     });
 
+    const attendanceChartColors = {
+      Total: "#e8e8e8",
+      Present: "#d9ffdb",
+      Absent: "#ffdede",
+      Leave: "#f0f7ff",
+      Holiday: "#f0deff",
+    };
+
+    const total = Object.values(summary).reduce((sum, count) => sum + count, 0);
+
     return [
-      { name: "Present", present: summary.present, fill: "#4CAF50" },
-      { name: "Absent", absent: summary.absent, fill: "#d32f2f" },
-      { name: "Leave", leave: summary.leave, fill: "#2196F3" },
-      { name: "Holiday", holiday: summary.holiday, fill: "#9C27B0" },
+      {
+        name: "Total",
+        value: total,
+        color: attendanceChartColors["Total"],
+      },
+      ...Object.keys(summary).map((key) => ({
+        name: key,
+        value: summary[key as keyof typeof summary],
+        color: attendanceChartColors[key as keyof typeof attendanceChartColors],
+      })),
     ];
   };
 
@@ -198,7 +220,7 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
           />
         </div>
 
-        <div className="flex justify-center w-[67%]">
+        <div className="flex justify-center w-[75%]">
           <div className="w-full max-w-md bg-white rounded-lg">
             <div className="grid grid-cols-7 gap-2 text-center text-gray-700 font-medium text-xs">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -241,20 +263,37 @@ const UserAttendanceChart: React.FC<UserAttendanceChartProps> = ({
       </div>
 
       {/* Chart Section */}
-      <div className="bg-white h-[49%] shadow-md rounded-md p-2 flex-1 flex flex-col items-center">
-        <h3 className="text-lg font-medium mb-2 ">Attendance Summary</h3>
-        <ResponsiveContainer width="75%" height="80%">
+      <div className="bg-white h-[49%] shadow-md rounded-md py-2 px-5 flex-1 ">
+        <h3 className="text-lg font-medium mb-2 text-center">
+          Attendance Summary
+        </h3>
+        <div className="counts grid grid-cols-2 gap-2 mt-1 mb-0">
+          {chartData.map((data: any, index: number) => (
+            <div
+              key={index}
+              className="total flex flex-col items-center p-2.5 rounded-md text-sm"
+              style={{
+                backgroundColor: data.color,
+              }}
+            >
+              <p>{data.name}</p>
+              <span className="text-lg font-bold">{data.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* <ResponsiveContainer width="90%" height={220}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="2 2" />
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" fontSize={12} />
-            {/* <YAxis fontSize={10} /> */}
             <Tooltip />
-            <Bar dataKey="present" fill="#4CAF50" name="Present" barSize={40} />
-            <Bar dataKey="absent" fill="#d32f2f" name="Absent" barSize={40} />
-            <Bar dataKey="leave" fill="#2196F3" name="Leave" barSize={40} />
-            <Bar dataKey="holiday" fill="#9C27B0" name="Holiday" barSize={40} />
+            <Bar dataKey="value" name="Students">
+              {chartData.map((entry: any, index: number) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
           </BarChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer> */}
       </div>
     </div>
   );

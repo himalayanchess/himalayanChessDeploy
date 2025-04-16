@@ -23,13 +23,13 @@ const BatchStudentList = ({ studentList, batchId }: any) => {
 
   return (
     <div className="overflow-x-auto mt-4 border rounded-md">
-      <div className="grid grid-cols-[60px,repeat(5,1fr)] text-sm bg-gray-200 font-bold">
-        <span className="py-2  border-b text-center">SN</span>
-        <span className="py-2  border-b text-left">Name</span>
-        <span className="py-2  border-b text-left">DOB</span>
-        <span className="py-2  border-b text-left">Gender</span>
-        <span className="py-2  border-b text-left">Start Date</span>
-        <span className="py-2  border-b text-left">End Date</span>
+      <div className="grid py-2 grid-cols-[60px,repeat(5,1fr)] text-sm bg-gray-200 font-bold">
+        <span className="  text-center">SN</span>
+        <span className="  text-left">Name</span>
+        <span className="  text-left">DOB</span>
+        <span className="  text-left">Gender</span>
+        <span className="  text-left">Start Date</span>
+        <span className="  text-left">End Date</span>
       </div>
 
       {/* no students */}
@@ -42,29 +42,25 @@ const BatchStudentList = ({ studentList, batchId }: any) => {
         studentList?.map((student: any, index: number) => (
           <div
             key={"record" + student?._id}
-            className="grid grid-cols-[60px,repeat(5,1fr)] text-sm"
+            className="grid py-3 border-b grid-cols-[60px,repeat(5,1fr)] text-sm"
           >
-            <span className="py-2 text-center border-b break-words">
-              {index + 1}
-            </span>
+            <span className="text-center  break-words">{index + 1}</span>
             <Link
               href={`/${session?.data?.user?.role?.toLowerCase()}/students/${
                 student?._id
               }`}
               // target="_blank"
-              className="py-2  border-b break-words transition-all ease duration-150 hover:underline hover:text-blue-500"
+              className="  break-words transition-all ease duration-150 hover:underline hover:text-blue-500"
             >
               {student?.name}
             </Link>
-            <span className="py-2  border-b break-words">
+            <span className="  break-words">
               {student?.dob
-                ? dayjs(student?.dob).tz(timeZone).format("YYYY-MM-D")
+                ? dayjs(student?.dob).tz(timeZone).format("MMMM D, YYYY")
                 : "N/A"}
             </span>
-            <span className="py-2  border-b break-words">
-              {student?.gender || "N/A"}
-            </span>
-            <span className="py-2  border-b break-words">
+            <span className="  break-words">{student?.gender || "N/A"}</span>
+            <span className="  break-words">
               {student?.batches?.find(
                 (batch: any) => batch?.batchId === batchId
               )?.startDate
@@ -77,7 +73,7 @@ const BatchStudentList = ({ studentList, batchId }: any) => {
                     .format("MMMM D, YYYY")
                 : "N/A"}
             </span>{" "}
-            <span className="py-2  border-b break-words">
+            <span className="  break-words">
               {student?.batches?.find(
                 (batch: any) => batch?.batchId === batchId
               )?.endDate

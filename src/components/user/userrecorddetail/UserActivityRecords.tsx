@@ -23,15 +23,14 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const UserActivityRecords = ({ userRecord }: any) => {
+const UserActivityRecords = ({
+  userRecord,
+  allActiveTrainersActivityRecords,
+  allTrainersActivityRecordsLoading,
+}: any) => {
   // Redux hooks
   const dispatch = useDispatch<any>();
 
-  // Selectors
-  const {
-    allActiveTrainersActivityRecords,
-    allTrainersActivityRecordsLoading,
-  } = useSelector((state: any) => state.trainerHistoryReducer);
   const { allActiveProjects, allActiveBatches } = useSelector(
     (state: any) => state.allListReducer
   );
@@ -86,8 +85,6 @@ const UserActivityRecords = ({ userRecord }: any) => {
   useEffect(() => {
     if (userRecord) {
       setloaded(true);
-      dispatch(fetchAllTrainersActivityRecords({ trainerId: userRecord?._id }));
-      dispatch(fetchAllBatches());
     }
   }, [userRecord]);
 
@@ -348,7 +345,7 @@ const UserActivityRecords = ({ userRecord }: any) => {
                     ${
                       record?.isPlayDay ||
                       record?.mainStudyTopic?.toLowerCase() == "play"
-                        ? "bg-yellow-100"
+                        ? "bg-green-100"
                         : "hover:bg-gray-100"
                     }`}
                   >
