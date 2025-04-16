@@ -18,6 +18,10 @@ const AttendanceHistoryList = () => {
   const { selectedDatesAttendanceRecord } = useSelector(
     (state: any) => state.attendanceReducer
   );
+  console.log(
+    "selcted dates attendance record ",
+    selectedDatesAttendanceRecord
+  );
 
   const isLoading = selectedDatesAttendanceRecord === null;
 
@@ -33,13 +37,8 @@ const AttendanceHistoryList = () => {
 
         {/* right side */}
         <div className="flex items-center text-xl">
-          {isLoading ? (
-            <div className="flex items-center space-x-2">
-              <CircularProgress size={20} />
-              <span>Loading...</span>
-            </div>
-          ) : !selectedDatesAttendanceRecord ? (
-            <span className="text-gray-500 text-sm">Invalid record</span>
+          {!selectedDatesAttendanceRecord ? (
+            <span className="text-gray-500 text-sm">No record found</span>
           ) : (
             <>
               <span>

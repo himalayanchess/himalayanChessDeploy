@@ -1,145 +1,194 @@
-import { Button } from "@mui/material";
-import Link from "next/link";
 import React from "react";
+import Link from "next/link";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-dayjs.extend(timezone);
+import { ReceiptText, MapPinHouse, Contact } from "lucide-react";
+import MaleIcon from "@mui/icons-material/Male";
+import FemaleIcon from "@mui/icons-material/Female";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import ContactPhoneOutlinedIcon from "@mui/icons-material/ContactPhoneOutlined";
+import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import CallOutlinedIcon from "@mui/icons-material/CallOutlined";
+import PersonPinCircleOutlinedIcon from "@mui/icons-material/PersonPinCircleOutlined";
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
 const BasicStudentInfo = ({ studentRecord }: any) => {
+  const formatDate = (date: string) => {
+    return dayjs(date).tz(timeZone).format("MMMM D, YYYY");
+  };
+
   return (
-    <div>
-      <div className="flex-1 mt-3  mr-7 grid grid-cols-3 gap-5 overflow-y-auto h-max">
-        <div>
-          <p className="font-bold text-xs text-gray-500">Name:</p>
-          <p>{studentRecord?.name}</p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">Affiliated To:</p>
-          <p>{studentRecord?.affiliatedTo}</p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">Date of Birth:</p>
-          <p>{dayjs(studentRecord?.dob).tz(timeZone).format("MMMM D, YYYY")}</p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">Gender:</p>
-          <p>{studentRecord?.gender}</p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">Joined Date:</p>
-          <p>
-            {studentRecord?.joinedDate
-              ? dayjs(studentRecord?.joinedDate)
-                  .tz(timeZone)
-                  .format("MMMM D, YYYY")
-              : "N/A"}
-          </p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">End Date:</p>
-          <p>
-            {studentRecord?.endDate
-              ? dayjs(studentRecord?.endDate)
-                  .tz(timeZone)
-                  .format("MMMM D, YYYY")
-              : "N/A"}
-          </p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">Phone:</p>
-          <p>{studentRecord?.phone}</p>
-        </div>
-        <div>
-          <p className="font-bold text-xs text-gray-500">Address:</p>
-          <p>{studentRecord?.address}</p>
-        </div>
-
-        {/* emergency contact */}
-        <div className="emergencycontact col-span-3">
-          <p className="font-bold mb-2">Emergency Details</p>
-          <div className="details grid grid-cols-3">
-            <div>
-              <p className="font-bold text-xs text-gray-500">
-                Emergency Contact:
-              </p>
-              <p>{studentRecord?.emergencyContactName}</p>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-gray-500">
-                Emergency Contact:
-              </p>
-              <p>{studentRecord?.emergencyContactNo}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* chess info */}
-        <div className="chessinfo col-span-3">
-          <p className="font-bold mb-2">Guardian Information</p>
-          <div className="details grid grid-cols-3">
-            <div>
-              <p className="font-bold text-xs text-gray-500">Guardian name:</p>
-              <p>{studentRecord?.guardianInfo?.name || "N/A"}</p>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-gray-500">Guardian phone:</p>
-              <p>{studentRecord?.guardianInfo?.phone || "N/A"}</p>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-gray-500">Guardian email:</p>
-              <p>{studentRecord?.guardianInfo?.email || "N/A"}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Guardian info */}
-        <div className="chessinfo col-span-3">
-          <p className="font-bold mb-2">Chess Information</p>
-          <div className="details grid grid-cols-3">
-            <div>
-              <p className="font-bold text-xs text-gray-500">Title:</p>
-              <p>{studentRecord?.title || "N/A"}</p>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-gray-500">FIDE ID:</p>
-              <p>{studentRecord?.fideId || "N/A"}</p>
-            </div>
-            <div>
-              <p className="font-bold text-xs text-gray-500">Rating:</p>
-              <p>{studentRecord?.rating}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* cv if trainer */}
-        {studentRecord?.role?.toLowerCase() == "trainer" && (
+    <div className="grid grid-cols-2 auto-rows-max w-full gap-4">
+      {/* Basic Information */}
+      <div className="bg-gray-50 rounded-xl p-4">
+        <p className="text-sm text-gray-500 mb-2 font-bold flex items-center">
+          <InfoOutlinedIcon />
+          <span className="ml-0.5">Basic Information</span>
+        </p>
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <p className="font-bold text-xs text-gray-500">Trainers CV:</p>
-            <Link
-              href={studentRecord?.trainerCvUrl}
-              target="_blank"
-              title="View CV"
-            >
-              <Button variant="outlined">View CV</Button>
-            </Link>
+            <p className="text-xs text-gray-500">Name</p>
+            <div className="detail flex items-center">
+              <PersonOutlineOutlinedIcon sx={{ color: "gray " }} />
+              <p className="font-medium ml-1">{studentRecord?.name || "N/A"}</p>
+            </div>
           </div>
-        )}
 
-        {/* active status */}
-        <div>
-          <p className="font-bold text-xs text-gray-500">Active Status:</p>
-          <p
-            className={`text-xs text-white w-max font-bold rounded-full px-2 py-1 ${
-              studentRecord?.activeStatus ? "bg-green-400" : "bg-red-400"
-            }`}
-          >
-            {studentRecord?.activeStatus ? "Active" : "Inactive"}
-          </p>
+          <div>
+            <p className="text-xs text-gray-500">Gender</p>
+            <div className="detail flex items-center">
+              {studentRecord?.gender?.toLowerCase() === "female" ? (
+                <FemaleIcon sx={{ color: "gray " }} />
+              ) : (
+                <MaleIcon sx={{ color: "gray " }} />
+              )}
+              <p className="font-medium ml-1">
+                {studentRecord?.gender || "N/A"}
+              </p>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Date of Birth</p>
+            <div className="detail flex items-center">
+              <EventOutlinedIcon sx={{ color: "gray " }} />
+              <p className="font-medium ml-1">
+                {studentRecord?.dob ? formatDate(studentRecord?.dob) : "N/A"}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-500">Affiliated To</p>
+            <p className="font-medium">
+              {studentRecord?.affiliatedTo || "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Joined Date</p>
+            <p className="font-medium">
+              {studentRecord?.joinedDate
+                ? formatDate(studentRecord?.joinedDate)
+                : "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">End Date</p>
+            <p className="font-medium">
+              {studentRecord?.endDate
+                ? formatDate(studentRecord?.endDate)
+                : "N/A"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Information */}
+      <div className="bg-gray-50 rounded-xl p-4">
+        <p className="text-sm text-gray-500 mb-2 font-bold flex items-center">
+          <Contact />
+          <span className="ml-1">Contact Information</span>
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <p className="text-xs text-gray-500">Phone</p>
+            <div className="detail flex items-center">
+              <CallOutlinedIcon sx={{ color: "gray" }} />
+              <p className="font-medium ml-1">
+                {studentRecord?.phone || "N/A"}
+              </p>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Address</p>
+            <div className="detail flex items-center">
+              <MapPinHouse className="text-gray-500" />
+              <p className="font-medium ml-1">
+                {studentRecord?.address || "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Emergency Contact */}
+      <div className="bg-gray-50 rounded-xl p-4 col-span-2">
+        <p className="text-sm text-gray-500 mb-2 font-bold">
+          <ContactPhoneOutlinedIcon />
+          <span className="ml-1">Emergency Contact</span>
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <p className="text-xs text-gray-500">Name</p>
+            <p className="font-medium flex items-center">
+              <PersonOutlineOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.emergencyContactName || "N/A"}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Phone</p>
+            <p className="font-medium flex items-center">
+              <CallOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.emergencyContactNo || "N/A"}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Relation</p>
+            <p className="font-medium flex items-center">
+              <PersonPinCircleOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.emergencyContactRelation || "N/A"}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Guardian Information */}
+      <div className="bg-gray-50 rounded-xl p-4 col-span-2">
+        <p className="text-sm text-gray-500 mb-2 font-bold">
+          <SupervisorAccountOutlinedIcon />
+          <span className="ml-1">Guardian Information</span>
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <p className="text-xs text-gray-500">Guardian Name</p>
+            <p className="font-medium flex items-center">
+              <PersonOutlineOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.guardianInfo?.name || "N/A"}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Guardian Phone</p>
+            <p className="font-medium flex items-center">
+              <CallOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.guardianInfo?.phone || "N/A"}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Relation</p>
+            <p className="font-medium flex items-center">
+              <PersonPinCircleOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.guardianInfo?.relation || "N/A"}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
     </div>

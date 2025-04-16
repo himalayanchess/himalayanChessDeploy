@@ -58,30 +58,49 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   // Watch attendance data for real-time updates
   const userAttendance = watch("userAttendance");
 
-  // Calculate chart data
   useEffect(() => {
-    if (initialLoadComplete) {
-      const chartData = [
-        {
-          name: "Attendance",
-          present:
-            userAttendance?.filter((a: any) => a.status === "present").length ||
-            0,
-          absent:
-            userAttendance?.filter((a: any) => a.status === "absent").length ||
-            0,
-          leave:
-            userAttendance?.filter((a: any) => a.status === "leave").length ||
-            0,
-          holiday:
-            userAttendance?.filter((a: any) => a.status === "holiday").length ||
-            0,
-          total: userAttendance?.length || 0,
-        },
-      ];
+    if (!initialLoadComplete) return;
 
-      dispatch(updateAttendanceChartData(chartData));
-    }
+    const present =
+      userAttendance?.filter((a: any) => a.status === "present").length || 0;
+    const absent =
+      userAttendance?.filter((a: any) => a.status === "absent").length || 0;
+    const leave =
+      userAttendance?.filter((a: any) => a.status === "leave").length || 0;
+    const holiday =
+      userAttendance?.filter((a: any) => a.status === "holiday").length || 0;
+
+    const total = userAttendance?.length ?? 0;
+
+    const chartData = [
+      {
+        name: "Total",
+        value: total,
+        color: "#afbffa", // Light blue
+      },
+      {
+        name: "Present",
+        value: present,
+        color: "#9cffbb", // Light green
+      },
+      {
+        name: "Absent",
+        value: absent,
+        color: "#ff9ca1", // Light red
+      },
+      {
+        name: "Leave",
+        value: leave,
+        color: "#fce38a", // Light yellow
+      },
+      {
+        name: "Holiday",
+        value: holiday,
+        color: "#d3d3d3", // Light gray
+      },
+    ];
+
+    dispatch(updateAttendanceChartData(chartData));
   }, [userAttendance, initialLoadComplete, attendanceStateChanged]);
 
   // Set default values when users load

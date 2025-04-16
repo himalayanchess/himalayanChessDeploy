@@ -57,6 +57,9 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
 
         dispatch(setattendanceUpdatedByData(lastUpdatedBy));
         dispatch(setselectedDatesAttendanceRecord(record));
+      } else {
+        dispatch(setattendanceUpdatedByData(null));
+        dispatch(setselectedDatesAttendanceRecord(null));
       }
     }
   }, [selectedDay, attendanceRecords]);
@@ -208,7 +211,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
           </div>
         </div>
 
-        <h3 className="font-semibold px-3 mb-1 text-left text-xl">
+        <h3 className="font-semibold px-3 mb-1 mt-2 text-center text-xl">
           Latest Update
         </h3>
         <div className="mt-1 px-3">

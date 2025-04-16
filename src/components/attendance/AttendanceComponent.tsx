@@ -2,6 +2,8 @@ import { getAllUsers } from "@/redux/allListSlice";
 import { Button, Divider } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import TodayIcon from "@mui/icons-material/Today";
+import EventRepeatIcon from "@mui/icons-material/EventRepeat";
 import UserAttendanceList from "./UserAttendanceList";
 import AttendanceChart from "./AttendanceChart";
 import AttendanceHistoryChart from "./AttendanceHistoryChart";
@@ -38,14 +40,16 @@ const AttendanceComponent = () => {
           onClick={() => setView("dailyattendance")}
           size="small"
         >
-          Daily Attendance
+          <TodayIcon />
+          <span className="ml-1">Daily Attendance</span>
         </Button>
         <Button
           variant={view === "history" ? "contained" : "outlined"}
           onClick={() => setView("history")}
           size="small"
         >
-          Attendance History
+          <EventRepeatIcon />
+          <span className="ml-2">Attendance History</span>
         </Button>
       </div>
 
@@ -63,7 +67,6 @@ const AttendanceComponent = () => {
       ) : (
         <div className="flex-1 flex overflow-hidden">
           <div className="attendancehistorylist flex-1 mr-4">
-         
             <AttendanceHistoryList />
           </div>
           <AttendanceHistoryChart

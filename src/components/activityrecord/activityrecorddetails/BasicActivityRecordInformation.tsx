@@ -4,6 +4,19 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
+import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
+import {
+  TimerReset,
+  Component,
+  School,
+  Crown,
+  BookOpenText,
+  CalendarArrowUp,
+  CalendarArrowDown,
+} from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -22,67 +35,106 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
   };
 
   return (
-    <div className="grid grid-cols-2 w-full gap-4">
-      {/* Session Date Card */}
-      <div className="bg-gray-50 rounded-xl  p-4 grid grid-cols-2">
-        <div className="col-span-2">
+    <div className="grid grid-cols-2 auto-rows-max w-full gap-4">
+      {/* Time - holiday info */}
+      <div className="bg-gray-50 rounded-xl  p-4 ">
+        <div className="">
           <p className="text-sm text-gray-500">Date</p>
-          <p className="font-bold text-2xl ">
-            {formatDate(activityRecord?.nepaliDate)}
-          </p>
+          <div className="flex items-center">
+            <EventOutlinedIcon sx={{ color: "gray" }} />
+            <p className="font-bold text-2xl ml-1 ">
+              {formatDate(activityRecord?.nepaliDate)}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm text-gray-500">Start Time</p>
-          <p className="font-medium text-xl">
-            {formatTime(activityRecord?.startTime)}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">End Time</p>
-          <p className="font-medium text-xl">
-            {formatTime(activityRecord?.endTime)}
-          </p>
+
+        <div className="grid grid-cols-3 mt-2 gap-2">
+          <div>
+            <p className="text-sm text-gray-500">Start Time</p>
+            <p className="font-medium text-lg flex items-center">
+              <TimerReset className="text-gray-500" />
+              <span className="ml-1">
+                {formatTime(activityRecord?.startTime)}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">End Time</p>
+            <p className="font-medium text-lg flex items-center">
+              <TimerReset className="text-gray-500" />
+              <span className="ml-1">
+                {formatTime(activityRecord?.endTime)}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Assigned By</p>
+            <AssignmentIndOutlinedIcon sx={{ color: "gray" }} />
+            <Link
+              href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
+                activityRecord?.assignedById
+              }`}
+              className="font-medium ml-1 text-lg underline hover:text-blue-500"
+            >
+              {activityRecord?.assignedByName}
+            </Link>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Holiday</p>
+            <p className="font-medium text-md">
+              {activityRecord?.holidayStatus
+                ? activityRecord?.holidayDescription || "Holiday"
+                : "No"}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Header Card */}
+      {/* trainer Card */}
       <div className={`bg-gray-50 rounded-xl  p-4 `}>
         <div className="col-span-2 flex justify-between items-start">
           <div>
             <p className="text-sm text-gray-500">Trainer</p>
-            <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
-                activityRecord?.trainerId
-              }`}
-              className="font-medium text-xl underline  hover:text-blue-500"
-            >
-              {activityRecord.trainerName}
-            </Link>
+            <div className="flex items-center">
+              <PersonOutlineOutlinedIcon sx={{ color: "gray" }} />
+              <Link
+                href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
+                  activityRecord?.trainerId
+                }`}
+                className="font-medium ml-1 text-xl underline  hover:text-blue-500"
+              >
+                {activityRecord.trainerName}
+              </Link>
+            </div>
           </div>
 
           {/* present status */}
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              activityRecord?.userPresentStatus?.toLowerCase() === "present"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {activityRecord.userPresentStatus}
+          <span className={`px-3 py-1 rounded-full text-xs bg-gray-200`}>
+            Trainer Role:{" "}
+            <span className="font-bold">{activityRecord.trainerRole}</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-2 mt-2 gap-1">
+        <div className="grid grid-cols-2 mt-2 gap-2">
           <div>
-            <p className="text-sm text-gray-500">Trainer</p>
-            <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/batches/${
-                activityRecord?.batchId
-              }`}
-              className="font-medium text-md underline  hover:text-blue-500"
-            >
-              {activityRecord.batchName}
-            </Link>
+            <p className="text-sm text-gray-500">Batch</p>
+            <div className="flex items-center">
+              <Component className="text-gray-500" />
+              {activityRecord?.batchId ? (
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/batches/${
+                    activityRecord.batchId
+                  }`}
+                  className="font-medium  ml-1 text-md underline hover:text-blue-500"
+                >
+                  {activityRecord.batchName}
+                </Link>
+              ) : (
+                <p className="font-medium ml-1 text-md ">
+                  {activityRecord.batchName}
+                </p>
+              )}
+            </div>
           </div>
 
           <div>
@@ -94,7 +146,25 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
 
           <div>
             <p className="text-sm text-gray-500">Project</p>
-            <p className="font-medium">{activityRecord.projectName || "N/A"}</p>
+            <div className="flex items-center">
+              <School className="text-gray-500" />
+              <p className="font-medium ml-1">
+                {activityRecord.projectName || "N/A"}
+              </p>
+            </div>
+          </div>
+          <div className={``}>
+            <p className="text-sm text-gray-500">Playday</p>
+            <div className="flex items-center">
+              <Crown className="text-gray-500" />
+              <p
+                className={`font-medium rounded-full text-sm px-3 py-0.5 w-max ${
+                  activityRecord.isPlayDay ? " bg-green-200" : ""
+                }`}
+              >
+                {activityRecord.isPlayDay ? "Yes" : "No"}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -107,44 +177,64 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
         </div>
       </div>
 
-      {/* Date & Time Information */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Week Information Card */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="font-semibold text-gray-700 mb-3">Week Information</h2>
-          <div className="space-y-2">
-            <div>
-              <p className="text-sm text-gray-500">Week Number</p>
-              <p className="font-medium">
-                #{activityRecord.weekNumber || "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Week Start</p>
-              <p className="font-medium">
-                {formatDate(activityRecord?.weekStartDate)}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Week End</p>
-              <p className="font-medium">
-                {formatDate(activityRecord?.weekEndDate)}
-              </p>
-            </div>
+      {/* course information */}
+      <div className="bg-gray-50 rounded-xl  p-4 ">
+        <div className="">
+          <p className="text-sm text-gray-500 mb-1">Course</p>
+          <div className="flex items-center">
+            <BookOpenText className="text-gray-500" />
+            {activityRecord?.courseId ? (
+              <Link
+                href={`/${session?.data?.user?.role?.toLowerCase()}/courses/${
+                  activityRecord?.courseId
+                }`}
+                className="font-medium ml-1 text-md underline hover:text-blue-500"
+              >
+                {activityRecord?.courseName}
+              </Link>
+            ) : (
+              <p className="font-medium ml-1 text-md text-gray-700">N/A</p>
+            )}
+          </div>
+        </div>
+
+        <div className=" mt-2 gap-1">
+          <div>
+            <p className="text-sm text-gray-500">Main Study Topic</p>
+            <p className="font-medium text-md">
+              <StickyNote2OutlinedIcon sx={{ color: "gray" }} />
+              <span className="ml-1">{activityRecord?.mainStudyTopic}</span>
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Study Topic Card */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          {activityRecord.courseName}
-        </h1>
-        <h2 className="font-semibold text-gray-700 mb-3">Study Topic</h2>
-        <p className="text-gray-800">
-          {activityRecord.mainStudyTopic ||
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
-        </p>
+      {/* week information */}
+      <div className="bg-gray-50 rounded-xl grid grid-cols-2 p-4 ">
+        <div>
+          <p className="text-sm text-gray-500">Week Start Date</p>
+          <p className="font-medium text-md flex items-center">
+            <CalendarArrowUp className="text-gray-500" />
+            <span className="ml-1">
+              {formatDate(activityRecord?.weekStartDate)}
+            </span>
+          </p>
+        </div>{" "}
+        <div>
+          <p className="text-sm text-gray-500">Week End Date</p>
+          <p className="font-medium text-md flex items-center">
+            <CalendarArrowDown className="text-gray-500 " />
+            <span className="ml-1">
+              {formatDate(activityRecord?.weekEndDate)}
+            </span>
+          </p>
+        </div>
+        <div className="grid grid-cols-2 mt-2 gap-1">
+          <div>
+            <p className="text-sm text-gray-500">Week Number</p>
+            <p className="font-medium text-md">#{activityRecord?.weekNumber}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
