@@ -42,9 +42,10 @@ const AssignClass = () => {
   );
   const [filteredProjectNames, setfilteredProjectNames] = useState<any>([]);
 
-  const today = dayjs().tz(timeZone);
+  const today = dayjs().tz(timeZone).startOf("day");
   const [currentDate, setCurrentDate] = useState<any>(today);
   const [selectedDate, setSelectedDate] = useState<any>(today);
+  // console.log("tpdayssssssssssss date", today);
 
   const nextMonth = () => setCurrentDate(currentDate.add(1, "month"));
   const prevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));
@@ -56,7 +57,7 @@ const AssignClass = () => {
 
   const handleDateClick = (day: any) => {
     if (day) {
-      setSelectedDate(dayjs(day).tz(timeZone));
+      setSelectedDate(dayjs(day).tz(timeZone).startOf("day"));
     } else {
       console.error("Invalid date selected");
     }
@@ -88,14 +89,16 @@ const AssignClass = () => {
 
   useEffect(() => {
     const selectedNepaliDateOnly = selectedDate
+      .tz(timeZone)
       .startOf("day")
       .format("YYYY-MM-DD");
 
     const filteredClasses = allActiveAssignedClasses.filter(
       (assignedClass: any) => {
-        const assignedClassDate = dayjs(assignedClass.nepaliDate).format(
-          "YYYY-MM-DD"
-        );
+        const assignedClassDate = dayjs(assignedClass.utcDate)
+          .tz(timeZone)
+          .startOf("day")
+          .format("YYYY-MM-DD");
         return assignedClassDate === selectedNepaliDateOnly;
       }
     );

@@ -68,8 +68,8 @@ const ManageClass = ({ selectedDate }: any) => {
   const [assignClassLoading, setassignClassLoading] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
 
-  const selectedDateUTC = dayjs(selectedDate).startOf("day");
-  const todayUTC = dayjs().startOf("day");
+  const selectedDateUTC = dayjs(selectedDate).tz(timeZone).startOf("day").utc();
+  const todayUTC = dayjs().tz(timeZone).startOf("day").utc();
   const isPastDate = selectedDateUTC.isBefore(todayUTC, "day");
 
   // modal operation
@@ -128,11 +128,16 @@ const ManageClass = ({ selectedDate }: any) => {
   // form submit function (assign class)
   const onSubmit = async (data: any) => {
     try {
+      // console.log("final api passing selectedDate", selectedDate);
+      // const passedNepaliDate = dayjs(selectedDate).tz(timeZone).startOf("day");
+      // console.log("db nepalid ate", passedNepaliDate.format());
+      // const convertedUtcDate = dayjs().startOf("day").utc();
+      // console.log("db converted utc  date", convertedUtcDate.format());
       setassignClassLoading(true);
       const { data: resData } = await axios.post("/api/classes/assignClass", {
         ...data,
         // date = selected date to get weekStartDate , weekEndDate, weekNumber in server side (assignClass route)
-        date: selectedDate,
+        date: selectedDate.format(),
         holidayStatus,
         affiliatedTo,
         isPlayDay,

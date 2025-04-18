@@ -37,6 +37,8 @@ const AssignedClasses = ({ selectedDate }: any) => {
 
   // Filter assigned classes according to selected date (YYYY-MM-DD format)
   useEffect(() => {
+    console.log("selected date passed from above", selectedDate);
+
     const selectedNepaliDateOnly = dayjs(selectedDate)
       .tz(timeZone)
       .startOf("day")
