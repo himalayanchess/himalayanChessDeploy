@@ -1,0 +1,214 @@
+import { useState } from "react";
+import {
+  Container,
+  Typography,
+  Button,
+  Modal,
+  Box,
+  TextField,
+  MenuItem,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from "@mui/material";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  borderRadius: 2,
+  boxShadow: 24,
+  p: 4,
+};
+
+export default function StudentPaymentPage() {
+  const [titles, setTitles] = useState<any>([]);
+  const [payments, setPayments] = useState<any>([]);
+
+  const [openTitleModal, setOpenTitleModal] = useState(false);
+  const [openPaymentModal, setOpenPaymentModal] = useState(false);
+
+  const [newTitle, setNewTitle] = useState<any>({ title: "", price: "" });
+  const [newPayment, setNewPayment] = useState<any>({
+    student: "",
+    title: "",
+    amount: "",
+  });
+
+  const handleAddTitle = () => {
+    setTitles([...titles, { ...newTitle, id: Date.now() }]);
+    setNewTitle({ title: "", price: "" });
+    setOpenTitleModal(false);
+  };
+
+  const handleAddPayment = () => {
+    setPayments([...payments, { ...newPayment, id: Date.now() }]);
+    setNewPayment({ student: "", title: "", amount: "" });
+    setOpenPaymentModal(false);
+  };
+
+  const calculateSummary = (student) => {
+    const relevantTitles = titles.reduce((acc, cur) => {
+      acc[cur.title] = parseFloat(cur.price);
+      return acc;
+    }, {});
+
+    const paid = payments
+      .filter((p) => p.student === student)
+      .reduce((sum, cur) => sum + parseFloat(cur.amount), 0);
+
+    const total = payments
+      .filter((p) => p.student === student)
+      .reduce((sum, cur) => sum + (relevantTitles[cur.title] || 0), 0);
+
+    return { paid, total, remaining: total - paid };
+  };
+
+  const uniqueStudents = [...new Set(payments.map((p) => p.student))];
+
+  return (
+    <Container sx={{ mt: 5 }}>
+      <Typography variant="h4" gutterBottom>
+        Student Payment Manager
+      </Typography>
+
+      <Box sx={{ mb: 3 }}>
+        <Button
+          variant="contained"
+          onClick={() => setOpenTitleModal(true)}
+          sx={{ mr: 2 }}
+        >
+          Add Payment Title
+        </Button>
+        <Button variant="contained" onClick={() => setOpenPaymentModal(true)}>
+          Add Payment Record
+        </Button>
+      </Box>
+
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Student Summary
+        </Typography>
+        {uniqueStudents.map((student) => {
+          const summary = calculateSummary(student);
+          return (
+            <Box key={student} sx={{ mb: 2 }}>
+              <Typography>
+                <strong>{student}</strong> — Paid: ${summary.paid} | Remaining:
+                ${summary.remaining}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Paper>
+
+      <Paper elevation={3} sx={{ mt: 5, p: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Payment Records
+        </Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Student</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>Amount Paid</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {payments.map((payment) => (
+              <TableRow key={payment.id}>
+                <TableCell>{payment.student}</TableCell>
+                <TableCell>{payment.title}</TableCell>
+                <TableCell>${payment.amount}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+
+      {/* Modal: Add Payment Title */}
+      <Modal open={openTitleModal} onClose={() => setOpenTitleModal(false)}>
+        <Box sx={style}>
+          <Typography variant="h6" gutterBottom>
+            Add Payment Title
+          </Typography>
+          <TextField
+            fullWidth
+            label="Title (e.g., React Course)"
+            value={newTitle.title}
+            onChange={(e) =>
+              setNewTitle({ ...newTitle, title: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Fee Price"
+            type="number"
+            value={newTitle.price}
+            onChange={(e) =>
+              setNewTitle({ ...newTitle, price: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          />
+          <Button fullWidth variant="contained" onClick={handleAddTitle}>
+            Save
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Modal: Add Payment Record */}
+      <Modal open={openPaymentModal} onClose={() => setOpenPaymentModal(false)}>
+        <Box sx={style}>
+          <Typography variant="h6" gutterBottom>
+            Add Student Payment
+          </Typography>
+          <TextField
+            fullWidth
+            label="Student Name"
+            value={newPayment.student}
+            onChange={(e) =>
+              setNewPayment({ ...newPayment, student: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            select
+            fullWidth
+            label="Payment Title"
+            value={newPayment.title}
+            onChange={(e) =>
+              setNewPayment({ ...newPayment, title: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          >
+            {titles.map((t) => (
+              <MenuItem key={t.id} value={t.title}>
+                {t.title} (${t.price})
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            fullWidth
+            label="Amount Paid"
+            type="number"
+            value={newPayment.amount}
+            onChange={(e) =>
+              setNewPayment({ ...newPayment, amount: e.target.value })
+            }
+            sx={{ mb: 2 }}
+          />
+          <Button fullWidth variant="contained" onClick={handleAddPayment}>
+            Save
+          </Button>
+        </Box>
+      </Modal>
+    </Container>
+  );
+}

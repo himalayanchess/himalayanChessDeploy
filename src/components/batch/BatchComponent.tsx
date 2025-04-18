@@ -7,7 +7,7 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
-
+import { Component } from "lucide-react";
 import Header from "@/components/Header";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
@@ -136,7 +136,10 @@ const BatchComponent = ({ role = "" }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700">Batch List</h2>
+      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+        <Component />
+        <span className="ml-1">Batch List</span>
+      </h2>
       {/* title and Dropdown */}
       <div className="batches-header my-0 flex items-end justify-between">
         <div className="dropdowns flex gap-4 items-end">

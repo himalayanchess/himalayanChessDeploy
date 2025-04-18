@@ -6,6 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, Modal } from "@mui/material";
 import StudentList from "./StudentList";
 import { Pagination, Stack } from "@mui/material";
+import { Users } from "lucide-react";
 import AddStudent from "./AddStudent";
 import axios from "axios";
 import StudentFilterComponent from "../filtercomponents/StudentFilterComponent";
@@ -132,8 +133,9 @@ const StudentComponent = ({ role }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700">
-        Student Management
+      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+        <Users />
+        <span className="ml-2">Student Management</span>
       </h2>{" "}
       {/* student header */}
       <div className="student-header my-0 flex items-end justify-between">

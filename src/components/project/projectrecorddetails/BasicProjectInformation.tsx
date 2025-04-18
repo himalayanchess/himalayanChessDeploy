@@ -29,6 +29,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 const BasicProjectInformation = ({ projectRecord }: any) => {
+  
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const [loaded, setloaded] = useState(false);

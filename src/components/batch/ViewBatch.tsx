@@ -13,6 +13,8 @@ import {
   CircleFadingArrowUp,
   CalendarCheck2,
 } from "lucide-react";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import Link from "next/link";
@@ -25,6 +27,7 @@ import BasicBatchInfo from "./batchdetails/BasicBatchInfo";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { useSession } from "next-auth/react";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -32,6 +35,8 @@ const timeZone = "Asia/Kathmandu";
 
 const ViewBatch = ({ batchRecord }: any) => {
   const dispatch = useDispatch<any>();
+  const session = useSession();
+
   // console.log(batchRecord);
   const { allActiveStudentsList } = useSelector(
     (state: any) => state.allListReducer
@@ -142,10 +147,24 @@ const ViewBatch = ({ batchRecord }: any) => {
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       <div className="header flex flex-col">
-        <h1 className="text-2xl font-bold flex items-center">
-          <Component />
-          <span className="ml-2">Batch Details</span>
-        </h1>
+        <div className="title-home flex justify-between">
+          <h1 className="text-2xl font-bold flex items-center">
+            <Component />
+            <span className="ml-2">Batch Details</span>
+          </h1>
+
+          {/* home button */}
+          <Link href={`/${session?.data?.user?.role?.toLowerCase()}/batches`}>
+            <Button
+              className="homebutton"
+              color="inherit"
+              sx={{ color: "gray" }}
+            >
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
+          </Link>
+        </div>
         {/* menu buttons */}
         <div className="w-full menuButtons mt-2 flex  gap-2">
           {menuItems.map((item) => (

@@ -12,6 +12,7 @@ import {
   CalendarCheck2,
 } from "lucide-react";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 
 import StudentRecordComponent from "../trainer/trainerhistory/StudentRecordComponent";
 import StudyMaterialListComponent from "@/components/StudyMaterialListComponent";
@@ -85,15 +86,36 @@ const ViewActivityRecordDetail = ({ activityRecord }: any) => {
           <LayoutList />
           <span className="ml-2">Activity Record Detail</span>
         </h1>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => exportActivityRecordToExcel(activityRecord)}
-          className="bg-blue-500 text-white rounded-md mb-4"
-        >
-          <DownloadIcon fontSize="small" />
-          <span className="ml-2">Download Excel</span>
-        </Button>
+
+        <div className="buttons flex gap-4">
+          {/* home button */}
+          <Link
+            href={`/${session?.data?.user?.role?.toLowerCase()}/${
+              session?.data?.user?.role?.toLowerCase() === "trainer"
+                ? "trainerhistory"
+                : "activityrecords"
+            }`}
+          >
+            <Button
+              className="homebutton"
+              color="inherit"
+              sx={{ color: "gray" }}
+            >
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
+          </Link>
+
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => exportActivityRecordToExcel(activityRecord)}
+            className="bg-blue-500 text-white rounded-md mb-4"
+          >
+            <DownloadIcon fontSize="small" />
+            <span className="ml-2">Download Excel</span>
+          </Button>
+        </div>
       </div>
 
       {/* menu buttons */}

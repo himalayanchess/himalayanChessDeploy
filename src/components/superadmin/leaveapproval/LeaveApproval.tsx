@@ -85,7 +85,7 @@ const LeaveApproval = () => {
           <span className="ml-1">Leave Approval</span>
         </p>
         {/* header */}
-        <div className="header mt-5 flex items-end gap-5">
+        <div className="header mt-2 flex items-end gap-5">
           <div className="approvestatus">
             <Dropdown
               label="Status"

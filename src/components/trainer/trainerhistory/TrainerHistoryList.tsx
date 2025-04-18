@@ -99,7 +99,7 @@ const TrainerHistoryList = ({
                   key={activityRecord?._id}
                   className={`grid grid-cols-[70px,repeat(5,1fr)] border-b border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 ${
                     activityRecord?.isPlayDay
-                      ? "bg-yellow-100"
+                      ? "bg-green-100"
                       : "hover:bg-gray-100"
                   }`}
                 >

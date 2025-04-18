@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { Button, Divider } from "@mui/material";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import BasicProjectInformation from "./projectrecorddetails/BasicProjectInformation";
@@ -102,11 +104,19 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       {/* header */}
-      <div className="header flex items-center justify-start gap-7 ">
+      <div className="header flex items-center justify-between gap-7 ">
         <h1 className="text-2xl font-bold flex items-center">
           <School />
           <span className="ml-2">Project Detail</span>
         </h1>
+
+        {/* home button */}
+        <Link href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}>
+          <Button className="homebutton" color="inherit" sx={{ color: "gray" }}>
+            <HomeOutlinedIcon />
+            <span className="ml-1">Home</span>
+          </Button>
+        </Link>
       </div>
       {/* menu buttons */}
       <div className="menuButtons my-2 flex gap-3">

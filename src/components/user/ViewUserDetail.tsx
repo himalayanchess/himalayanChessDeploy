@@ -28,6 +28,7 @@ import UserActivityRecords from "./userrecorddetail/UserActivityRecords";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import Link from "next/link";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -121,7 +122,7 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
       {loaded && loading ? (
         <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
           <CircularProgress />
-          <span className="mt-2">Loading user details ...</span>
+          <span className="mt-2">Loading user details...</span>
         </div>
       ) : (
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
@@ -135,10 +136,16 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
             </div>
 
             {/* home button */}
-            <Button className="homebutton">
-              <HomeOutlinedIcon />
-              <span className="ml-1">Home</span>
-            </Button>
+            <Link href={`/${session?.data?.user?.role?.toLowerCase()}/users`}>
+              <Button
+                className="homebutton"
+                color="inherit"
+                sx={{ color: "gray" }}
+              >
+                <HomeOutlinedIcon />
+                <span className="ml-1">Home</span>
+              </Button>
+            </Link>
           </div>
           {/* menu buttons */}
           <div className="menuButtons mt-2 flex gap-3">

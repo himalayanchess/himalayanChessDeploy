@@ -7,6 +7,7 @@ import { Checkbox, FormControlLabel, Pagination, Stack } from "@mui/material";
 import Dropdown from "@/components/Dropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllBatches } from "@/redux/allListSlice";
+import { FolderClock } from "lucide-react";
 import {
   fetchAllTrainersActivityRecords,
   filterAllTrainersActivityRecords,
@@ -113,12 +114,12 @@ const TrainerHistory = () => {
     <div className="flex w-full ">
       <div className="historycontiner flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
         {/* title */}
-        <p className="text-2xl  flex items-center">
-          <AssignmentIcon sx={{ fontSize: "2rem" }} />
+        <p className="text-2xl  flex items-center ">
+          <FolderClock />
           <span className="ml-1">Activity History</span>
         </p>
 
-        <div className="batch-date mt-4 flex items-end gap-4 ">
+        <div className="batch-date mt-2 flex items-end gap-4 ">
           {/* batchlist dropdown */}
           <Dropdown
             label="Batch"

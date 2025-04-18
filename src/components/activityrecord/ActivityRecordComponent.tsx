@@ -15,6 +15,7 @@ import {
   Stack,
 } from "@mui/material";
 import Dropdown from "../Dropdown";
+import { LayoutList } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllActivityRecords,
@@ -157,7 +158,10 @@ const ActivityRecordComponent = () => {
 
   return (
     <div className="flex-1 flex flex-col py-3 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl font-medium text-gray-700 ">Activity Records</h2>
+      <h2 className="text-3xl font-medium text-gray-700 flex items-center ">
+        <LayoutList />
+        <span className="ml-2">Activity Records</span>
+      </h2>
       <div className="activityrecord-header my-0 w-full flex items-end justify-between">
         <div className="batch-date w-full flex flex-col  items-end gap-0 ">
           {/* batchlist dropdown */}

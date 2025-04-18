@@ -14,6 +14,8 @@ import {
   CalendarCheck2,
 } from "lucide-react";
 import { Button, Divider } from "@mui/material";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+
 import CircularProgress from "@mui/material/CircularProgress";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -192,25 +194,40 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       ) : (
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
           <div className="header flex flex-col items-start justify-between  gap-2 ">
-            <div className="title flex flex-col">
-              <h1 className="text-2xl font-bold flex items-center">
-                <Users />
-                <span className="ml-2">
-                  Student Detail{" "}
-                  {isBirthday && (
-                    <span className="ml-3 font-medium">
-                      (🎉 Birthday
-                      {studentRecord?.gender?.toLowerCase() === "male"
-                        ? " boy"
-                        : studentRecord?.gender?.toLowerCase() === "female"
-                        ? " girl"
-                        : ""}
-                      )
-                    </span>
-                  )}
-                </span>
-              </h1>
-              <p>of {studentRecord?.name}</p>
+            <div className="title-home w-full flex justify-between ">
+              <div className="title flex flex-col">
+                <h1 className="text-2xl font-bold flex items-center">
+                  <Users />
+                  <span className="ml-2">
+                    Student Detail{" "}
+                    {isBirthday && (
+                      <span className="ml-3 font-medium">
+                        (🎉 Birthday
+                        {studentRecord?.gender?.toLowerCase() === "male"
+                          ? " boy"
+                          : studentRecord?.gender?.toLowerCase() === "female"
+                          ? " girl"
+                          : ""}
+                        )
+                      </span>
+                    )}
+                  </span>
+                </h1>
+                <p>of {studentRecord?.name}</p>
+              </div>
+              {/* home button */}
+              <Link
+                href={`/${session?.data?.user?.role?.toLowerCase()}/students`}
+              >
+                <Button
+                  className="homebutton"
+                  color="inherit"
+                  sx={{ color: "gray" }}
+                >
+                  <HomeOutlinedIcon />
+                  <span className="ml-1">Home</span>
+                </Button>
+              </Link>
             </div>
 
             {/* menu buttons */}

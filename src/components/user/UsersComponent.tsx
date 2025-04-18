@@ -12,6 +12,7 @@ import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Pagination from "@mui/material/Pagination";
+import { CircleUser } from "lucide-react";
 import Stack from "@mui/material/Stack";
 import { Box, Button, FormControlLabel, Modal, Radio } from "@mui/material";
 import AddUser from "@/components/user/AddUser";
@@ -92,8 +93,9 @@ const UsersComponent = ({ role = "" }: any) => {
         <div className="title-search-container mb-0 flex justify-between items-end">
           {/* title and Dropdown */}
           <div className="title-options">
-            <h2 className="text-3xl mb-2 font-medium text-gray-700">
-              Users List
+            <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+              <CircleUser />
+              <span className="ml-2">Users List</span>
             </h2>
             <div className="dropdown flex gap-4  mb-1 items-end">
               <Dropdown

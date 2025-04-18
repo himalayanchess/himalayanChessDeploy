@@ -4,6 +4,7 @@ import SearchInput from "../SearchInput";
 import Link from "next/link";
 import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
+import { School } from "lucide-react";
 
 import { Button, Pagination, Stack } from "@mui/material";
 import ProjectList from "./ProjectList";
@@ -75,8 +76,9 @@ const ProjectComponent = ({ role }: any) => {
       <div className="title-search-container  flex justify-between items-end">
         {/* title and Dropdown */}
         <div className="title-options">
-          <h2 className="text-3xl mb-2 font-medium text-gray-700">
-            Projects List
+          <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+            <School />
+            <span className="ml-2">Projects List</span>
           </h2>
           <div className="dropdown flex gap-4 mb-1 items-end">
             <Dropdown

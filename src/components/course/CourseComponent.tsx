@@ -7,6 +7,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { Button, Pagination, Stack } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { filterCourseList, getAllCourses } from "@/redux/allListSlice";
+import { BookCopy } from "lucide-react";
+
 import CourseList from "./CourseList";
 
 const CourseComponent = ({ role = "" }: any) => {
@@ -73,7 +75,10 @@ const CourseComponent = ({ role = "" }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700">Course List</h2>
+      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+        <BookCopy />
+        <span className="ml-2">Course List</span>
+      </h2>
       <div className="courses-header my-0 flex items-end justify-between">
         {/* title and Dropdown */}
         <div className="title-options">
