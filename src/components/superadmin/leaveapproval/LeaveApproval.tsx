@@ -28,7 +28,7 @@ const LeaveApproval = () => {
 
   // state vars
   const [selectedApprovalStatus, setselectedApprovalStatus] = useState("All");
-  const [selectedTrainer, setselectedTrainer] = useState("None");
+  const [selectedUser, setselectedUser] = useState("None");
   const [totalLeaveRequests, settotalLeaveRequests] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [leaveRequestsPerPage] = useState(7);
@@ -49,9 +49,10 @@ const LeaveApproval = () => {
               selectedApprovalStatus.toLowerCase()
           );
     // sort by trainer name
-    if (selectedTrainer?.toLowerCase() !== "none") {
+    if (selectedUser?.toLowerCase() !== "none") {
       tempFilteredLeaveRequests = tempFilteredLeaveRequests.filter(
-        (request: any) => request.trainerName === selectedTrainer
+        (request: any) =>
+          request.userName?.toLowerCase() === selectedUser?.toLowerCase()
       );
     }
     // cant directly update redux state
@@ -68,7 +69,7 @@ const LeaveApproval = () => {
     setCurrentPage(1);
     // update redux state
     dispatch(filterLeaveRequests(tempFilteredLeaveRequests));
-  }, [selectedApprovalStatus, selectedTrainer]);
+  }, [selectedApprovalStatus, selectedUser]);
 
   // get intial all leave requests
   // it is used in leaveapprovallist itself (useSelector in leaveaprvallist)
@@ -103,8 +104,8 @@ const LeaveApproval = () => {
                 "None",
                 ...allActiveTrainerList?.map((trainer: any) => trainer?.name),
               ]}
-              selected={selectedTrainer}
-              onChange={setselectedTrainer}
+              selected={selectedUser}
+              onChange={setselectedUser}
             />
           </div>
           {/* totalLeaveRequests count */}

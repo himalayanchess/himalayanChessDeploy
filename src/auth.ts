@@ -69,10 +69,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       options: {
         httpOnly: true,
         path: "/",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24,
+        sameSite: "strict",
+        maxAge: 600, // 10 minutes in seconds
         secure: process.env.NODE_ENV === "production",
       },
     },
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 600, // 10 minutes in seconds
+    updateAge: 600, // Update session only after 10 minutes
+  },
+  jwt: {
+    maxAge: 600, // 10 minutes in seconds
   },
 });
