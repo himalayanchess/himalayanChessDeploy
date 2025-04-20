@@ -49,7 +49,7 @@ const ActivityRecordList = ({
   return (
     <div className="overflow-y-auto mt-3 flex-1 h-full border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
@@ -65,9 +65,9 @@ const ActivityRecordList = ({
         <span className="py-3  text-left text-sm font-bold text-gray-600">
           Trainer
         </span>
-        <span className="py-3  text-left text-sm font-bold text-gray-600">
+        {/* <span className="py-3  text-left text-sm font-bold text-gray-600">
           Attendance
-        </span>
+        </span> */}
       </div>
 
       {/* Loading */}
@@ -113,7 +113,7 @@ const ActivityRecordList = ({
                     activityRecord?._id
                   }`}
                   key={activityRecord?._id}
-                  className={` grid grid-cols-[70px,repeat(6,1fr)] border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150
+                  className={` grid grid-cols-[70px,repeat(5,1fr)] border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150
                   ${
                     activityRecord?.isPlayDay ||
                     activityRecord?.mainStudyTopic?.toLowerCase() === "play"
@@ -150,7 +150,7 @@ const ActivityRecordList = ({
                     {activityRecord?.trainerName}
                   </span>
 
-                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
+                  {/* <span className=" text-left px-1 text-xs font-medium text-gray-600">
                     <span
                       className={`text-xs text-white font-bold rounded-full px-2 py-1 ${
                         activityRecord?.userPresentStatus?.toLowerCase() ===
@@ -164,7 +164,7 @@ const ActivityRecordList = ({
                     >
                       {activityRecord?.userPresentStatus}
                     </span>
-                  </span>
+                  </span> */}
                 </Link>
               );
             })}

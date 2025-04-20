@@ -6,6 +6,7 @@ declare module "next-auth" {
     name?: string;
     email?: string;
     role?: string;
+    isGlobalAdmin: any;
   }
   interface Session {
     user: {
@@ -13,6 +14,7 @@ declare module "next-auth" {
       username?: string;
       imageUrl?: string;
       role?: string;
+      isGlobalAdmin: any;
     } & DefaultSession["user"];
   }
 }

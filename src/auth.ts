@@ -39,6 +39,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           _id: resData?.fetchedUser._id,
           name: resData?.fetchedUser.name,
           role: resData?.fetchedUser.role,
+          email: resData?.fetchedUser.email,
+          isGlobalAdmin: resData?.fetchedUser.isGlobalAdmin || false,
         };
         // console.log("authorzie user final", user);
         return user;
@@ -51,6 +53,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token._id = user._id;
         token.name = user.name;
         token.role = user.role;
+        token.email = user.email;
+        token.isGlobalAdmin = user.isGlobalAdmin;
       }
       return token;
     },
@@ -59,6 +63,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user._id = token._id;
         session.user.name = token.name;
         session.user.role = token.role;
+        session.user.email = token.email;
+        session.user.isGlobalAdmin = token.isGlobalAdmin;
       }
       return session;
     },

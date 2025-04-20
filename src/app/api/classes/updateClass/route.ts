@@ -2,16 +2,24 @@ import { dbconnect } from "@/helpers/dbconnect/dbconnect";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import Batch from "@/models/BatchModel";
-import dayjs from "dayjs";
 import ActivityRecord from "@/models/ActivityRecordModel";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const timeZone = "Asia/Kathmandu";
 export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
     const {
       date,
+      recordId,
       startTime,
       endTime,
+      trainerRole,
       trainerName,
       trainerId,
       userPresentStatus,
@@ -43,8 +51,11 @@ export async function POST(request: NextRequest) {
 
     //update Class
     const updatedClass = await ActivityRecord.findOneAndUpdate(
-      { _id: reqBody._id },
+      { _id: recordId },
       {
+        startTime,
+        endTime,
+        trainerRole,
         trainerName,
         trainerId,
         userPresentStatus,

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -8,6 +10,8 @@ import { Controller, useForm } from "react-hook-form";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { LoadingButton } from "@mui/lab";
+
 import Dropdown from "../Dropdown";
 import { useDispatch, useSelector } from "react-redux";
 import Input from "../Input";
@@ -19,8 +23,11 @@ import {
 } from "@/redux/assignedClassesSlice";
 import { trainerRoleOptions } from "@/options/projectOptions";
 import { presentStatusOptions } from "@/options/activitiyRecordOptions";
-
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(weekOfYear);
+
+const timeZone = "Asia/Kathmandu";
 
 const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
   const dis = useDispatch();
@@ -32,6 +39,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
   const [affiliatedTo, setaffiliatedTo] = useState<any>(
     assignedClass?.affiliatedTo?.toLowerCase() == "hca" ? "HCA" : "School"
   );
+  const [updateClassLoading, setupdateClassLoading] = useState(false);
   const [deleteModalOpen, setdeleteModalOpen] = useState(false);
 
   //handleDeleteModalOpen
@@ -54,14 +62,31 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
     formState: { errors },
     setValue,
     watch,
-  } = useForm({
+  } = useForm<any>({
     defaultValues: {
       // pass date = selectedDate from state variable to server side
+      startTime: assignedClass?.startTime
+        ? dayjs(assignedClass?.startTime).tz(timeZone).toISOString()
+        : null,
+      endTime: assignedClass?.endTime
+        ? dayjs(assignedClass?.endTime).tz(timeZone).toISOString()
+        : null,
+      trainerRole: assignedClass?.trainerRole,
       trainerName: assignedClass?.trainerName,
       trainerId: assignedClass?.trainerId,
       userPresentStatus: assignedClass?.userPresentStatus,
     },
   });
+  // time order validation
+  const startTime = watch("startTime");
+  const endTime = watch("endTime");
+  // Validation for startTime should be before endTime
+  const validateTimeOrder = () => {
+    if (startTime && endTime && dayjs(startTime).isAfter(dayjs(endTime))) {
+      return "Invalid time slot";
+    }
+    return true;
+  };
 
   // handleAssignedClassDelete
   async function handleAssignedClassDelete() {
@@ -83,8 +108,9 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
   //onSubmit
   async function onSubmit(data: any) {
     try {
+      setupdateClassLoading(true);
       const { data: resData } = await axios.post("/api/classes/updateClass", {
-        ...assignedClass,
+        recordId: assignedClass?._id,
         ...data,
       });
       if (resData?.statusCode == 200) {
@@ -94,17 +120,15 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
       notify(resData?.msg, resData?.statusCode);
     } catch (error) {
       console.log("Error in ViewAssignedClass component (editclass)", error);
+    } finally {
+      setupdateClassLoading(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h1 className="text-lg font-bold">{assignedClass?.batchName}</h1>
-      <div className="projectbutton-submit flex justify-between">
-        <p className="mb-2">
-          {dayjs(assignedClass?.date).format("MMMM D, YYYY, dddd")}
-          <span className="ml-4">#Week{dayjs(assignedClass?.date).week()}</span>
-        </p>
+      <div className="batchname-submit flex justify-between">
+        <h1 className="text-2xl font-bold">{assignedClass?.batchName}</h1>
         {/* submit buttons */}
         <div className="submit-buttons flex gap-4">
           {/* delete */}
@@ -144,15 +168,36 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
             </Box>
           </Modal>
           {/* edit */}
-          <Button
-            disabled={assignedClass?.recordUpdatedByTrainer}
-            type="submit"
-            variant="contained"
-          >
-            <EditIcon />
-            <span className="ml-1">Update</span>
-          </Button>
+          {updateClassLoading ? (
+            <LoadingButton
+              size="small"
+              loading={updateClassLoading}
+              loadingPosition="start"
+              variant="contained"
+              className="mt-2"
+              disabled
+            >
+              <EditIcon />
+              <span className="ml-1">Updating...</span>
+            </LoadingButton>
+          ) : (
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={assignedClass?.recordUpdatedByTrainer}
+              className="mt-2"
+            >
+              <EditIcon />
+              <span className="ml-1">Update</span>
+            </Button>
+          )}
         </div>
+      </div>
+      <div className="projectbutton-submit flex justify-between">
+        <p className="mb-2">
+          {dayjs(assignedClass?.date).format("MMMM D, YYYY, dddd")}
+          <span className="ml-4">#Week{dayjs(assignedClass?.date).week()}</span>
+        </p>
       </div>
       <div className=" flex flex-col gap-2 ">
         {/* project-buttons */}
@@ -186,7 +231,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
         {/* Dropdowns */}
         <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
           {!assignedClass?.isPlayDay && (
-            <div className="col-span-2 ">
+            <div className="col-span-2 mb-2">
               <Input
                 label="Course"
                 value={assignedClass?.courseName || ""}
@@ -195,6 +240,77 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
               />
             </div>
           )}
+
+          {/* start time */}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Controller
+              name="startTime"
+              control={control}
+              rules={{
+                required: "Start time is required",
+                validate: validateTimeOrder,
+              }}
+              render={({ field }) => (
+                <TimePicker
+                  label="Start Time"
+                  value={field.value ? dayjs(field.value) : null}
+                  onChange={(newValue) => {
+                    field.onChange(newValue ? newValue.toISOString() : null);
+                  }}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.startTime,
+                      helperText: errors?.startTime?.message as string,
+                      size: "small",
+                      sx: { fontSize: "0.8rem", width: "150px" },
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.8rem",
+                      height: "35px",
+                    },
+                  }}
+                />
+              )}
+            />
+          </LocalizationProvider>
+
+          {/* end time */}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Controller
+              name="endTime"
+              control={control}
+              rules={{
+                required: "End time is required",
+                validate: validateTimeOrder,
+              }}
+              render={({ field }) => (
+                <TimePicker
+                  label="End Time"
+                  value={field.value ? dayjs(field.value) : null}
+                  onChange={(newValue) => {
+                    field.onChange(newValue ? newValue.toISOString() : null);
+                  }}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.endTime,
+                      helperText: errors?.endTime?.message as string,
+                      size: "small",
+                      sx: { fontSize: "0.8rem", width: "150px" },
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.8rem",
+                      height: "35px",
+                    },
+                  }}
+                />
+              )}
+            />
+          </LocalizationProvider>
+
           <div className="col-span-2 mb-2 grid grid-cols-2 gap-3">
             <Input
               label="Project"
@@ -202,59 +318,27 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
               onChange={() => {}}
               disabled
             />
-            <Input
-              label="Trainer role"
-              value={assignedClass?.trainerRole || "N/A"}
-              onChange={() => {}}
-              disabled
+            <Controller
+              name="trainerRole"
+              control={control}
+              rules={{ required: "Trainer role is required" }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Trainer Role"
+                  options={["Primary", "Substitute"]}
+                  selected={field.value || ""}
+                  onChange={(value: any) => {
+                    field.onChange(value);
+                  }}
+                  error={errors?.trainerRole}
+                  helperText={errors?.trainerRole?.message}
+                  width="full"
+                  required
+                />
+              )}
             />
           </div>
-          {/* start time */}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <TimePicker
-              label="Start Time"
-              disabled
-              value={
-                assignedClass?.startTime
-                  ? dayjs(assignedClass?.startTime)
-                  : null
-              } // Convert endTime to dayjs if not null
-              slotProps={{
-                textField: {
-                  size: "small", // Decreases input size
-                  sx: { fontSize: "0.8rem", width: "full" }, // Adjust width & font size
-                },
-              }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  fontSize: "0.8rem",
-                  height: "35px",
-                },
-              }}
-            />
-          </LocalizationProvider>
-          {/* end time */}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <TimePicker
-              label="End Time"
-              disabled
-              value={
-                assignedClass?.endTime ? dayjs(assignedClass?.endTime) : null
-              } // Convert endTime to dayjs if not null
-              slotProps={{
-                textField: {
-                  size: "small", // Decreases input size
-                  sx: { fontSize: "0.8rem", width: "full" }, // Adjust width & font size
-                },
-              }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  fontSize: "0.8rem",
-                  height: "35px",
-                },
-              }}
-            />
-          </LocalizationProvider>
+
           {/* Trainer Name */}
           <Controller
             name="trainerName"

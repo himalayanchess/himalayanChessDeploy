@@ -141,8 +141,8 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
                         console.log("logout");
                         setlogoutLoading(true);
                         await signOut({ redirect: false });
-                        setlogoutLoading(false);
                         router.push("/login");
+                        setlogoutLoading(false);
                       }}
                       sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
                     >

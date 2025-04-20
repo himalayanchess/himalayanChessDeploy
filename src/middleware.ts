@@ -32,6 +32,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url));
   }
 
+  if (!session && path == "/") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   // Role-based route protection
   if (session?.user?.role) {
     const role = session.user.role.toLowerCase();

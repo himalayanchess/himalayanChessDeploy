@@ -30,5 +30,5 @@ export default function Home() {
   useEffect(() => {
     checkAuthorization();
   }, []);
-  return <div>Homepage</div>;
+  return <div></div>;
 }

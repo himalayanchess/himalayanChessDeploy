@@ -54,6 +54,11 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // global admin or branch admin
+    isGlobalAdmin: {
+      type: Boolean,
+      default: false,
+    },
     // forgot password
     forgotPasswordOtp: { type: String },
     forgotPasswordExpires: { type: Number },

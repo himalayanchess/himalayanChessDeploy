@@ -3,12 +3,16 @@ import { Button, Divider } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TodayIcon from "@mui/icons-material/Today";
+import { CircleUser, Users } from "lucide-react";
+
 import EventRepeatIcon from "@mui/icons-material/EventRepeat";
 import UserAttendanceList from "./UserAttendanceList";
 import AttendanceChart from "./AttendanceChart";
 import AttendanceHistoryChart from "./AttendanceHistoryChart";
 import { getAllAttendanceRecords } from "@/redux/attendanceSlice";
 import AttendanceHistoryList from "./AttendanceHistoryList";
+import StudentsAttendanceList from "./StudentsAttendanceList";
+import StudentsAttendanceChart from "./StudentsAttendanceChart";
 
 const AttendanceComponent = () => {
   const dispatch = useDispatch<any>();
@@ -22,9 +26,9 @@ const AttendanceComponent = () => {
     (state: any) => state.allListReducer
   );
 
-  const [view, setView] = useState<"dailyattendance" | "history">(
-    "dailyattendance"
-  );
+  const [view, setView] = useState<
+    "dailyattendance" | "usersattendance" | "studentsattendance"
+  >("dailyattendance");
 
   useEffect(() => {
     dispatch(getAllUsers());
@@ -44,12 +48,21 @@ const AttendanceComponent = () => {
           <span className="ml-1">Daily Attendance</span>
         </Button>
         <Button
-          variant={view === "history" ? "contained" : "outlined"}
-          onClick={() => setView("history")}
+          variant={view === "usersattendance" ? "contained" : "outlined"}
+          onClick={() => setView("usersattendance")}
           size="small"
         >
-          <EventRepeatIcon />
-          <span className="ml-2">Attendance History</span>
+          <CircleUser />
+          <span className="ml-2">Users Attendance</span>
+        </Button>
+
+        <Button
+          variant={view === "studentsattendance" ? "contained" : "outlined"}
+          onClick={() => setView("studentsattendance")}
+          size="small"
+        >
+          <Users />
+          <span className="ml-2">Students Attendance</span>
         </Button>
       </div>
 
@@ -64,7 +77,7 @@ const AttendanceComponent = () => {
           </div>
           <AttendanceChart allUsersLoading={allUsersLoading} />
         </div>
-      ) : (
+      ) : view === "usersattendance" ? (
         <div className="flex-1 flex overflow-hidden">
           <div className="attendancehistorylist flex-1 mr-4">
             <AttendanceHistoryList />
@@ -73,7 +86,18 @@ const AttendanceComponent = () => {
             attendanceRecords={allActiveAttedanceRecordsList}
           />
         </div>
-      )}
+      ) : view === "studentsattendance" ? (
+        <div className="flex-1 flex overflow-hidden">
+          <div className="attendancehistorylist flex-1 mr-4">
+            <StudentsAttendanceList
+            // studentsAttendanceRecord={studentsAttendanceRecord}
+            />
+          </div>
+          <StudentsAttendanceChart
+          // attendanceRecords={allActiveAttedanceRecordsList}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

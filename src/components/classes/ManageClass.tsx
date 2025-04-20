@@ -239,10 +239,18 @@ const ManageClass = ({ selectedDate }: any) => {
 
   const getInitialData = async () => {
     try {
-      const { data: trainersResData } = await axios.get(
-        "/api/users/getTrainersList"
+      // const { data: trainersResData } = await axios.get(
+      //   "/api/users/getTrainersList"
+      // );
+      const { data: presentTrainersResData } = await axios.post(
+        "/api/trainer/getPresentTrainers",
+        {
+          todaysDate: dayjs().tz(timeZone).startOf("day").format(),
+        }
       );
-      setTrainersList(trainersResData.trainersList);
+      // console.log("presetnt trainers resdata", presentTrainersResData);
+
+      setTrainersList(presentTrainersResData.presentTrainersList);
 
       const { data: courseResData } = await axios.get(
         "/api/courses/getAllCourses"
@@ -386,20 +394,22 @@ const ManageClass = ({ selectedDate }: any) => {
             }
             label="Workday"
           />
-          <FormControlLabel
-            control={
-              <Radio
-                checked={isPlayDay}
-                onChange={() => {
-                  // Select play day, deselect holiday
-                  setisPlayDay(true);
-                  setholidayStatus(false);
-                }}
-                color="default"
-              />
-            }
-            label="Playday"
-          />
+          {affiliatedTo?.toLowerCase() != "school" && (
+            <FormControlLabel
+              control={
+                <Radio
+                  checked={isPlayDay}
+                  onChange={() => {
+                    // Select play day, deselect holiday
+                    setisPlayDay(true);
+                    setholidayStatus(false);
+                  }}
+                  color="default"
+                />
+              }
+              label="Playday"
+            />
+          )}
           <FormControlLabel
             control={
               <Radio
@@ -453,7 +463,11 @@ const ManageClass = ({ selectedDate }: any) => {
               render={({ field }) => (
                 <TimePicker
                   label="Start Time"
-                  value={field.value ? dayjs(field.value) : null}
+                  value={
+                    field.value || "" || ""
+                      ? dayjs(field.value || "" || "")
+                      : null
+                  }
                   onChange={(newValue) => {
                     field.onChange(newValue ? newValue.toISOString() : null);
                   }}
@@ -487,7 +501,11 @@ const ManageClass = ({ selectedDate }: any) => {
               render={({ field }) => (
                 <TimePicker
                   label="End Time"
-                  value={field.value ? dayjs(field.value) : null}
+                  value={
+                    field.value || "" || ""
+                      ? dayjs(field.value || "" || "")
+                      : null
+                  }
                   onChange={(newValue) => {
                     field.onChange(newValue ? newValue.toISOString() : null);
                   }}
@@ -539,7 +557,7 @@ const ManageClass = ({ selectedDate }: any) => {
               <Dropdown
                 label="Project name"
                 options={projectList.map((project: any) => project.name)}
-                selected={field.value}
+                selected={field.value || "" || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
                   const selectedProject: any = projectList.find(
@@ -569,7 +587,7 @@ const ManageClass = ({ selectedDate }: any) => {
               <Dropdown
                 label="Batch"
                 options={filteredBatches.map((batch: any) => batch.batchName)}
-                selected={field.value}
+                selected={field.value || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
                   const selectedBatch: any = filteredBatches.find(
@@ -597,7 +615,7 @@ const ManageClass = ({ selectedDate }: any) => {
               <Dropdown
                 label="Course name"
                 options={courseList.map((course: any) => course.name)}
-                selected={field.value}
+                selected={field.value || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
                   const selectedCourse: any = courseList.find(
@@ -622,14 +640,14 @@ const ManageClass = ({ selectedDate }: any) => {
           render={({ field }) => (
             <Dropdown
               label="Trainer name"
-              options={trainersList.map((trainer: any) => trainer.name)}
-              selected={field.value}
+              options={trainersList.map((trainer: any) => trainer.userName)}
+              selected={field.value || ""}
               onChange={(value: any) => {
                 field.onChange(value);
                 const selectedTrainer: any = trainersList.find(
-                  (trainer: any) => trainer.name === value
+                  (trainer: any) => trainer.userName === value
                 );
-                setValue("trainerId", selectedTrainer?._id || "");
+                setValue("trainerId", selectedTrainer?.userId || "");
               }}
               error={errors.trainerName}
               helperText={errors.trainerName?.message}
@@ -648,7 +666,7 @@ const ManageClass = ({ selectedDate }: any) => {
             <Dropdown
               label="Trainer Role"
               options={["Primary", "Substitute"]}
-              selected={field.value}
+              selected={field.value || "" || "" || ""}
               onChange={(value: any) => {
                 field.onChange(value);
               }}

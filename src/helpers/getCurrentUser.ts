@@ -2,10 +2,10 @@
 import { auth } from "@/auth";
 
 export async function getCurrentUser() {
-  console.log("indise get curent user start");
+  // console.log("indise get curent user start");
 
   const session = await auth();
-  console.log("get current user res", session);
+  // console.log("get current user res", session);
 
   if (!session?.user) {
     return null;

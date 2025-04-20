@@ -33,6 +33,12 @@ const attendaceSlice = createSlice({
 
     // selectedDatesAttendanceRecords
     selectedDatesAttendanceRecord: null,
+
+    // selected dates students attendance records
+    studentsAttendanceSelectedDay: null,
+    selectedDatesStudentsAttendanceRecord: null,
+    studentAttendanceStatCount: { present: 0, absent: 0, total: 0 },
+    studentsattendanceUpdatedByData: null,
   },
   reducers: {
     // attendace chart data
@@ -51,6 +57,27 @@ const attendaceSlice = createSlice({
       console.log("attendance reord in redux ", action.payload);
 
       state.selectedDatesAttendanceRecord = action.payload;
+    },
+
+    // students attendance
+    setstudentsAttendanceSelectedDay: (state, action) => {
+      console.log("student attendance attendace record redux ", action.payload);
+      state.studentsAttendanceSelectedDay = action.payload;
+    },
+
+    setselectedDatesStudentsAttendanceRecord: (state, action) => {
+      console.log(
+        "selectedDatesStudentsAttendanceRecord reord in redux ",
+        action.payload
+      );
+
+      state.selectedDatesStudentsAttendanceRecord = action.payload;
+    },
+    setstudentAttendanceStatCount: (state, action) => {
+      state.studentAttendanceStatCount = action.payload;
+    },
+    setStudentsAttendanceUpdatedByData: (state, action) => {
+      state.studentsattendanceUpdatedByData = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -83,6 +110,10 @@ export const {
   updateAttendanceChartData,
   setattendanceUpdatedByData,
   setselectedDatesAttendanceRecord,
+  setstudentsAttendanceSelectedDay,
+  setselectedDatesStudentsAttendanceRecord,
+  setstudentAttendanceStatCount,
+  setStudentsAttendanceUpdatedByData,
 } = attendaceSlice.actions;
 
 export default attendaceSlice.reducer;

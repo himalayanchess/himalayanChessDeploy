@@ -5,11 +5,9 @@ import utc from "dayjs/plugin/utc";
 // Extend dayjs with both plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
+let timeZone = "Asia/Kathmandu";
 export function getOTPEmailContent(otp: any) {
-  const currentDate = dayjs()
-    .tz("Asia/Kathmandu")
-    .format("MMMM D, YYYY [at] h:mm A");
+  const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
 
   const emailContent = `
       <html>
@@ -107,6 +105,8 @@ export function getLeaveRequestEmailContent({
   leaveDurationDays,
   affectedClasses,
 }: any) {
+  const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
+
   const formattedFromDate = dayjs(fromDate)
     .tz("Asia/Kathmandu")
     .format("MMMM D, YYYY");
@@ -220,6 +220,7 @@ export function getLeaveRequestEmailContent({
             <div class="header">Leave Request Notification</div>
             <div class="content">
               <div class="leave-request">
+                <p><strong>Date: </strong>${currentDate}</p>
                 <p><strong>Dear Superadmin,</strong></p>
                 <p><span class="">${userName}</span> (Role: ${userRole}) has submitted a leave request.</p>
               </div>
@@ -340,7 +341,10 @@ export function getLeaveRequestResponseEmailContent(
         <div class="container">
           <!-- User Greeting Section -->
           <div class="content-section">
-            <p>Dear ${leaveRequest.userName},</p>
+            <p><b>Response Date: </b> ${dayjs()
+              .tz(timeZone)
+              .format("MMMM D, YYYY [at] h:mm A")}</p>
+            <p><b>Dear</b> ${leaveRequest.userName},</p>
             <p>Your leave request has been <span class="" style="color:${
               leaveStatus == "approved" ? "green" : "red"
             };">${leaveStatus}</span>.</p>
@@ -349,6 +353,9 @@ export function getLeaveRequestResponseEmailContent(
           <!-- Request Details Section -->
           <div class="" style="background:#f2f2f2;padding: 20px;border-radius: 8px;">
             <h3>Request Details:</h3>
+                 <p><b>Requested Date: </b> ${dayjs(leaveRequest?.nepaliDate)
+                   .tz(timeZone)
+                   .format("MMMM D, YYYY [at] h:mm A")}</p>
             <p><strong>Subject:</strong> ${leaveRequest.leaveSubject}</p>
             <p><strong>Reason:</strong> ${leaveRequest.leaveReason}</p>
             <p><strong>Duration:</strong> ${formattedFromDate} - ${formattedToDate} (${
@@ -383,6 +390,8 @@ export function getClassAssignedEmailContent({
   isPlayDay,
   assignedByName,
 }: any) {
+  const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
+
   const formattedStartTime = dayjs(startTime)
     .tz("Asia/Kathmandu")
     .format("MMMM D, YYYY, h:mm A");
@@ -466,6 +475,7 @@ export function getClassAssignedEmailContent({
 
           <p><strong>Dear Superadmin,</strong></p>
           <p>A new class has been assigned to the following trainer:</p>
+          <p><b>Date: </b>${currentDate}</p>
 
           <div class="section">
             <div class="section-title">Trainer Information</div>
@@ -506,6 +516,8 @@ export function getClassAssignedEmailContent({
 }
 
 export function getBirthdayEmailContent({ birthdayStudents, todaysDate }: any) {
+  const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
+
   const studentListHTML = birthdayStudents
     .map(
       (s: any) =>
@@ -574,7 +586,7 @@ export function getBirthdayEmailContent({ birthdayStudents, todaysDate }: any) {
         <div class="container">
           <div class="">🎂 Students with Birthdays Today</div>
 
-          <p><strong>Date:</strong> ${todaysDate}</p>
+          <p><strong>Date:</strong> ${currentDate}</p>
 
           <div class="section">
             <p>The following students have birthdays today:</p>

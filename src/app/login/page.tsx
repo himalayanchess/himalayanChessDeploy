@@ -5,7 +5,7 @@ import { Button } from "@mui/material";
 import InputWithIcon from "@/components/InputWithIcon";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { notify } from "@/index";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -15,6 +15,7 @@ import { LoadingButton } from "@mui/lab";
 const page = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const session = useSession();
 
   const {
     handleSubmit,
@@ -26,8 +27,6 @@ const page = () => {
     setLoading(true);
     const { data: resData } = await axios.post("/api/users/login", data);
 
-    notify(resData?.msg, resData?.statusCode);
-
     if (resData.statusCode == 200) {
       console.log("after login check success");
       const signInResData = await signIn("credentials", {
@@ -38,35 +37,40 @@ const page = () => {
       console.log("after authorize in nextauth ", signInResData);
 
       if (signInResData?.status == 200) {
-        const session = await getSession();
+        // const session = await getSession();
+
         console.log("after success overl login session is", session);
 
         setTimeout(() => {
           setLoading(false);
           let redirectRoute = "/login";
-          switch (session?.user?.role) {
-            case "Superadmin":
+          const sessionRole = session?.data?.user?.role?.toLowerCase();
+          switch (sessionRole) {
+            case "superadmin":
               redirectRoute = "/superadmin/dashboard";
               break;
-            case "Admin":
+            case "admin":
               redirectRoute = "/admin/dashboard";
               break;
-            case "Trainer":
+            case "trainer":
               redirectRoute = "/trainer/dashboard";
               break;
-            case "Student":
+            case "student":
               redirectRoute = "/student/dashboard";
               break;
             default:
               break;
           }
           console.log(redirectRoute);
-
+          notify(resData?.msg, resData?.statusCode);
           router.push(redirectRoute);
+          setLoading(false);
         }, 1000);
       }
+    } else {
+      notify(resData?.msg, resData?.statusCode);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
