@@ -15,7 +15,6 @@ import { LoadingButton } from "@mui/lab";
 const page = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const session = useSession();
 
   const {
     handleSubmit,
@@ -37,14 +36,14 @@ const page = () => {
       console.log("after authorize in nextauth ", signInResData);
 
       if (signInResData?.status == 200) {
-        // const session = await getSession();
+        const session = await getSession();
 
         console.log("after success overl login session is", session);
 
         setTimeout(() => {
           setLoading(false);
           let redirectRoute = "/login";
-          const sessionRole = session?.data?.user?.role?.toLowerCase();
+          const sessionRole = session?.user?.role?.toLowerCase();
           switch (sessionRole) {
             case "superadmin":
               redirectRoute = "/superadmin/dashboard";
