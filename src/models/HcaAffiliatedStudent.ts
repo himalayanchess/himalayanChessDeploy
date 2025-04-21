@@ -53,6 +53,10 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    imageUrl: {
+      type: String,
+      default: "",
+    },
     history: { type: Array, default: [] },
     activeStatus: { type: Boolean, default: true },
   },
