@@ -26,6 +26,7 @@ import {
   fetchAllBatches,
   fetchAllProjects,
   filterBatchesList,
+  getAllBranches,
 } from "@/redux/allListSlice";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
@@ -41,6 +42,7 @@ const BatchComponent = ({ role = "" }: any) => {
     allActiveBatches,
     allFilteredActiveBatches,
     allBatchesLoading,
+    allActiveBranchesList,
   } = useSelector((state: any) => state.allListReducer);
 
   const affilatedToOptions = ["All", "HCA", "School"];
@@ -50,6 +52,7 @@ const BatchComponent = ({ role = "" }: any) => {
   const [selectedCompleteStatus, setselectedCompleteStatus] = useState("All");
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
   const [selectedProject, setselectedProject] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("All");
   const [filteredBatchCount, setfilteredBatchCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [batchesPerPage] = useState(7);
@@ -57,6 +60,12 @@ const BatchComponent = ({ role = "" }: any) => {
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
+
+  // Calculate showing text
+  const startItem = (currentPage - 1) * batchesPerPage + 1;
+  const endItem = Math.min(currentPage * batchesPerPage, filteredBatchCount);
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredBatchCount}`;
+
   // Reset current page to 1 and search text when selectedStatus changes
   useEffect(() => {
     setCurrentPage(1);
@@ -66,6 +75,7 @@ const BatchComponent = ({ role = "" }: any) => {
   // if affiliated to changes then reset project dropdown
   useEffect(() => {
     setselectedProject("All");
+    setselectedBranch("All");
   }, [selectedAffiliatedTo]);
 
   // filter
@@ -102,6 +112,15 @@ const BatchComponent = ({ role = "" }: any) => {
             );
     }
 
+    // filter by batch
+    tempFilteredBatchesList =
+      selectedBranch.toLowerCase() == "all"
+        ? tempFilteredBatchesList
+        : tempFilteredBatchesList.filter(
+            (batch: any) =>
+              batch.branchName.toLowerCase() == selectedBranch.toLowerCase()
+          );
+
     if (searchText.trim() !== "") {
       tempFilteredBatchesList = tempFilteredBatchesList.filter(
         (batch: any) =>
@@ -126,6 +145,7 @@ const BatchComponent = ({ role = "" }: any) => {
     selectedCompleteStatus,
     selectedAffiliatedTo,
     selectedProject,
+    selectedBranch,
     searchText,
   ]);
 
@@ -133,6 +153,7 @@ const BatchComponent = ({ role = "" }: any) => {
   useEffect(() => {
     dispatch(fetchAllProjects());
     dispatch(fetchAllBatches());
+    dispatch(getAllBranches());
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
@@ -141,38 +162,49 @@ const BatchComponent = ({ role = "" }: any) => {
         <span className="ml-1">Batch List</span>
       </h2>
       {/* title and Dropdown */}
-      <div className="batches-header my-0 flex items-end justify-between">
-        <div className="dropdowns flex gap-4 items-end">
-          <Dropdown
-            label="Status"
-            options={completedStatusOptions}
-            selected={selectedCompleteStatus}
-            onChange={setselectedCompleteStatus}
-          />
-          <Dropdown
-            label="Affiliated to"
-            options={affilatedToOptions}
-            selected={selectedAffiliatedTo}
-            onChange={setselectedAffiliatedTo}
-          />{" "}
-          <Dropdown
-            label="Project"
-            options={[
-              "All",
-              ...(allActiveProjects?.map((project: any) => project.name) || []),
-            ]}
-            disabled={selectedAffiliatedTo.toLowerCase() != "school"}
-            selected={selectedProject}
-            onChange={setselectedProject}
-          />
-          <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
-            {Math.min(
-              batchesPerPage,
-              allFilteredActiveBatches?.length -
-                (currentPage - 1) * batchesPerPage
-            )}{" "}
-            of {allFilteredActiveBatches?.length}
-          </span>
+      <div className="batches-header my-0 flex items-end justify-between gap-2">
+        <div className="dropdowns-showing flex flex-1  gap-4 items-end">
+          <div className="dropdowns grid grid-cols-4 gap-2  w-full">
+            <Dropdown
+              label="Status"
+              options={completedStatusOptions}
+              selected={selectedCompleteStatus}
+              onChange={setselectedCompleteStatus}
+              width="full"
+            />
+            <Dropdown
+              label="Affiliated to"
+              options={affilatedToOptions}
+              selected={selectedAffiliatedTo}
+              onChange={setselectedAffiliatedTo}
+              width="full"
+            />{" "}
+            <Dropdown
+              label="Branch"
+              options={[
+                "All",
+                ...(allActiveBranchesList?.map(
+                  (branch: any) => branch.branchName
+                ) || []),
+              ]}
+              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              selected={selectedBranch}
+              onChange={setselectedBranch}
+              width="full"
+            />
+            <Dropdown
+              label="Project"
+              options={[
+                "All",
+                ...(allActiveProjects?.map((project: any) => project.name) ||
+                  []),
+              ]}
+              disabled={selectedAffiliatedTo.toLowerCase() != "school"}
+              selected={selectedProject}
+              onChange={setselectedProject}
+              width="full"
+            />
+          </div>
         </div>
 
         {/* Search */}
@@ -205,6 +237,7 @@ const BatchComponent = ({ role = "" }: any) => {
           )}
         </div>
       </div>
+      <span className="text-sm text-gray-600">{showingText}</span>
       {/* Table */}
       <BatchList
         allFilteredActiveBatches={allFilteredActiveBatches}

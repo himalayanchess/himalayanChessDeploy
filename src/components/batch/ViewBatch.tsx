@@ -12,6 +12,7 @@ import {
   Luggage,
   CircleFadingArrowUp,
   CalendarCheck2,
+  Edit,
 } from "lucide-react";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 
@@ -148,10 +149,23 @@ const ViewBatch = ({ batchRecord }: any) => {
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       <div className="header flex flex-col">
         <div className="title-home flex justify-between">
-          <h1 className="text-2xl font-bold flex items-center">
-            <Component />
-            <span className="ml-2">Batch Details</span>
-          </h1>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold flex items-center">
+              <Component />
+              <span className="ml-2 mr-3">Batch Details</span>
+              <Link
+                href={`/${session?.data?.user?.role?.toLowerCase()}/batches/updatebatch/${
+                  batchRecord?._id
+                }`}
+              >
+                <Button variant="text" size="small">
+                  <Edit />
+                  <span className="ml-1">Edit</span>
+                </Button>
+              </Link>
+            </h1>
+            <span>of {batchRecord?.batchName}</span>
+          </div>
 
           {/* home button */}
           <Link href={`/${session?.data?.user?.role?.toLowerCase()}/batches`}>

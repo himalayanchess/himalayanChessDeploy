@@ -156,7 +156,7 @@ const ProjectList = ({
                       return (
                         <span
                           key={trainer?.trainerId}
-                          className="text-xs border border-gray-300 px-2 py-0.5 rounded-full"
+                          className="text-xs border border-gray-300 px-2  rounded-full"
                         >
                           {trainer?.trainerName}
                         </span>

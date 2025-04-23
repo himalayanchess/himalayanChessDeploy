@@ -22,6 +22,11 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTrainers } from "@/redux/allListSlice";
 import Link from "next/link";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+
+import { Edit } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -39,6 +44,9 @@ const dayOptions = [
 ];
 
 const UpdateProject = ({ projectRecord }: any) => {
+  const session = useSession();
+  const router = useRouter();
+
   // dispatch
   const dispatch = useDispatch<any>();
   // selector
@@ -53,6 +61,8 @@ const UpdateProject = ({ projectRecord }: any) => {
   );
   const [loaded, setLoaded] = useState(false);
   const [updateProjectLoading, setUpdateProjectLoading] = useState(false);
+  const [updateContractFileLoading, setupdateContractFileLoading] =
+    useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmTrainerDeleteModalOpen, setConfirmTrainerDeleteModalOpen] =
     useState(false);
@@ -202,6 +212,7 @@ const UpdateProject = ({ projectRecord }: any) => {
       notify("Update pdf file empty", 204);
       return;
     } else {
+      setupdateContractFileLoading(true);
       const formData = new FormData();
       formData.append("file", updatedcontractFile);
 
@@ -220,6 +231,8 @@ const UpdateProject = ({ projectRecord }: any) => {
       // cloudinary error
       if (resData.error) {
         notify("Error uploading file", 204);
+        setupdateContractFileLoading(false);
+
         return;
       }
       // cloudinary success
@@ -234,10 +247,22 @@ const UpdateProject = ({ projectRecord }: any) => {
           }
         );
         if (upadteContractPaperResData.statusCode == 200) {
-          window.location.reload();
+          // window.location.reload();
+          notify(
+            upadteContractPaperResData.msg,
+            upadteContractPaperResData.statusCode
+          );
+          setTimeout(() => {
+            router.push(
+              `/${session?.data?.user?.role?.toLowerCase()}/projects`
+            );
+          }, 50);
+          setupdateContractFileLoading(false);
+          return;
           // handleUpdateContratPaperModalClose();
-          // handleUpdateFileRemove();
+          // handleUpdateFileR  emove();
         }
+        setupdateContractFileLoading(false);
         notify(
           upadteContractPaperResData.msg,
           upadteContractPaperResData.statusCode
@@ -257,7 +282,13 @@ const UpdateProject = ({ projectRecord }: any) => {
       );
 
       if (resData.statusCode == 200) {
+        notify(resData.msg, resData.statusCode);
         setConfirmModalOpen(false);
+        setUpdateProjectLoading(false);
+        setTimeout(() => {
+          router.push(`/${session?.data?.user?.role?.toLowerCase()}/projects`);
+        }, 50);
+        return;
       }
       setUpdateProjectLoading(false);
       notify(resData.msg, resData.statusCode);
@@ -283,12 +314,25 @@ const UpdateProject = ({ projectRecord }: any) => {
     dispatch(fetchAllTrainers());
   }, []);
 
-  if (!loaded) return <div></div>;
+  if (!loaded)
+    return (
+      <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md"></div>
+    );
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md">
-      <div className="heading">
-        <h1 className="text-2xl font-bold">Update Project</h1>
+      {/* header */}
+      <div className="header  w-full flex items-end justify-between">
+        <h1 className="text-2xl font-bold flex items-center">
+          <Edit />
+          <span className="ml-2">Update Project</span>
+        </h1>
+        <Link href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}>
+          <Button className="homebutton" color="inherit" sx={{ color: "gray" }}>
+            <HomeOutlinedIcon />
+            <span className="ml-1">Home</span>
+          </Button>
+        </Link>
       </div>
       <Divider sx={{ margin: ".7rem 0" }} />
       <form
@@ -575,13 +619,14 @@ const UpdateProject = ({ projectRecord }: any) => {
                 No contract file found.
               </p>
             )}
-            <div
-              className="update-button bg-blue-500 w-max rounded-md text-white py-2 px-3 cursor-pointer hover:bg-green-600"
+            <Button
+              variant="contained"
+              className="update-button  w-max rounded-md text-white py-2 px-3 cursor-pointer"
               onClick={handleUpdateContratPaperModalOpen}
             >
               <BackupIcon sx={{ fontSize: "1.8rem" }} />
               <span className="text-sm ml-2 font-bold">Update PDF file</span>
-            </div>
+            </Button>
             <Modal
               onClose={handleUpdateContratPaperModalClose}
               open={updateContractPaperModalOpen}
@@ -596,9 +641,12 @@ const UpdateProject = ({ projectRecord }: any) => {
             >
               <Box className="w-[30%] h-max p-4 overflow-y-auto  bg-white rounded-xl shadow-lg">
                 {/* <ViewProject project={selectedViewProject} /> */}
-                <h1 className="text-xl mb-6 font-bold text-center ">
+                <h1 className="text-xl  font-bold text-center ">
                   Update PDF file
                 </h1>
+
+                <Divider sx={{ margin: ".7rem 0" }} />
+
                 <div className="flex items-center justify-center ">
                   <label
                     htmlFor="contractInput"
@@ -620,6 +668,7 @@ const UpdateProject = ({ projectRecord }: any) => {
                   {/* delete */}
                   {updatedcontractFile && (
                     <div
+                      title="Delete"
                       onClick={handleUpdateFileRemove}
                       className="cursor-pointer hover:bg-red-50 rounded-md p-2"
                     >
@@ -629,12 +678,29 @@ const UpdateProject = ({ projectRecord }: any) => {
                   )}
                 </div>
                 {/* update pdf button */}
-                <div
-                  onClick={handleUpdatePdf}
-                  className="update-button mt-7 rounded-md bg-green-500 text-white font-bold flex items-center justify-center p-2 cursor-pointer hover:bg-green-600 "
-                >
-                  Update PDF
-                </div>
+
+                {updateContractFileLoading ? (
+                  <LoadingButton
+                    size="large"
+                    loading={updateContractFileLoading}
+                    loadingPosition="start"
+                    variant="contained"
+                    sx={{ marginTop: "1.5rem" }}
+                    className="update-button mt-7 w-full rounded-md  text-white font-bold flex items-center justify-center p-2 cursor-pointer "
+                  >
+                    <span>Uploading contract file</span>
+                  </LoadingButton>
+                ) : (
+                  <Button
+                    onClick={handleUpdatePdf}
+                    variant="contained"
+                    color="info"
+                    sx={{ marginTop: "1.5rem" }}
+                    className="update-button mt-7 w-full rounded-md  text-white font-bold flex items-center justify-center p-2 cursor-pointer "
+                  >
+                    Upload contract file
+                  </Button>
+                )}
               </Box>
             </Modal>
           </div>

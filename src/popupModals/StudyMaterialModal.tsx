@@ -1,9 +1,8 @@
 import { Button, Divider, Modal, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useForm } from "react-hook-form";
 import { Target } from "lucide-react";
@@ -13,6 +12,11 @@ import {
   selectTodaysClass,
   updateTodaysClassRecord,
 } from "@/redux/trainerSlice";
+import Link from "next/link";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+
 import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 
@@ -70,7 +74,7 @@ const StudyMaterialModal = ({
         style: { backgroundColor: "rgba(0,0,0,0.4)" },
       }}
     >
-      <div className="w-[400px] h-max p-6 rounded-lg shadow-md bg-white">
+      <div className="w-[50%] max-h-[70%] overflow-y-auto p-6 rounded-lg shadow-md bg-white">
         {/* header */}
         <div className="header flex justify-between">
           {/* title-button */}
@@ -81,13 +85,16 @@ const StudyMaterialModal = ({
               <span className="ml-2">Study Materials</span>
             </h1>
             {/* add button */}
-            <Button
+            {/* add buton commented as the logic is for studyMaterials */}
+            {/* and new fields classStudyMaterial is used */}
+            {/* materials can only be added by admin and superadmin at the time of assigning */}
+            {/* <Button
               onClick={handleuploadStudyMaterialModalOpen}
               variant="outlined"
               sx={{ marginLeft: "1rem" }}
             >
               + Add
-            </Button>
+            </Button> */}
             {/* uploadStudyMaterialModalOpen */}
             <UploadStudyMaterialModal
               uploadStudyMaterialModalOpen={uploadStudyMaterialModalOpen}
@@ -113,7 +120,7 @@ const StudyMaterialModal = ({
         {/* main body */}
         <div className="mainbody flex flex-col gap-2">
           {/* study materials list */}
-          {selectedTodaysClass?.studyMaterials?.filter(
+          {selectedTodaysClass?.classStudyMaterials?.filter(
             (studyMaterial: any) => studyMaterial.activeStatus
           )?.length == 0 ? (
             // empty study materials
@@ -121,34 +128,69 @@ const StudyMaterialModal = ({
               No study materials yet.
             </p>
           ) : (
-            selectedTodaysClass?.studyMaterials
-              ?.slice() // Creates a shallow copy to avoid mutating the original array
-              .filter((studyMaterial: any) => studyMaterial.activeStatus) // Only active ones
-              .sort((a: any, b: any) => b.uploadedAt - a.uploadedAt)
-              .map((studyMaterial: any) => (
-                <div
-                  key={studyMaterial?.fileName}
-                  className="p-2 flex justify-between items-between bg-gray-100 rounded-md cursor-pointer"
-                >
-                  {/* title */}
-                  <a href={studyMaterial?.fileUrl} className="title">
-                    <InsertDriveFileOutlinedIcon sx={{ fontSize: "1.6rem" }} />
-                    <span className="ml-2 text-sm">
-                      {studyMaterial?.fileName}
-                    </span>
-                  </a>
-                  {/* buttons */}
-                  <div className="buttons">
-                    <Button
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeleteStudyMaterial(studyMaterial)}
+            <>
+              <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
+                <span className="py-3 text-center text-sm font-bold text-gray-600">
+                  SN
+                </span>
+                <span className="py-3 text-left col-span-2 text-sm font-bold text-gray-600">
+                  Name
+                </span>
+                <span className="py-3 text-left text-sm font-bold text-gray-600">
+                  Type
+                </span>
+                <span className="py-3 col-span-2 text-left text-sm font-bold text-gray-600">
+                  Course
+                </span>
+              </div>
+              <div className="table-contents flex-1 grid grid-cols-1 grid-rows-7">
+                {selectedTodaysClass?.classStudyMaterials
+                  ?.slice() // Creates a shallow copy to avoid mutating the original array
+                  .filter((studyMaterial: any) => studyMaterial.activeStatus) // Only active ones
+                  .sort((a: any, b: any) => b.uploadedAt - a.uploadedAt)
+                  .map((studyMaterial: any, index: any) => (
+                    <div
+                      key={`${studyMaterial?.fileName}_${index}`}
+                      className="py-3 grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                     >
-                      <DeleteIcon />
-                    </Button>
-                  </div>
-                </div>
-              ))
+                      <span className="text-sm text-center font-medium text-gray-600">
+                        {index + 1}
+                      </span>
+                      <Link
+                        title="View"
+                        target="_blank"
+                        href={`${studyMaterial?.fileUrl}`}
+                        className="text-left col-span-2 text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
+                      >
+                        {studyMaterial?.fileType?.toLowerCase() == "image" ? (
+                          <ImageOutlinedIcon
+                            className=" text-gray-500"
+                            fontSize="small"
+                          />
+                        ) : studyMaterial?.fileType?.toLowerCase() === "pdf" ? (
+                          <PictureAsPdfOutlinedIcon
+                            className=" text-gray-500"
+                            fontSize="small"
+                          />
+                        ) : (
+                          <InsertDriveFileOutlinedIcon
+                            className=" text-gray-500"
+                            fontSize="small"
+                          />
+                        )}
+                        <span className="ml-2">{studyMaterial?.fileName}</span>
+                      </Link>
+                      <span className="text-sm text-gray-700">
+                        {studyMaterial?.fileType || "N/A"}
+                      </span>
+
+                      <span className="text-sm col-span-2 text-gray-700">
+                        {studyMaterial?.courseName || "N/A"}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </>
           )}
         </div>
       </div>

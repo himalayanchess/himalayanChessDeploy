@@ -366,11 +366,7 @@ const StudentActivity = ({
                         </h2>
 
                         <Dropdown
-                          options={[
-                            "Advanced Java",
-                            "REST Api framework",
-                            "Advanced Beginner 4",
-                          ]}
+                          options={selectedCourseLessons}
                           label="Study topic"
                           selected={selectedTopic}
                           width="full"

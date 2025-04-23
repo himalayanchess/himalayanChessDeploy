@@ -22,7 +22,11 @@ import {
   filterActivityRecords,
 } from "@/redux/activityRecordSlice";
 import ActivityRecordList from "./ActivityRecordList";
-import { fetchAllBatches, fetchAllTrainers } from "@/redux/allListSlice";
+import {
+  fetchAllBatches,
+  fetchAllTrainers,
+  getAllBranches,
+} from "@/redux/allListSlice";
 import { exportOverallActivityRecordToExcel } from "@/helpers/exportToExcel/exportOverallActivityRecordToExcel";
 
 dayjs.extend(utc);
@@ -35,9 +39,10 @@ const ActivityRecordComponent = () => {
   const dispatch = useDispatch<any>();
 
   //use selector
-  const { allActiveBatches, allActiveTrainerList } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveBatches, allActiveTrainerList, allActiveBranchesList } =
+    useSelector((state: any) => state.allListReducer);
+
+  const affilatedToOptions = ["All", "HCA", "School"];
 
   const {
     allActiveActivityRecords,
@@ -52,6 +57,9 @@ const ActivityRecordComponent = () => {
     .subtract(1, "month")
     .format("YYYY-MM-DD");
   const defaultEndDate = dayjs().tz(timeZone).format("YYYY-MM-DD");
+
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("All");
 
   const [filteredActivityRecordCount, setfilteredActivityRecordCount] =
     useState(0);
@@ -89,11 +97,39 @@ const ActivityRecordComponent = () => {
     }
   }, [useAdvancedDate]);
 
+  // if affiliated to changes then reset project dropdown
+  useEffect(() => {
+    setselectedBranch("All");
+    setselectedBatchName("All");
+  }, [selectedAffiliatedTo]);
+
+  // Reset batch when branch changes
+  useEffect(() => {
+    setselectedBatchName("All");
+  }, [selectedBranch]);
+
   // filter activity records list
   useEffect(() => {
     if (!allActiveActivityRecords) return;
 
     let filtered = allActiveActivityRecords;
+
+    // filter by affiliated to
+    filtered =
+      selectedAffiliatedTo.toLowerCase() == "all"
+        ? filtered
+        : filtered.filter(
+            (record: any) =>
+              record.affiliatedTo.toLowerCase() ==
+              selectedAffiliatedTo.toLowerCase()
+          );
+    filtered =
+      selectedBranch.toLowerCase() == "all"
+        ? filtered
+        : filtered.filter(
+            (record: any) =>
+              record.branchName.toLowerCase() == selectedBranch.toLowerCase()
+          );
 
     // Filter by Batch Name
     if (selectedBatchName?.toLowerCase() !== "all") {
@@ -144,6 +180,8 @@ const ActivityRecordComponent = () => {
     allActiveActivityRecords,
     selectedBatchName,
     selectedTrainer,
+    selectedBranch,
+    selectedAffiliatedTo,
     useAdvancedDate,
     startDate,
     endDate,
@@ -154,6 +192,7 @@ const ActivityRecordComponent = () => {
     dispatch(fetchAllActivityRecords());
     dispatch(fetchAllBatches());
     dispatch(fetchAllTrainers());
+    dispatch(getAllBranches());
   }, []);
 
   return (
@@ -165,7 +204,29 @@ const ActivityRecordComponent = () => {
       <div className="activityrecord-header my-0 w-full flex items-end justify-between">
         <div className="batch-date w-full flex flex-col  items-end gap-0 ">
           {/* batchlist dropdown */}
-          <div className="topheader w-full flex  gap-3 mt-0">
+          <div className="topheader w-full grid grid-cols-5  gap-3 mt-0">
+            <Dropdown
+              label="Affiliated to"
+              options={affilatedToOptions}
+              selected={selectedAffiliatedTo}
+              onChange={setselectedAffiliatedTo}
+              width="full"
+            />
+
+            <Dropdown
+              label="Branch"
+              options={[
+                "All",
+                ...(allActiveBranchesList?.map(
+                  (branch: any) => branch.branchName
+                ) || []),
+              ]}
+              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              selected={selectedBranch}
+              onChange={setselectedBranch}
+              width="full"
+            />
+
             <Dropdown
               label="Batch"
               options={[
@@ -174,7 +235,9 @@ const ActivityRecordComponent = () => {
               ]}
               selected={selectedBatchName}
               onChange={setselectedBatchName}
+              width="full"
             />
+
             {/* batchlist dropdown */}
             <Dropdown
               label="Trainer"
@@ -184,6 +247,7 @@ const ActivityRecordComponent = () => {
               ]}
               selected={selectedTrainer}
               onChange={setselectedTrainer}
+              width="full"
             />
             {/* date */}
             <div

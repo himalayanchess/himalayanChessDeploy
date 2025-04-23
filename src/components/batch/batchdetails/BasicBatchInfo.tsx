@@ -115,6 +115,27 @@ const BasicBatchInfo = ({ batchRecord }: any) => {
             )}
           </div>
         </div>
+        {/* branch name */}
+        {batchRecord?.affiliatedTo?.toLowerCase() == "hca" && (
+          <div className="mt-1">
+            <p className="text-sm text-gray-500 mb-1">Branch</p>
+            <div className="flex items-center">
+              {/* <School className="text-gray-500" /> */}
+              {batchRecord?.branchName ? (
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                    batchRecord?.branchId
+                  }`}
+                  className="font-medium ml-1 text-lg underline hover:text-blue-500"
+                >
+                  {batchRecord.branchName}
+                </Link>
+              ) : (
+                <p className="font-medium ml-1">N/A</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

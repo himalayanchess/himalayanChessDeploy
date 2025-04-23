@@ -36,12 +36,17 @@ const BatchStudentsInfo = ({ batchRecord, allActiveStudentsList }: any) => {
       student.batches.some((batch: any) => batch.batchId === batchRecord?._id)
     );
 
+    console.log(totalFilteredStudents);
     const activeStudents = totalFilteredStudents.filter((student: any) =>
-      student.batches.some((batch: any) => !batch.endDate)
+      student.batches.some(
+        (batch: any) => !batch.endDate && batch.batchId === batchRecord?._id
+      )
     );
 
     const completedStudents = totalFilteredStudents.filter((student: any) =>
-      student.batches.some((batch: any) => batch.endDate)
+      student.batches.some(
+        (batch: any) => batch.endDate && batch.batchId === batchRecord?._id
+      )
     );
 
     const totalStudents = totalFilteredStudents?.length ?? 0;

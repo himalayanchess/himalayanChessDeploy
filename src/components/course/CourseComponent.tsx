@@ -33,6 +33,12 @@ const CourseComponent = ({ role = "" }: any) => {
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
+
+  // Calculate showing text
+  const startItem = (currentPage - 1) * coursesPerPage + 1;
+  const endItem = Math.min(currentPage * coursesPerPage, filteredCourseCount);
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredCourseCount}`;
+
   // Reset current page to 1 and searchtext when selectedAffiliatedTo changes
   useEffect(() => {
     setCurrentPage(1);
@@ -89,14 +95,7 @@ const CourseComponent = ({ role = "" }: any) => {
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
             />
-            <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
-              {Math.min(
-                coursesPerPage,
-                allFilteredActiveCoursesList?.length -
-                  (currentPage - 1) * coursesPerPage
-              )}{" "}
-              of {allFilteredActiveCoursesList?.length}
-            </span>
+            <span className="text-sm text-gray-600">{showingText}</span>
           </div>
         </div>
 

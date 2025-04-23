@@ -1,25 +1,74 @@
 import { generateRandomPassword, notify } from "@/index";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../Input";
 import Dropdown from "../Dropdown";
-import { Box, Button, Divider, Modal } from "@mui/material";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { useRouter } from "next/navigation";
+
+import {
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Modal,
+} from "@mui/material";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { LoadingButton } from "@mui/lab";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllBranches } from "@/redux/allListSlice";
+import { CircleUser } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const AddUser = () => {
+  const session = useSession();
+  const router = useRouter();
   //options
-  const titleOptions = ["None", "CM", "RM", "GM", "IM"];
+  const titleOptions = [
+    "None",
+    // Grandmaster titles
+    "GM",
+    "IM",
+    "FM",
+    "CM",
+
+    // Women-specific titles
+    "WGM",
+    "WIM",
+    "WFM",
+    "WCM",
+
+    // Arbiters
+    "IA",
+    "FA",
+
+    // Trainers
+    "FST",
+    "FT",
+    "FI",
+    "NI",
+    "DI",
+  ];
   const roleOptions = ["Trainer", "Admin", "Superadmin"];
   const genderOptions = ["Male", "Female", "Others"];
   const completedStatusOptions = ["Ongoing", "Left"];
+  // dispatch
+  const dispatch = useDispatch<any>();
+  // selector
+  const { allActiveBranchesList } = useSelector(
+    (state: any) => state.allListReducer
+  );
 
   // state vars
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
   const [addUserLoading, setaddUserLoading] = useState(false);
+  const [isGlobalAdmin, setisGlobalAdmin] = useState(false);
+  const [selectedRole, setselectedRole] = useState("");
 
   // reset password
   const [randomPassword, setRandomPassword] = useState("");
@@ -35,30 +84,41 @@ const AddUser = () => {
   }
 
   // react hook form
-  const { register, handleSubmit, control, formState, reset, trigger, watch } =
-    useForm<any>({
-      defaultValues: {
-        role: "",
-        name: "",
-        dob: "",
-        address: "",
-        gender: "",
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState,
+    setValue,
+    reset,
+    trigger,
+    watch,
+  } = useForm<any>({
+    defaultValues: {
+      role: "",
+      name: "",
+      dob: "",
+      address: "",
+      gender: "",
+      branchId: "",
+      branchName: "",
 
-        joinedDate: "",
-        endDate: "",
-        phone: "",
-        email: "",
-        password: "",
-        completedStatus: "",
+      joinedDate: "",
+      endDate: "",
+      phone: "",
+      email: "",
+      password: "",
+      completedStatus: "",
 
-        title: "None",
-        fideId: 0,
-        rating: 0,
+      title: "None",
+      fideId: 0,
+      rating: 0,
 
-        emergencyContactName: "",
-        emergencyContactNo: "",
-      },
-    });
+      emergencyContactName: "",
+      emergencyContactNo: "",
+      // isGlobalAdmin from state var
+    },
+  });
 
   const { errors, isValid } = formState;
   console.log(errors);
@@ -66,19 +126,52 @@ const AddUser = () => {
     console.log("Form Submitted Successfully:", data);
     // add mode api call
     setaddUserLoading(true);
-    const { data: resData } = await axios.post("/api/users/addNewUser", data);
+    const { data: resData } = await axios.post("/api/users/addNewUser", {
+      ...data,
+      isGlobalAdmin,
+    });
     if (resData.statusCode == 200) {
+      notify(resData.msg, resData.statusCode);
       handleconfirmModalClose();
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/users`);
+      }, 50);
+      setaddUserLoading(false);
+      return;
     }
     setaddUserLoading(false);
     notify(resData.msg, resData.statusCode);
     return;
   };
 
+  // fetch inital data
+  useEffect(() => {
+    dispatch(getAllBranches());
+  }, []);
+
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       {/* heading */}
-      <h1 className="w-max mr-auto text-2xl font-bold">Create new user</h1>
+      <div className="header flex items-end justify-between">
+        <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
+          <CircleUser />
+          <span className="ml-2">Create new user</span>
+        </h1>
+        {/* home button */}
+        <div className="buttons flex gap-4">
+          <Link href={`/${session?.data?.user?.role?.toLowerCase()}/users`}>
+            <Button
+              className="homebutton"
+              color="inherit"
+              sx={{ color: "gray" }}
+            >
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
+          </Link>
+        </div>
+      </div>
+
       <Divider sx={{ margin: "1rem 0   " }} />
 
       {/* form */}
@@ -108,22 +201,41 @@ const AddUser = () => {
               }}
               render={({ field }) => {
                 return (
-                  <Dropdown
-                    label="Role"
-                    options={roleOptions}
-                    selected={field.value}
-                    onChange={(value: any) => {
-                      field.onChange(value);
-                      // reset((prevValues) => ({
-                      //   ...prevValues,
-                      //   // reset fields here
-                      // }));
-                    }}
-                    error={errors.role}
-                    helperText={errors.role?.message}
-                    required={true}
-                    width="full"
-                  />
+                  <div className="flex flex-col">
+                    <Dropdown
+                      label="Role"
+                      options={roleOptions}
+                      selected={field.value}
+                      onChange={(value: any) => {
+                        field.onChange(value);
+                        setselectedRole(value);
+                        if (value?.toLowerCase() !== "admin") {
+                          setisGlobalAdmin(false);
+                        }
+                        // reset((prevValues) => ({
+                        //   ...prevValues,
+                        //   // reset fields here
+                        // }));
+                      }}
+                      error={errors.role}
+                      helperText={errors.role?.message}
+                      required={true}
+                      width="full"
+                    />
+                    {selectedRole?.toLowerCase() === "admin" && (
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={isGlobalAdmin}
+                            onChange={(e: any) =>
+                              setisGlobalAdmin(e.target.checked)
+                            }
+                          />
+                        }
+                        label="User is Global Admin"
+                      />
+                    )}
+                  </div>
                 );
               }}
             />
@@ -204,6 +316,37 @@ const AddUser = () => {
                     }}
                     error={errors.gender}
                     helperText={errors.gender?.message}
+                    required={true}
+                    width="full"
+                  />
+                );
+              }}
+            />
+            {/* Branch */}
+            <Controller
+              name="branchName"
+              control={control}
+              rules={{
+                required: "Branch is required",
+              }}
+              render={({ field }) => {
+                return (
+                  <Dropdown
+                    label="Branch"
+                    options={allActiveBranchesList?.map(
+                      (branch: any) => branch.branchName
+                    )}
+                    selected={field.value}
+                    onChange={(value: any) => {
+                      field.onChange(value);
+                      const selectedBranch: any = allActiveBranchesList.find(
+                        (branch: any) => branch.branchName == value
+                      );
+
+                      setValue("branchId", selectedBranch?._id || "");
+                    }}
+                    error={errors.branchName}
+                    helperText={errors.branchName?.message}
                     required={true}
                     width="full"
                   />

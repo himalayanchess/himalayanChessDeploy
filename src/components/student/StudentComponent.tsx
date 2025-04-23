@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllBatches,
   filterStudentsList,
+  getAllBranches,
   getAllStudents,
 } from "@/redux/allListSlice";
 
@@ -28,12 +29,14 @@ const StudentComponent = ({ role }: any) => {
     allActiveStudentsList,
     allFilteredActiveStudents,
     allStudentsLoading,
+    allActiveBranchesList,
   } = useSelector((state: any) => state.allListReducer);
 
   // state vars
   const affiliatedToOptions = ["All", "HCA", "School"];
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
-  const [selectedBatch, setselectedBatch] = useState("None");
+  const [selectedBatch, setselectedBatch] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("All");
   const [searchText, setsearchText] = useState("");
   const [filteredStudentCount, setfilteredStudentCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
@@ -41,11 +44,22 @@ const StudentComponent = ({ role }: any) => {
   // batchlist
   const [filteredBatches, setfilteredBatches] = useState([]);
 
+  // Calculate showing text
+  const startItem = (currentPage - 1) * studentsPerPage + 1;
+  const endItem = Math.min(currentPage * studentsPerPage, filteredStudentCount);
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredStudentCount}`;
+
   // reset acive status to "active" when selectedAffiliatedTo changes
   useEffect(() => {
     setsearchText("");
-    setselectedBatch("None");
+    setselectedBatch("All");
+    setselectedBranch("All");
   }, [selectedAffiliatedTo]);
+
+  // reset batch if branch changes
+  useEffect(() => {
+    setselectedBatch("All");
+  }, [selectedBranch]);
 
   // handle page change
   const handlePageChange = (event: any, value: any) => {
@@ -62,6 +76,15 @@ const StudentComponent = ({ role }: any) => {
             (student: any) =>
               student.affiliatedTo.toLowerCase() ==
               selectedAffiliatedTo.toLowerCase()
+          );
+
+    // filter by branch
+    tempFilteredStudentsList =
+      selectedBranch.toLowerCase() === "all"
+        ? tempFilteredStudentsList
+        : tempFilteredStudentsList.filter(
+            (student: any) =>
+              student.branchName?.toLowerCase() == selectedBranch.toLowerCase()
           );
 
     console.log("affiliated to", tempFilteredStudentsList);
@@ -81,18 +104,8 @@ const StudentComponent = ({ role }: any) => {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
-    // filter batches
-    let tempFilteredBatches =
-      selectedAffiliatedTo.toLowerCase() == "all"
-        ? allActiveBatches
-        : allActiveBatches?.filter(
-            (batch: any) =>
-              batch?.affiliatedTo?.toLowerCase() ==
-              selectedAffiliatedTo?.toLowerCase()
-          );
-
     // sort student by batch if not "none"
-    if (selectedBatch?.toLowerCase() != "none") {
+    if (selectedBatch?.toLowerCase() != "all") {
       tempFilteredStudentsList = tempFilteredStudentsList.filter(
         (student: any) =>
           student.batches.some(
@@ -103,6 +116,24 @@ const StudentComponent = ({ role }: any) => {
           )
       );
     }
+
+    // filter batches
+    let tempFilteredBatches =
+      selectedAffiliatedTo.toLowerCase() == "all"
+        ? allActiveBatches
+        : allActiveBatches?.filter(
+            (batch: any) =>
+              batch?.affiliatedTo?.toLowerCase() ==
+              selectedAffiliatedTo?.toLowerCase()
+          );
+
+    tempFilteredBatches =
+      selectedBranch.toLowerCase() == "all"
+        ? tempFilteredBatches
+        : tempFilteredBatches?.filter(
+            (batch: any) =>
+              batch?.branchName?.toLowerCase() == selectedBranch?.toLowerCase()
+          );
 
     //sort
     tempFilteredBatches = tempFilteredBatches
@@ -124,12 +155,14 @@ const StudentComponent = ({ role }: any) => {
     selectedAffiliatedTo,
     searchText,
     selectedBatch,
+    selectedBranch,
   ]);
 
   // intial data fetching
   useEffect(() => {
     dispath(getAllStudents());
     dispath(fetchAllBatches());
+    dispath(getAllBranches());
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
@@ -138,33 +171,43 @@ const StudentComponent = ({ role }: any) => {
         <span className="ml-2">Student Management</span>
       </h2>{" "}
       {/* student header */}
-      <div className="student-header my-0 flex items-end justify-between">
+      <div className="student-header my-0 flex items-end justify-between gap-2">
         {/* dropdown */}
-        <div className="dropdown flex gap-4 items-end">
-          <Dropdown
-            label="Affiliated to"
-            options={affiliatedToOptions}
-            selected={selectedAffiliatedTo}
-            onChange={setselectedAffiliatedTo}
-          />
-          <Dropdown
-            label="Batch name"
-            options={[
-              "None",
-              ...filteredBatches?.map((batch: any) => batch?.batchName),
-            ]}
-            selected={selectedBatch}
-            onChange={setselectedBatch}
-          />
-          {/* Student count */}
-          <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
-            {Math.min(
-              studentsPerPage,
-              allFilteredActiveStudents?.length -
-                (currentPage - 1) * studentsPerPage
-            )}{" "}
-            of {allFilteredActiveStudents?.length}
-          </span>
+        <div className="dropdowns-showing flex flex-1  gap-4 items-end">
+          <div className="dropdowns grid grid-cols-4 gap-2 items-end  w-full">
+            <Dropdown
+              label="Affiliated to"
+              options={affiliatedToOptions}
+              selected={selectedAffiliatedTo}
+              onChange={setselectedAffiliatedTo}
+              width="full"
+            />
+            <Dropdown
+              label="Branch"
+              options={[
+                "All",
+                ...(allActiveBranchesList?.map(
+                  (branch: any) => branch.branchName
+                ) || []),
+              ]}
+              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              selected={selectedBranch}
+              onChange={setselectedBranch}
+              width="full"
+            />
+            <Dropdown
+              label="Batch name"
+              options={[
+                "All",
+                ...filteredBatches?.map((batch: any) => batch?.batchName),
+              ]}
+              selected={selectedBatch}
+              onChange={setselectedBatch}
+              width="full"
+            />
+            {/* Student count */}
+            <span className="text-sm text-gray-600">{showingText}</span>
+          </div>
         </div>
         {/* search-filter-menus */}
         <div className="search-filter-menus flex gap-4">

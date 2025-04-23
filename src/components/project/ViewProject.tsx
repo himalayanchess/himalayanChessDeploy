@@ -11,6 +11,7 @@ import {
   Luggage,
   CircleFadingArrowUp,
   CalendarCheck2,
+  Edit,
 } from "lucide-react";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
@@ -105,10 +106,23 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       {/* header */}
       <div className="header flex items-center justify-between gap-7 ">
-        <h1 className="text-2xl font-bold flex items-center">
-          <School />
-          <span className="ml-2">Project Detail</span>
-        </h1>
+        <div className=" ">
+          <div className="flex items-center font-bold text-2xl ">
+            <School />
+            <span className="ml-2 mr-3">Project Detail</span>
+            <Link
+              href={`/${session?.data?.user?.role?.toLowerCase()}/projects/updateproject/${
+                projectRecord?._id
+              }`}
+            >
+              <Button variant="text" size="small">
+                <Edit />
+                <span className="ml-1">Edit</span>
+              </Button>
+            </Link>
+          </div>
+          <span className="text-md">of {projectRecord?.name}</span>
+        </div>
 
         {/* home button */}
         <Link href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}>

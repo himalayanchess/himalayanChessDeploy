@@ -10,7 +10,7 @@ const timeZone = "Asia/Kathmandu";
 export function exportOverallActivityRecordToExcel(filteredRecords: any) {
   const dataToExport = filteredRecords.map((record: any, index: number) => {
     const studyMaterials =
-      record.studyMaterials
+      record.classStudyMaterials
         ?.map((material: any) => `${material.fileName}: ${material.fileUrl}`)
         .join("\n") || "N/A";
 
@@ -33,7 +33,7 @@ export function exportOverallActivityRecordToExcel(filteredRecords: any) {
       "Week Number": record.weekNumber || "N/A",
       "Holiday Status": record.holidayStatus ? "Yes" : "No",
       "Holiday Description": record.holidayDescription || "N/A",
-      "Study Materials Count": record.studyMaterials?.length || 0,
+      "Study Materials Count": record.classStudyMaterials?.length || 0,
       "Study Materials Details": studyMaterials,
       "Active Status": record.activeStatus ? "Active" : "Inactive",
     };

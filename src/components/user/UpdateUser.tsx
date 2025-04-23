@@ -4,7 +4,17 @@ import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../Input";
 import Dropdown from "../Dropdown";
-import { Box, Button, Divider, Modal } from "@mui/material";
+import { useRouter } from "next/navigation";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+
+import {
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Modal,
+} from "@mui/material";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AddIcon from "@mui/icons-material/Add";
@@ -15,6 +25,11 @@ import weekOfYear from "dayjs/plugin/weekOfYear";
 import isoWeek from "dayjs/plugin/isoWeek";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { getAllBranches } from "@/redux/allListSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { Edit } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek);
@@ -24,10 +39,43 @@ dayjs.extend(utc);
 const timeZone = "Asia/Kathmandu";
 
 const UpdateUser = ({ userRecord }: any) => {
+  const router = useRouter();
+  const session = useSession();
   console.log("update ", userRecord);
 
+  // dispatch
+  const dispatch = useDispatch<any>();
+  // selector
+  const { allActiveBranchesList } = useSelector(
+    (state: any) => state.allListReducer
+  );
+
   //options
-  const titleOptions = ["None", "CM", "RM", "GM", "IM"];
+  const titleOptions = [
+    "None",
+    // Grandmaster titles
+    "GM",
+    "IM",
+    "FM",
+    "CM",
+
+    // Women-specific titles
+    "WGM",
+    "WIM",
+    "WFM",
+    "WCM",
+
+    // Arbiters
+    "IA",
+    "FA",
+
+    // Trainers
+    "FST",
+    "FT",
+    "FI",
+    "NI",
+    "DI",
+  ];
   const roleOptions = ["Trainer", "Admin", "Superadmin"];
   const genderOptions = ["Male", "Female", "Others"];
   const completedStatusOptions = ["Ongoing", "Left"];
@@ -37,6 +85,8 @@ const UpdateUser = ({ userRecord }: any) => {
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
   const [addUserLoading, setupdateUserLoading] = useState(false);
   const [cvFile, setcvFile] = useState<File | any>(null);
+  const [isGlobalAdmin, setisGlobalAdmin] = useState(false);
+  const [selectedRole, setselectedRole] = useState("");
 
   // reset password
   const [randomPassword, setRandomPassword] = useState("");
@@ -81,30 +131,41 @@ const UpdateUser = ({ userRecord }: any) => {
   };
 
   // react hook form
-  const { register, handleSubmit, control, formState, reset, trigger, watch } =
-    useForm<any>({
-      defaultValues: {
-        role: "",
-        name: "",
-        dob: "",
-        address: "",
-        gender: "",
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState,
+    reset,
+    trigger,
+    watch,
+  } = useForm<any>({
+    defaultValues: {
+      role: "",
+      name: "",
+      dob: "",
+      address: "",
+      gender: "",
+      branchId: "",
+      branchName: "",
 
-        joinedDate: "",
-        endDate: "",
-        phone: "",
-        email: "",
-        password: "",
-        completedStatus: "",
+      joinedDate: "",
+      endDate: "",
+      phone: "",
+      email: "",
+      password: "",
+      completedStatus: "",
 
-        title: "None",
-        fideId: 0,
-        rating: 0,
+      title: "None",
+      fideId: 0,
+      rating: 0,
 
-        emergencyContactName: "",
-        emergencyContactNo: "",
-      },
-    });
+      emergencyContactName: "",
+      emergencyContactNo: "",
+      //isGlobalAdmin from state var
+    },
+  });
 
   const { errors, isValid } = formState;
   console.log(errors);
@@ -112,10 +173,19 @@ const UpdateUser = ({ userRecord }: any) => {
     console.log("Form Submitted Successfully:", data);
     setupdateUserLoading(true);
     // add mode api call
-    const { data: resData } = await axios.post("/api/users/updateUser", data);
+    const { data: resData } = await axios.post("/api/users/updateUser", {
+      ...data,
+      isGlobalAdmin,
+    });
 
     if (resData.statusCode == 200) {
+      notify(resData.msg, resData.statusCode);
       handleconfirmModalClose();
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/users`);
+      }, 50);
+      setupdateUserLoading(false);
+      return;
     }
     setupdateUserLoading(false);
     notify(resData.msg, resData.statusCode);
@@ -195,16 +265,45 @@ const UpdateUser = ({ userRecord }: any) => {
       reset({
         ...userRecord,
       });
+      setselectedRole(userRecord?.role);
+      setisGlobalAdmin(userRecord?.isGlobalAdmin);
       setLoaded(true);
     }
   }, [userRecord, reset]);
 
-  if (!loaded) return <div></div>;
+  // fetch inital data
+  useEffect(() => {
+    dispatch(getAllBranches());
+  }, []);
+
+  if (!loaded)
+    return (
+      <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md "></div>
+    );
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       {/* heading */}
-      <h1 className="w-max mr-auto text-2xl font-bold">Update user</h1>
+      {/* heading */}
+      <div className="header flex items-end justify-between">
+        <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
+          <Edit />
+          <span className="ml-2">Update user</span>
+        </h1>
+        {/* home button */}
+        <div className="buttons flex gap-4">
+          <Link href={`/${session?.data?.user?.role?.toLowerCase()}/users`}>
+            <Button
+              className="homebutton"
+              color="inherit"
+              sx={{ color: "gray" }}
+            >
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
+          </Link>
+        </div>
+      </div>
       <Divider sx={{ margin: "1rem 0   " }} />
 
       {/* form */}
@@ -234,23 +333,38 @@ const UpdateUser = ({ userRecord }: any) => {
               }}
               render={({ field }) => {
                 return (
-                  <Dropdown
-                    label="Role"
-                    options={roleOptions}
-                    selected={field.value || ""}
-                    disabled={true}
-                    onChange={(value: any) => {
-                      field.onChange(value);
-                      // reset((prevValues) => ({
-                      //   ...prevValues,
-                      //   // reset fields here
-                      // }));
-                    }}
-                    error={errors.role}
-                    helperText={errors.role?.message}
-                    required={true}
-                    width="full"
-                  />
+                  <div className="flex flex-col">
+                    <Dropdown
+                      label="Role"
+                      options={roleOptions}
+                      selected={field.value || ""}
+                      disabled={true}
+                      onChange={(value: any) => {
+                        field.onChange(value);
+                        // reset((prevValues) => ({
+                        //   ...prevValues,
+                        //   // reset fields here
+                        // }));
+                      }}
+                      error={errors.role}
+                      helperText={errors.role?.message}
+                      required={true}
+                      width="full"
+                    />
+                    {selectedRole?.toLowerCase() === "admin" && (
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={isGlobalAdmin}
+                            onChange={(e: any) =>
+                              setisGlobalAdmin(e.target.checked)
+                            }
+                          />
+                        }
+                        label="User is Global Admin"
+                      />
+                    )}
+                  </div>
                 );
               }}
             />
@@ -338,6 +452,38 @@ const UpdateUser = ({ userRecord }: any) => {
                     }}
                     error={errors.gender}
                     helperText={errors.gender?.message}
+                    required={true}
+                    width="full"
+                  />
+                );
+              }}
+            />
+
+            {/* Branch */}
+            <Controller
+              name="branchName"
+              control={control}
+              rules={{
+                required: "Branch is required",
+              }}
+              render={({ field }) => {
+                return (
+                  <Dropdown
+                    label="Branch"
+                    options={allActiveBranchesList?.map(
+                      (branch: any) => branch.branchName
+                    )}
+                    selected={field.value}
+                    onChange={(value: any) => {
+                      field.onChange(value);
+                      const selectedBranch: any = allActiveBranchesList.find(
+                        (branch: any) => branch.branchName == value
+                      );
+
+                      setValue("branchId", selectedBranch?._id || "");
+                    }}
+                    error={errors.branchName}
+                    helperText={errors.branchName?.message}
                     required={true}
                     width="full"
                   />

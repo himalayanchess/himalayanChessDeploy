@@ -41,6 +41,8 @@ const ActivityRecordSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       ref: "Batch",
     },
+    branchName: { type: String, default: "" },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
     trainerName: {
       type: String,
     },
@@ -75,6 +77,12 @@ const ActivityRecordSchema = new mongoose.Schema(
     activeStatus: { type: Boolean, default: true },
     recordUpdatedByTrainer: { type: Boolean, default: false },
     studyMaterials: {
+      type: Array,
+      default: [],
+    },
+
+    // working one
+    classStudyMaterials: {
       type: Array,
       default: [],
     },

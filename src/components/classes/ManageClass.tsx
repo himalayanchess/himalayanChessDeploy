@@ -11,7 +11,13 @@ import {
   Modal,
   Box,
 } from "@mui/material";
-import { School, BookOpenCheck, Users } from "lucide-react";
+import {
+  School,
+  BookOpenCheck,
+  Users,
+  FileSpreadsheet,
+  CalendarSync,
+} from "lucide-react";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
@@ -28,15 +34,20 @@ import weekOfYear from "dayjs/plugin/weekOfYear";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
 import { addActiveAssignedClass } from "@/redux/assignedClassesSlice";
+import AddIcon from "@mui/icons-material/Add";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import {
   fetchAllBatches,
   fetchAllTrainers,
+  getAllBranches,
   getAllStudents,
 } from "@/redux/allListSlice";
 import { useSession } from "next-auth/react";
 import { LoadingButton } from "@mui/lab";
+import Link from "next/link";
+import { Add } from "@mui/icons-material";
+import AddClassStudyMaterials from "./AddClassStudyMaterials";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utc);
@@ -50,14 +61,14 @@ const ManageClass = ({ selectedDate }: any) => {
   const dis = useDispatch<any>();
   const session = useSession();
   // use selectors
-  const { allActiveStudentsList, allActiveBatches } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveStudentsList, allActiveBatches, allActiveBranchesList } =
+    useSelector((state: any) => state.allListReducer);
   //state vars
 
   const [affiliatedTo, setaffiliatedTo] = useState("HCA");
   const [holidayStatus, setholidayStatus] = useState(false);
   const [isPlayDay, setisPlayDay] = useState(false);
+  const [selectedBranch, setselectedBranch] = useState("");
   const [trainersList, setTrainersList] = useState([]);
   const [courseList, setCourseList] = useState([]);
   const [projectList, setProjectList] = useState([]);
@@ -65,8 +76,11 @@ const ManageClass = ({ selectedDate }: any) => {
   const [selectedBatchStudents, setselectedBatchStudents] = useState<any>([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
+  const [classStudyMaterials, setclassStudyMaterials] = useState([]);
   const [assignClassLoading, setassignClassLoading] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
+  const [addStudyMaterialsModalOpen, setaddStudyMaterialsModalOpen] =
+    useState(false);
 
   const selectedDateUTC = dayjs(selectedDate).tz(timeZone).startOf("day").utc();
   const todayUTC = dayjs().tz(timeZone).startOf("day").utc();
@@ -79,6 +93,14 @@ const ManageClass = ({ selectedDate }: any) => {
 
   function handleconfirmModalClose() {
     setconfirmModalOpen(false);
+  }
+
+  function handleaddStudyMaterialsModalOpen() {
+    setaddStudyMaterialsModalOpen(true);
+  }
+
+  function handleaddStudyMaterialsModalClose() {
+    setaddStudyMaterialsModalOpen(false);
   }
 
   const {
@@ -103,6 +125,8 @@ const ManageClass = ({ selectedDate }: any) => {
       startTime: "",
       endTime: "",
       trainerRole: "Primary",
+      branchName: "",
+      branchId: "",
       // isPlayDay from state variable
       // holiday status from state variable
 
@@ -141,6 +165,7 @@ const ManageClass = ({ selectedDate }: any) => {
         holidayStatus,
         affiliatedTo,
         isPlayDay,
+        classStudyMaterials,
         userPresentStatus: holidayStatus ? "holiday" : "absent",
         assignedById: session?.data?.user?._id,
         assignedByName: session?.data?.user?.name,
@@ -149,7 +174,8 @@ const ManageClass = ({ selectedDate }: any) => {
         handleconfirmModalClose();
         // Notify success
         notify(resData.msg, resData.statusCode);
-
+        //reset classStudyMaterials
+        setclassStudyMaterials([]);
         // Dispatch the action to update Redux state
         dis(addActiveAssignedClass(resData.savedNewAssignClass));
       } else {
@@ -175,13 +201,23 @@ const ManageClass = ({ selectedDate }: any) => {
       batchId: "",
       startTime: "",
       endTime: "",
+      branchName: "",
+      branchId: "",
       // holiday status from state variable
       holidayDescription: "",
       userPresentStatus: "absent",
     });
     setBatchId(""); // Reset batchId state
     setprojectId(""); // Reset projectId state
+    setselectedBranch("");
   }, [affiliatedTo, holidayStatus, isPlayDay, reset]);
+
+  // reset batch when branch changes
+  useEffect(() => {
+    setValue("batchName", "");
+    setValue("batchId", "");
+    setBatchId("");
+  }, [selectedBranch]);
 
   // fitler selected batch students
   useEffect(() => {
@@ -190,6 +226,7 @@ const ManageClass = ({ selectedDate }: any) => {
       const hcaStudents = allActiveStudentsList.filter(
         (student: any) =>
           student.affiliatedTo?.toLowerCase() === "hca" &&
+          student.branchName?.toLowerCase() == selectedBranch?.toLowerCase() &&
           student.batches.some(
             (batch: any) => batch.activeStatus && !batch.endDate
           )
@@ -214,14 +251,22 @@ const ManageClass = ({ selectedDate }: any) => {
     } else {
       setselectedBatchStudents([]);
     }
-  }, [isPlayDay, batchId, allActiveStudentsList]);
+  }, [isPlayDay, batchId, allActiveStudentsList, selectedBranch]);
 
   // Filter batches based on affiliatedTo and projectId
   useEffect(() => {
     let tempFilteredBatches;
+    console.log("selected bran", selectedBranch);
+
     if (affiliatedTo.toLowerCase() === "hca") {
       tempFilteredBatches = allActiveBatches.filter(
         (batch: any) => batch?.affiliatedTo.toLowerCase() === "hca"
+      );
+
+      // filter hca batches by branch
+      tempFilteredBatches = tempFilteredBatches.filter(
+        (batch: any) =>
+          batch?.branchName.toLowerCase() === selectedBranch?.toLowerCase()
       );
     } else if (affiliatedTo.toLowerCase() === "school") {
       tempFilteredBatches = allActiveBatches.filter(
@@ -235,7 +280,7 @@ const ManageClass = ({ selectedDate }: any) => {
     }
 
     setFilteredBatches(tempFilteredBatches || []);
-  }, [affiliatedTo, allActiveBatches, projectId]);
+  }, [affiliatedTo, selectedBranch, allActiveBatches, projectId]);
 
   const getInitialData = async () => {
     try {
@@ -260,6 +305,8 @@ const ManageClass = ({ selectedDate }: any) => {
       const { data: projectResData } = await axios.get(
         "/api/projects/getAllProjects"
       );
+      console.log("projet listtttttttt", projectResData.allProjects);
+
       setProjectList(projectResData.allProjects);
     } catch (error) {
       console.log("Error in ManageClass component", error);
@@ -272,6 +319,7 @@ const ManageClass = ({ selectedDate }: any) => {
     dis(fetchAllTrainers());
     dis(getAllStudents());
     dis(fetchAllBatches());
+    dis(getAllBranches());
   }, []);
 
   return (
@@ -293,14 +341,25 @@ const ManageClass = ({ selectedDate }: any) => {
         </h1>
         {/* <Button type="submit" variant="contained" disabled={isPastDate}> */}
 
-        <Button
-          onClick={handleconfirmModalOpen}
-          variant="contained"
-          disabled={isPastDate}
-        >
-          <AssignmentTurnedInIcon />
-          <span className="ml-2">Assign</span>
-        </Button>
+        <div className="buttons flex gap-4">
+          <Link
+            href={`/${session?.data?.user?.role?.toLowerCase()}/assignedclasses`}
+          >
+            <Button variant="outlined">
+              <CalendarSync />
+              <span className="ml-2">Assigned Classes</span>
+            </Button>
+          </Link>
+
+          <Button
+            onClick={handleconfirmModalOpen}
+            variant="contained"
+            disabled={isPastDate}
+          >
+            <AssignmentTurnedInIcon />
+            <span className="ml-2">Assign</span>
+          </Button>
+        </div>
         {/* Hidden Submit Button */}
         <button type="submit" id="hiddenSubmit" hidden></button>
 
@@ -363,7 +422,11 @@ const ManageClass = ({ selectedDate }: any) => {
             variant={affiliatedTo === "HCA" ? "contained" : "outlined"}
             color="success"
             disableElevation
-            onClick={() => handleContractTypeChange("HCA")}
+            onClick={() => {
+              handleContractTypeChange("HCA");
+              setisPlayDay(false);
+              setholidayStatus(false);
+            }}
           >
             <SchoolOutlinedIcon />
             <span className="ml-2">HCA</span>
@@ -372,7 +435,11 @@ const ManageClass = ({ selectedDate }: any) => {
             variant={affiliatedTo === "School" ? "contained" : "outlined"}
             color="success"
             disableElevation
-            onClick={() => handleContractTypeChange("School")}
+            onClick={() => {
+              handleContractTypeChange("School");
+              setisPlayDay(false);
+              setholidayStatus(false);
+            }}
           >
             <School />
             <span className="ml-2">School</span>
@@ -451,84 +518,111 @@ const ManageClass = ({ selectedDate }: any) => {
       {/*  start time end time (if not holiday) */}
       {!holidayStatus && (
         /* time slots */
-        <div className="timeSlots flex gap-2 mb-2">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Controller
-              name="startTime"
-              control={control}
-              rules={{
-                required: "Start time is required",
-                validate: validateTimeOrder,
-              }}
-              render={({ field }) => (
-                <TimePicker
-                  label="Start Time"
-                  value={
-                    field.value || "" || ""
-                      ? dayjs(field.value || "" || "")
-                      : null
-                  }
-                  onChange={(newValue) => {
-                    field.onChange(newValue ? newValue.toISOString() : null);
-                  }}
-                  slotProps={{
-                    textField: {
-                      error: !!errors.startTime,
-                      helperText: errors.startTime?.message,
-                      size: "small", // Decreases input size
-                      sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
-                    },
-                  }}
-                  sx={{
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.8rem",
-                      height: "35px",
-                    },
-                  }}
-                />
-              )}
-            />
-          </LocalizationProvider>
-          {/*  end time */}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Controller
-              name="endTime"
-              control={control}
-              rules={{
-                required: "End time is required",
-                validate: validateTimeOrder,
-              }}
-              render={({ field }) => (
-                <TimePicker
-                  label="End Time"
-                  value={
-                    field.value || "" || ""
-                      ? dayjs(field.value || "" || "")
-                      : null
-                  }
-                  onChange={(newValue) => {
-                    field.onChange(newValue ? newValue.toISOString() : null);
-                  }}
-                  slotProps={{
-                    textField: {
-                      error: !!errors.endTime,
-                      helperText: errors.endTime?.message,
-                      size: "small", // Decreases input size
-                      sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
-                    },
-                  }}
-                  sx={{
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.8rem",
-                      height: "35px",
-                    },
-                  }}
-                />
-              )}
-            />
-          </LocalizationProvider>
+        <div className="timeSlots grid grid-cols-2 gap-2 mb-2">
+          <div className="time-container flex gap-2">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Controller
+                name="startTime"
+                control={control}
+                rules={{
+                  required: "Start time is required",
+                  validate: validateTimeOrder,
+                }}
+                render={({ field }) => (
+                  <TimePicker
+                    label="Start Time"
+                    value={
+                      field.value || "" || ""
+                        ? dayjs(field.value || "" || "")
+                        : null
+                    }
+                    onChange={(newValue) => {
+                      field.onChange(newValue ? newValue.toISOString() : null);
+                    }}
+                    slotProps={{
+                      textField: {
+                        error: !!errors.startTime,
+                        helperText: errors.startTime?.message,
+                        size: "small", // Decreases input size
+                        sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
+                      },
+                    }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        fontSize: "0.8rem",
+                        height: "35px",
+                      },
+                    }}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+            {/*  end time */}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Controller
+                name="endTime"
+                control={control}
+                rules={{
+                  required: "End time is required",
+                  validate: validateTimeOrder,
+                }}
+                render={({ field }) => (
+                  <TimePicker
+                    label="End Time"
+                    value={
+                      field.value || "" || ""
+                        ? dayjs(field.value || "" || "")
+                        : null
+                    }
+                    onChange={(newValue) => {
+                      field.onChange(newValue ? newValue.toISOString() : null);
+                    }}
+                    slotProps={{
+                      textField: {
+                        error: !!errors.endTime,
+                        helperText: errors.endTime?.message,
+                        size: "small", // Decreases input size
+                        sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
+                      },
+                    }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        fontSize: "0.8rem",
+                        height: "35px",
+                      },
+                    }}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </div>
+          {/* add study materials */}
+          <div className="flex items-center">
+            <Button
+              onClick={handleaddStudyMaterialsModalOpen}
+              size="small"
+              variant="outlined"
+              className="flex h-max items-center gap-1 px-3 py-2 "
+            >
+              <AddIcon fontSize="small" />
+              <span>Add Study Materials</span>
+            </Button>
+            <span className="text-sm text-white font-bold whitespace-nowrap ml-2 bg-gray-400 px-2 py-0.5 rounded-full">
+              {classStudyMaterials?.length} materials
+            </span>
+          </div>
+          {/* add studymaterial modal */}
+          <AddClassStudyMaterials
+            classStudyMaterials={classStudyMaterials}
+            setclassStudyMaterials={setclassStudyMaterials}
+            addStudyMaterialsModalOpen={addStudyMaterialsModalOpen}
+            handleaddStudyMaterialsModalClose={
+              handleaddStudyMaterialsModalClose
+            }
+          />
         </div>
       )}
+
       {/* time selection */}
 
       {/* playday and all batch students includes message */}
@@ -556,7 +650,9 @@ const ManageClass = ({ selectedDate }: any) => {
             render={({ field }) => (
               <Dropdown
                 label="Project name"
-                options={projectList.map((project: any) => project.name)}
+                options={projectList
+                  .filter((project: any) => project.activeStatus)
+                  .map((project: any) => project.name)}
                 selected={field.value || "" || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
@@ -570,6 +666,36 @@ const ManageClass = ({ selectedDate }: any) => {
                 }}
                 error={errors.projectName}
                 helperText={errors.projectName?.message}
+                width="full"
+                required
+              />
+            )}
+          />
+        )}
+
+        {/* branch */}
+        {affiliatedTo?.toLowerCase() === "hca" && (
+          <Controller
+            name="branchName"
+            control={control}
+            rules={{ required: "Branch is required" }}
+            render={({ field }) => (
+              <Dropdown
+                label="Branch name"
+                options={allActiveBranchesList.map(
+                  (branch: any) => branch.branchName
+                )}
+                selected={field.value || ""}
+                onChange={(value: any) => {
+                  field.onChange(value);
+                  const selectedBranch: any = allActiveBranchesList.find(
+                    (branch: any) => branch.branchName === value
+                  );
+                  setValue("branchId", selectedBranch?._id || "");
+                  setselectedBranch(value);
+                }}
+                error={errors.branchName}
+                helperText={errors.branchName?.message}
                 width="full"
                 required
               />
@@ -680,20 +806,26 @@ const ManageClass = ({ selectedDate }: any) => {
       </div>
       <Divider sx={{ margin: "1rem 0" }} />
       {/* Students List */}
-      <div className="flex-1">
+      <div className="flex-1 h-full  overflow-y-auto">
         <h1 className="text-lg font-bold mb-2 flex items-center">
           <Users />
-          <span className="ml-2 text-lg">Students</span>
+          <span className="ml-2 text-lg">
+            Students{" "}
+            <span className="text-sm font-medium ml-2">
+              Showing {selectedBatchStudents?.length} records
+            </span>
+          </span>
         </h1>
         {selectedBatchStudents.length === 0 ? (
           <p>No Students</p>
         ) : (
-          <div className="flex-1 h-[220px] flex flex-col rounded-md overflow-y-auto border">
+          <div className="flex-1 h-[147px]  flex flex-col rounded-md overflow-y-auto border">
             {/* heading */}
             <div className="heading grid grid-cols-[70px,repeat(4,1fr)] bg-gray-200 text-sm">
               <span className="py-2 text-center font-bold">SN</span>
               <span className="py-2 col-span-2 font-bold">Name</span>
-              <span className="py-2  col-span-2 font-bold">Gender</span>
+              <span className="py-2  col-span-1 font-bold">Gender</span>
+              <span className="py-2  col-span-1 font-bold">Branch</span>
             </div>
             {/* students list */}
 
@@ -704,9 +836,8 @@ const ManageClass = ({ selectedDate }: any) => {
               >
                 <span className="py-2 text-center ">{i + 1}</span>
                 <span className="py-2  col-span-2">{student?.name}</span>
-                <span className="py-2   col-span-2">
-                  {student?.gender}
-                </span>{" "}
+                <span className="py-2   col-span-1">{student?.gender}</span>
+                <span className="py-2   col-span-1">{student?.branchName}</span>
               </div>
             ))}
           </div>

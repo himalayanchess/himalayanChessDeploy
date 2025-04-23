@@ -90,7 +90,7 @@ const StudentList = ({
           Gender
         </span>
         <span className="py-3  text-left text-sm font-bold text-gray-600">
-          Active Status
+          Branch
         </span>
         <span className="py-3  text-left text-sm font-bold text-gray-600">
           Actions
@@ -150,7 +150,7 @@ const StudentList = ({
                     {student?.batches?.filter(
                       (batch: any) => batch.activeStatus && !batch.endDate // Exclude completed batches
                     ).length === 0
-                      ? "Not Selected"
+                      ? "N/A"
                       : student?.batches
                           ?.filter(
                             (batch: any) => batch.activeStatus && !batch.endDate
@@ -169,7 +169,7 @@ const StudentList = ({
 
                   {/* Active Status */}
                   <span className="text-left text-sm font-medium text-gray-600">
-                    {student?.activeStatus ? "Active" : "Inactive"}
+                    {student?.branchName || "N/A"}
                   </span>
                   {/* edit button */}
                   <div className="text-left text-sm font-medium text-gray-600">

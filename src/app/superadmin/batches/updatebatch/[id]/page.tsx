@@ -28,7 +28,7 @@ const page = ({ params }: any) => {
       }
       setLoading(false);
     } catch (error) {
-      console.log("error in updatestudent : [id], getbatchRecord api", error);
+      console.log("error in updatebatch : [id], getbatchRecord api", error);
     }
   }
   // initial fecth of selected activity record

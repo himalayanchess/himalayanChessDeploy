@@ -32,7 +32,7 @@ const page = ({ params }: any) => {
       }
       setLoading(false);
     } catch (error) {
-      console.log("error in updateProject : [id], getcourseRecord api", error);
+      console.log("error in viewcourse : [id], getcourseRecord api", error);
     }
   }
   // initial fecth of selected activity record

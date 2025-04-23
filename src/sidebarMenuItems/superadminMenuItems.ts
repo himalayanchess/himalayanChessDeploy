@@ -9,6 +9,11 @@ import {
   Luggage,
   LayoutList,
   CalendarCheck2,
+  DollarSign,
+  FileSpreadsheet,
+  Trophy,
+  MapPinHouse,
+  LibraryBig,
 } from "lucide-react";
 // import DashboardIcon from "@mui/icons-material/Dashboard";
 // import PeopleIcon from "@mui/icons-material/People";
@@ -32,10 +37,40 @@ export const superadminMenuItems = [
     label: "Students",
     linkName: "students",
   },
+  {
+    icon: MapPinHouse,
+    label: "Branches",
+    linkName: "branches",
+  },
+  {
+    icon: FileSpreadsheet,
+    label: "Test History",
+    linkName: "testhistory",
+  },
+  {
+    icon: LibraryBig,
+    label: "Study Materials",
+    linkName: "studymaterials",
+  },
   { icon: LayoutList, label: "Activity Records", linkName: "activityrecords" },
+  {
+    icon: LayoutList,
+    label: "Assigned Classes",
+    linkName: "assignedclasses",
+  },
   {
     icon: Luggage,
     label: "Leave Approval",
     linkName: "leaveapproval",
+  },
+  {
+    icon: Trophy,
+    label: "Tournaments",
+    linkName: "tournaments",
+  },
+  {
+    icon: DollarSign,
+    label: "Payments",
+    linkName: "payments",
   },
 ];

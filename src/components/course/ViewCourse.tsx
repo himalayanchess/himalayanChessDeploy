@@ -7,7 +7,7 @@ import { Button, Divider } from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 
-import { CircleArrowRight, Book, BookCopy } from "lucide-react";
+import { CircleArrowRight, Book, BookCopy, Edit } from "lucide-react";
 
 import Link from "next/link";
 import { exportCourseToExcel } from "@/helpers/exportToExcel/exportCourseToExcel";
@@ -38,7 +38,17 @@ const ViewCourse = ({ courseRecord }: any) => {
       <div className="header flex items-end justify-between">
         <h1 className="text-2xl font-bold flex items-center">
           <BookCopy />
-          <span className="ml-2">Course Details</span>
+          <span className="ml-2 mr-3">Course Details</span>
+          <Link
+            href={`/${session?.data?.user?.role?.toLowerCase()}/courses/updatecourse/${
+              courseRecord?._id
+            }`}
+          >
+            <Button variant="text" size="small">
+              <Edit />
+              <span className="ml-1">Edit</span>
+            </Button>
+          </Link>
         </h1>
 
         <div className="buttons flex gap-4">

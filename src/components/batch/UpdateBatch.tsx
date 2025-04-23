@@ -6,11 +6,16 @@ import { Box, Button, Divider, Modal } from "@mui/material";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProjects } from "@/redux/allListSlice";
+import { fetchAllProjects, getAllBranches } from "@/redux/allListSlice";
 import { LoadingButton } from "@mui/lab";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { Edit } from "lucide-react";
+import Link from "next/link";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -18,11 +23,13 @@ dayjs.extend(utc);
 const timeZone = "Asia/Kathmandu";
 
 const UpdateBatch = ({ batchRecord }: any) => {
+  const session = useSession();
+  const router = useRouter();
   // dispatch
   const dispatch = useDispatch<any>();
 
   // use selector
-  const { allActiveProjects } = useSelector(
+  const { allActiveProjects, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
 
@@ -60,6 +67,8 @@ const UpdateBatch = ({ batchRecord }: any) => {
       completedStatus: "Ongoing",
       batchStartDate: "",
       batchEndDate: "",
+      branchName: "",
+      branchId: "",
     },
   });
   // on submit function
@@ -72,6 +81,12 @@ const UpdateBatch = ({ batchRecord }: any) => {
     );
     if (resData.statusCode == 200) {
       setconfirmModalOpen(false);
+      notify(resData.msg, resData.statusCode);
+      setupdateBatchLoading(false);
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/batches`);
+      }, 50);
+      return;
     }
     setupdateBatchLoading(false);
     notify(resData.msg, resData.statusCode);
@@ -85,6 +100,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
         assignedTrainers: batchRecord.assignedTrainers || [],
         timeSlots: batchRecord.timeSlots || [],
       });
+      setselectedAffiliatedTo(batchRecord?.affiliatedTo);
       setLoaded(true);
     }
   }, [batchRecord, reset]);
@@ -92,14 +108,28 @@ const UpdateBatch = ({ batchRecord }: any) => {
   // fetch initial data
   useEffect(() => {
     dispatch(fetchAllProjects());
+    dispatch(getAllBranches());
   }, []);
 
-  if (!loaded) return <div></div>;
+  if (!loaded)
+    return (
+      <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md "></div>
+    );
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <div className="heading flex items-center gap-4">
-        <h1 className="w-max mr-auto text-2xl font-bold">Update batch</h1>
+      <div className="header  w-full flex items-end justify-between">
+        <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
+          <Edit />
+          <span className="ml-2">Update batch</span>
+        </h1>
+
+        <Link href={`/${session?.data?.user?.role?.toLowerCase()}/batches`}>
+          <Button className="homebutton" color="inherit" sx={{ color: "gray" }}>
+            <HomeOutlinedIcon />
+            <span className="ml-1">Home</span>
+          </Button>
+        </Link>
       </div>
 
       {/* divider */}
@@ -143,6 +173,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
                       };
                     });
                   }}
+                  disabled
                   error={errors.affiliatedTo}
                   helperText={errors.affiliatedTo?.message}
                   required={true}
@@ -267,6 +298,38 @@ const UpdateBatch = ({ batchRecord }: any) => {
         </div>
 
         {/* fourth row */}
+        {selectedAffiliatedTo?.toLowerCase() == "hca" && (
+          <div className="branch col-span-1">
+            <Controller
+              name="branchName"
+              control={control}
+              rules={{
+                required: "Branch is required",
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Branch"
+                  options={allActiveBranchesList?.map(
+                    (branch: any) => branch.branchName
+                  )}
+                  selected={field.value || ""}
+                  onChange={(value: any) => {
+                    field.onChange(value);
+                    const selectedBranch: any = allActiveBranchesList.find(
+                      (branch: any) => branch.branchName == value
+                    );
+
+                    setValue("branchId", selectedBranch?._id || "");
+                  }}
+                  error={errors.branchName}
+                  helperText={errors.branchName?.message}
+                  required={true}
+                  width="full"
+                />
+              )}
+            />
+          </div>
+        )}
         {/* Complete Status */}
         <div className="completeStatus col-span-1">
           <Controller

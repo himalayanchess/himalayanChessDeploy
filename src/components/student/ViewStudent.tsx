@@ -12,6 +12,7 @@ import {
   LayoutList,
   CircleFadingArrowUp,
   CalendarCheck2,
+  Edit,
 } from "lucide-react";
 import { Button, Divider } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -198,20 +199,29 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
               <div className="title flex flex-col">
                 <h1 className="text-2xl font-bold flex items-center">
                   <Users />
-                  <span className="ml-2">
-                    Student Detail{" "}
-                    {isBirthday && (
-                      <span className="ml-3 font-medium">
-                        (🎉 Birthday
-                        {studentRecord?.gender?.toLowerCase() === "male"
-                          ? " boy"
-                          : studentRecord?.gender?.toLowerCase() === "female"
-                          ? " girl"
-                          : ""}
-                        )
-                      </span>
-                    )}
-                  </span>
+                  <span className="ml-2 mr-3">Student Detail </span>
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/students/updatestudent/${
+                      studentRecord?._id
+                    }`}
+                    className="mr-3"
+                  >
+                    <Button variant="text" size="small">
+                      <Edit />
+                      <span className="ml-1">Edit</span>
+                    </Button>
+                  </Link>
+                  {isBirthday && (
+                    <span className="ml-3 font-medium">
+                      (🎉 Birthday
+                      {studentRecord?.gender?.toLowerCase() === "male"
+                        ? " boy"
+                        : studentRecord?.gender?.toLowerCase() === "female"
+                        ? " girl"
+                        : ""}
+                      )
+                    </span>
+                  )}
                 </h1>
                 <p>of {studentRecord?.name}</p>
               </div>

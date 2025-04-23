@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const timeZone = "Asia/Kathmandu";
     const reqBody = await request.json();
+    console.log("update student ", reqBody);
+
     const {
       _id,
       affiliatedTo,
@@ -42,6 +44,8 @@ export async function POST(request: NextRequest) {
       guardianInfo,
       emergencyContactName,
       emergencyContactNo,
+      branchName,
+      branchId,
     } = reqBody;
 
     // Convert dates to UTC with timezone handling
@@ -119,6 +123,8 @@ export async function POST(request: NextRequest) {
           emergencyContactName,
           emergencyContactNo,
           enrolledCourses: finalUpdatedEnrolledCourses,
+          branchName,
+          branchId,
         },
         { new: true }
       );

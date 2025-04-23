@@ -6,14 +6,24 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import axios from "axios";
+
+import { Book, Edit } from "lucide-react";
 import { notify } from "@/helpers/notify";
+
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProjects, getAllCourses } from "@/redux/allListSlice";
 import { LoadingButton } from "@mui/lab";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
+import Link from "next/link";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const UpdateCourse = ({ courseRecord }: any) => {
+  const session = useSession();
+  const router = useRouter();
+
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -110,6 +120,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
     ].subChapters.filter((_, i) => i !== subIndex);
     setValue("chapters", updatedChapters);
   };
+
   // watch syllabus
   const chapters = watch("chapters");
 
@@ -122,6 +133,12 @@ const UpdateCourse = ({ courseRecord }: any) => {
     );
     if (resData.statusCode == 200) {
       handleconfirmModalClose();
+      setupdateCourseLoading(false);
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/courses`);
+      }, 50);
+      notify(resData.msg, resData.statusCode);
+      return;
     }
     setupdateCourseLoading(false);
     notify(resData.msg, resData.statusCode);
@@ -143,12 +160,25 @@ const UpdateCourse = ({ courseRecord }: any) => {
     dispatch(getAllCourses());
   }, []);
 
-  if (!loaded) return <div></div>;
+  if (!loaded)
+    return (
+      <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md "></div>
+    );
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <div className="heading flex items-center gap-4">
-        <h1 className="text-xl font-bold ">Update Course</h1>
+      <div className="header  w-full flex items-end justify-between">
+        <h1 className="text-xl font-bold flex items-center">
+          <Edit />
+          <span className="ml-2">Update Course</span>
+        </h1>
+
+        <Link href={`/${session?.data?.user?.role?.toLowerCase()}/courses`}>
+          <Button className="homebutton" color="inherit" sx={{ color: "gray" }}>
+            <HomeOutlinedIcon />
+            <span className="ml-1">Home</span>
+          </Button>
+        </Link>
       </div>
 
       {/* divider */}
@@ -233,7 +263,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
                 <Input
                   {...field}
                   value={field.value || ""}
-                  label="Duration"
+                  label="Duration (weeks)"
                   type="number"
                   required={true}
                   error={errors?.duration}
@@ -281,7 +311,7 @@ const UpdateCourse = ({ courseRecord }: any) => {
         {chaptersFields.map((chapter, chapterIndex) => (
           <div
             key={chapter.id}
-            className="border p-4 bg-blue-50 rounded-md mt-3"
+            className="border p-4 bg-gray-50 rounded-md mt-3"
           >
             <h1 className="font-bold mb-1">Chapter {chapterIndex + 1}</h1>
             <div className="flex items-center gap-3">

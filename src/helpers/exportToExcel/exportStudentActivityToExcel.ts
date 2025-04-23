@@ -64,7 +64,7 @@ export function exportStudentActivityRecordsToExcel(
 
     // Format study materials if available
     const studyMaterials =
-      record.studyMaterials
+      record.classStudyMaterials
         ?.map((material: any) => `${material.fileName}: ${material.fileUrl}`)
         ?.join("\n") || "N/A";
 
@@ -89,7 +89,7 @@ export function exportStudentActivityRecordsToExcel(
       "Week Number": record.weekNumber || "N/A",
       "Holiday Status": record.holidayStatus ? "Yes" : "No",
       "Holiday Description": record.holidayDescription || "N/A",
-      "Study Materials Count": record.studyMaterials?.length || 0,
+      "Study Materials Count": record.classStudyMaterials?.length || 0,
       "Study Materials Details": studyMaterials,
     };
   });

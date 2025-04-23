@@ -58,6 +58,9 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
       default: "",
     },
     history: { type: Array, default: [] },
+    branchName: { type: String, default: "" },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
+
     activeStatus: { type: Boolean, default: true },
   },
   { timestamps: true }

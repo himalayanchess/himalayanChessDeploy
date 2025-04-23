@@ -197,31 +197,54 @@ const BasicUserInformation = ({ userRecord }: any) => {
       </div>
 
       {/* other info */}
-      {userRecord?.role?.toLowerCase() == "trainer" && (
+      {userRecord?.role?.toLowerCase() != "superadmin" && (
         <div className="bg-gray-50 rounded-xl p-4">
           <p className="text-sm text-gray-500 mb-2 font-bold flex items-center">
             {/* <Crown /> */}
             <span className="ml-0">Other Information</span>
           </p>
 
-          {/* CV */}
           <div className="details grid grid-cols-2 gap-2">
+            {/* branch */}
             <div>
-              <p className="text-xs text-gray-500">Trainers CV</p>
+              <p className="text-xs text-gray-500">Branch</p>
               <div className="detail flex items-center">
-                <ArticleOutlinedIcon className="text-gray-500" />
-                {userRecord?.trainerCvUrl ? (
+                <MapPinHouse className="text-gray-500" />
+                {userRecord?.branchName ? (
                   <Link
-                    href={userRecord?.trainerCvUrl}
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                      userRecord?.branchId
+                    }`}
                     className="font-medium ml-1 underline hover:text-blue-500"
                   >
-                    View CV
+                    {userRecord?.branchName}
                   </Link>
                 ) : (
                   <p>N/A</p>
                 )}
               </div>
             </div>
+            {/* CV */}
+            {userRecord?.role?.toLowerCase() == "trainer" && (
+              <div className="details grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-xs text-gray-500">Trainers CV</p>
+                  <div className="detail flex items-center">
+                    <ArticleOutlinedIcon className="text-gray-500" />
+                    {userRecord?.trainerCvUrl ? (
+                      <Link
+                        href={userRecord?.trainerCvUrl}
+                        className="font-medium ml-1 underline hover:text-blue-500"
+                      >
+                        View CV
+                      </Link>
+                    ) : (
+                      <p>N/A</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

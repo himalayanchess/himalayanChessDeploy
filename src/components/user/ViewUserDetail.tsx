@@ -9,6 +9,7 @@ import {
   School,
   LayoutList,
   IdCard,
+  Edit,
 } from "lucide-react";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -128,10 +129,20 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
         <div className="userdetails w-full h-full overflow-auto bg-white rounded-md shadow-md mr-4 px-7 py-4 flex flex-col">
           <div className="header flex items-start justify-between  gap-7 ">
             <div className="title flex flex-col">
-              <h1 className="text-2xl font-bold flex items-center">
+              <div className="text-2xl font-bold flex items-center">
                 <PersonOutlineOutlinedIcon sx={{ fontSize: "1.8rem" }} />
-                <span className="ml-1">User Record Detail</span>
-              </h1>
+                <span className="ml-1 mr-3">User Record Detail</span>
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/users/updateuser/${
+                    userRecord?._id
+                  }`}
+                >
+                  <Button variant="text" size="small">
+                    <Edit />
+                    <span className="ml-1">Edit</span>
+                  </Button>
+                </Link>
+              </div>
               <p>of {userRecord?.name}</p>
             </div>
 

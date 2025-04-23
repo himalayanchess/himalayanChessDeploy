@@ -66,7 +66,7 @@ const BatchList = ({
   return (
     <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
@@ -80,6 +80,9 @@ const BatchList = ({
           School Name
         </span>
 
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
+          Branch
+        </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Actions
         </span>
@@ -112,7 +115,7 @@ const BatchList = ({
               return (
                 <div
                   key={batch?._id}
-                  className="grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className="grid grid-cols-[70px,repeat(6,1fr)] border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
@@ -131,7 +134,11 @@ const BatchList = ({
                   </span>
                   {/* school name */}
                   <span className=" col-span-2 text-sm text-gray-700">
-                    {batch.projectName ? batch.projectName : "None"}
+                    {batch.projectName ? batch.projectName : "N/A"}
+                  </span>
+                  {/* branch name */}
+                  <span className=" col-span-1 text-sm text-gray-700">
+                    {batch.branchName ? batch.branchName : "N/A"}
                   </span>
                   {role?.toLowerCase() == "superadmin" ? (
                     <div className=" text-sm text-gray-500">

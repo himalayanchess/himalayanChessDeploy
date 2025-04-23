@@ -9,20 +9,29 @@ import { School } from "lucide-react";
 import { Button, Pagination, Stack } from "@mui/material";
 import ProjectList from "./ProjectList";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProjects, filterProjectsList } from "@/redux/allListSlice";
+import {
+  fetchAllProjects,
+  filterProjectsList,
+  getAllUsers,
+} from "@/redux/allListSlice";
 
 const ProjectComponent = ({ role }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
 
   // selector
-  const { allActiveProjects, allFilteredActiveProjects, allProjectsLoading } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveProjects,
+    allFilteredActiveProjects,
+    allProjectsLoading,
+    allActiveUsersList,
+  } = useSelector((state: any) => state.allListReducer);
   //options
   const options = ["All", "Ongoing", "Completed"];
   //state vars
   const [searchText, setsearchText] = useState("");
   const [selectedStatus, setselectedStatus] = useState("All");
+  const [selectedTrainer, setselectedTrainer] = useState("All");
   const [filteredProjectCount, setFilteredProjectCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [projectsPerPage] = useState(7);
@@ -30,6 +39,12 @@ const ProjectComponent = ({ role }: any) => {
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
+
+  // Calculate showing text
+  const startItem = (currentPage - 1) * projectsPerPage + 1;
+  const endItem = Math.min(currentPage * projectsPerPage, filteredProjectCount);
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredProjectCount}`;
+
   // Reset current page to 1 and searchtext when selectedStatus changes
   useEffect(() => {
     setCurrentPage(1);
@@ -39,6 +54,8 @@ const ProjectComponent = ({ role }: any) => {
   // filter
   useEffect(() => {
     // filter users
+    console.log(allActiveProjects);
+
     let tempFilteredProjectsList =
       selectedStatus.toLowerCase() == "all"
         ? allActiveProjects
@@ -46,6 +63,18 @@ const ProjectComponent = ({ role }: any) => {
             (project: any) =>
               project?.completedStatus?.toLowerCase() ==
               selectedStatus.toLowerCase()
+          );
+
+    // filter by trainer
+    tempFilteredProjectsList =
+      selectedTrainer.toLowerCase() == "all"
+        ? tempFilteredProjectsList
+        : tempFilteredProjectsList.filter((project: any) =>
+            project?.assignedTrainers?.some(
+              (trainer: any) =>
+                trainer?.trainerName?.toLowerCase() ==
+                selectedTrainer?.toLowerCase()
+            )
           );
 
     if (searchText.trim() !== "") {
@@ -65,11 +94,12 @@ const ProjectComponent = ({ role }: any) => {
     setFilteredProjectCount(tempFilteredProjectsList?.length);
     setCurrentPage(1);
     dispatch(filterProjectsList(tempFilteredProjectsList));
-  }, [allActiveProjects, selectedStatus, searchText]);
+  }, [allActiveProjects, selectedStatus, selectedTrainer, searchText]);
 
   // intial data fetch
   useEffect(() => {
     dispatch(fetchAllProjects());
+    dispatch(getAllUsers());
   }, []);
   return (
     <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
@@ -78,7 +108,7 @@ const ProjectComponent = ({ role }: any) => {
         <div className="title-options">
           <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
             <School />
-            <span className="ml-2">Projects List</span>
+            <span className="ml-2">Schools List</span>
           </h2>
           <div className="dropdown flex gap-4 mb-1 items-end">
             <Dropdown
@@ -87,14 +117,20 @@ const ProjectComponent = ({ role }: any) => {
               selected={selectedStatus}
               onChange={setselectedStatus}
             />
-            <span className=" text-white bg-gray-400 rounded-md py-1 px-3 ">
-              {Math.min(
-                projectsPerPage,
-                allFilteredActiveProjects?.length -
-                  (currentPage - 1) * projectsPerPage
-              )}{" "}
-              of {allFilteredActiveProjects?.length}
-            </span>
+            <Dropdown
+              label="Trainer"
+              options={[
+                "All",
+                ...allActiveUsersList
+                  ?.filter(
+                    (user: any) => user?.role?.toLowerCase() == "trainer"
+                  )
+                  .map((user: any) => user.name),
+              ]}
+              selected={selectedTrainer}
+              onChange={setselectedTrainer}
+            />
+            <span className="text-sm text-gray-600">{showingText}</span>
           </div>
         </div>
 

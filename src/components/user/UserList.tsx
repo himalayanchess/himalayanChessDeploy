@@ -65,7 +65,10 @@ const UserList = ({
     setloaded(true);
   }, []);
 
-  if (!loaded) return <div></div>;
+  if (!loaded)
+    return (
+      <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg"></div>
+    );
 
   return (
     <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
@@ -78,7 +81,7 @@ const UserList = ({
           Name
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
-          Email
+          Branch
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Gender
@@ -128,7 +131,9 @@ const UserList = ({
                   >
                     {user?.name}
                   </Link>
-                  <span className="text-sm text-gray-700">{user?.email}</span>
+                  <span className="text-sm text-gray-700">
+                    {user?.branchName || "N/A"}
+                  </span>
                   <span className="text-sm text-gray-700">{user?.gender}</span>
                   <span className="text-sm text-gray-500">{user?.role}</span>
                   {role?.toLowerCase() == "superadmin" ? (

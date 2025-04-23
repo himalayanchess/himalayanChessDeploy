@@ -48,7 +48,6 @@ const BasicStudentInfo = ({ studentRecord }: any) => {
   const [originalProfileImage, setoriginalProfileImage] = useState<any>(
     studentRecord?.imageUrl || defaultuser
   );
-
   //modal
   const [updateProfileImageModalOpen, setupdateProfileImageModalOpen] =
     useState(false);
@@ -86,6 +85,7 @@ const BasicStudentInfo = ({ studentRecord }: any) => {
     formData.append("file", imageFile);
     const folderName = `studentProfileImages/${studentRecord?.name}`;
     formData.append("folderName", folderName);
+    formData.append("cloudinaryFileType", "profileImage");
     const { data: editProfilePhotoResData } = await axios.post(
       "/api/fileupload/uploadfile",
       formData,
@@ -308,12 +308,34 @@ const BasicStudentInfo = ({ studentRecord }: any) => {
               </p>
             </div>
           </div>
+          {studentRecord?.affiliatedTo?.toLowerCase() === "hca" && (
+            <div>
+              <p className="text-xs text-gray-500">Branch</p>
+              <div className="detail flex items-center">
+                {studentRecord?.branchId ? (
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                      studentRecord?.branchId
+                    }`}
+                    className="font-medium underline hover:text-blue-500"
+                  >
+                    {studentRecord?.branchName || "N/A"}
+                  </Link>
+                ) : (
+                  <span className="text-gray-700">
+                    {studentRecord?.branchName || "N/A"}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {studentRecord?.affiliatedTo?.toLowerCase() == "school" &&
             studentRecord?.projectId && (
               <div>
                 <p className="text-xs text-gray-500">Project Name</p>
                 <Link
-                  href={`${session?.data?.user?.role?.toLowerCase()}/projects/${
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/projects/${
                     studentRecord?.projectId
                   }`}
                   className="font-medium underline hover:text-blue-500"

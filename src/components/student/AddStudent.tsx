@@ -15,28 +15,65 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllBatches,
   fetchAllProjects,
+  getAllBranches,
   getAllCourses,
 } from "@/redux/allListSlice";
+import { Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import Link from "next/link";
 
 const AddStudent = () => {
+  const router = useRouter();
+  const session = useSession();
+
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
   const statusOptions = ["Ongoing", "Left"];
-  const titleOptions = ["None", "CM", "RM", "GM", "IM"];
-  const coursesList = [
-    { _id: "101", value: "React Basics", label: "React Basics" },
-    { _id: "102", value: "Advanced JavaScript", label: "Advanced JavaScript" },
-    { _id: "103", value: "Data Structures", label: "Data Structures" },
+  const titleOptions = [
+    "None",
+    // Grandmaster titles
+    "GM",
+    "IM",
+    "FM",
+    "CM",
+
+    // Women-specific titles
+    "WGM",
+    "WIM",
+    "WFM",
+    "WCM",
+
+    // Arbiters
+    "IA",
+    "FA",
+
+    // Trainers
+    "FST",
+    "FT",
+    "FI",
+    "NI",
+    "DI",
   ];
+
   // dispatch
   const dispatch = useDispatch<any>();
 
   // use selector
-  const { allActiveBatches, allActiveProjects, allActiveCoursesList } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveBatches,
+    allActiveProjects,
+    allActiveCoursesList,
+    allActiveBranchesList,
+  } = useSelector((state: any) => state.allListReducer);
 
   // state variable
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
+  const [selectedBranch, setselectedBranch] = useState("");
+  const [filteredBatches, setFilteredBatches] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any>(""); // Example state
+
   const [addStudentLoading, setaddStudentLoading] = useState(false);
   const [addStudentFileLoading, setaddStudentFileLoading] = useState(false);
 
@@ -124,7 +161,13 @@ const AddStudent = () => {
         }
       );
       if (resData?.statusCode == 200) {
+        notify(resData?.msg, resData?.statusCode);
         handlefileUploadModalClose();
+        setTimeout(() => {
+          router.push(`/${session?.data?.user?.role?.toLowerCase()}/students`);
+        }, 50);
+        setaddStudentFileLoading(false);
+        return;
       }
       setaddStudentFileLoading(false);
       notify(resData?.msg, resData?.statusCode);
@@ -156,9 +199,12 @@ const AddStudent = () => {
       joinedDate: "",
       endDate: "",
       educationalInstitute: "",
+      branchId: "",
+      branchName: "",
       batches: [],
       projectId: "",
       projectName: "",
+
       fideId: 0,
       title: "None",
       rating: 0,
@@ -240,7 +286,13 @@ const AddStudent = () => {
       );
       if (resData.statusCode == 200) {
         // console.log("ass student", resData);
+        notify(resData.msg, resData.statusCode);
         handleconfirmModalClose();
+        setTimeout(() => {
+          router.push(`/${session?.data?.user?.role?.toLowerCase()}/students`);
+        }, 50);
+        setaddStudentLoading(false);
+        return;
       }
       setaddStudentLoading(false);
       notify(resData.msg, resData.statusCode);
@@ -250,40 +302,74 @@ const AddStudent = () => {
     }
   }
 
-  // filter batchs list and projects and set to state vars
+  //filter batches
   useEffect(() => {
-    let tempHcaBatches = allActiveBatches.filter(
-      (batch: any) => batch.affiliatedTo.toLowerCase() == "hca"
-    );
-    let tempSchoolBatches = allActiveBatches.filter(
-      (batch: any) => batch.affiliatedTo.toLowerCase() == "school"
-    );
-    sethcaBatchList(tempHcaBatches);
-    setschoolBatchList(tempSchoolBatches);
+    // Filter batches based on the selected affiliatedTo, branch, and project
+    const filtered =
+      selectedAffiliatedTo?.toLowerCase() === "hca"
+        ? allActiveBatches
+            .filter(
+              (batch: any) =>
+                batch.affiliatedTo.toLowerCase() === "hca" &&
+                batch.branchName?.toLowerCase() ===
+                  selectedBranch?.toLowerCase()
+            )
+            .map((batch: any) => batch)
+        : allActiveBatches
+            .filter(
+              (batch: any) =>
+                batch.affiliatedTo.toLowerCase() === "school" &&
+                batch.projectName?.toLowerCase() ===
+                  selectedProject?.toLowerCase()
+            )
+            .map((batch: any) => batch);
+    // console.log("filtered bat", filtered);
 
+    setFilteredBatches(filtered); // Update filteredBatches state
+  }, [allActiveBatches, selectedAffiliatedTo, selectedBranch, selectedProject]);
+
+  useEffect(() => {
     setprojectList(allActiveProjects);
-  }, [allActiveBatches, allActiveProjects, dispatch]);
+  }, [allActiveProjects]);
 
   // fetch initial data
   useEffect(() => {
     dispatch(fetchAllBatches());
     dispatch(fetchAllProjects());
     dispatch(getAllCourses());
+    dispatch(getAllBranches());
   }, []);
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <div className="heading flex items-center gap-4">
-        <h1 className="text-xl font-bold ">Add Student</h1>
-        <Button
-          onClick={handlefileUploadModalOpen}
-          color="info"
-          variant="contained"
-          size="medium"
-        >
-          <FileUploadIcon />
-          <span>Upload JSON file</span>
-        </Button>
+      <div className="heading flex items-center justify-between gap-4">
+        <h1 className="text-xl font-bold  flex items-center ">
+          <Users />
+          <span className="ml-2">Add Student</span>
+        </h1>
+
+        <div className="buttons flex gap-4">
+          <Link href={`/${session?.data?.user?.role?.toLowerCase()}/students`}>
+            <Button
+              className="homebutton"
+              color="inherit"
+              sx={{ color: "gray" }}
+            >
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
+          </Link>
+
+          <Button
+            onClick={handlefileUploadModalOpen}
+            color="info"
+            variant="contained"
+            size="medium"
+          >
+            <FileUploadIcon />
+            <span>Upload JSON file</span>
+          </Button>
+        </div>
 
         {/* file upload modal */}
         {/* confirm modal */}
@@ -358,22 +444,50 @@ const AddStudent = () => {
             options={affiliatedToOptions}
             selected={selectedAffiliatedTo}
             onChange={(value: any) => {
+              if (value === selectedAffiliatedTo) return;
+
               setselectedAffiliatedTo(value);
-              reset((prevValues: any) => ({
-                ...prevValues,
-                affiliatedTo: value,
-                address: "",
-                phone: "",
-                guardianInfo: { name: "", phone: "", email: "" },
-                projectName: "",
-                projectId: "",
-                emergencyContact: "",
-                emergencyContactName: "",
-                enrolledCourses: [],
-              }));
+              reset((prevValues: any) => {
+                if (value === "HCA") {
+                  return {
+                    ...prevValues,
+                    affiliatedTo: value,
+                    address: prevValues.address,
+                    phone: prevValues.phone,
+                    guardianInfo: prevValues.guardianInfo,
+                    projectName: "",
+                    projectId: "",
+                    branchName: "",
+                    branchId: "",
+                    emergencyContact: prevValues.emergencyContact,
+                    emergencyContactName: prevValues.emergencyContactName,
+                    educationalInstitute: prevValues.educationalInstitute,
+                    enrolledCourses: [],
+                    batches: [],
+                  };
+                } else {
+                  return {
+                    ...prevValues,
+                    affiliatedTo: value,
+                    address: "",
+                    phone: "",
+                    guardianInfo: { name: "", phone: "", email: "" },
+                    projectName: "",
+                    projectId: "",
+                    branchName: "",
+                    branchId: "",
+                    emergencyContact: "",
+                    emergencyContactName: "",
+                    educationalInstitute: "",
+                    enrolledCourses: [],
+                    batches: [],
+                  };
+                }
+              });
             }}
             width="full"
           />
+
           {/* full name */}
           <Controller
             name="name"
@@ -481,27 +595,61 @@ const AddStudent = () => {
           </div> */}
           {/* educationalInstitute */}
           {selectedAffiliatedTo.toLowerCase() == "hca" && (
-            <div className="educationalInstitute col-span-2">
-              <Controller
-                name="educationalInstitute"
-                control={control}
-                rules={
-                  {
-                    // required: "School Name is required",
+            <>
+              <div className="educationalInstitute col-span-1">
+                <Controller
+                  name="educationalInstitute"
+                  control={control}
+                  rules={
+                    {
+                      // required: "School Name is required",
+                    }
                   }
-                }
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="text"
-                    label="Educational Insititute"
-                    // required={true}
-                    error={errors.educationalInstitute}
-                    helperText={errors.educationalInstitute?.message}
-                  />
-                )}
-              />
-            </div>
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="text"
+                      label="Educational Insititute"
+                      // required={true}
+                      error={errors.educationalInstitute}
+                      helperText={errors.educationalInstitute?.message}
+                    />
+                  )}
+                />
+              </div>
+              {/*  branch */}
+              <div className="branch col-span-1">
+                <Controller
+                  name="branchName"
+                  control={control}
+                  rules={{
+                    required: "Branch is required",
+                  }}
+                  render={({ field }) => (
+                    <Dropdown
+                      label="Branch"
+                      options={allActiveBranchesList?.map(
+                        (branch: any) => branch.branchName
+                      )}
+                      selected={field.value || ""}
+                      onChange={(value: any) => {
+                        field.onChange(value);
+                        const selectedBranch: any = allActiveBranchesList.find(
+                          (branch: any) => branch.branchName == value
+                        );
+
+                        setValue("branchId", selectedBranch?._id || "");
+                        setselectedBranch(value);
+                      }}
+                      error={errors.branchName}
+                      helperText={errors.branchName?.message}
+                      required={true}
+                      width="full"
+                    />
+                  )}
+                />
+              </div>
+            </>
           )}
         </div>
 
@@ -605,6 +753,7 @@ const AddStudent = () => {
                     );
 
                     setValue("projectId", selectedProject._id);
+                    setSelectedProject(value);
                   }}
                   error={errors.projectName}
                   helperText={errors.projectName?.message}
@@ -715,10 +864,10 @@ const AddStudent = () => {
         </div>
 
         {/* Guardian info */}
-        {selectedAffiliatedTo.toLowerCase() == "hca" && (
+        {selectedAffiliatedTo.toLowerCase() === "hca" && (
           <div className="contact">
-            <p className="text-lg  mb-2 font-bold">Guardian info</p>
-            <div className="basic-info-fields grid grid-cols-2  gap-3">
+            <p className="text-lg mb-2 font-bold">Guardian info</p>
+            <div className="basic-info-fields grid grid-cols-2 gap-3">
               {/* Guardian Name */}
               <Controller
                 name="guardianInfo.name"
@@ -736,21 +885,23 @@ const AddStudent = () => {
                     value={field.value || ""}
                     label="Guardian Full Name"
                     type="text"
-                    // error={errors?.guardianInfo?.name}
-                    // helperText={errors?.guardianInfo?.name?.message}
-                    error={!!errors["guardianInfo.name"]}
-                    helperText={errors["guardianInfo.name"]?.message as string}
-                    required={true}
+                    error={
+                      !!(
+                        errors.guardianInfo && (errors.guardianInfo as any).name
+                      )
+                    }
+                    helperText={(errors.guardianInfo as any)?.name?.message}
+                    required
                   />
                 )}
               />
-              {/* guardian phone */}
+
+              {/* Guardian Phone */}
               <Controller
                 name="guardianInfo.phone"
                 control={control}
                 rules={{
                   required: "Guardian phone is required",
-
                   pattern: {
                     value: /^[0-9]{10}$/,
                     message: "Invalid phone no",
@@ -760,17 +911,21 @@ const AddStudent = () => {
                   <Input
                     {...field}
                     value={field.value || ""}
-                    label="Guardian Phone no"
-                    type="number"
-                    // error={errors?.guardianInfo?.phone}
-                    // helperText={errors?.guardianInfo?.phone?.message}
-                    error={!!errors["guardianInfo.phone"]}
-                    helperText={errors["guardianInfo.phone"]?.message as string}
-                    required={true}
+                    label="Guardian Phone No"
+                    type="tel"
+                    error={
+                      !!(
+                        errors.guardianInfo &&
+                        (errors.guardianInfo as any).phone
+                      )
+                    }
+                    helperText={(errors.guardianInfo as any)?.phone?.message}
+                    required
                   />
                 )}
               />
-              {/* guardian email */}
+
+              {/* Guardian Email */}
               <Controller
                 name="guardianInfo.email"
                 control={control}
@@ -784,12 +939,15 @@ const AddStudent = () => {
                   <Input
                     {...field}
                     value={field.value || ""}
-                    label="Guardian email"
-                    type="text"
-                    // error={errors?.guardianInfo?.email}
-                    // helperText={errors?.guardianInfo?.email?.message}
-                    error={!!errors["guardianInfo.email"]}
-                    helperText={errors["guardianInfo.email"]?.message as string}
+                    label="Guardian Email"
+                    type="email"
+                    error={
+                      !!(
+                        errors.guardianInfo &&
+                        (errors.guardianInfo as any).email
+                      )
+                    }
+                    helperText={(errors.guardianInfo as any)?.email?.message}
                   />
                 )}
               />
@@ -880,23 +1038,14 @@ const AddStudent = () => {
                       render={({ field }) => (
                         <Dropdown
                           label="Batch"
-                          options={
-                            selectedAffiliatedTo?.toLowerCase() == "hca"
-                              ? hcaBatchList.map(
-                                  (batch: any) => batch.batchName
-                                )
-                              : schoolBatchList.map(
-                                  (batch: any) => batch.batchName
-                                )
-                          }
+                          options={filteredBatches?.map(
+                            (batch: any) => batch?.batchName
+                          )}
                           selected={field.value || ""}
                           onChange={(value: any) => {
                             field.onChange(value);
-                            let selectedBatchList =
-                              selectedAffiliatedTo.toLowerCase() == "hca"
-                                ? hcaBatchList
-                                : schoolBatchList;
-                            const selectedBatch: any = selectedBatchList.find(
+
+                            const selectedBatch: any = filteredBatches.find(
                               (batch: any) => batch.batchName == value
                             );
                             setValue(

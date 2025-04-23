@@ -49,7 +49,8 @@ const UserSchema = new mongoose.Schema(
     trainerCvUrl: { type: String, default: "" },
     emergencyContactName: { type: String },
     emergencyContactNo: { type: Number },
-
+    branchName: { type: String, default: "" },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
     activeStatus: {
       type: Boolean,
       default: true,

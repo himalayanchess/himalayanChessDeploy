@@ -4,9 +4,12 @@ import { fetchAssignedClasses } from "@/redux/assignedClassesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Modal } from "@mui/material";
 import ViewAssignedClass from "./ViewAssignedClass";
+import CircularProgress from "@mui/material/CircularProgress";
+
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { Check, MapPinHouse, X } from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -14,9 +17,8 @@ const timeZone = "Asia/Kathmandu";
 
 const AssignedClasses = ({ selectedDate }: any) => {
   const dispatch = useDispatch<any>();
-  const { allActiveAssignedClasses, status, error } = useSelector(
-    (state: any) => state.assignedClassesReducer
-  );
+  const { allActiveAssignedClasses, allAssignedClassesLoading, status, error } =
+    useSelector((state: any) => state.assignedClassesReducer);
 
   const [selectedAssignedClass, setSelectedAssignedClass] = useState<any>(null);
   const [filteredAssignedClasses, setFilteredAssignedClasses] = useState([]);
@@ -67,26 +69,46 @@ const AssignedClasses = ({ selectedDate }: any) => {
       <h1 className="text-lg font-bold mb-3">Assigned Classes</h1>
 
       <div className="assigned-classes-list flex flex-col gap-3">
-        {filteredAssignedClasses.length === 0 ? (
+        {allAssignedClassesLoading ? (
+          <div className="w-full text-center my-6">
+            <CircularProgress sx={{ color: "gray" }} />
+            <p className="text-gray-500">Getting record</p>
+          </div>
+        ) : filteredAssignedClasses.length === 0 ? (
           <p>No assigned Classes</p>
         ) : (
           filteredAssignedClasses.map((assignedClass: any) => (
             <div key={assignedClass?._id}>
               <div
                 className={`py-2 px-3 shadow-sm rounded-md cursor-pointer hover:opacity-80
-    ${
-      assignedClass?.isPlayDay
-        ? "bg-green-100 border border-green-200"
-        : assignedClass?.affiliatedTo?.toLowerCase() === "hca"
-        ? "bg-blue-100"
-        : "bg-gray-100"
-    }`}
+          ${
+            assignedClass?.isPlayDay
+              ? "bg-green-100 border border-green-200"
+              : assignedClass?.affiliatedTo?.toLowerCase() === "hca"
+              ? "bg-blue-100"
+              : "bg-gray-100"
+          }`}
                 onClick={() => handleEditAssignedModalOpen(assignedClass)}
               >
                 <p className="text-sm">{assignedClass?.batchName}</p>
+                <p className="text-sm mt-1 flex items-center text-gray-600">
+                  <MapPinHouse size={15} />
+                  <span className="ml-1">{assignedClass?.branchName}</span>
+                </p>
+                {assignedClass?.recordUpdatedByTrainer ? (
+                  <p className="text-sm flex items-center text-green-600">
+                    <Check size={15} />
+                    <span className="ml-1">Record updated by trainer</span>
+                  </p>
+                ) : (
+                  <p className="text-sm flex items-center text-gray-600">
+                    <X size={15} />
+                    <span className="ml-1">Not updated by trainer</span>
+                  </p>
+                )}
 
                 <div className="trainer-attendance flex justify-between items-center">
-                  <div className="trainer">
+                  <div className="trainer flex items-center">
                     <AccountCircleIcon
                       sx={{ fontSize: "1rem", color: "gray" }}
                     />
@@ -96,41 +118,37 @@ const AssignedClasses = ({ selectedDate }: any) => {
                   </div>
 
                   <div className="status-indicators flex items-center">
-                    {/* student records added status */}
                     {assignedClass?.studentRecords?.length != 0 && (
-                      <span
-                        className={`mr-2 h-[10px] w-[10px] rounded-full bg-green-500`}
-                      ></span>
+                      <span className="mr-2 h-[10px] w-[10px] rounded-full bg-green-500"></span>
                     )}
-                    {/* trainer present status */}
                     <p
-                      className={`text-xs px-2 rounded-full py-0.5 w-max ${
-                        assignedClass?.userPresentStatus?.toLowerCase() ==
+                      className={`text-xs px-2 rounded-full py-0.5 font-bold w-max ${
+                        assignedClass?.userPresentStatus?.toLowerCase() ===
                         "present"
-                          ? " bg-green-500 text-white "
-                          : assignedClass?.userPresentStatus?.toLowerCase() ==
+                          ? "bg-green-500 text-white"
+                          : assignedClass?.userPresentStatus?.toLowerCase() ===
                             "absent"
-                          ? " bg-red-500 text-white "
-                          : " bg-gray-500 text-white "
-                      } `}
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-500 text-white"
+                      }`}
                     >
                       {assignedClass?.userPresentStatus}
                     </p>
                   </div>
                 </div>
               </div>
-              {/* Modal */}
+
               <Modal
                 open={
                   editAssignedClassModalOpen &&
                   selectedAssignedClass?._id === assignedClass?._id
-                } // Ensure modal is only open for the selected class
+                }
                 onClose={handleEditAssignedModalClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
                 className="flex items-center justify-center"
               >
-                <Box className="w-[40%] max-h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
+                <Box className="w-[50%] max-h-[90%] p-6 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
                   <ViewAssignedClass
                     assignedClass={selectedAssignedClass}
                     handleClose={handleEditAssignedModalClose}

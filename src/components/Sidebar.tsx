@@ -21,7 +21,7 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
 
   return (
     <motion.div
-      className="h-screen overflow-y-auto z-40 overflow-x-hidden bg-gray-700 text-white fixed top-0 left-0 flex flex-col items-center py-[9vh] shadow-md"
+      className="h-screen overflow-y-auto z-40 overflow-x-hidden bg-gray-700 text-white fixed top-0 left-0 flex flex-col items-center pt-[9vh] shadow-md"
       initial={{ width: "3.4dvw" }}
       animate={{ width: isExpanded ? "15dvw" : "3.4dvw" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -58,7 +58,7 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
         </div>
 
         {/* logout */}
-        <div className="bottom-menus">
+        {/* <div className="bottom-menus">
           <Link
             href={`/${role.toLowerCase()}/changepassword`}
             className={`flex items-center justify-start  gap-3 px-3 py-3 w-full  ${
@@ -128,7 +128,7 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
                       sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
                       className="mt-7 w-max"
                     >
-                      {/* You can add an icon if needed */}
+                
                       Logging out
                     </LoadingButton>
                   ) : (
@@ -158,14 +158,13 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
                     }}
                     sx={{ marginLeft: ".5rem", paddingInline: "1.5rem" }}
                   >
-                    {/* <ClearOutlinedIcon /> */}
                     Cancel
                   </Button>
                 </div>
               </>
             </Box>
           </Modal>
-        </div>
+        </div> */}
       </nav>
     </motion.div>
   );

@@ -7,13 +7,21 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
+
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProjects, getAllCourses } from "@/redux/allListSlice";
 import { LoadingButton } from "@mui/lab";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
+import { Book } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import Link from "next/link";
 
 const AddCourse = () => {
+  const router = useRouter();
+  const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -102,6 +110,7 @@ const AddCourse = () => {
         !validExtensions.includes(courseFileExtension)
       ) {
         notify("Invalid file extension. Please upload a .json file.", 204);
+        setaddCourseFileLoading(false);
         return;
       }
 
@@ -118,7 +127,13 @@ const AddCourse = () => {
         }
       );
       if (resData?.statusCode == 200) {
+        notify(resData?.msg, resData?.statusCode);
         handlefileUploadModalClose();
+        setTimeout(() => {
+          router.push(`/${session?.data?.user?.role?.toLowerCase()}/courses`);
+        }, 50);
+        setaddCourseFileLoading(false);
+        return;
       }
       setaddCourseFileLoading(false);
       notify(resData?.msg, resData?.statusCode);
@@ -186,7 +201,13 @@ const AddCourse = () => {
       data
     );
     if (resData.statusCode == 200) {
+      notify(resData.msg, resData.statusCode);
       handleconfirmModalClose();
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/courses`);
+      }, 50);
+      setaddCourseLoading(false);
+      return;
     }
     setaddCourseLoading(false);
     notify(resData.msg, resData.statusCode);
@@ -201,17 +222,34 @@ const AddCourse = () => {
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       <div className="heading flex items-center gap-4">
-        <h1 className="text-xl font-bold ">Add Course</h1>
-
-        <Button
-          onClick={handlefileUploadModalOpen}
-          color="info"
-          variant="contained"
-          size="medium"
-        >
-          <FileUploadIcon />
-          <span>Upload JSON file</span>
-        </Button>
+        <div className="header  w-full flex items-end justify-between">
+          <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
+            <Book />
+            <span className="ml-2">Add Course</span>
+          </h1>
+          {/* home button */}
+          <div className="buttons flex gap-4">
+            <Link href={`/${session?.data?.user?.role?.toLowerCase()}/courses`}>
+              <Button
+                className="homebutton"
+                color="inherit"
+                sx={{ color: "gray" }}
+              >
+                <HomeOutlinedIcon />
+                <span className="ml-1">Home</span>
+              </Button>
+            </Link>
+            <Button
+              onClick={handlefileUploadModalOpen}
+              color="info"
+              variant="contained"
+              size="medium"
+            >
+              <FileUploadIcon />
+              <span>Upload JSON file</span>
+            </Button>
+          </div>
+        </div>
 
         {/* file upload modal */}
         {/* confirm modal */}

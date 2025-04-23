@@ -18,6 +18,7 @@ export const fetchAssignedClasses = createAsyncThunk(
 
 const initialState: any = {
   allAssignedClasses: [],
+  allAssignedClassesLoading: true,
   allActiveAssignedClasses: [],
   status: "idle", // "idle" | "loading" | "succeeded" | "failed"
   error: null,
@@ -58,6 +59,7 @@ const assignedClassesSlice = createSlice({
     builder
       .addCase(fetchAssignedClasses.pending, (state) => {
         state.status = "loading";
+        state.allAssignedClassesLoading = true;
       })
       .addCase(fetchAssignedClasses.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -68,9 +70,11 @@ const assignedClassesSlice = createSlice({
         state.allActiveAssignedClasses = action.payload?.filter(
           (assignedClass: any) => assignedClass?.activeStatus === true
         );
+        state.allAssignedClassesLoading = false;
       })
       .addCase(fetchAssignedClasses.rejected, (state, action) => {
         state.status = "failed";
+        state.allAssignedClassesLoading = false;
       });
   },
 });

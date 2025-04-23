@@ -48,11 +48,13 @@ export const exportActivityRecordToExcel = (activityRecord: any) => {
   });
 
   // Generate Study Materials
-  const studyMaterials = activityRecord.studyMaterials.map((material: any) => ({
-    "File Name": material.fileName,
-    "File URL": material.fileUrl,
-    "Uploaded At": new Date(material.uploadedAt).toLocaleDateString(),
-  }));
+  const studyMaterials = activityRecord.classStudyMaterials.map(
+    (material: any) => ({
+      "File Name": material.fileName,
+      "File URL": material.fileUrl,
+      "Uploaded At": new Date(material.createdAt).toLocaleDateString(),
+    })
+  );
 
   // Get the file name from Nepali Date and Trainer Name
   const nepaliDate = new Date(activityRecord.nepaliDate)

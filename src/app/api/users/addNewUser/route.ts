@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const timeZone = "Asia/Kathmandu";
 
     const reqBody = await req.json();
-    console.log(reqBody);
+    console.log("add new student", reqBody);
 
     const utcJoinedDate = reqBody?.joinedDate
       ? dayjs(reqBody?.joinedDate).tz(timeZone).startOf("day").utc()

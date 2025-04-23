@@ -15,6 +15,7 @@ import {
   Legend,
   Bar,
   Label,
+  Cell,
 } from "recharts";
 
 const TodaysClasses = ({
@@ -33,19 +34,21 @@ const TodaysClasses = ({
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    const totalStudents = attendanceStudentRecordsList.length;
-    const presentCount = attendanceStudentRecordsList.filter(
-      (student: any) => student.attendance === "present"
-    ).length;
-    const absentCount = attendanceStudentRecordsList.filter(
-      (student: any) => student.attendance === "absent"
-    ).length;
-    const data = [
-      { name: "Total", count: totalStudents },
-      { name: "Present", count: presentCount },
-      { name: "Absent", count: absentCount },
-    ];
-    setData(data);
+    let total = 0;
+    let present = 0;
+    let absent = 0;
+
+    attendanceStudentRecordsList.forEach((student: any) => {
+      total++;
+      if (student.attendance?.toLowerCase() === "present") present++;
+      else if (student.attendance?.toLowerCase() === "absent") absent++;
+    });
+
+    setData([
+      { name: "Total", count: total },
+      { name: "Present", count: present },
+      { name: "Absent", count: absent },
+    ]);
   }, [attendanceStudentRecordsList]);
 
   function handleSelectTodaysClass(todaysClass: any) {
@@ -134,11 +137,17 @@ const TodaysClasses = ({
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="2 2" />
             <XAxis dataKey="name" />
-            {/* <YAxis /> */}
             <Tooltip />
             <Legend />
-            <Bar dataKey="count" fill="#F38C79" barSize={40}>
-              <Label position="top" />
+            <Bar dataKey="count" barSize={40}>
+              {data?.map((entry: any, index: any) => {
+                let fillColor = "#E5E7EB"; // default light gray
+                if (entry.name === "Present")
+                  fillColor = "#C7F4C2"; // light green
+                else if (entry.name === "Absent") fillColor = "#FBCACA"; // light red
+
+                return <Cell key={`cell-${index}`} fill={fillColor} />;
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>

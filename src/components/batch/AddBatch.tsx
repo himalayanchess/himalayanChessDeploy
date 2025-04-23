@@ -6,15 +6,22 @@ import { Box, Button, Divider, Modal } from "@mui/material";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProjects } from "@/redux/allListSlice";
+import { fetchAllProjects, getAllBranches } from "@/redux/allListSlice";
 import { LoadingButton } from "@mui/lab";
+import { Component } from "lucide-react";
+import Link from "next/link";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const AddBatch = () => {
+  const router = useRouter();
+  const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
 
   // use selector
-  const { allActiveProjects } = useSelector(
+  const { allActiveProjects, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
 
@@ -51,6 +58,8 @@ const AddBatch = () => {
       completedStatus: "Ongoing",
       batchStartDate: "",
       batchEndDate: "",
+      branchId: "",
+      branchName: "",
     },
   });
   // on submit function
@@ -61,7 +70,13 @@ const AddBatch = () => {
       data
     );
     if (resData.statusCode == 200) {
+      notify(resData.msg, resData.statusCode);
       handleconfirmModalClose();
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/batches`);
+      }, 50);
+      setaddBatchLoading(false);
+      return;
     }
     setaddBatchLoading(false);
     notify(resData.msg, resData.statusCode);
@@ -71,12 +86,29 @@ const AddBatch = () => {
   // fetch initial data
   useEffect(() => {
     dispatch(fetchAllProjects());
+    dispatch(getAllBranches());
   }, []);
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
       <div className="heading flex items-center gap-4">
-        <h1 className="w-max mr-auto text-2xl font-bold">Create New Batch</h1>
+        <div className="header  w-full flex items-end justify-between">
+          <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
+            <Component />
+            <span className="ml-2">Create New Batch</span>
+          </h1>
+          {/* home */}
+          <Link href={`/${session?.data?.user?.role?.toLowerCase()}/batches`}>
+            <Button
+              className="homebutton"
+              color="inherit"
+              sx={{ color: "gray" }}
+            >
+              <HomeOutlinedIcon />
+              <span className="ml-1">Home</span>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* divider */}
@@ -111,13 +143,29 @@ const AddBatch = () => {
                   onChange={(value: any) => {
                     field.onChange(value);
                     setselectedAffiliatedTo(value);
+
                     reset((prev: any) => {
-                      return {
-                        ...prev,
-                        batchName: value == "HCA" ? "HCA_" : "",
-                        projectName: "",
-                        projectId: "",
-                      };
+                      if (value === "HCA") {
+                        // Don't change branchName and branchId if "HCA" is selected
+                        return {
+                          ...prev,
+                          batchName: value === "HCA" ? "HCA_" : "",
+                          projectName: "",
+                          projectId: "",
+                          branchName: prev.branchName,
+                          branchId: prev.branchId,
+                        };
+                      } else {
+                        // Reset branchName and branchId when not "HCA"
+                        return {
+                          ...prev,
+                          batchName: value === "HCA" ? "HCA_" : "",
+                          projectName: "",
+                          projectId: "",
+                          branchName: value ? "" : prev.branchName,
+                          branchId: value ? "" : prev.branchId,
+                        };
+                      }
                     });
                   }}
                   error={errors.affiliatedTo}
@@ -236,6 +284,39 @@ const AddBatch = () => {
         </div>
 
         {/* fourth row */}
+        {/* branch */}
+        {selectedAffiliatedTo?.toLowerCase() == "hca" && (
+          <div className="branch col-span-1">
+            <Controller
+              name="branchName"
+              control={control}
+              rules={{
+                required: "Branch is required",
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Branch"
+                  options={allActiveBranchesList?.map(
+                    (branch: any) => branch.branchName
+                  )}
+                  selected={field.value || ""}
+                  onChange={(value: any) => {
+                    field.onChange(value);
+                    const selectedBranch: any = allActiveBranchesList.find(
+                      (branch: any) => branch.branchName == value
+                    );
+
+                    setValue("branchId", selectedBranch?._id || "");
+                  }}
+                  error={errors.branchName}
+                  helperText={errors.branchName?.message}
+                  required={true}
+                  width="full"
+                />
+              )}
+            />
+          </div>
+        )}
         {/* Complete Status */}
         <div className="completeStatus col-span-1">
           <Controller

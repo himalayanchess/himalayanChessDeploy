@@ -290,14 +290,14 @@ const StudentActivityRecords = ({
 
       {/* Filtered Records Table */}
       <div className="mt-2 border rounded-md">
-        <div className="table-headings mb-2 grid gap-2 grid-cols-[70px,repeat(7,1fr)] w-full bg-gray-200">
+        <div className="table-headings mb-2 grid gap-2 grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
           <span className="py-3 text-center text-sm font-bold text-gray-600">
             SN
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Date
           </span>
-          <span className="py-3 text-left col-span-2 text-sm font-bold text-gray-600">
+          <span className="py-3 text-left col-span-3 text-sm font-bold text-gray-600">
             Study Topic
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
@@ -306,12 +306,12 @@ const StudentActivityRecords = ({
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Attendance
           </span>
-          <span className="py-3 text-left text-sm font-bold text-gray-600">
+          {/* <span className="py-3 text-left text-sm font-bold text-gray-600">
             Remark
-          </span>
-          <span className="py-3 text-left text-sm font-bold text-gray-600">
+          </span> */}
+          {/* <span className="py-3 text-left text-sm font-bold text-gray-600">
             Status
-          </span>
+          </span> */}
         </div>
 
         {/* loading */}
@@ -345,7 +345,7 @@ const StudentActivityRecords = ({
                 return (
                   <div
                     key={record?._id}
-                    className={`grid grid-cols-[70px,repeat(7,1fr)] gap-2 border-b border-gray-200 py-0.5 items-center cursor-pointer transition-all ease duration-150
+                    className={`grid grid-cols-[70px,repeat(6,1fr)] gap-2 border-b border-gray-200 py-3 items-center cursor-pointer transition-all ease duration-150
                     ${
                       record?.isPlayDay ||
                       record?.mainStudyTopic?.toLowerCase() === "play"
@@ -366,7 +366,7 @@ const StudentActivityRecords = ({
                         .tz(timeZone)
                         .format("DD MMMM, YYYY, ddd")}
                     </Link>
-                    <div className="text-left col-span-2 text-xs text-gray-600 flex items-center gap-1 flex-wrap">
+                    <div className="text-left col-span-3 text-xs text-gray-600 flex items-center gap-1 flex-wrap">
                       {record?.studentRecords[0]?.studyTopics?.map(
                         (topic: any, index: any) => {
                           return (
@@ -401,10 +401,10 @@ const StudentActivityRecords = ({
                         {record?.studentRecords[0]?.attendance || "N/A"}
                       </span>
                     </span>
-                    <span className="text-left text-xs text-gray-600">
+                    {/* <span className="text-left text-xs text-gray-600">
                       {record?.studentRecords[0]?.remark || "N/A"}
-                    </span>
-                    <div className="text-left flex items-center text-xs text-gray-600">
+                    </span> */}
+                    {/* <div className="text-left flex items-center text-xs text-gray-600">
                       <span
                         className={`h-2 w-2 rounded-full mr-2 ${
                           record?.studentRecords[0]?.completedStatus
@@ -417,7 +417,7 @@ const StudentActivityRecords = ({
                           ? "Completed"
                           : "Incomplete"}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 );
               })}

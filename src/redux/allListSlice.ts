@@ -95,6 +95,39 @@ export const getAllCourses = createAsyncThunk(
     }
   }
 );
+// get all branch list
+export const getAllBranches = createAsyncThunk(
+  "branches/getAllBranches",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.get("/api/branches/getAllBranches");
+
+      return resData.allBranches;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// get all study materials
+export const getAllStudyMaterials = createAsyncThunk(
+  "studymaterials/getAllStudyMaterials",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.get(
+        "/api/studymaterials/getAllStudyMaterials"
+      );
+
+      return resData.allStudyMaterials;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 const initialState: any = {
   allTrainerList: [],
@@ -125,6 +158,16 @@ const initialState: any = {
   allActiveCoursesList: [],
   allFilteredActiveCoursesList: [],
   allCoursesLoading: true,
+
+  allBranchesList: [],
+  allActiveBranchesList: [],
+  allFilteredActiveBranchesList: [],
+  allBranchesLoading: true,
+
+  allStudyMaterialsList: [],
+  allActiveStudyMaterialsList: [],
+  allFilteredActiveStudyMaterialsList: [],
+  allStudyMaterialsLoading: true,
 
   status: "",
 };
@@ -189,7 +232,7 @@ const allListSlice = createSlice({
       state.allActiveBatches = tempAllActiveBatchesList;
     },
 
-    // update allFilteredActiveBatches state
+    // update allFilteredActiveCourses state
     filterCourseList: (state, action) => {
       state.allFilteredActiveCoursesList = action.payload;
     },
@@ -201,6 +244,40 @@ const allListSlice = createSlice({
         (course: any) => course?._id != courseId
       );
       state.allActiveCoursesList = tempAllActiveCoursesList;
+    },
+    // update allFilteredActiveBranchesstate
+    filterBranchList: (state, action) => {
+      state.allFilteredActiveBranchesList = action.payload;
+    },
+    // delete user
+    deleteBranch: (state, action) => {
+      const branchId = action.payload;
+
+      let tempAllActiveBranchesList = state.allActiveBranchesList?.filter(
+        (branch: any) => branch?._id != branchId
+      );
+      state.allActiveBranchesList = tempAllActiveBranchesList;
+    },
+    // add new study material
+    addNewStudyMaterial: (state, action) => {
+      console.log("new file", action.payload);
+
+      state.allActiveStudyMaterialsList = [
+        ...state.allActiveStudyMaterialsList,
+        action.payload,
+      ];
+    },
+    // delete study material
+    deleteStudyMaterial: (state, action) => {
+      const studyMaterialId = action.payload;
+
+      let tempAllStudyMaterialList = state.allActiveStudyMaterialsList?.filter(
+        (studyMaterial: any) => studyMaterial?._id != studyMaterialId
+      );
+      state.allActiveStudyMaterialsList = tempAllStudyMaterialList;
+    },
+    filterStudyMaterialsList: (state, action) => {
+      state.allFilteredActiveStudyMaterialsList = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -362,6 +439,57 @@ const allListSlice = createSlice({
         state.allActiveCoursesList = sortedCourses;
         state.allFilteredActiveCoursesList = sortedCourses;
         state.allCoursesLoading = false;
+      })
+      // all branches
+      .addCase(getAllBranches.pending, (state) => {
+        state.allBranchesLoading = true;
+      })
+      .addCase(getAllBranches.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log("after all Branches", action.payload);
+
+        state.allBranchesList = action.payload?.sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedBranches = action.payload
+          ?.filter((branch: any) => branch.activeStatus)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        // Filtering active Projects after sorting
+        state.allActiveBranchesList = sortedBranches;
+        state.allFilteredActiveBranchesList = sortedBranches;
+        state.allBranchesLoading = false;
+      })
+
+      // all study materials
+      .addCase(getAllStudyMaterials.pending, (state) => {
+        state.allStudyMaterialsLoading = true;
+      })
+      .addCase(getAllStudyMaterials.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log("after all study materials", action.payload);
+
+        state.allStudyMaterialsList = action.payload?.sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedStudyMaterials = action.payload
+          ?.filter((studyMaterial: any) => studyMaterial.activeStatus)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        // Filtering active Projects after sorting
+        state.allActiveStudyMaterialsList = sortedStudyMaterials;
+        state.allFilteredActiveStudyMaterialsList = sortedStudyMaterials;
+        state.allStudyMaterialsLoading = false;
       });
   },
 });
@@ -377,6 +505,11 @@ export const {
   deleteBatch,
   filterCourseList,
   deleteCourse,
+  filterBranchList,
+  deleteBranch,
+  addNewStudyMaterial,
+  deleteStudyMaterial,
+  filterStudyMaterialsList,
 } = allListSlice.actions;
 
 export default allListSlice.reducer;

@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllBatches,
   fetchAllProjects,
+  getAllBranches,
   getAllCourses,
 } from "@/redux/allListSlice";
 import dayjs from "dayjs";
@@ -20,6 +21,12 @@ import weekOfYear from "dayjs/plugin/weekOfYear";
 import isoWeek from "dayjs/plugin/isoWeek";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { Edit } from "lucide-react";
+import Link from "next/link";
+
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek);
@@ -29,12 +36,39 @@ dayjs.extend(utc);
 const timeZone = "Asia/Kathmandu";
 
 const UpdateStudent = ({ studentRecord }: any) => {
+  const session = useSession();
+  const router = useRouter();
+
   console.log("updateStudent", studentRecord);
 
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
   const statusOptions = ["Ongoing", "Left"];
-  const titleOptions = ["None", "CM", "RM", "GM", "IM"];
+  const titleOptions = [
+    "None",
+    // Grandmaster titles
+    "GM",
+    "IM",
+    "FM",
+    "CM",
+
+    // Women-specific titles
+    "WGM",
+    "WIM",
+    "WFM",
+    "WCM",
+
+    // Arbiters
+    "IA",
+    "FA",
+
+    // Trainers
+    "FST",
+    "FT",
+    "FI",
+    "NI",
+    "DI",
+  ];
   const coursesList = [
     { _id: "101", value: "React Basics", label: "React Basics" },
     { _id: "102", value: "Advanced JavaScript", label: "Advanced JavaScript" },
@@ -42,11 +76,19 @@ const UpdateStudent = ({ studentRecord }: any) => {
   ];
 
   const dispatch = useDispatch<any>();
-  const { allActiveBatches, allActiveProjects, allActiveCoursesList } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveBatches,
+    allActiveProjects,
+    allActiveCoursesList,
+    allActiveBranchesList,
+  } = useSelector((state: any) => state.allListReducer);
 
   const [loaded, setLoaded] = useState(false);
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
+  const [selectedBranch, setselectedBranch] = useState("");
+  const [filteredBatches, setFilteredBatches] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any>(""); // Example state
+
   const [updateStudentLoading, setupdateStudentLoading] = useState(false);
   const [hcaBatchList, sethcaBatchList] = useState([]);
   const [schoolBatchList, setschoolBatchList] = useState([]);
@@ -119,6 +161,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
       enrolledCourses: [],
       eventsPlayed: [],
       history: [],
+      branchName: "",
+      branchId: "",
       guardianInfo: { name: "", phone: "", email: "" },
       emergencyContactName: "",
       emergencyContactNo: "",
@@ -185,7 +229,13 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
       if (resData.statusCode == 200) {
         // console.log("ass student", resData);
+        notify(resData.msg, resData.statusCode);
         handleconfirmModalClose();
+        setTimeout(() => {
+          router.push(`/${session?.data?.user?.role?.toLowerCase()}/students`);
+        }, 50);
+        setupdateStudentLoading(false);
+        return;
       }
       setupdateStudentLoading(false);
       notify(resData.msg, resData.statusCode);
@@ -195,23 +245,42 @@ const UpdateStudent = ({ studentRecord }: any) => {
     }
   };
 
-  useEffect(() => {
-    let tempHcaBatches = allActiveBatches.filter(
-      (batch: any) => batch.affiliatedTo.toLowerCase() == "hca"
-    );
-    let tempSchoolBatches = allActiveBatches.filter(
-      (batch: any) => batch.affiliatedTo.toLowerCase() == "school"
-    );
-    sethcaBatchList(tempHcaBatches);
-    setschoolBatchList(tempSchoolBatches);
+  //filter batches
 
+  useEffect(() => {
+    // Filter batches based on the selected affiliatedTo, branch, and project
+    const filtered =
+      selectedAffiliatedTo?.toLowerCase() === "hca"
+        ? allActiveBatches
+            .filter(
+              (batch: any) =>
+                batch.affiliatedTo.toLowerCase() === "hca" &&
+                batch.branchName?.toLowerCase() ===
+                  selectedBranch?.toLowerCase()
+            )
+            .map((batch: any) => batch)
+        : allActiveBatches
+            .filter(
+              (batch: any) =>
+                batch.affiliatedTo.toLowerCase() === "school" &&
+                batch.projectName?.toLowerCase() ===
+                  selectedProject?.toLowerCase()
+            )
+            .map((batch: any) => batch);
+    // console.log("filtered bat", filtered);
+
+    setFilteredBatches(filtered); // Update filteredBatches state
+  }, [allActiveBatches, selectedAffiliatedTo, selectedBranch, selectedProject]);
+
+  useEffect(() => {
     setprojectList(allActiveProjects);
-  }, [allActiveBatches, allActiveProjects, dispatch]);
+  }, [allActiveProjects]);
 
   useEffect(() => {
     dispatch(fetchAllBatches());
     dispatch(fetchAllProjects());
     dispatch(getAllCourses());
+    dispatch(getAllBranches());
   }, []);
 
   useEffect(() => {
@@ -225,20 +294,38 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
       reset({
         ...studentRecord,
+        branchName: studentRecord?.branchName || "",
+        branchId: studentRecord?.branchId || "",
+        projectName: studentRecord?.projectName || "",
+        projectId: studentRecord?.projectId || "",
         batches: activeBatches || [],
         enrolledCourses: activeEnrolledCourses || [],
       });
-      setselectedAffiliatedTo(studentRecord.affiliatedTo);
+      setselectedAffiliatedTo(studentRecord?.affiliatedTo || "");
+      setSelectedProject(studentRecord?.projectName || "");
+      setselectedBranch(studentRecord?.branchName || "");
       setLoaded(true);
     }
   }, [studentRecord, reset]);
 
-  if (!loaded) return <div></div>;
+  if (!loaded)
+    return (
+      <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md "></div>
+    );
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <div className="heading ">
-        <h1 className="text-xl font-bold ">Update Student</h1>
+      <div className="header  w-full flex items-end justify-between">
+        <h1 className="text-xl font-bold flex items-center">
+          <Edit />
+          <span className="ml-2">Update Student</span>
+        </h1>
+        <Link href={`/${session?.data?.user?.role?.toLowerCase()}/students`}>
+          <Button className="homebutton" color="inherit" sx={{ color: "gray" }}>
+            <HomeOutlinedIcon />
+            <span className="ml-1">Home</span>
+          </Button>
+        </Link>
       </div>
       <Divider sx={{ margin: ".5rem 0 .7rem  " }} />
       <form
@@ -384,29 +471,62 @@ const UpdateStudent = ({ studentRecord }: any) => {
             />
           </div> */}
           {/* educationalInstitute */}
-          {selectedAffiliatedTo.toLowerCase() == "school" && (
-            <div className="educationalInstitute col-span-2">
-              <Controller
-                name="educationalInstitute"
-                control={control}
-                rules={
-                  {
-                    // required: "School Name is required",
+          {selectedAffiliatedTo.toLowerCase() == "hca" && (
+            <>
+              <div className="educationalInstitute col-span-1">
+                <Controller
+                  name="educationalInstitute"
+                  control={control}
+                  rules={
+                    {
+                      // required: "School Name is required",
+                    }
                   }
-                }
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    value={field.value || ""}
-                    type="text"
-                    label="Educational Insititute"
-                    // required={true}
-                    error={errors.educationalInstitute}
-                    helperText={errors.educationalInstitute?.message}
-                  />
-                )}
-              />
-            </div>
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="text"
+                      label="Educational Insititute"
+                      // required={true}
+                      error={errors.educationalInstitute}
+                      helperText={errors.educationalInstitute?.message}
+                    />
+                  )}
+                />
+              </div>
+              {/*  branch */}
+              <div className="branch col-span-1">
+                <Controller
+                  name="branchName"
+                  control={control}
+                  rules={{
+                    required: "Branch is required",
+                  }}
+                  render={({ field }) => (
+                    <Dropdown
+                      label="Branch"
+                      options={allActiveBranchesList?.map(
+                        (branch: any) => branch.branchName
+                      )}
+                      selected={field.value || ""}
+                      onChange={(value: any) => {
+                        field.onChange(value);
+                        const selectedBranch: any = allActiveBranchesList.find(
+                          (branch: any) => branch.branchName == value
+                        );
+
+                        setValue("branchId", selectedBranch?._id || "");
+                        setselectedBranch(value);
+                      }}
+                      error={errors.branchName}
+                      helperText={errors.branchName?.message}
+                      required={true}
+                      width="full"
+                    />
+                  )}
+                />
+              </div>
+            </>
           )}
         </div>
 
@@ -522,6 +642,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                     );
 
                     setValue("projectId", selectedProject?._id);
+                    setSelectedProject(value);
                   }}
                   error={errors.projectName}
                   helperText={errors.projectName?.message}
@@ -801,23 +922,14 @@ const UpdateStudent = ({ studentRecord }: any) => {
                       render={({ field }) => (
                         <Dropdown
                           label="Batch"
-                          options={
-                            selectedAffiliatedTo?.toLowerCase() == "hca"
-                              ? hcaBatchList.map(
-                                  (batch: any) => batch.batchName
-                                )
-                              : schoolBatchList.map(
-                                  (batch: any) => batch.batchName
-                                )
-                          }
+                          options={filteredBatches.map(
+                            (batch: any) => batch?.batchName
+                          )}
                           selected={field.value || ""}
                           onChange={(value: any) => {
                             field.onChange(value);
-                            let selectedBatchList =
-                              selectedAffiliatedTo.toLowerCase() == "hca"
-                                ? hcaBatchList
-                                : schoolBatchList;
-                            const selectedBatch: any = selectedBatchList.find(
+
+                            const selectedBatch: any = filteredBatches.find(
                               (batch: any) => batch.batchName == value
                             );
                             setValue(

@@ -22,7 +22,11 @@ import { Controller, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import UserList from "@/components/user/UserList";
 import { useDispatch, useSelector } from "react-redux";
-import { filterUsersList, getAllUsers } from "@/redux/allListSlice";
+import {
+  filterUsersList,
+  getAllBranches,
+  getAllUsers,
+} from "@/redux/allListSlice";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
 
@@ -33,8 +37,12 @@ const UsersComponent = ({ role = "" }: any) => {
   const dispatch = useDispatch<any>();
 
   // selector
-  const { allActiveUsersList, allFilteredActiveUsersList, allUsersLoading } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveUsersList,
+    allFilteredActiveUsersList,
+    allUsersLoading,
+    allActiveBranchesList,
+  } = useSelector((state: any) => state.allListReducer);
 
   // session
   const session = useSession();
@@ -42,6 +50,7 @@ const UsersComponent = ({ role = "" }: any) => {
   const options = ["All", "Trainer", "Admin", "Superadmin"];
   const [searchText, setsearchText] = useState("");
   const [selectedRole, setSelectedRole] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("All");
   const [filteredUsersCount, setFilteredUsersCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [usersPerPage] = useState(7);
@@ -49,6 +58,12 @@ const UsersComponent = ({ role = "" }: any) => {
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
+
+  // Calculate showing text
+  const startItem = (currentPage - 1) * usersPerPage + 1;
+  const endItem = Math.min(currentPage * usersPerPage, filteredUsersCount);
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredUsersCount}`;
+
   // Reset current page to 1 and search text when selectedStatus changes
   useEffect(() => {
     setCurrentPage(1);
@@ -63,6 +78,15 @@ const UsersComponent = ({ role = "" }: any) => {
         ? allActiveUsersList
         : allActiveUsersList.filter(
             (user: any) => user.role.toLowerCase() == selectedRole.toLowerCase()
+          );
+
+    // filter by branch
+    tempFilteredUsersList =
+      selectedBranch.toLowerCase() == "all"
+        ? tempFilteredUsersList
+        : tempFilteredUsersList.filter(
+            (user: any) =>
+              user.branchName.toLowerCase() == selectedBranch.toLowerCase()
           );
 
     if (searchText.trim() !== "") {
@@ -81,11 +105,12 @@ const UsersComponent = ({ role = "" }: any) => {
     setFilteredUsersCount(tempFilteredUsersList?.length);
     setCurrentPage(1);
     dispatch(filterUsersList(tempFilteredUsersList));
-  }, [allActiveUsersList, selectedRole, searchText]);
+  }, [allActiveUsersList, selectedRole, selectedBranch, searchText]);
 
   // intial data fetch
   useEffect(() => {
     dispatch(getAllUsers());
+    dispatch(getAllBranches());
   }, []);
   return (
     <div className="flex w-full">
@@ -104,14 +129,18 @@ const UsersComponent = ({ role = "" }: any) => {
                 selected={selectedRole}
                 onChange={setSelectedRole}
               />
-              <span className=" text-white  bg-gray-400 rounded-md py-1 px-3 ">
-                {Math.min(
-                  usersPerPage,
-                  allFilteredActiveUsersList?.length -
-                    (currentPage - 1) * usersPerPage
-                )}{" "}
-                of {allFilteredActiveUsersList?.length}
-              </span>
+              <Dropdown
+                label="Branch"
+                options={[
+                  "All",
+                  ...allActiveBranchesList.map(
+                    (branch: any) => branch.branchName
+                  ),
+                ]}
+                selected={selectedBranch}
+                onChange={setselectedBranch}
+              />
+              <span className="text-sm text-gray-600">{showingText}</span>
             </div>
           </div>
 

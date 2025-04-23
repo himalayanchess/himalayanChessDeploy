@@ -5,6 +5,8 @@ import Dropdown from "../Dropdown";
 import { Box, Button, Divider, Modal } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+
 import BackupIcon from "@mui/icons-material/Backup";
 import DeleteIcon from "@mui/icons-material/Delete";
 // import options for dropdown
@@ -20,7 +22,14 @@ import { notify } from "@/helpers/notify";
 import { LoadingButton } from "@mui/lab";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTrainers } from "@/redux/allListSlice";
+import { School } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 const AddProject = () => {
+  const router = useRouter();
+  const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
   // selector
@@ -206,6 +215,12 @@ const AddProject = () => {
         }
       }
       handleconfirmModalClose();
+      notify(resData.msg, resData.statusCode);
+      setTimeout(() => {
+        router.push(`/${session?.data?.user?.role?.toLowerCase()}/projects`);
+      }, 50);
+      setaddProjectLoading(false);
+      return;
     }
     notify(resData.msg, resData.statusCode);
     setaddProjectLoading(false);
@@ -219,7 +234,18 @@ const AddProject = () => {
   }, []);
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md ">
-      <h1 className="w-max mr-auto text-2xl font-bold">Add Project</h1>
+      <div className="header  w-full flex items-end justify-between">
+        <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
+          <School />
+          <span className="ml-2">Add Project</span>
+        </h1>
+        <Link href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}>
+          <Button className="homebutton" color="inherit" sx={{ color: "gray" }}>
+            <HomeOutlinedIcon />
+            <span className="ml-1">Home</span>
+          </Button>
+        </Link>
+      </div>
       <Divider sx={{ margin: ".7rem 0   " }} />
       {/* form-fields */}
       <form
@@ -563,7 +589,7 @@ const AddProject = () => {
 
           {assignedTrainerField.map((trainer, index) => (
             <div key={trainer.id} className="col-span-2 mb-3">
-              <div className={`grid grid-cols-4 gap-4 items-start`}>
+              <div className={`grid grid-cols-5 gap-4 items-start`}>
                 {/* trainer Selection */}
 
                 <Controller

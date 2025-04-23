@@ -9,7 +9,8 @@ const protectedRoutes = ["/admin", "/superadmin", "/trainer", "/dashboard"];
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const session = await getCurrentUser();
-
+  console.log(session);
+  
   // Redirect logged-in users away from auth pages
   if (authRoutes.includes(path)) {
     // Fixed missing parenthesis
