@@ -1,11 +1,10 @@
 "use client";
-import React from "react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
-import { useSession } from "next-auth/react";
-import AttendanceComponent from "@/components/attendance/AttendanceComponent";
+import StudyMaterialsComponent from "@/components/studymaterials/StudyMaterialsComponent";
 import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
+import { useSession } from "next-auth/react";
+import React from "react";
 
 const page = () => {
   const session = useSession();
@@ -14,12 +13,13 @@ const page = () => {
       <Sidebar
         role="Admin"
         menuItems={adminMenuItems}
-        activeMenu="Attendance"
+        activeMenu="Study Materials"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
+        {/* main component */}
         <div className="pb-6 h-[91dvh]  flex flex-col py-5 px-14 ">
-          <AttendanceComponent />
+          <StudyMaterialsComponent role={session?.data?.user?.role} />
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ import ViewLeaveRequest from "./ViewLeaveRequest";
 import { useSession } from "next-auth/react";
 import { fetchAllTrainersLeaveRequests } from "@/redux/leaveRequestSlice";
 import Link from "next/link";
-
+import HistoryIcon from "@mui/icons-material/History";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
@@ -52,13 +52,19 @@ const TrainersLeaveRequestList = ({ role }: any) => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <p className="text-xl font-bold">Leave History</p>
+      <div className="header flex items-end">
+        <p className=" flex items-center">
+          <HistoryIcon />
+          <span className="ml-1 text-xl font-bold">Leave History</span>
+        </p>
+        <span className="text-sm ml-2">Showing 6 records</span>
+      </div>
 
       <div className="leaveHistoryList mt-4 h-full flex flex-col gap-2 overflow-y-auto">
         {allTrainersLeaveRequests?.length == 0 ? (
           <p className="text-gray-500 text-sm">No leave requests yet</p>
         ) : (
-          allTrainersLeaveRequests?.map((leaveRequest: any) => (
+          allTrainersLeaveRequests?.map((leaveRequest: any, index: any) => (
             <Link
               key={leaveRequest?._id}
               href={`/${role?.toLowerCase()}/leaverequest/${leaveRequest?._id}`}
@@ -86,7 +92,10 @@ const TrainersLeaveRequestList = ({ role }: any) => {
                   {leaveRequest?.approvalStatus}
                 </p>
               </div>
-              <p className="font-bold text-sm">{leaveRequest?.leaveSubject}</p>
+              <p className="font-bold text-sm">
+                <span className="mr-1">{index + 1}.</span>{" "}
+                {leaveRequest?.leaveSubject}
+              </p>
               <p className="text-xs text-gray-500">
                 Duration: {leaveRequest?.leaveDurationDays || 0} day(s)
               </p>

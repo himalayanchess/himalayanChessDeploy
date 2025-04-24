@@ -34,6 +34,11 @@ const timeZone = "Asia/Kathmandu";
 
 const BasicStudentInfo = ({ studentRecord }: any) => {
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   const formatDate = (date: string) => {
     return dayjs(date).tz(timeZone).format("MMM D, YYYY");
   };
@@ -312,19 +317,23 @@ const BasicStudentInfo = ({ studentRecord }: any) => {
             <div>
               <p className="text-xs text-gray-500">Branch</p>
               <div className="detail flex items-center">
-                {studentRecord?.branchId ? (
-                  <Link
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
-                      studentRecord?.branchId
-                    }`}
-                    className="font-medium underline hover:text-blue-500"
-                  >
-                    {studentRecord?.branchName || "N/A"}
-                  </Link>
+                {studentRecord?.branchName ? (
+                  isSuperOrGlobalAdmin ? (
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                        studentRecord?.branchId
+                      }`}
+                      className="font-medium underline hover:text-blue-500"
+                    >
+                      {studentRecord?.branchName}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-700 font-medium">
+                      {studentRecord?.branchName}
+                    </span>
+                  )
                 ) : (
-                  <span className="text-gray-700">
-                    {studentRecord?.branchName || "N/A"}
-                  </span>
+                  <span className="text-gray-700">N/A</span>
                 )}
               </div>
             </div>

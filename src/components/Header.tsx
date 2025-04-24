@@ -11,6 +11,7 @@ import { Box, Button, Modal } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LoadingButton } from "@mui/lab";
+import { CircleUser, Crown, MapPinHouse, Shield, User } from "lucide-react";
 const Header = () => {
   const router = useRouter();
 
@@ -53,116 +54,144 @@ const Header = () => {
           <p className="w-full text-xs tracking-wider">CHESS ACADEMY</p>
         </div>
       </Link>
-      <div className="user-details text-right flex z-40" ref={dropdownRef}>
-        {session?.data?.user ? (
-          <div className="loggedin-user relative">
-            <button
-              onClick={() => setshowDropdownOptions((prev) => !prev)}
-              className="user-info flex items-start"
-            >
-              <div className="info flex flex-col items-end">
-                <p className="font-bold text-">
-                  Hi, {session?.data?.user?.name}
-                </p>
-                <p className="text-xs bg-gray-500 rounded-full font-semibold text-white px-3 py-1">
-                  {session?.data?.user?.role}
-                </p>
-              </div>
-              <ArrowDropDownIcon />
-            </button>
 
-            <div
-              className={`dropdown-options ${
-                showDropdownOptions ? "flex" : "hidden"
-              } absolute top-[9vh]  flex-col rounded-md shadow-md w-[185px] py-2 bg-white`}
-            >
-              {/* change password */}
-              <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/changepassword`}
-                className="px-4 py-2 w-full text-left flex items-center justify-start border-b hover:bg-gray-200"
-              >
-                <SettingsSuggestIcon sx={{ fontSize: "1.4rem" }} />
-                <span className="ml-2 text-sm">Change password</span>
-              </Link>
-              {/* logout */}
-              <button
-                onClick={() => setsignoutModalOpen(true)}
-                className={`px-4 py-2 w-full text-left flex items-center justify-start hover:bg-gray-200`}
-              >
-                <LogoutIcon sx={{ fontSize: "1.4rem" }} />
-                <span className="ml-2 text-sm">Log out</span>
-              </button>
-
-              <Modal
-                open={signoutModalOpen}
-                onClose={() => {
-                  setsignoutModalOpen(false);
-                }}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                className="flex items-center justify-center"
-              >
-                <Box className="w-[400px] py-7 text-center rounded-lg bg-white">
-                  <>
-                    <p className="poppins font-bold text-2xl ">
-                      Logout Confirmation
-                    </p>
-                    <p className="text-sm poppins mt-2 mb-7 text-gray-500">
-                      Are you sure you want to logout?
-                    </p>
-                    <div className="flex justify-center">
-                      {logoutLoading ? (
-                        <LoadingButton
-                          variant="contained"
-                          size="medium"
-                          loading={logoutLoading}
-                          loadingPosition="start"
-                          sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
-                          className="mt-7 w-max"
-                        >
-                          {/* You can add an icon if needed */}
-                          Logging out
-                        </LoadingButton>
-                      ) : (
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          size="medium"
-                          color="error"
-                          onClick={async () => {
-                            console.log("logout");
-                            setlogoutLoading(true);
-                            await signOut({ redirect: false });
-                            router.push("/login");
-                            setlogoutLoading(false);
-                          }}
-                          sx={{ marginRight: ".5rem", paddingInline: "1.5rem" }}
-                        >
-                          Logout
-                        </Button>
-                      )}
-                      <Button
-                        variant="outlined"
-                        size="medium"
-                        onClick={() => {
-                          setsignoutModalOpen(false);
-                        }}
-                        sx={{ marginLeft: ".5rem", paddingInline: "1.5rem" }}
-                      >
-                        {/* <ClearOutlinedIcon /> */}
-                        Cancel
-                      </Button>
-                    </div>
-                  </>
-                </Box>
-              </Modal>
-            </div>
-          </div>
-        ) : (
-          <div className="loading-dots mr-8">
-            <ThreeDots fill="black" height="1.7rem" width="2.7rem" />
+      <div className="branch-userinfo flex gap-10">
+        {/* branch Infomation */}
+        {session?.data?.user && (
+          <div className="branchInformation flex items-center gap-2 text-sm font-medium">
+            <MapPinHouse size={20} className="text-gray-600" />
+            {session?.data?.user?.role?.toLowerCase() === "superadmin"
+              ? "All Branches"
+              : session?.data?.user?.branchName || "No Branch"}
           </div>
         )}
+        {/* user-info */}
+        <div className="user-details text-right flex z-40" ref={dropdownRef}>
+          {session?.data?.user ? (
+            <div className="loggedin-user relative">
+              <button
+                onClick={() => setshowDropdownOptions((prev) => !prev)}
+                className="user-info flex items-start"
+              >
+                <div className="info flex flex-col items-end">
+                  <p className="font-bold text-">
+                    Hi, {session?.data?.user?.name}
+                  </p>
+                  <p className="text-xs bg-gray-500 rounded-full font-semibold text-white px-3 py-1 flex items-center gap-1">
+                    {session?.data?.user?.role?.toLowerCase() ===
+                      "superadmin" && <Crown size={14} />}
+                    {session?.data?.user?.role?.toLowerCase() === "admin" && (
+                      <CircleUser size={14} />
+                    )}
+                    {session?.data?.user?.role?.toLowerCase() === "trainer" && (
+                      <User size={14} />
+                    )}
+                    {session?.data?.user?.role}
+                    {session?.data?.user?.isGlobalAdmin && <Crown size={14} />}
+                  </p>
+                </div>
+                <ArrowDropDownIcon />
+              </button>
+
+              <div
+                className={`dropdown-options ${
+                  showDropdownOptions ? "flex" : "hidden"
+                } absolute top-[9vh]  flex-col rounded-md shadow-md w-[185px] py-2 bg-white`}
+              >
+                {/* change password */}
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/changepassword`}
+                  className="px-4 py-2 w-full text-left flex items-center justify-start border-b hover:bg-gray-200"
+                >
+                  <SettingsSuggestIcon sx={{ fontSize: "1.4rem" }} />
+                  <span className="ml-2 text-sm">Change password</span>
+                </Link>
+                {/* logout */}
+                <button
+                  onClick={() => setsignoutModalOpen(true)}
+                  className={`px-4 py-2 w-full text-left flex items-center justify-start hover:bg-gray-200`}
+                >
+                  <LogoutIcon sx={{ fontSize: "1.4rem" }} />
+                  <span className="ml-2 text-sm">Log out</span>
+                </button>
+
+                <Modal
+                  open={signoutModalOpen}
+                  onClose={() => {
+                    setsignoutModalOpen(false);
+                  }}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                  className="flex items-center justify-center"
+                >
+                  <Box className="w-[400px] py-7 text-center rounded-lg bg-white">
+                    <>
+                      <p className="poppins font-bold text-2xl ">
+                        Logout Confirmation
+                      </p>
+                      <p className="text-sm poppins mt-2 mb-7 text-gray-500">
+                        Are you sure you want to logout?
+                      </p>
+                      <div className="flex justify-center">
+                        {logoutLoading ? (
+                          <LoadingButton
+                            variant="contained"
+                            size="medium"
+                            loading={logoutLoading}
+                            loadingPosition="start"
+                            sx={{
+                              marginRight: ".5rem",
+                              paddingInline: "1.5rem",
+                            }}
+                            className="mt-7 w-max"
+                          >
+                            {/* You can add an icon if needed */}
+                            Logging out
+                          </LoadingButton>
+                        ) : (
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            size="medium"
+                            color="error"
+                            onClick={async () => {
+                              console.log("logout");
+                              setlogoutLoading(true);
+                              await signOut({ redirect: false });
+                              router.push("/login");
+                              setlogoutLoading(false);
+                            }}
+                            sx={{
+                              marginRight: ".5rem",
+                              paddingInline: "1.5rem",
+                            }}
+                          >
+                            Logout
+                          </Button>
+                        )}
+                        <Button
+                          variant="outlined"
+                          size="medium"
+                          onClick={() => {
+                            setsignoutModalOpen(false);
+                          }}
+                          sx={{ marginLeft: ".5rem", paddingInline: "1.5rem" }}
+                        >
+                          {/* <ClearOutlinedIcon /> */}
+                          Cancel
+                        </Button>
+                      </div>
+                    </>
+                  </Box>
+                </Modal>
+              </div>
+            </div>
+          ) : (
+            <div className="loading-dots mr-8">
+              <ThreeDots fill="black" height="1.7rem" width="2.7rem" />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

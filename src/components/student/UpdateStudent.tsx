@@ -38,7 +38,10 @@ const timeZone = "Asia/Kathmandu";
 const UpdateStudent = ({ studentRecord }: any) => {
   const session = useSession();
   const router = useRouter();
-
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   console.log("updateStudent", studentRecord);
 
   const affiliatedToOptions = ["HCA", "School"];
@@ -508,6 +511,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
                       options={allActiveBranchesList?.map(
                         (branch: any) => branch.branchName
                       )}
+                      disabled={!isSuperOrGlobalAdmin}
                       selected={field.value || ""}
                       onChange={(value: any) => {
                         field.onChange(value);

@@ -24,6 +24,10 @@ const timeZone = "Asia/Kathmandu";
 
 const UpdateBatch = ({ batchRecord }: any) => {
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   const router = useRouter();
   // dispatch
   const dispatch = useDispatch<any>();
@@ -321,6 +325,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
 
                     setValue("branchId", selectedBranch?._id || "");
                   }}
+                  disabled={!isSuperOrGlobalAdmin}
                   error={errors.branchName}
                   helperText={errors.branchName?.message}
                   required={true}

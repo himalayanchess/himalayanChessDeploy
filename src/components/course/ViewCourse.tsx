@@ -21,6 +21,10 @@ const timeZone = "Asia/Kathmandu";
 const ViewCourse = ({ courseRecord }: any) => {
   // console.log(courseRecord);
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     if (courseRecord) {
@@ -39,16 +43,18 @@ const ViewCourse = ({ courseRecord }: any) => {
         <h1 className="text-2xl font-bold flex items-center">
           <BookCopy />
           <span className="ml-2 mr-3">Course Details</span>
-          <Link
-            href={`/${session?.data?.user?.role?.toLowerCase()}/courses/updatecourse/${
-              courseRecord?._id
-            }`}
-          >
-            <Button variant="text" size="small">
-              <Edit />
-              <span className="ml-1">Edit</span>
-            </Button>
-          </Link>
+          {isSuperOrGlobalAdmin && (
+            <Link
+              href={`/${session?.data?.user?.role?.toLowerCase()}/courses/updatecourse/${
+                courseRecord?._id
+              }`}
+            >
+              <Button variant="text" size="small">
+                <Edit />
+                <span className="ml-1">Edit</span>
+              </Button>
+            </Link>
+          )}
         </h1>
 
         <div className="buttons flex gap-4">

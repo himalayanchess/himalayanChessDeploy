@@ -37,6 +37,10 @@ const timeZone = "Asia/Kathmandu";
 const ViewBatch = ({ batchRecord }: any) => {
   const dispatch = useDispatch<any>();
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
 
   // console.log(batchRecord);
   const { allActiveStudentsList } = useSelector(
@@ -153,6 +157,7 @@ const ViewBatch = ({ batchRecord }: any) => {
             <h1 className="text-2xl font-bold flex items-center">
               <Component />
               <span className="ml-2 mr-3">Batch Details</span>
+
               <Link
                 href={`/${session?.data?.user?.role?.toLowerCase()}/batches/updatebatch/${
                   batchRecord?._id

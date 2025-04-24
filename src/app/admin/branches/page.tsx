@@ -3,11 +3,12 @@ import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import ProjectComponent from "@/components/project/ProjectComponent";
-import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
+import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import { useSession } from "next-auth/react";
+import BranchComponent from "@/components/branches/BranchComponent";
+import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 
-const Projects = () => {
+const Users = () => {
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -15,12 +16,12 @@ const Projects = () => {
       session?.data?.user?.isGlobalAdmin);
   return (
     <div className="">
-      <Sidebar role="Admin" menuItems={adminMenuItems} activeMenu="Projects" />
+      <Sidebar role="Admin" menuItems={adminMenuItems} activeMenu="Branches" />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 h-[91dvh] flex py-5 px-14 ">
           {isSuperOrGlobalAdmin ? (
-            <ProjectComponent role={session?.data?.user?.role} />
+            <BranchComponent role={session?.data?.user?.role} />
           ) : (
             <p>No access</p>
           )}
@@ -30,4 +31,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default Users;

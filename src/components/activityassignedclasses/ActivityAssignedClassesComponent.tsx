@@ -32,6 +32,7 @@ import {
 import { exportOverallActivityRecordToExcel } from "@/helpers/exportToExcel/exportOverallActivityRecordToExcel";
 import ActivityRecordList from "../activityrecord/ActivityRecordList";
 import ActivityAssignedClassesRecordList from "./ActivityAssignedClassesRecordList";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -40,6 +41,12 @@ dayjs.extend(isoWeek);
 const timeZone = "Asia/Kathmandu";
 
 const ActivityAssignedClassesComponent = () => {
+  const session = useSession();
+
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -67,8 +74,8 @@ const ActivityAssignedClassesComponent = () => {
     .endOf("isoWeek")
     .format("YYYY-MM-DD");
 
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
-  const [selectedBranch, setselectedBranch] = useState("All");
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("");
+  const [selectedBranch, setselectedBranch] = useState("");
 
   const [filteredActivityRecordCount, setfilteredActivityRecordCount] =
     useState(0);
@@ -118,8 +125,10 @@ const ActivityAssignedClassesComponent = () => {
 
   // if affiliated to changes then reset project dropdown
   useEffect(() => {
-    setselectedBranch("All");
-    setselectedBatchName("All");
+    if (isSuperOrGlobalAdmin) {
+      setselectedBranch("All");
+      setselectedBatchName("All");
+    }
   }, [selectedAffiliatedTo]);
 
   // Reset batch when branch changes
@@ -135,31 +144,31 @@ const ActivityAssignedClassesComponent = () => {
 
     // Apply filters
     filtered =
-      selectedAffiliatedTo.toLowerCase() === "all"
+      selectedAffiliatedTo?.toLowerCase() === "all"
         ? filtered
-        : filtered.filter(
+        : filtered?.filter(
             (record: any) =>
               record.affiliatedTo?.toLowerCase() ===
-              selectedAffiliatedTo.toLowerCase()
+              selectedAffiliatedTo?.toLowerCase()
           );
 
     filtered =
-      selectedBranch.toLowerCase() === "all"
+      selectedBranch?.toLowerCase() === "all"
         ? filtered
-        : filtered.filter(
+        : filtered?.filter(
             (record: any) =>
-              record.branchName?.toLowerCase() === selectedBranch.toLowerCase()
+              record.branchName?.toLowerCase() === selectedBranch?.toLowerCase()
           );
 
     if (selectedBatchName?.toLowerCase() !== "all") {
-      filtered = filtered.filter(
+      filtered = filtered?.filter(
         (record: any) =>
           record.batchName?.toLowerCase() === selectedBatchName.toLowerCase()
       );
     }
 
     if (selectedTrainer?.toLowerCase() !== "all") {
-      filtered = filtered.filter(
+      filtered = filtered?.filter(
         (record: any) =>
           record.trainerName?.toLowerCase() === selectedTrainer.toLowerCase()
       );
@@ -167,14 +176,14 @@ const ActivityAssignedClassesComponent = () => {
 
     // Date filtering
     if (useAdvancedDate) {
-      filtered = filtered.filter((record: any) => {
+      filtered = filtered?.filter((record: any) => {
         const recordDate = dayjs(record.utcDate)
           .tz(timeZone)
           .format("YYYY-MM-DD");
         return recordDate >= startDate && recordDate <= endDate;
       });
     } else {
-      filtered = filtered.filter((record: any) => {
+      filtered = filtered?.filter((record: any) => {
         const recordMonth = dayjs(record.utcDate)
           .tz(timeZone)
           .format("YYYY-MM");
@@ -188,21 +197,21 @@ const ActivityAssignedClassesComponent = () => {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    setfilteredActivityRecordCount(filtered.length);
+    setfilteredActivityRecordCount(filtered?.length);
     setCurrentPage(1);
     dispatch(filterActivityRecords(filtered));
 
     // === Stats Generation ===
 
     // Overall Stats
-    const totalClasses = filtered.length;
-    const takenClasses = filtered.filter(
+    const totalClasses = filtered?.length;
+    const takenClasses = filtered?.filter(
       (record: any) => record.recordUpdatedByTrainer
     ).length;
     const notTakenClasses = totalClasses - takenClasses;
 
     // Affiliated to "hca"
-    const hcaRecords = filtered.filter(
+    const hcaRecords = filtered?.filter(
       (record: any) => record.affiliatedTo?.toLowerCase() === "hca"
     );
     const hcaStats = {
@@ -277,6 +286,24 @@ const ActivityAssignedClassesComponent = () => {
     selectedMonth,
   ]);
 
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    let affiliatedTo = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+      affiliatedTo = "HCA";
+    }
+    setselectedBranch(branchName);
+    setselectedAffiliatedTo(affiliatedTo);
+  }, [session?.data?.user]);
+
   useEffect(() => {
     dispatch(fetchAllActivityRecords());
     dispatch(fetchAllBatches());
@@ -299,6 +326,7 @@ const ActivityAssignedClassesComponent = () => {
               options={affilatedToOptions}
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
+              disabled={!isSuperOrGlobalAdmin}
               width="full"
             />
 
@@ -310,7 +338,10 @@ const ActivityAssignedClassesComponent = () => {
                   (branch: any) => branch.branchName
                 ) || []),
               ]}
-              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              disabled={
+                selectedAffiliatedTo?.toLowerCase() != "hca" ||
+                !isSuperOrGlobalAdmin
+              }
               selected={selectedBranch}
               onChange={setselectedBranch}
               width="full"

@@ -50,6 +50,9 @@ const LeaveRequestSchema = new mongoose.Schema(
         },
       },
     ],
+    branchName: { type: String, default: "" },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
+
     isResponded: { type: Boolean, default: false },
     approvalStatus: {
       type: String,

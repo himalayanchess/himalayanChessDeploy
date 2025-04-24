@@ -185,7 +185,7 @@ const StudentList = ({
                     </Link>
 
                     {/* delete modal */}
-                    {role?.toLowerCase() == "superadmin" && (
+                    {role?.toLowerCase() != "trainer" && (
                       <>
                         {student?.activeStatus == true && (
                           <button
@@ -206,7 +206,7 @@ const StudentList = ({
                           className="flex items-center justify-center"
                           BackdropProps={{
                             style: {
-                              backgroundColor: "rgba(0,0,0,0.1)", // Make the backdrop transparent
+                              backgroundColor: "rgba(0,0,0,0.3)", // Make the backdrop transparent
                             },
                           }}
                         >

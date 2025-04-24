@@ -33,26 +33,34 @@ const assignedClassesSlice = createSlice({
       console.log("assignedddddddddddddddddddd", action.payload);
 
       state.allActiveAssignedClasses.push(action.payload);
-    },
-    // remove class from active assigned class
-    removeActiveAssignedClass: (state, action) => {
-      const classId = action.payload._id;
-      state.allActiveAssignedClasses = state.allActiveAssignedClasses.filter(
-        (assignedClass: any) => assignedClass?._id !== classId // Ensure proper comparison
+      // Sort by createdAt after adding
+      state.allActiveAssignedClasses.sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     },
-    // update class from active assigned class
+
+    // remove class from active assigned class
+  removeActiveAssignedClass: (state, action) => {
+      const classId = action.payload._id;
+      state.allActiveAssignedClasses = state.allActiveAssignedClasses
+        .filter((assignedClass: any) => assignedClass?._id !== classId)
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+    },
+
     updateActiveAssignedClass: (state, action) => {
       const classId = action.payload._id;
-      state.allActiveAssignedClasses = state.allActiveAssignedClasses.map(
-        (assignedClass: any) => {
-          if (assignedClass?._id != classId) {
-            return assignedClass;
-          } else {
-            return action.payload;
-          }
-        }
-      );
+      state.allActiveAssignedClasses = state.allActiveAssignedClasses
+        .map((assignedClass: any) =>
+          assignedClass?._id !== classId ? assignedClass : action.payload
+        )
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     },
   },
   extraReducers: (builder) => {
@@ -63,13 +71,18 @@ const assignedClassesSlice = createSlice({
       })
       .addCase(fetchAssignedClasses.fulfilled, (state, action) => {
         state.status = "succeeded";
+
         // set all assigned classes
         state.allAssignedClasses = action.payload;
 
-        // set all (active) assigned classes
-        state.allActiveAssignedClasses = action.payload?.filter(
-          (assignedClass: any) => assignedClass?.activeStatus === true
-        );
+        // filter and sort active assigned classes by createdAt
+        state.allActiveAssignedClasses = action.payload
+          ?.filter((assignedClass: any) => assignedClass?.activeStatus === true)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
         state.allAssignedClassesLoading = false;
       })
       .addCase(fetchAssignedClasses.rejected, (state, action) => {

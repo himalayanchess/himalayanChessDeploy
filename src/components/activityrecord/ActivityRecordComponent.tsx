@@ -28,6 +28,7 @@ import {
   getAllBranches,
 } from "@/redux/allListSlice";
 import { exportOverallActivityRecordToExcel } from "@/helpers/exportToExcel/exportOverallActivityRecordToExcel";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -35,6 +36,13 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ActivityRecordComponent = () => {
+  // session
+  const session = useSession();
+
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -58,11 +66,12 @@ const ActivityRecordComponent = () => {
     .format("YYYY-MM-DD");
   const defaultEndDate = dayjs().tz(timeZone).format("YYYY-MM-DD");
 
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
-  const [selectedBranch, setselectedBranch] = useState("All");
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("");
+  const [selectedBranch, setselectedBranch] = useState("");
 
   const [filteredActivityRecordCount, setfilteredActivityRecordCount] =
     useState(0);
+  const [filteredBatches, setfilteredBatches] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [activityRecordsPerPage] = useState(7);
   const [selectedBatchName, setselectedBatchName] = useState("All");
@@ -99,8 +108,10 @@ const ActivityRecordComponent = () => {
 
   // if affiliated to changes then reset project dropdown
   useEffect(() => {
-    setselectedBranch("All");
-    setselectedBatchName("All");
+    if (isSuperOrGlobalAdmin) {
+      setselectedBranch("All");
+      setselectedBatchName("All");
+    }
   }, [selectedAffiliatedTo]);
 
   // Reset batch when branch changes
@@ -116,19 +127,19 @@ const ActivityRecordComponent = () => {
 
     // filter by affiliated to
     filtered =
-      selectedAffiliatedTo.toLowerCase() == "all"
+      selectedAffiliatedTo?.toLowerCase() == "all"
         ? filtered
         : filtered.filter(
             (record: any) =>
               record.affiliatedTo.toLowerCase() ==
-              selectedAffiliatedTo.toLowerCase()
+              selectedAffiliatedTo?.toLowerCase()
           );
     filtered =
-      selectedBranch.toLowerCase() == "all"
+      selectedBranch?.toLowerCase() == "all"
         ? filtered
         : filtered.filter(
             (record: any) =>
-              record.branchName.toLowerCase() == selectedBranch.toLowerCase()
+              record.branchName.toLowerCase() == selectedBranch?.toLowerCase()
           );
 
     // Filter by Batch Name
@@ -188,6 +199,37 @@ const ActivityRecordComponent = () => {
     selectedMonth,
   ]);
 
+  // filter batch when afiiliated to or branch changes
+  useEffect(() => {
+    let tempFilteredBatches =
+      selectedAffiliatedTo?.toLowerCase() == "all"
+        ? allActiveBatches
+        : allActiveBatches?.filter(
+            (batch: any) =>
+              batch?.affiliatedTo?.toLowerCase() ==
+              selectedAffiliatedTo?.toLowerCase()
+          );
+    setfilteredBatches(tempFilteredBatches);
+  }, [selectedAffiliatedTo, selectedBranch]);
+
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    let affiliatedTo = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+      affiliatedTo = "HCA";
+    }
+    setselectedBranch(branchName);
+    setselectedAffiliatedTo(affiliatedTo);
+  }, [session?.data?.user]);
+
   useEffect(() => {
     dispatch(fetchAllActivityRecords());
     dispatch(fetchAllBatches());
@@ -211,6 +253,7 @@ const ActivityRecordComponent = () => {
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
               width="full"
+              disabled={!isSuperOrGlobalAdmin}
             />
 
             <Dropdown
@@ -221,7 +264,10 @@ const ActivityRecordComponent = () => {
                   (branch: any) => branch.branchName
                 ) || []),
               ]}
-              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              disabled={
+                selectedAffiliatedTo?.toLowerCase() != "hca" ||
+                !isSuperOrGlobalAdmin
+              }
               selected={selectedBranch}
               onChange={setselectedBranch}
               width="full"
@@ -231,7 +277,7 @@ const ActivityRecordComponent = () => {
               label="Batch"
               options={[
                 "All",
-                ...allActiveBatches?.map((batch: any) => batch?.batchName),
+                ...filteredBatches?.map((batch: any) => batch.batchName ),
               ]}
               selected={selectedBatchName}
               onChange={setselectedBatchName}

@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,6 +37,7 @@ const instituteColors = {
 };
 
 const AssignClass = () => {
+  const session = useSession();
   const dis = useDispatch<any>();
   const { allActiveAssignedClasses, status, error } = useSelector(
     (state: any) => state.assignedClassesReducer
@@ -88,33 +90,52 @@ const AssignClass = () => {
   }
 
   useEffect(() => {
+    const user = session?.data?.user;
+
+    const isSuperAdminOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
     const selectedNepaliDateOnly = selectedDate
       .tz(timeZone)
       .startOf("day")
       .format("YYYY-MM-DD");
 
+    // Filter by date for everyone, and by branch only if not a super/global admin
     const filteredClasses = allActiveAssignedClasses.filter(
       (assignedClass: any) => {
         const assignedClassDate = dayjs(assignedClass.utcDate)
           .tz(timeZone)
           .startOf("day")
           .format("YYYY-MM-DD");
-        return assignedClassDate === selectedNepaliDateOnly;
+
+        const matchesDate = assignedClassDate === selectedNepaliDateOnly;
+        const matchesBranch =
+          assignedClass?.branchName.toLowerCase() ===
+          user?.branchName.toLowerCase();
+
+        return isSuperAdminOrGlobalAdmin
+          ? matchesDate
+          : matchesDate && matchesBranch;
       }
     );
 
-    const uniqueProjectNames = [
-      ...new Set(
-        filteredClasses.map((assignedClass: any) =>
-          assignedClass?.affiliatedTo?.toLowerCase() === "hca"
-            ? "HCA"
-            : assignedClass.projectName
-        )
-      ),
-    ];
-
-    setfilteredProjectNames(uniqueProjectNames);
-  }, [selectedDate, allActiveAssignedClasses]);
+    if (isSuperAdminOrGlobalAdmin) {
+      const uniqueProjectNames = [
+        ...new Set(
+          filteredClasses.map((assignedClass: any) =>
+            assignedClass?.affiliatedTo?.toLowerCase() === "hca"
+              ? "HCA"
+              : assignedClass.projectName
+          )
+        ),
+      ];
+      setfilteredProjectNames(uniqueProjectNames);
+    } else {
+      // For regular users: if any class exists on selected date, set ["HCA"], else []
+      setfilteredProjectNames(filteredClasses.length > 0 ? ["HCA"] : []);
+    }
+  }, [selectedDate, allActiveAssignedClasses, session?.data?.user]);
 
   return (
     <div className="flex-1 flex h-full gap-4 ">
@@ -205,17 +226,19 @@ const AssignClass = () => {
               const isSelectedDate =
                 day && selectedDate && isSameDay(day, selectedDate.toDate());
               const isCurrentMonth = day && isSameMonth(day, monthStart);
-
               return (
                 <div
                   key={i}
-                  className={`aspect-square cursor-pointer relative flex flex-col items-center justify-center text-sm rounded ${
+                  className={`aspect-square cursor-pointer relative flex flex-col items-center justify-center text-sm rounded
+                  ${
                     !isCurrentMonth
                       ? "bg-gray-100 opacity-50 pointer-events-none"
                       : ""
-                  } ${isTodayDate ? "border-2 border-blue-500" : ""} ${
-                    isSelectedDate ? "bg-blue-100" : ""
-                  }`}
+                  }
+                  ${isTodayDate ? "border-2 border-blue-500" : ""}
+                  ${isSelectedDate ? "bg-blue-100" : ""}
+            
+                `}
                   onClick={
                     isCurrentMonth ? () => handleDateClick(day) : undefined
                   }

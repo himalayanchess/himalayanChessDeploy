@@ -9,12 +9,17 @@ import {
   fetchAllLeaveRequests,
   filterLeaveRequests,
 } from "@/redux/leaveApprovalSlice";
-import { fetchAllTrainers } from "@/redux/allListSlice";
+import { fetchAllTrainers, getAllBranches } from "@/redux/allListSlice";
+import { useSession } from "next-auth/react";
 
 const LeaveApproval = () => {
   // dispatch
   const dispatch = useDispatch<any>();
-
+  const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   // useselector
   const {
     allFilteredLeaveRequests,
@@ -22,13 +27,14 @@ const LeaveApproval = () => {
     allLeaveRequestsLoading,
   } = useSelector((state: any) => state.leaveApprovalReducer);
   // get all users form alnother reduer (slice)
-  const { allActiveTrainerList } = useSelector(
+  const { allActiveTrainerList, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
 
   // state vars
   const [selectedApprovalStatus, setselectedApprovalStatus] = useState("All");
-  const [selectedUser, setselectedUser] = useState("None");
+  const [selectedBranch, setselectedBranch] = useState("");
+  const [selectedUser, setselectedUser] = useState("All");
   const [totalLeaveRequests, settotalLeaveRequests] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [leaveRequestsPerPage] = useState(7);
@@ -38,18 +44,36 @@ const LeaveApproval = () => {
     setCurrentPage(value);
   };
 
+  // Calculate showing text
+  const startItem = (currentPage - 1) * leaveRequestsPerPage + 1;
+  const endItem = Math.min(
+    currentPage * leaveRequestsPerPage,
+    totalLeaveRequests
+  );
+  const showingText = `Showing ${startItem}-${endItem} of ${totalLeaveRequests}`;
+
   // filter leave requests based on conditions and diaptach the array
   useEffect(() => {
     let tempFilteredLeaveRequests =
-      selectedApprovalStatus.toLowerCase() === "all"
+      selectedApprovalStatus?.toLowerCase() === "all"
         ? allLeaveRequests
         : allLeaveRequests.filter(
             (request: any) =>
               request.approvalStatus.toLowerCase() ==
-              selectedApprovalStatus.toLowerCase()
+              selectedApprovalStatus?.toLowerCase()
           );
+
+    // filter by branch
+    tempFilteredLeaveRequests =
+      selectedBranch?.toLowerCase() === "all"
+        ? tempFilteredLeaveRequests
+        : tempFilteredLeaveRequests.filter(
+            (request: any) =>
+              request.branchName.toLowerCase() == selectedBranch?.toLowerCase()
+          );
+
     // sort by trainer name
-    if (selectedUser?.toLowerCase() !== "none") {
+    if (selectedUser?.toLowerCase() !== "all") {
       tempFilteredLeaveRequests = tempFilteredLeaveRequests.filter(
         (request: any) =>
           request.userName?.toLowerCase() === selectedUser?.toLowerCase()
@@ -69,13 +93,43 @@ const LeaveApproval = () => {
     setCurrentPage(1);
     // update redux state
     dispatch(filterLeaveRequests(tempFilteredLeaveRequests));
-  }, [selectedApprovalStatus, selectedUser]);
+  }, [allLeaveRequests, selectedApprovalStatus, selectedBranch, selectedUser]);
+
+  // if affiliated to changes then reset  dropdown
+  useEffect(() => {
+    // Check if the user is a superadmin or global admin
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    // Only reset if it's a superadmin or global admin
+    if (isSuperOrGlobalAdmin) {
+      setselectedUser("All");
+    }
+  }, [selectedBranch, session?.data?.user]);
+
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+    }
+    setselectedBranch(branchName);
+  }, [session?.data?.user]);
 
   // get intial all leave requests
   // it is used in leaveapprovallist itself (useSelector in leaveaprvallist)
   useEffect(() => {
     dispatch(fetchAllLeaveRequests());
     dispatch(fetchAllTrainers());
+    dispatch(getAllBranches());
   }, []);
 
   return (
@@ -95,13 +149,29 @@ const LeaveApproval = () => {
               onChange={setselectedApprovalStatus}
             />
           </div>
+          {/* Branch */}
+          <div className="select-branch ">
+            <Dropdown
+              label="Branch"
+              // add All to first element in array
+              options={[
+                "All",
+                ...(allActiveBranchesList?.map(
+                  (branch: any) => branch.branchName
+                ) || []),
+              ]}
+              disabled={!isSuperOrGlobalAdmin}
+              selected={selectedBranch}
+              onChange={setselectedBranch}
+            />
+          </div>
           {/* select trainer */}
           <div className="select-trainer ">
             <Dropdown
               label="Trainer"
-              // add None to first element in array
+              // add All to first element in array
               options={[
-                "None",
+                "All",
                 ...allActiveTrainerList?.map((trainer: any) => trainer?.name),
               ]}
               selected={selectedUser}
@@ -109,9 +179,7 @@ const LeaveApproval = () => {
             />
           </div>
           {/* totalLeaveRequests count */}
-          <p className="bg-gray-400 text-white px-3 py-1.5 text-lg font-semibold rounded-md">
-            {totalLeaveRequests}
-          </p>
+          <span className="text-sm text-gray-600">{showingText}</span>
         </div>
         {/* leave approval list */}
         <LeaveApprovalList
@@ -124,9 +192,7 @@ const LeaveApproval = () => {
         {/* pagination */}
         <Stack spacing={2} className="mx-auto w-max mt-7">
           <Pagination
-            count={Math.ceil(
-              allFilteredLeaveRequests?.length / leaveRequestsPerPage
-            )} // Total pages
+            count={Math.ceil(totalLeaveRequests / leaveRequestsPerPage)} // Total pages
             page={currentPage} // Current page
             onChange={handlePageChange} // Handle page change
             shape="rounded"

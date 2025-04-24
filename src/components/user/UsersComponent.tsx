@@ -50,7 +50,7 @@ const UsersComponent = ({ role = "" }: any) => {
   const options = ["All", "Trainer", "Admin", "Superadmin"];
   const [searchText, setsearchText] = useState("");
   const [selectedRole, setSelectedRole] = useState("All");
-  const [selectedBranch, setselectedBranch] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("");
   const [filteredUsersCount, setFilteredUsersCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [usersPerPage] = useState(7);
@@ -82,11 +82,11 @@ const UsersComponent = ({ role = "" }: any) => {
 
     // filter by branch
     tempFilteredUsersList =
-      selectedBranch.toLowerCase() == "all"
+      selectedBranch?.toLowerCase() == "all"
         ? tempFilteredUsersList
         : tempFilteredUsersList.filter(
             (user: any) =>
-              user.branchName.toLowerCase() == selectedBranch.toLowerCase()
+              user.branchName.toLowerCase() == selectedBranch?.toLowerCase()
           );
 
     if (searchText.trim() !== "") {
@@ -106,6 +106,21 @@ const UsersComponent = ({ role = "" }: any) => {
     setCurrentPage(1);
     dispatch(filterUsersList(tempFilteredUsersList));
   }, [allActiveUsersList, selectedRole, selectedBranch, searchText]);
+
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+    }
+    setselectedBranch(branchName);
+  }, [session?.data?.user]);
 
   // intial data fetch
   useEffect(() => {
@@ -137,6 +152,13 @@ const UsersComponent = ({ role = "" }: any) => {
                     (branch: any) => branch.branchName
                   ),
                 ]}
+                disabled={
+                  !(
+                    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+                    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+                      session?.data?.user?.isGlobalAdmin)
+                  )
+                }
                 selected={selectedBranch}
                 onChange={setselectedBranch}
               />

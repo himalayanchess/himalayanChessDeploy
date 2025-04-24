@@ -60,6 +60,11 @@ const ManageClass = ({ selectedDate }: any) => {
 
   const dis = useDispatch<any>();
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   // use selectors
   const { allActiveStudentsList, allActiveBatches, allActiveBranchesList } =
     useSelector((state: any) => state.allListReducer);
@@ -76,6 +81,7 @@ const ManageClass = ({ selectedDate }: any) => {
   const [selectedBatchStudents, setselectedBatchStudents] = useState<any>([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
+  const [filteredBranches, setfilteredBranches] = useState([]);
   const [classStudyMaterials, setclassStudyMaterials] = useState([]);
   const [assignClassLoading, setassignClassLoading] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
@@ -188,9 +194,22 @@ const ManageClass = ({ selectedDate }: any) => {
     }
   };
 
+  // filter branch access according to role and isGlobaladmin
+  useEffect(() => {
+    if (!session?.data?.user || !allActiveBranchesList) return;
+
+    const user = session?.data?.user;
+
+    // 3. Set form values based on the user's branch
+    setValue("branchName", user?.branchName || "");
+    setValue("branchId", user?.branchId || "");
+  }, [session?.data?.user, allActiveBranchesList]);
+
   // Reset form when affiliatedTo changes
   useEffect(() => {
-    reset({
+    const user = session?.data?.user;
+
+    const resetData = {
       trainerName: "",
       trainerId: "",
       courseName: "",
@@ -201,16 +220,37 @@ const ManageClass = ({ selectedDate }: any) => {
       batchId: "",
       startTime: "",
       endTime: "",
-      branchName: "",
-      branchId: "",
-      // holiday status from state variable
       holidayDescription: "",
       userPresentStatus: "absent",
-    });
+    };
+
+    if (affiliatedTo.toLowerCase() === "school") {
+      // Clear branch info for school
+      reset({
+        ...resetData,
+        branchName: "",
+        branchId: "",
+      });
+      setselectedBranch(""); // Also clear selected branch state
+    } else {
+      // For HCA or others, restore branch info from user session
+      reset({
+        ...resetData,
+        branchName: user?.branchName || "",
+        branchId: user?.branchId || "",
+      });
+
+      if (
+        user?.role?.toLowerCase() === "superadmin" ||
+        user?.role?.toLowerCase() === "admin"
+      ) {
+        setselectedBranch(user?.branchName || ""); // Restore selected branch if not global
+      }
+    }
+
     setBatchId(""); // Reset batchId state
     setprojectId(""); // Reset projectId state
-    setselectedBranch("");
-  }, [affiliatedTo, holidayStatus, isPlayDay, reset]);
+  }, [affiliatedTo, holidayStatus, isPlayDay, reset, session?.data?.user]);
 
   // reset batch when branch changes
   useEffect(() => {
@@ -221,6 +261,8 @@ const ManageClass = ({ selectedDate }: any) => {
 
   // fitler selected batch students
   useEffect(() => {
+    console.log("selected branch", selectedBranch);
+
     if (isPlayDay) {
       // Filter all HCA students in active, non-ended batches
       const hcaStudents = allActiveStudentsList.filter(
@@ -256,7 +298,7 @@ const ManageClass = ({ selectedDate }: any) => {
   // Filter batches based on affiliatedTo and projectId
   useEffect(() => {
     let tempFilteredBatches;
-    console.log("selected bran", selectedBranch);
+    console.log("selected bran ", selectedBranch);
 
     if (affiliatedTo.toLowerCase() === "hca") {
       tempFilteredBatches = allActiveBatches.filter(
@@ -435,6 +477,7 @@ const ManageClass = ({ selectedDate }: any) => {
             variant={affiliatedTo === "School" ? "contained" : "outlined"}
             color="success"
             disableElevation
+            disabled={!isSuperOrGlobalAdmin}
             onClick={() => {
               handleContractTypeChange("School");
               setisPlayDay(false);
@@ -685,6 +728,7 @@ const ManageClass = ({ selectedDate }: any) => {
                 options={allActiveBranchesList.map(
                   (branch: any) => branch.branchName
                 )}
+                disabled={!isSuperOrGlobalAdmin}
                 selected={field.value || ""}
                 onChange={(value: any) => {
                   field.onChange(value);

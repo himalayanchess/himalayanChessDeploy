@@ -34,6 +34,11 @@ const timeZone = "Asia/Kathmandu";
 const ViewBranch = ({ branchRecord }: any) => {
   // console.log(branchRecord);
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   const [loaded, setLoaded] = useState(false);
 
   const formatDate = (date: string) => {
@@ -57,17 +62,19 @@ const ViewBranch = ({ branchRecord }: any) => {
         <h1 className="text-2xl font-bold flex items-center">
           <MapPinHouse />
           <span className="ml-2 mr-3">Branch Details</span>
-          <Link
-            href={`/${session?.data?.user?.role?.toLowerCase()}/branches/updatebranch/${
-              branchRecord?._id
-            }`}
-            className="mr-3"
-          >
-            <Button variant="text" size="small">
-              <Edit />
-              <span className="ml-1">Edit</span>
-            </Button>
-          </Link>
+          {session?.data?.user?.role?.toLowerCase() == "superadmin" && (
+            <Link
+              href={`/${session?.data?.user?.role?.toLowerCase()}/branches/updatebranch/${
+                branchRecord?._id
+              }`}
+              className="mr-3"
+            >
+              <Button variant="text" size="small">
+                <Edit />
+                <span className="ml-1">Edit</span>
+              </Button>
+            </Link>
+          )}
         </h1>
 
         <div className="buttons flex gap-4">

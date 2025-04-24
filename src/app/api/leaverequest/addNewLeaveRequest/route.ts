@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
 
     // send mail to super admin (superadmin mail from env inside this function)
     if (savedNewLeaveRequest) {
-      await sendLeaveRequestMail({
-        subject: "Request for leave",
-        leaveRequest: savedNewLeaveRequest,
-      });
+      // await sendLeaveRequestMail({
+      //   subject: "Request for leave",
+      //   leaveRequest: savedNewLeaveRequest,
+      // });
     }
 
     if (savedNewLeaveRequest) {

@@ -18,8 +18,14 @@ import {
   getAllBranches,
   getAllStudents,
 } from "@/redux/allListSlice";
+import { useSession } from "next-auth/react";
 
 const StudentComponent = ({ role }: any) => {
+  const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   // dispatch
   const dispath = useDispatch<any>();
   // use selector
@@ -35,8 +41,8 @@ const StudentComponent = ({ role }: any) => {
   // state vars
   const affiliatedToOptions = ["All", "HCA", "School"];
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
-  const [selectedBatch, setselectedBatch] = useState("All");
-  const [selectedBranch, setselectedBranch] = useState("All");
+  const [selectedBatch, setselectedBatch] = useState("");
+  const [selectedBranch, setselectedBranch] = useState("");
   const [searchText, setsearchText] = useState("");
   const [filteredStudentCount, setfilteredStudentCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
@@ -49,42 +55,72 @@ const StudentComponent = ({ role }: any) => {
   const endItem = Math.min(currentPage * studentsPerPage, filteredStudentCount);
   const showingText = `Showing ${startItem}-${endItem} of ${filteredStudentCount}`;
 
+  // handle page change
+  const handlePageChange = (event: any, value: any) => {
+    setCurrentPage(value);
+  };
+
   // reset acive status to "active" when selectedAffiliatedTo changes
   useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    if (isSuperOrGlobalAdmin) {
+      setselectedBranch("All");
+      setsearchText(""); // optional: include this if needed for super/global
+      setselectedBatch("All"); // optional: include this if needed for super/global
+    }
+  }, [selectedAffiliatedTo, session?.data?.user]);
+
+  // reset search when batch changes
+  useEffect(() => {
     setsearchText("");
-    setselectedBatch("All");
-    setselectedBranch("All");
-  }, [selectedAffiliatedTo]);
+  }, [selectedBatch]);
 
   // reset batch if branch changes
   useEffect(() => {
     setselectedBatch("All");
   }, [selectedBranch]);
 
-  // handle page change
-  const handlePageChange = (event: any, value: any) => {
-    setCurrentPage(value);
-  };
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    let affiliatedTo = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+      affiliatedTo = "HCA";
+    }
+    setselectedBranch(branchName);
+    setselectedAffiliatedTo(affiliatedTo);
+  }, [session?.data?.user]);
 
   // filter
   useEffect(() => {
     // filter students
     let tempFilteredStudentsList =
-      selectedAffiliatedTo.toLowerCase() === "all"
+      selectedAffiliatedTo?.toLowerCase() === "all"
         ? allActiveStudentsList
         : allActiveStudentsList.filter(
             (student: any) =>
               student.affiliatedTo.toLowerCase() ==
-              selectedAffiliatedTo.toLowerCase()
+              selectedAffiliatedTo?.toLowerCase()
           );
 
     // filter by branch
     tempFilteredStudentsList =
-      selectedBranch.toLowerCase() === "all"
+      selectedBranch?.toLowerCase() === "all"
         ? tempFilteredStudentsList
         : tempFilteredStudentsList.filter(
             (student: any) =>
-              student.branchName?.toLowerCase() == selectedBranch.toLowerCase()
+              student.branchName?.toLowerCase() == selectedBranch?.toLowerCase()
           );
 
     console.log("affiliated to", tempFilteredStudentsList);
@@ -119,7 +155,7 @@ const StudentComponent = ({ role }: any) => {
 
     // filter batches
     let tempFilteredBatches =
-      selectedAffiliatedTo.toLowerCase() == "all"
+      selectedAffiliatedTo?.toLowerCase() == "all"
         ? allActiveBatches
         : allActiveBatches?.filter(
             (batch: any) =>
@@ -128,7 +164,7 @@ const StudentComponent = ({ role }: any) => {
           );
 
     tempFilteredBatches =
-      selectedBranch.toLowerCase() == "all"
+      selectedBranch?.toLowerCase() == "all"
         ? tempFilteredBatches
         : tempFilteredBatches?.filter(
             (batch: any) =>
@@ -180,6 +216,7 @@ const StudentComponent = ({ role }: any) => {
               options={affiliatedToOptions}
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
+              disabled={!isSuperOrGlobalAdmin}
               width="full"
             />
             <Dropdown
@@ -190,7 +227,10 @@ const StudentComponent = ({ role }: any) => {
                   (branch: any) => branch.branchName
                 ) || []),
               ]}
-              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              disabled={
+                selectedAffiliatedTo?.toLowerCase() != "hca" ||
+                !isSuperOrGlobalAdmin
+              }
               selected={selectedBranch}
               onChange={setselectedBranch}
               width="full"

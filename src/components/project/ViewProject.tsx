@@ -45,6 +45,10 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
   const dispatch = useDispatch<any>();
 
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
 
   const [loaded, setLoaded] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState("basic");
@@ -110,16 +114,18 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
           <div className="flex items-center font-bold text-2xl ">
             <School />
             <span className="ml-2 mr-3">Project Detail</span>
-            <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/projects/updateproject/${
-                projectRecord?._id
-              }`}
-            >
-              <Button variant="text" size="small">
-                <Edit />
-                <span className="ml-1">Edit</span>
-              </Button>
-            </Link>
+            {!isSuperOrGlobalAdmin && (
+              <Link
+                href={`/${session?.data?.user?.role?.toLowerCase()}/projects/updateproject/${
+                  projectRecord?._id
+                }`}
+              >
+                <Button variant="text" size="small">
+                  <Edit />
+                  <span className="ml-1">Edit</span>
+                </Button>
+              </Link>
+            )}
           </div>
           <span className="text-md">of {projectRecord?.name}</span>
         </div>

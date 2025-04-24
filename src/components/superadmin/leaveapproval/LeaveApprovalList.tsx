@@ -43,7 +43,7 @@ const LeaveApprovalList = ({
   return (
     <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
+      <div className="table-headings  mb-2 grid grid-cols-[50px,repeat(7,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
@@ -58,6 +58,9 @@ const LeaveApprovalList = ({
         </span>{" "}
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Duration
+        </span>
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
+          Branch
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Approval Status
@@ -93,7 +96,7 @@ const LeaveApprovalList = ({
               return (
                 <div
                   key={leaveRequest?._id}
-                  className="grid grid-cols-[70px,repeat(6,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className="grid grid-cols-[50px,repeat(7,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
                   <span className="text-center text-sm font-medium text-gray-600">
                     {serialNumber}
@@ -114,6 +117,9 @@ const LeaveApprovalList = ({
                   </span>
                   <span className="text-left text-sm font-medium text-gray-600">
                     {leaveRequest?.leaveDurationDays} day(s)
+                  </span>
+                  <span className="text-left text-sm font-medium text-gray-600">
+                    {leaveRequest?.branchName}
                   </span>
                   <span
                     className={`text-left text-sm font-medium text-gray-600 $`}

@@ -35,7 +35,12 @@ import BatchList from "./BatchList";
 const BatchComponent = ({ role = "" }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
-
+  
+  const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   // selector
   const {
     allActiveProjects,
@@ -50,9 +55,9 @@ const BatchComponent = ({ role = "" }: any) => {
 
   const [searchText, setsearchText] = useState("");
   const [selectedCompleteStatus, setselectedCompleteStatus] = useState("All");
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("");
   const [selectedProject, setselectedProject] = useState("All");
-  const [selectedBranch, setselectedBranch] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("");
   const [filteredBatchCount, setfilteredBatchCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [batchesPerPage] = useState(7);
@@ -74,9 +79,18 @@ const BatchComponent = ({ role = "" }: any) => {
 
   // if affiliated to changes then reset project dropdown
   useEffect(() => {
-    setselectedProject("All");
-    setselectedBranch("All");
-  }, [selectedAffiliatedTo]);
+    // Check if the user is a superadmin or global admin
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    // Only reset if it's a superadmin or global admin
+    if (isSuperOrGlobalAdmin) {
+      setselectedProject("All");
+      setselectedBranch("All");
+    }
+  }, [selectedAffiliatedTo, session?.data?.user]);
 
   // filter
   useEffect(() => {
@@ -93,16 +107,16 @@ const BatchComponent = ({ role = "" }: any) => {
 
     // affiliated to
     tempFilteredBatchesList =
-      selectedAffiliatedTo.toLowerCase() == "all"
+      selectedAffiliatedTo?.toLowerCase() == "all"
         ? tempFilteredBatchesList
         : tempFilteredBatchesList.filter(
             (batch: any) =>
               batch.affiliatedTo.toLowerCase() ==
-              selectedAffiliatedTo.toLowerCase()
+              selectedAffiliatedTo?.toLowerCase()
           );
 
     // project name
-    if (selectedAffiliatedTo.toLowerCase() == "school") {
+    if (selectedAffiliatedTo?.toLowerCase() == "school") {
       tempFilteredBatchesList =
         selectedProject.toLowerCase() == "all"
           ? tempFilteredBatchesList
@@ -114,7 +128,7 @@ const BatchComponent = ({ role = "" }: any) => {
 
     // filter by batch
     tempFilteredBatchesList =
-      selectedBranch.toLowerCase() == "all"
+      selectedBranch?.toLowerCase() == "all"
         ? tempFilteredBatchesList
         : tempFilteredBatchesList.filter(
             (batch: any) =>
@@ -149,6 +163,24 @@ const BatchComponent = ({ role = "" }: any) => {
     searchText,
   ]);
 
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    let affiliatedTo = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+      affiliatedTo = "HCA";
+    }
+    setselectedBranch(branchName);
+    setselectedAffiliatedTo(affiliatedTo);
+  }, [session?.data?.user]);
+
   // intial data fetch
   useEffect(() => {
     dispatch(fetchAllProjects());
@@ -178,7 +210,8 @@ const BatchComponent = ({ role = "" }: any) => {
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
               width="full"
-            />{" "}
+              disabled={!isSuperOrGlobalAdmin}
+            />
             <Dropdown
               label="Branch"
               options={[
@@ -187,23 +220,28 @@ const BatchComponent = ({ role = "" }: any) => {
                   (branch: any) => branch.branchName
                 ) || []),
               ]}
-              disabled={selectedAffiliatedTo.toLowerCase() != "hca"}
+              disabled={
+                selectedAffiliatedTo?.toLowerCase() != "hca" ||
+                !isSuperOrGlobalAdmin
+              }
               selected={selectedBranch}
               onChange={setselectedBranch}
               width="full"
             />
-            <Dropdown
-              label="Project"
-              options={[
-                "All",
-                ...(allActiveProjects?.map((project: any) => project.name) ||
-                  []),
-              ]}
-              disabled={selectedAffiliatedTo.toLowerCase() != "school"}
-              selected={selectedProject}
-              onChange={setselectedProject}
-              width="full"
-            />
+            {isSuperOrGlobalAdmin && (
+              <Dropdown
+                label="Project"
+                options={[
+                  "All",
+                  ...(allActiveProjects?.map((project: any) => project.name) ||
+                    []),
+                ]}
+                disabled={selectedAffiliatedTo?.toLowerCase() != "school"}
+                selected={selectedProject}
+                onChange={setselectedProject}
+                width="full"
+              />
+            )}
           </div>
         </div>
 
@@ -217,8 +255,10 @@ const BatchComponent = ({ role = "" }: any) => {
           />
 
           {/* add batch button */}
-          {role?.toLowerCase() == "superadmin" ? (
-            <Link href={"/superadmin/batches/addbatch"}>
+          {role?.toLowerCase() != "trainer" ? (
+            <Link
+              href={`/${session?.data?.user?.role?.toLowerCase()}/batches/addbatch`}
+            >
               <Button variant="contained" size="small">
                 <AddIcon />
                 <span className="ml-1">Add Batch</span>

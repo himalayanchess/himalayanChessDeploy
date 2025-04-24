@@ -135,7 +135,14 @@ const UserList = ({
                     {user?.branchName || "N/A"}
                   </span>
                   <span className="text-sm text-gray-700">{user?.gender}</span>
-                  <span className="text-sm text-gray-500">{user?.role}</span>
+                  <span className="text-sm text-gray-500 flex items-center">
+                    {user?.role}
+                    {user.isGlobalAdmin && (
+                      <span className="bg-gray-400 text-xs font-bold  text-white px-2 py-0.5 ml-2 rounded-full">
+                        Global
+                      </span>
+                    )}
+                  </span>
                   {role?.toLowerCase() == "superadmin" ? (
                     <div className="text-sm text-gray-500">
                       {/* edit modal */}

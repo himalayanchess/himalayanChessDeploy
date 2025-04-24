@@ -32,7 +32,10 @@ const BasicBatchInfo = ({ batchRecord }: any) => {
     return dayjs(date).tz(timeZone).format("MMMM D, YYYY");
   };
   const session = useSession();
-
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   return (
     <div className="grid grid-cols-2 auto-rows-max w-full gap-4">
       {/* Basic Batch Information */}
@@ -121,15 +124,22 @@ const BasicBatchInfo = ({ batchRecord }: any) => {
             <p className="text-sm text-gray-500 mb-1">Branch</p>
             <div className="flex items-center">
               {/* <School className="text-gray-500" /> */}
+              <MapPinHouse className="text-gray-500" />
               {batchRecord?.branchName ? (
-                <Link
-                  href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
-                    batchRecord?.branchId
-                  }`}
-                  className="font-medium ml-1 text-lg underline hover:text-blue-500"
-                >
-                  {batchRecord.branchName}
-                </Link>
+                isSuperOrGlobalAdmin ? (
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                      batchRecord?.branchId
+                    }`}
+                    className="font-medium ml-1 text-lg underline hover:text-blue-500"
+                  >
+                    {batchRecord.branchName}
+                  </Link>
+                ) : (
+                  <span className="font-medium ml-1 text-lg">
+                    {batchRecord.branchName}
+                  </span>
+                )
               ) : (
                 <p className="font-medium ml-1">N/A</p>
               )}

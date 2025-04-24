@@ -16,6 +16,7 @@ import {
   BookOpenText,
   CalendarArrowUp,
   CalendarArrowDown,
+  MapPinHouse,
 } from "lucide-react";
 
 dayjs.extend(utc);
@@ -25,7 +26,10 @@ const timeZone = "Asia/Kathmandu";
 
 const BasicActivityRecordInformation = ({ activityRecord }: any) => {
   const session = useSession();
-
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   const formatDate = (date: string) => {
     return dayjs(date).tz(timeZone).format("MMMM D, YYYY, dddd");
   };
@@ -87,6 +91,28 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
                 : "No"}
             </p>
           </div>
+          {activityRecord?.affiliatedTo?.toLowerCase() == "hca" && (
+            <div className="col-span-2">
+              <p className="text-sm text-gray-500">Branch</p>
+              <div className="detail flex items-center">
+                <MapPinHouse className="text-gray-500 mr-1" />
+                {!isSuperOrGlobalAdmin ? (
+                  <p className="text-gray-700 text-md">
+                    {activityRecord?.branchName || "N/A"}
+                  </p>
+                ) : (
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                      activityRecord?.branchId
+                    }`}
+                    className="font-medium ml-1 text-md underline hover:text-blue-500"
+                  >
+                    {activityRecord?.branchName}
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

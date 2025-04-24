@@ -17,6 +17,10 @@ import { useRouter } from "next/navigation";
 const AddBatch = () => {
   const router = useRouter();
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -83,6 +87,20 @@ const AddBatch = () => {
     return;
   }
 
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    if (!isSuperOrGlobalAdmin) {
+      setValue("branchName", user?.branchName);
+      setValue("branchId", user?.branchId);
+    }
+  }, [session?.data?.user]);
+
   // fetch initial data
   useEffect(() => {
     dispatch(fetchAllProjects());
@@ -140,33 +158,31 @@ const AddBatch = () => {
                   label="Affiliated to"
                   options={affiliatedOptions}
                   selected={field.value || ""}
+                  disabled={!isSuperOrGlobalAdmin}
                   onChange={(value: any) => {
                     field.onChange(value);
                     setselectedAffiliatedTo(value);
 
-                    reset((prev: any) => {
-                      if (value === "HCA") {
-                        // Don't change branchName and branchId if "HCA" is selected
-                        return {
-                          ...prev,
-                          batchName: value === "HCA" ? "HCA_" : "",
-                          projectName: "",
-                          projectId: "",
-                          branchName: prev.branchName,
-                          branchId: prev.branchId,
-                        };
-                      } else {
-                        // Reset branchName and branchId when not "HCA"
-                        return {
-                          ...prev,
-                          batchName: value === "HCA" ? "HCA_" : "",
-                          projectName: "",
-                          projectId: "",
-                          branchName: value ? "" : prev.branchName,
-                          branchId: value ? "" : prev.branchId,
-                        };
-                      }
-                    });
+                    // Get user info from session
+                    const sessionUser = session?.data?.user;
+
+                    // Set form values based on affiliation
+                    if (value === "School") {
+                      setValue("branchName", "");
+                      setValue("branchId", "");
+                    } else {
+                      setValue("branchName", sessionUser?.branchName || "");
+                      setValue("branchId", sessionUser?.branchId || "");
+                    }
+
+                    // Reset other values
+                    reset((prev: any) => ({
+                      ...prev,
+                      batchName: value === "HCA" ? "HCA_" : "",
+                      projectName: "",
+                      projectId: "",
+                      // branchName and branchId handled via setValue
+                    }));
                   }}
                   error={errors.affiliatedTo}
                   helperText={errors.affiliatedTo?.message}
@@ -308,6 +324,7 @@ const AddBatch = () => {
 
                     setValue("branchId", selectedBranch?._id || "");
                   }}
+                  disabled={!isSuperOrGlobalAdmin}
                   error={errors.branchName}
                   helperText={errors.branchName?.message}
                   required={true}

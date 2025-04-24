@@ -30,7 +30,7 @@ export const superadminMenuItems = [
   { icon: BookOpenCheck, label: "Assign Class", linkName: "classes" },
   { icon: CircleUser, label: "Users", linkName: "users" },
   { icon: BookCopy, label: "Courses", linkName: "courses" },
-  { icon: School, label: "Projects", linkName: "projects" },
+  { icon: School, label: "Schools", linkName: "projects" },
   { icon: Component, label: "Batches", linkName: "batches" },
   {
     icon: Users,

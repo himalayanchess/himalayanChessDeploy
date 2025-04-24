@@ -27,7 +27,10 @@ import Link from "next/link";
 const AddStudent = () => {
   const router = useRouter();
   const session = useSession();
-
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
   const statusOptions = ["Ongoing", "Left"];
@@ -69,7 +72,7 @@ const AddStudent = () => {
   } = useSelector((state: any) => state.allListReducer);
 
   // state variable
-  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("HCA");
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("");
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredBatches, setFilteredBatches] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(""); // Example state
@@ -328,9 +331,28 @@ const AddStudent = () => {
     setFilteredBatches(filtered); // Update filteredBatches state
   }, [allActiveBatches, selectedAffiliatedTo, selectedBranch, selectedProject]);
 
+  // set project list
   useEffect(() => {
     setprojectList(allActiveProjects);
   }, [allActiveProjects]);
+
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+
+    let affiliatedTo = "HCA";
+    if (!isSuperOrGlobalAdmin) {
+      affiliatedTo = "HCA";
+      setValue("branchName", user?.branchName);
+      setValue("branchId", user?.branchId);
+    }
+    setselectedAffiliatedTo(affiliatedTo);
+  }, [session?.data?.user]);
 
   // fetch initial data
   useEffect(() => {
@@ -360,15 +382,17 @@ const AddStudent = () => {
             </Button>
           </Link>
 
-          <Button
-            onClick={handlefileUploadModalOpen}
-            color="info"
-            variant="contained"
-            size="medium"
-          >
-            <FileUploadIcon />
-            <span>Upload JSON file</span>
-          </Button>
+          {isSuperOrGlobalAdmin && (
+            <Button
+              onClick={handlefileUploadModalOpen}
+              color="info"
+              variant="contained"
+              size="medium"
+            >
+              <FileUploadIcon />
+              <span>Upload JSON file</span>
+            </Button>
+          )}
         </div>
 
         {/* file upload modal */}
@@ -443,6 +467,7 @@ const AddStudent = () => {
             label="Affiliated to"
             options={affiliatedToOptions}
             selected={selectedAffiliatedTo}
+            disabled={!isSuperOrGlobalAdmin}
             onChange={(value: any) => {
               if (value === selectedAffiliatedTo) return;
 
@@ -631,6 +656,7 @@ const AddStudent = () => {
                       options={allActiveBranchesList?.map(
                         (branch: any) => branch.branchName
                       )}
+                      disabled={!isSuperOrGlobalAdmin}
                       selected={field.value || ""}
                       onChange={(value: any) => {
                         field.onChange(value);

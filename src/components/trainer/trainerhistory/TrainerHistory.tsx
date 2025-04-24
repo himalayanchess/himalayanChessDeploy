@@ -1,21 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import TrainerHistoryList from "./TrainerHistoryList";
-import { useSession } from "next-auth/react";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import { Checkbox, FormControlLabel, Pagination, Stack } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import Input from "@/components/Input";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Pagination,
+  Stack,
+} from "@mui/material";
 import Dropdown from "@/components/Dropdown";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllBatches } from "@/redux/allListSlice";
 import { FolderClock } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllTrainersActivityRecords,
   filterAllTrainersActivityRecords,
 } from "@/redux/trainerHistorySlice";
-import Input from "@/components/Input";
-import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
+import { fetchAllBatches, fetchAllProjects } from "@/redux/allListSlice";
+import TrainerHistoryList from "./TrainerHistoryList";
+import { exportOverallActivityRecordToExcel } from "@/helpers/exportToExcel/exportOverallActivityRecordToExcel";
+import { useSession } from "next-auth/react";
+import { projectNew } from "next/dist/build/swc/generated-native";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,14 +33,17 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const TrainerHistory = () => {
-  //getnepali date
-  const getTodaysNepaliMonth = () => dayjs().tz(timeZone).format("YYYY-MM");
+  // session
+  const session = useSession();
+
+  // ref
+  const fetched = useRef(false); // To prevent multiple fetches
 
   // dispatch
-  const dis = useDispatch<any>();
+  const dispatch = useDispatch<any>();
 
   //use selector
-  const { allActiveBatches } = useSelector(
+  const { allActiveBatches, allActiveProjects } = useSelector(
     (state: any) => state.allListReducer
   );
   const {
@@ -39,159 +52,363 @@ const TrainerHistory = () => {
     allTrainersActivityRecordsLoading,
   } = useSelector((state: any) => state.trainerHistoryReducer);
 
-  // session
-  const { data: sessionData } = useSession();
-  // ref
-  const fetched = useRef(false); // To prevent multiple fetches
+  const affiliatedTo = ["All", "HCA", "School"];
+
+  // Default values
+  const defaultMonth = dayjs().tz(timeZone).format("YYYY-MM");
+  const defaultStartDate = dayjs()
+    .tz(timeZone)
+    .subtract(1, "month")
+    .format("YYYY-MM-DD");
+  const defaultEndDate = dayjs().tz(timeZone).format("YYYY-MM-DD");
+
+  const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
+  const [selectedProject, setselectedProject] = useState("All");
+  const [selectedBatchName, setselectedBatchName] = useState("All");
+  const [selectedMonth, setselectedMonth] = useState(defaultMonth);
+  const [useAdvancedDate, setUseAdvancedDate] = useState(false);
+  const [startDate, setStartDate] = useState(defaultStartDate);
+  const [endDate, setEndDate] = useState(defaultEndDate);
+  const [filteredProjectList, setfilteredProjectList] = useState<any>([]);
+  const [filteredBatches, setfilteredBatches] = useState<any>([]);
 
   const [totalActivityRecords, settotalActivityRecords] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [activityRecordsPerPage] = useState(7);
-  const [selectedBatchName, setselectedBatchName] = useState("All");
-  const [selectedDate, setselectedDate] = useState(getTodaysNepaliMonth());
-  const [useDateFilter, setuseDateFilter] = useState(false);
 
   // handle page change
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
   };
 
-  // filter activity records list
+  const exportToExcel = () => {
+    exportOverallActivityRecordToExcel(
+      allFilteredActiveTrainersActivityRecords
+    );
+  };
+
+  // Calculate showing text
+  const startItem = (currentPage - 1) * activityRecordsPerPage + 1;
+  const endItem = Math.min(
+    currentPage * activityRecordsPerPage,
+    totalActivityRecords
+  );
+  const showingText = `Showing ${startItem}-${endItem} of ${totalActivityRecords}`;
+
+  // Reset start and end date when toggling advanced date selection
   useEffect(() => {
-    let tempfilteredActivityRecordsList =
-      selectedBatchName.toLowerCase() === "all"
-        ? allActiveTrainersActivityRecords
-        : allActiveTrainersActivityRecords.filter(
-            (activityRecord: any) =>
-              activityRecord.batchName.toLowerCase() ==
-              selectedBatchName.toLowerCase()
+    if (!useAdvancedDate) {
+      setStartDate(defaultStartDate);
+      setEndDate(defaultEndDate);
+    }
+  }, [useAdvancedDate]);
+
+  // reset dropdowns when affiliated to changes
+  useEffect(() => {
+    setselectedBatchName("All");
+    setselectedProject("All");
+  }, [selectedAffiliatedTo]);
+
+  //filter batch list accrding to affilaited to and project
+  useEffect(() => {
+    if (
+      !allActiveBatches ||
+      !filteredProjectList ||
+      !session?.data?.user?.branchName
+    )
+      return;
+
+    const branchName = session.data.user.branchName.toLowerCase();
+    const selectedProjectName = selectedProject?.toLowerCase();
+    const projectNames = filteredProjectList.map((proj: any) =>
+      proj.name?.toLowerCase()
+    );
+
+    // Step 1: Filter batches where affiliatedTo is 'HCA' and batchName matches session batchName
+    const hcaFilteredBatches = allActiveBatches.filter((batch: any) => {
+      return (
+        batch?.affiliatedTo?.toLowerCase() == "hca" &&
+        batch?.branchName?.toLowerCase() ==
+          session?.data?.user?.branchName?.toLowerCase()
+      );
+    });
+
+    // Step 2: Filter batches where projectName is in filteredProjectList
+    const projectFilteredBatches = allActiveBatches.filter((batch: any) => {
+      const batchProject = batch?.projectName?.toLowerCase();
+      return projectNames.includes(batchProject);
+    });
+
+    // Combine the two filtered lists
+    const combinedBatches = [
+      ...new Set([...hcaFilteredBatches, ...projectFilteredBatches]),
+    ];
+
+    // Step 3: Apply additional filters based on selectedAffiliatedTo and selectedProject
+    let tempFilteredBatches =
+      selectedAffiliatedTo?.toLowerCase() == "all"
+        ? combinedBatches
+        : combinedBatches?.filter(
+            (batch: any) =>
+              batch?.affiliatedTo?.toLowerCase() ==
+              selectedAffiliatedTo?.toLowerCase()
           );
 
-    // selected date is in form 2025-02
+    // filter by project
+    tempFilteredBatches =
+      selectedProject?.toLowerCase() == "all"
+        ? tempFilteredBatches
+        : tempFilteredBatches?.filter(
+            (batch: any) =>
+              batch?.projectName?.toLowerCase() ==
+              selectedProject?.toLowerCase()
+          );
 
-    // Apply date filtering only if useDateFilter is true
-    if (useDateFilter && selectedDate) {
-      tempfilteredActivityRecordsList = tempfilteredActivityRecordsList.filter(
-        (activityRecord: any) => {
-          // Convert `selectedDate` and `nepaliDate` to Nepali timezone
-          const selectedDateNepali = dayjs(selectedDate)
-            .tz(timeZone)
-            .format("YYYY-MM");
+    setfilteredBatches(tempFilteredBatches);
+  }, [
+    allActiveBatches,
+    filteredProjectList,
+    selectedAffiliatedTo,
+    selectedProject,
+    session?.data?.user,
+  ]);
 
-          const recordNepaliDate = dayjs(activityRecord?.nepaliDate)
-            .tz(timeZone)
-            .format("YYYY-MM");
+  // filter activity records list
+  useEffect(() => {
+    if (!allActiveTrainersActivityRecords) return;
 
-          return selectedDateNepali == recordNepaliDate;
-        }
+    let filtered = allActiveTrainersActivityRecords;
+
+    // filter by affiliated to
+    filtered =
+      selectedAffiliatedTo?.toLowerCase() == "all"
+        ? filtered
+        : filtered.filter(
+            (record: any) =>
+              record.affiliatedTo?.toLowerCase() ==
+              selectedAffiliatedTo?.toLowerCase()
+          );
+
+    //filter by project
+    filtered =
+      selectedProject?.toLowerCase() == "all"
+        ? filtered
+        : filtered.filter(
+            (record: any) =>
+              record.projectName?.toLowerCase() ==
+              selectedProject?.toLowerCase()
+          );
+
+    // Filter by Batch Name
+    if (selectedBatchName?.toLowerCase() !== "all") {
+      filtered = filtered.filter(
+        (record: any) =>
+          record.batchName?.toLowerCase() === selectedBatchName.toLowerCase()
       );
     }
-    console.log("selected month", selectedDate);
+
+    // Date Filtering
+    if (useAdvancedDate) {
+      filtered = filtered.filter((record: any) => {
+        const recordDate = dayjs(record.utcDate)
+          .tz(timeZone)
+          .format("YYYY-MM-DD");
+
+        return recordDate >= startDate && recordDate <= endDate;
+      });
+    } else {
+      filtered = filtered.filter((record: any) => {
+        const recordMonth = dayjs(record.utcDate)
+          .tz(timeZone)
+          .format("YYYY-MM");
+
+        return recordMonth === selectedMonth;
+      });
+    }
 
     // Sort by createdAt descending
-    tempfilteredActivityRecordsList = [...tempfilteredActivityRecordsList].sort(
+    filtered = [...filtered].sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-    settotalActivityRecords(tempfilteredActivityRecordsList?.length);
-    setCurrentPage(1);
-    dis(filterAllTrainersActivityRecords(tempfilteredActivityRecordsList));
-  }, [selectedBatchName, selectedDate, useDateFilter]);
 
-  // get intial trainers activity records and batch list
+    // Set results
+    settotalActivityRecords(filtered.length);
+    setCurrentPage(1);
+    dispatch(filterAllTrainersActivityRecords(filtered));
+  }, [
+    allActiveTrainersActivityRecords,
+    selectedBatchName,
+    selectedProject,
+    selectedAffiliatedTo,
+    useAdvancedDate,
+    startDate,
+    endDate,
+    selectedMonth,
+  ]);
+
+  // filter project dropdown options as project that has assigned trainers as my session.user.name
   useEffect(() => {
-    if (!fetched.current && sessionData) {
-      console.log("Fetching data...");
-      dis(
-        fetchAllTrainersActivityRecords({ trainerId: sessionData?.user?._id })
+    if (!session?.data?.user) return;
+
+    const filteredProjects = allActiveProjects.filter((project: any) => {
+      return project?.assignedTrainers?.some(
+        (trainer: any) => trainer.trainerName === session.data.user.name
       );
-      dis(fetchAllBatches());
+    });
+
+    // Now set this filtered list to some state if needed
+    setfilteredProjectList(filteredProjects);
+  }, [allActiveProjects, session?.data?.user]);
+
+  // get initial trainers activity records and batch list
+  useEffect(() => {
+    if (!fetched.current && session.data) {
+      dispatch(
+        fetchAllTrainersActivityRecords({ trainerId: session.data?.user?._id })
+      );
+      dispatch(fetchAllBatches());
+      dispatch(fetchAllProjects());
       fetched.current = true; // Mark as fetched
     }
-  }, [sessionData]);
+  }, [session.data]);
 
   return (
-    <div className="flex w-full ">
-      <div className="historycontiner flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
-        {/* title */}
-        <p className="text-2xl  flex items-center ">
-          <FolderClock />
-          <span className="ml-1">Activity History</span>
-        </p>
-
-        <div className="batch-date mt-2 flex items-end gap-4 ">
+    <div className="flex-1 flex flex-col py-3 px-10 border bg-white rounded-lg">
+      <h2 className="text-3xl font-medium text-gray-700 flex items-center ">
+        <FolderClock />
+        <span className="ml-2">Activity History</span>
+      </h2>
+      <div className="activityrecord-header my-0 w-full flex items-end justify-between">
+        <div className="batch-date w-full flex flex-col  items-end gap-0 ">
           {/* batchlist dropdown */}
-          <Dropdown
-            label="Batch"
-            options={[
-              "All",
-              ...allActiveBatches?.map((batch: any) => batch?.batchName),
-            ]}
-            selected={selectedBatchName}
-            onChange={setselectedBatchName}
-          />
-          {/* date */}
-          <div
-            className={`date w-60 flex items-end ${
-              useDateFilter
-                ? " pointer-events-auto opacity-100 "
-                : " pointer-events-none opacity-50 "
-            }`}
-          >
-            <Input
-              label="Date"
-              type="month"
-              value={selectedDate}
-              onChange={(e: any) => setselectedDate(e.target.value)}
+          <div className="topheader w-full grid grid-cols-5  gap-3 mt-0">
+            <Dropdown
+              label="Affiliated to"
+              options={affiliatedTo}
+              selected={selectedAffiliatedTo}
+              onChange={setselectedAffiliatedTo}
+              width="full"
             />
-            <button
-              className="ml-2 pb-2"
-              title="Reset date"
-              onClick={() => setselectedDate(getTodaysNepaliMonth())}
+            <Dropdown
+              label="Project name"
+              options={[
+                "All",
+                ...filteredProjectList?.map((project: any) => project.name),
+              ]}
+              selected={selectedProject}
+              onChange={setselectedProject}
+              width="full"
+              disabled={selectedAffiliatedTo?.toLowerCase() != "school"}
+            />
+
+            <Dropdown
+              label="Batch"
+              options={[
+                "All",
+                ...filteredBatches?.map((batch: any) => batch?.batchName),
+              ]}
+              selected={selectedBatchName}
+              onChange={setselectedBatchName}
+              width="full"
+            />
+
+            {/* date */}
+            <div
+              className={`date w-60 flex items-end 
+              `}
             >
-              <RestartAltIcon sx={{ fontSize: "1.8rem" }} />
-            </button>
+              <Input
+                label="Date"
+                type="month"
+                value={selectedMonth}
+                disabled={useAdvancedDate}
+                onChange={(e: any) => setselectedMonth(e.target.value)}
+              />
+              <button
+                className="ml-2 pb-2"
+                title="Reset date"
+                onClick={() => setselectedMonth(defaultMonth)}
+              >
+                <RestartAltIcon sx={{ fontSize: "1.8rem" }} />
+              </button>
+            </div>
           </div>
-          {/* use date filter boolean */}
-          <div className="useDateFilter">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={useDateFilter}
-                  onChange={(e: any) => setuseDateFilter(e.target.checked)}
-                  color="primary"
+
+          <div className="bottomheader flex flex-col  justify-center w-full">
+            {/* Checkbox for Advanced Date Selection */}
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                id="advancedcheckbox"
+                type="checkbox"
+                checked={useAdvancedDate}
+                onChange={() => setUseAdvancedDate(!useAdvancedDate)}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer focus:ring-blue-500"
+              />
+              <label
+                htmlFor="advancedcheckbox"
+                className="text-sm font-medium text-gray-700 cursor-pointer"
+              >
+                Use Advanced Date Selection
+              </label>
+            </div>
+
+            {/* Start and End Date Inputs */}
+            <div className="bottom-header mt-2 w-full  flex justify-between items-end">
+              <div className="buttons flex-1 grid grid-cols-4  items-end gap-3">
+                <Input
+                  label="Start Date"
+                  type="date"
+                  value={startDate}
+                  disabled={!useAdvancedDate}
+                  onChange={(e: any) => setStartDate(e.target.value)}
                 />
-              }
-              label="Use Date Filter"
-            />
+                <Input
+                  label="End Date"
+                  type="date"
+                  value={endDate}
+                  disabled={!useAdvancedDate}
+                  onChange={(e: any) => setEndDate(e.target.value)}
+                />
+                {/* count */}
+                <span className="text-sm text-gray-600">{showingText}</span>
+              </div>
+
+              <div className="exceldownloadbutton">
+                <Button
+                  onClick={exportToExcel}
+                  variant="contained"
+                  color="success"
+                  disabled={totalActivityRecords === 0}
+                  startIcon={<DownloadIcon />}
+                >
+                  Export to Excel
+                </Button>
+              </div>
+            </div>
           </div>
-          {/* count */}
-          <p className="px-2 py-1 mb-1 rounded-lg bg-gray-400 text-white">
-            {allFilteredActiveTrainersActivityRecords?.length}
-          </p>
         </div>
-        {/* trainer history list */}
-        <TrainerHistoryList
-          loading={allTrainersActivityRecordsLoading}
-          filteredTrainersActivityRecords={
-            allFilteredActiveTrainersActivityRecords
-          }
-          activityRecordsPerPage={activityRecordsPerPage}
-          currentPage={currentPage}
-        />
-        {/* pagination */}
-        <Stack spacing={2} className="mx-auto w-max mt-7">
-          <Pagination
-            count={Math.ceil(
-              allFilteredActiveTrainersActivityRecords?.length /
-                activityRecordsPerPage
-            )} // Total pages
-            page={currentPage} // Current page
-            onChange={handlePageChange} // Handle page change
-            shape="rounded"
-          />
-        </Stack>
       </div>
+
+      {/* Trainer history list */}
+      <TrainerHistoryList
+        loading={allTrainersActivityRecordsLoading}
+        filteredTrainersActivityRecords={
+          allFilteredActiveTrainersActivityRecords
+        }
+        activityRecordsPerPage={activityRecordsPerPage}
+        currentPage={currentPage}
+      />
+
+      {/* pagination */}
+      <Stack spacing={2} className="mx-auto w-max mt-3">
+        <Pagination
+          count={Math.ceil(totalActivityRecords / activityRecordsPerPage)} // Total pages
+          page={currentPage} // Current page
+          onChange={handlePageChange} // Handle page change
+          shape="rounded"
+        />
+      </Stack>
     </div>
   );
 };

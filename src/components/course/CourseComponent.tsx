@@ -3,6 +3,7 @@ import Dropdown from "../Dropdown";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
 import AddIcon from "@mui/icons-material/Add";
+import LockIcon from "@mui/icons-material/Lock";
 
 import { Button, Pagination, Stack } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,8 +11,15 @@ import { filterCourseList, getAllCourses } from "@/redux/allListSlice";
 import { BookCopy } from "lucide-react";
 
 import CourseList from "./CourseList";
+import { useSession } from "next-auth/react";
 
 const CourseComponent = ({ role = "" }: any) => {
+  const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -110,12 +118,24 @@ const CourseComponent = ({ role = "" }: any) => {
             />
 
             {/* add course button */}
-            <Link href={`/${role?.toLowerCase()}/courses/addcourse`}>
-              <Button variant="contained" size="small">
-                <AddIcon />
-                <span className="ml-1">Add Course</span>
+            {isSuperOrGlobalAdmin ? (
+              <Link href={`/${role?.toLowerCase()}/courses/addcourse`}>
+                <Button variant="contained" size="small">
+                  <AddIcon />
+                  <span className="ml-1">Add Course</span>
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                variant="contained"
+                size="small"
+                className="w-max h-max"
+                disabled
+              >
+                <LockIcon sx={{ fontSize: "1.2rem" }} />
+                <span className="ml-1">Unauthorized</span>
               </Button>
-            </Link>
+            )}
           </div>
         </div>
       </div>

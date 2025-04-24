@@ -11,7 +11,7 @@ import {
 import HistoryIcon from "@mui/icons-material/History";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { SquareX, Luggage } from "lucide-react";
+import { SquareX, Luggage, MapPinHouse } from "lucide-react";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { User, Calendar } from "lucide-react";
 
@@ -39,6 +39,11 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
   const router = useRouter();
   const dispatch = useDispatch<any>();
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   const [loaded, setLoaded] = useState(false);
   const [responseLoading, setresponseLoading] = useState(false);
   const [deleteLeaveRequestModalOpen, setDeleteLeaveRequestModalOpen] =
@@ -217,6 +222,26 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
                     ? formatDate(leaveRequestRecord?.utcDate)
                     : "N/A"}
                 </p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Branch</p>
+              <div className="detail flex items-center">
+                <MapPinHouse className="text-gray-500" />
+                {!isSuperOrGlobalAdmin ? (
+                  <p className="font-medium ml-1">
+                    {leaveRequestRecord?.branchName || "N/A"}
+                  </p>
+                ) : (
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                      leaveRequestRecord?.branchId
+                    }`}
+                    className="font-medium ml-1 text-md underline hover:text-blue-500"
+                  >
+                    {leaveRequestRecord?.branchName || "N/A"}
+                  </Link>
+                )}
               </div>
             </div>
           </div>

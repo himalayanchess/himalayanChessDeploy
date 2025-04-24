@@ -28,6 +28,10 @@ const timeZone = "Asia/Kathmandu";
 
 const BasicUserInformation = ({ userRecord }: any) => {
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
 
   const formatDate = (date: string) => {
     return dayjs(date).tz(timeZone).format("MMM D, YYYY");
@@ -211,14 +215,20 @@ const BasicUserInformation = ({ userRecord }: any) => {
               <div className="detail flex items-center">
                 <MapPinHouse className="text-gray-500" />
                 {userRecord?.branchName ? (
-                  <Link
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
-                      userRecord?.branchId
-                    }`}
-                    className="font-medium ml-1 underline hover:text-blue-500"
-                  >
-                    {userRecord?.branchName}
-                  </Link>
+                  isSuperOrGlobalAdmin ? (
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
+                        userRecord?.branchId
+                      }`}
+                      className="font-medium ml-1 underline hover:text-blue-500"
+                    >
+                      {userRecord?.branchName}
+                    </Link>
+                  ) : (
+                    <span className="font-medium ml-1">
+                      {userRecord?.branchName}
+                    </span>
+                  )
                 ) : (
                   <p>N/A</p>
                 )}

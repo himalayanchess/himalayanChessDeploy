@@ -13,6 +13,7 @@ import Link from "next/link";
 import { notify } from "@/helpers/notify";
 import { deleteBatch } from "@/redux/allListSlice";
 import { useDispatch } from "react-redux";
+import { useSession } from "next-auth/react";
 const BatchList = ({
   allFilteredActiveBatches,
   currentPage,
@@ -20,6 +21,7 @@ const BatchList = ({
   allBatchesLoading,
   role,
 }: any) => {
+  const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
   // console.log("inside batchlist", allFilteredActiveBatches);
@@ -140,12 +142,14 @@ const BatchList = ({
                   <span className=" col-span-1 text-sm text-gray-700">
                     {batch.branchName ? batch.branchName : "N/A"}
                   </span>
-                  {role?.toLowerCase() == "superadmin" ? (
+                  {role?.toLowerCase() != "trainer" ? (
                     <div className=" text-sm text-gray-500">
                       <>
                         {/* edit */}
                         <Link
-                          href={`/superadmin/batches/updatebatch/${batch?._id}`}
+                          href={`/${session?.data?.user?.role?.toLowerCase()}/batches/updatebatch/${
+                            batch?._id
+                          }`}
                           title="Edit"
                           className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
                         >

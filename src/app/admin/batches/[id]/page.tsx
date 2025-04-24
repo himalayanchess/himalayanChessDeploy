@@ -2,80 +2,59 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import CircularProgress from "@mui/material/CircularProgress";
-
-import TrainerHistory from "@/components/trainer/trainerhistory/TrainerHistory";
-import ViewActivityRecordDetail from "@/components/activityrecord/ViewActivityRecordDetail";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
-import UpdateProject from "@/components/project/UpdateProject";
 import ViewProject from "@/components/project/ViewProject";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllActivityRecords } from "@/redux/activityRecordSlice";
-import { useSession } from "next-auth/react";
+import ViewBatch from "@/components/batch/ViewBatch";
 
 const page = ({ params }: any) => {
-  const { id: projectId }: any = use(params);
+  const { id: batchId }: any = use(params);
 
-  const session = useSession();
-  const isSuperOrGlobalAdmin =
-    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
-    (session?.data?.user?.role?.toLowerCase() === "admin" &&
-      session?.data?.user?.isGlobalAdmin);
-
-  const dispatch = useDispatch<any>();
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
-  const [projectRecord, setprojectRecord] = useState<any>(null);
+  const [batchRecord, setbatchRecord] = useState<any>(null);
 
-  async function getprojectRecord() {
+  async function getbatchRecord() {
     try {
       setLoading(true);
-      const { data: resData } = await axios.post("/api/projects/getProject", {
-        projectId,
+      const { data: resData } = await axios.post("/api/batches/getBatch", {
+        batchId,
       });
-      setprojectRecord(resData.projectRecord);
+      setbatchRecord(resData.batchRecord);
 
       if (resData?.statusCode == 204) {
         setinvalidId(true);
       }
       setLoading(false);
     } catch (error) {
-      console.log("error in updateProject : [id], getprojectRecord api", error);
+      console.log("error in updatebatch : [id], getbatchRecord api", error);
     }
   }
   // initial fecth of selected activity record
   useEffect(() => {
-    getprojectRecord();
-    console.log("fetch all activity records");
-
-    dispatch(fetchAllActivityRecords());
-  }, [projectId]);
-
-  if (!isSuperOrGlobalAdmin) {
-    return <div>No access</div>;
-  }
-
+    getbatchRecord();
+  }, [batchId]);
   return (
     <div>
       <Sidebar
         menuItems={superadminMenuItems}
         // role={session?.data?.user.role}
         role="superadmin"
-        activeMenu="Projects"
+        activeMenu="Batches"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 flex flex-col h-[91dvh]  py-5 px-14 ">
-          {loading || !projectId ? (
+          {loading || !batchId ? (
             <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
               <CircularProgress />
               <span className="mt-2">Loading record...</span>
             </div>
           ) : invalidId ? (
-            <p>Invalid user id</p>
+            <p>Invalid batch id</p>
           ) : (
-            <ViewProject projectRecord={projectRecord} />
+            <ViewBatch batchRecord={batchRecord} />
           )}
         </div>
       </div>

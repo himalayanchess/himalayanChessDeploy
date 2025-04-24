@@ -9,13 +9,15 @@ import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { Check, MapPinHouse, X } from "lucide-react";
+import { Check, MapPinHouse, School, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const AssignedClasses = ({ selectedDate }: any) => {
+  const session = useSession();
   const dispatch = useDispatch<any>();
   const { allActiveAssignedClasses, allAssignedClassesLoading, status, error } =
     useSelector((state: any) => state.assignedClassesReducer);
@@ -39,6 +41,8 @@ const AssignedClasses = ({ selectedDate }: any) => {
 
   // Filter assigned classes according to selected date (YYYY-MM-DD format)
   useEffect(() => {
+    const user = session?.data?.user;
+
     console.log("selected date passed from above", selectedDate);
 
     const selectedNepaliDateOnly = dayjs(selectedDate)
@@ -46,7 +50,7 @@ const AssignedClasses = ({ selectedDate }: any) => {
       .startOf("day")
       .format("YYYY-MM-DD");
 
-    const tempFilteredAssignedClasses = allActiveAssignedClasses.filter(
+    let tempFilteredAssignedClasses = allActiveAssignedClasses.filter(
       (assignedClass: any) => {
         const assignedClassDate = dayjs(assignedClass?.nepaliDate).format(
           "YYYY-MM-DD"
@@ -55,9 +59,20 @@ const AssignedClasses = ({ selectedDate }: any) => {
       }
     );
 
+    // Step 2: Filter by branch only if user is not superadmin or not a global admin
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    if (!isSuperOrGlobalAdmin) {
+      tempFilteredAssignedClasses = tempFilteredAssignedClasses.filter(
+        (assignedClass: any) => assignedClass?.branchId === user?.branchId // safer than comparing by branchName
+      );
+    }
+
     console.log(tempFilteredAssignedClasses); // Log filtered classes for debugging
     setFilteredAssignedClasses(tempFilteredAssignedClasses);
-  }, [selectedDate, allActiveAssignedClasses]);
+  }, [selectedDate, allActiveAssignedClasses, session?.data?.user]);
 
   // Fetch assigned classes on component mount
   useEffect(() => {
@@ -65,10 +80,15 @@ const AssignedClasses = ({ selectedDate }: any) => {
   }, [dispatch]);
 
   return (
-    <div className="px-4 pb-4 h-full rounded-lg">
-      <h1 className="text-lg font-bold mb-3">Assigned Classes</h1>
+    <div className="px-4 pb-4 h-full flex flex-col rounded-lg">
+      <h1 className="mb-3">
+        <span className="text-lg font-bold ">Assigned Classes</span>
+        <span className="text-sm ml-2">
+          Showing {filteredAssignedClasses?.length || 0} records
+        </span>
+      </h1>
 
-      <div className="assigned-classes-list flex flex-col gap-3">
+      <div className="assigned-classes-list flex-1 h-full overflow-y-auto flex flex-col gap-3">
         {allAssignedClassesLoading ? (
           <div className="w-full text-center my-6">
             <CircularProgress sx={{ color: "gray" }} />
@@ -77,7 +97,7 @@ const AssignedClasses = ({ selectedDate }: any) => {
         ) : filteredAssignedClasses.length === 0 ? (
           <p>No assigned Classes</p>
         ) : (
-          filteredAssignedClasses.map((assignedClass: any) => (
+          filteredAssignedClasses.map((assignedClass: any, index: any) => (
             <div key={assignedClass?._id}>
               <div
                 className={`py-2 px-3 shadow-sm rounded-md cursor-pointer hover:opacity-80
@@ -90,11 +110,20 @@ const AssignedClasses = ({ selectedDate }: any) => {
           }`}
                 onClick={() => handleEditAssignedModalOpen(assignedClass)}
               >
-                <p className="text-sm">{assignedClass?.batchName}</p>
-                <p className="text-sm mt-1 flex items-center text-gray-600">
-                  <MapPinHouse size={15} />
-                  <span className="ml-1">{assignedClass?.branchName}</span>
+                <p className="text-sm">
+                  {index + 1}. {assignedClass?.batchName}
                 </p>
+                {assignedClass?.affiliatedTo?.toLowerCase() == "hca" ? (
+                  <p className="text-sm mt-1 flex items-center text-gray-600">
+                    <MapPinHouse size={15} />
+                    <span className="ml-1">{assignedClass?.branchName}</span>
+                  </p>
+                ) : (
+                  <p className="text-sm mt-1 flex items-center text-gray-600">
+                    <School size={15} />
+                    <span className="ml-1">{assignedClass?.projectName}</span>
+                  </p>
+                )}
                 {assignedClass?.recordUpdatedByTrainer ? (
                   <p className="text-sm flex items-center text-green-600">
                     <Check size={15} />

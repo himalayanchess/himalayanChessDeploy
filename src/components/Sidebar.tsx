@@ -7,13 +7,18 @@ import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
 
 import Link from "next/link";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Box, Button, Modal } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { LoadingButton } from "@mui/lab";
 
 const Sidebar = ({ menuItems, role, activeMenu }: any) => {
   const router = useRouter();
+  const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
   const [isExpanded, setIsExpanded] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [signoutModalOpen, setsignoutModalOpen] = useState(false);
@@ -30,31 +35,40 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
     >
       <nav className="flex flex-col justify-between h-full w-full">
         <div className="top-menus">
-          {menuItems.map((item: any, index: any) => (
-            <div key={index} className="relative">
-              <Link
-                href={`/${role.toLowerCase()}/${item.linkName}`}
-                className={`flex items-center justify-start  gap-3 px-3 py-3 w-full  ${
-                  activeMenu === item.label
-                    ? "bg-gray-200 text-black rounded-l-xl"
-                    : "hover:bg-gray-600"
-                }  transition-all`}
-              >
-                <span className="text-xl flex-shrink-0">{<item.icon />}</span>
-                <motion.span
-                  className="text-md whitespace-nowrap"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{
-                    opacity: isExpanded ? 1 : 0,
-                    x: isExpanded ? 0 : -20,
-                  }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+          {menuItems.map((item: any, index: any) => {
+            // Skip 'projects' menu item if not super/global admin
+            if (
+              (item.linkName === "projects" || item.linkName === "branches") &&
+              !isSuperOrGlobalAdmin
+            )
+              return null;
+
+            return (
+              <div key={index} className="relative">
+                <Link
+                  href={`/${role.toLowerCase()}/${item.linkName}`}
+                  className={`flex items-center justify-start gap-3 px-3 py-3 w-full ${
+                    activeMenu === item.label
+                      ? "bg-gray-200 text-black rounded-l-xl"
+                      : "hover:bg-gray-600"
+                  } transition-all`}
                 >
-                  {item.label}
-                </motion.span>
-              </Link>
-            </div>
-          ))}
+                  <span className="text-xl flex-shrink-0">{<item.icon />}</span>
+                  <motion.span
+                    className="text-md whitespace-nowrap"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{
+                      opacity: isExpanded ? 1 : 0,
+                      x: isExpanded ? 0 : -20,
+                    }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    {item.label}
+                  </motion.span>
+                </Link>
+              </div>
+            );
+          })}
         </div>
 
         {/* logout */}

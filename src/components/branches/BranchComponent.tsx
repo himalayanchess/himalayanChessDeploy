@@ -3,6 +3,7 @@ import Dropdown from "../Dropdown";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
 import AddIcon from "@mui/icons-material/Add";
+import LockIcon from "@mui/icons-material/Lock";
 
 import {
   Button,
@@ -15,8 +16,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { filterBranchList, getAllBranches } from "@/redux/allListSlice";
 import { BookCopy, MapPinHouse } from "lucide-react";
 import BranchList from "./BranchList";
+import { useSession } from "next-auth/react";
 
 const BranchComponent = ({ role = "" }: any) => {
+  const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -146,12 +154,24 @@ const BranchComponent = ({ role = "" }: any) => {
             />
 
             {/* add branch button */}
-            <Link href={`/${role?.toLowerCase()}/branches/addbranch`}>
-              <Button variant="contained" size="small">
-                <AddIcon />
-                <span className="ml-1">Add Branch</span>
+            {session?.data?.user?.role?.toLowerCase() == "superadmin" ? (
+              <Link href={`/${role?.toLowerCase()}/branches/addbranch`}>
+                <Button variant="contained" size="small">
+                  <AddIcon />
+                  <span className="ml-1">Add Branch</span>
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                variant="contained"
+                size="small"
+                className="w-max h-max"
+                disabled
+              >
+                <LockIcon sx={{ fontSize: "1.2rem" }} />
+                <span className="ml-1">Unauthorized</span>
               </Button>
-            </Link>
+            )}
           </div>
         </div>
       </div>

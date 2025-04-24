@@ -8,6 +8,8 @@ import {
   Modal,
   TextareaAutosize,
   TextField,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
@@ -18,12 +20,14 @@ import { notify } from "@/helpers/notify";
 import Dropdown from "@/components/Dropdown";
 import TrainersLeaveRequestList from "./TrainersLeaveRequestList";
 import axios from "axios";
+
 import { useSession } from "next-auth/react";
 import { useDispatch, useSelector } from "react-redux";
 import { addLeaveRequest } from "@/redux/leaveRequestSlice";
-import { fetchAllBatches } from "@/redux/allListSlice";
+import { fetchAllBatches, fetchAllProjects } from "@/redux/allListSlice";
 import { sendLeaveRequestMail } from "@/helpers/nodemailer/nodemailer";
 import { LoadingButton } from "@mui/lab";
+import { Calendar, CircleFadingArrowUp, MapPinHouse } from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -31,12 +35,13 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const LeaveRequest = ({ role = "" }: any) => {
+  const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
   // session
   const { data: sessionData } = useSession();
   // selector
-  const { allActiveBatches } = useSelector(
+  const { allActiveBatches, allActiveProjects } = useSelector(
     (state: any) => state.allListReducer
   );
 
@@ -48,6 +53,8 @@ const LeaveRequest = ({ role = "" }: any) => {
   const [selectedAffectedClass, setselectedAffectedClass] = useState<any>("");
   const [filteredBatchesOptions, setfilteredBatchesOptions] = useState<any>([]);
   const [requestLoading, setrequestLoading] = useState(false);
+  const [isOtherClassChecked, setIsOtherClassChecked] = useState(false);
+  const [otherClassText, setOtherClassText] = useState("");
 
   // modal
   const [affectedClassModalOpen, setaffectedClassModalOpen] = useState(false);
@@ -79,12 +86,16 @@ const LeaveRequest = ({ role = "" }: any) => {
     handleSubmit,
     control,
     watch,
+    setValue,
+    getValues,
     formState: { errors, isValid },
   } = useForm<any>({
     defaultValues: {
       fromDate: "",
       toDate: "",
       leaveReason: "",
+      branchName: "",
+      branchId: "",
       leaveSubject: "",
       affectedClasses: [],
     },
@@ -165,36 +176,63 @@ const LeaveRequest = ({ role = "" }: any) => {
     }
   }
 
+  // set branch name and branch id to form fields
+  // leave request to admin and trainer, they have branch
+  useEffect(() => {
+    if (sessionData?.user) {
+      setValue("branchName", sessionData?.user?.branchName);
+      setValue("branchId", sessionData?.user?.branchId);
+    }
+  }, [sessionData?.user]);
+
   // filter allActiveBatches
   useEffect(() => {
-    const tempfilteredBatchesOptions = new Set(
-      allActiveBatches.map((batch: any) => {
-        if (batch?.affiliatedTo?.toLowerCase() === "school") {
-          return batch.projectName;
-        } else if (batch?.affiliatedTo?.toLowerCase() === "hca") {
-          return batch.batchName;
-        }
+    const userName = session?.data?.user?.name;
+    const userBranchName = session?.data?.user?.branchName;
+
+    const hcaBatches = allActiveBatches
+      .filter(
+        (batch: any) =>
+          batch?.affiliatedTo?.toLowerCase() === "hca" &&
+          batch?.branchName === userBranchName
+      )
+      .map((batch: any) => batch.batchName);
+
+    const schoolProjects = allActiveProjects
+      .filter((project: any) => {
+        return project?.assignedTrainers?.some(
+          (trainer: any) =>
+            trainer?.trainerName === userName && !trainer?.endDate
+        );
       })
+      .map((project: any) => project.name);
+
+    // Combine and remove duplicates
+    const uniqueFilteredBatches = Array.from(
+      new Set([...hcaBatches, ...schoolProjects])
     );
 
-    // Convert the Set back to an array
-    const uniqueFilteredBatches = [...tempfilteredBatchesOptions];
-
     setfilteredBatchesOptions(uniqueFilteredBatches);
-  }, [allActiveBatches]);
+  }, [allActiveBatches, allActiveProjects, session?.data?.user]);
 
-  // fetch all batches from redux
-  useEffect(() => {
-    dispatch(fetchAllBatches());
-  }, []);
+  //handleCheckboxChange
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = event.target.checked;
+    setIsOtherClassChecked(checked);
+    if (checked) {
+      setselectedAffectedClass(""); // Clear dropdown value
+    } else {
+      setOtherClassText(""); // Clear other input
+    }
+  };
 
   //   submit function
   async function onSubmit(data: any) {
     // check if affectedClassesFields is empty or not
-    if (affectedClassesFields?.length == 0) {
-      notify("Include affected classes", 204);
-      return;
-    }
+    // if (affectedClassesFields?.length == 0) {
+    //   notify("Include affected classes", 204);
+    //   return;
+    // }
     setrequestLoading(true);
     let fileUrl = "";
 
@@ -235,8 +273,9 @@ const LeaveRequest = ({ role = "" }: any) => {
         const extractedDate = dayjs(nepaliTodaysDate)
           .tz(timeZone)
           .format("YYYY-MM-DD");
-        const folderName = `leaveSupportReasons/${extractedDate}/${sessionData?.user?.name}`;
+        const folderName = `leaveSupportReasons/${sessionData?.user?.name}/${extractedDate}`;
         formData.append("folderName", folderName);
+        formData.append("cloudinaryFileType", "otherFiles");
 
         const { data: supporReasonFileResData } = await axios.post(
           "/api/fileupload/uploadfile",
@@ -287,13 +326,23 @@ const LeaveRequest = ({ role = "" }: any) => {
     }
   }
 
+  // fetch all batches from redux
+  useEffect(() => {
+    dispatch(fetchAllBatches());
+    dispatch(fetchAllProjects());
+  }, []);
+
   return (
     <div className="flex w-full ">
       {/* request form */}
       <div className="requestForm flex-[0.7] flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
-        <h1 className="text-2xl font-bold">Request for leave</h1>
+        <h1 className="text-2xl font-bold flex items-center">
+          <CircleFadingArrowUp />
+          <span className="ml-2">Request for leave</span>
+        </h1>
         <p className="text-xs mt-1 text-gray-500">
-          This will be sent to superadmin for approval.
+          This will be sent to superadmin for approval.{" "}
+          <b>You cannot delete this request once sent.</b>
         </p>
         {/* divider */}
         <Divider sx={{ margin: ".7rem 0" }} />
@@ -309,10 +358,25 @@ const LeaveRequest = ({ role = "" }: any) => {
           onSubmit={handleSubmit(onSubmit)}
         >
           {/* nepaliTodaysDate */}
-          <div className="nepaliTodaysDate col-span-2 text-lg mt-1">
-            <span className="mr-1 font-bold">Date:</span>
-            {nepaliTodaysDate.format("MMMM D, YYYY dddd")}
+          <div className="date col-span-2 flex justify-between items-center">
+            <div className="nepaliTodaysDate  text-lg mt-1 flex items-center">
+              <span className="mr-1 font-bold flex items-center">
+                <Calendar />
+                <span className="ml-1">Date:</span>
+              </span>
+              <span className="ml-1">
+                {nepaliTodaysDate.format("MMMM D, YYYY dddd")}
+              </span>
+            </div>
+            {/* branch */}
+            <div className="branch flex items-center">
+              <MapPinHouse className="text-gray-500" />
+              <span className="ml-1 text-gray-500">
+                {sessionData?.user?.branchName}
+              </span>
+            </div>
           </div>
+
           {/* from date */}
           <Controller
             name="fromDate"
@@ -424,72 +488,100 @@ const LeaveRequest = ({ role = "" }: any) => {
           </div>
 
           {/* affectedClasses */}
-          <div className="affectedClasses col-span-2">
-            <p className="text-sm font-bold">Affected Classes</p>
-            {/* affected class list */}
-            <div className="affectedClassList flex flex-wrap my-2 gap-2">
-              {affectedClassesFields?.map((field: any, index) => (
-                <div
-                  key={field.id}
-                  className="text-black border text-xs shadow-sm outline-none w-max h-max py-1 px-2 rounded-full flex items-center gap-1"
-                >
-                  <p>{field?.affectedClassName}</p>{" "}
-                  {/* Access the property here */}
-                  <button
-                    title="Delete"
-                    onClick={() => removeaffectedClasses(index)} // Remove by index
+          {sessionData?.user?.role?.toLowerCase() == "trainer" && (
+            <div className="affectedClasses col-span-2">
+              <p className="text-sm font-bold">Affected Classes</p>
+              {/* affected class list */}
+              <div className="affectedClassList flex flex-wrap  gap-2">
+                {affectedClassesFields?.map((field: any, index) => (
+                  <div
+                    key={field.id}
+                    className="text-black border text-xs shadow-sm outline-none w-max h-max py-1 px-2 rounded-full flex items-center gap-1"
                   >
-                    <CloseIcon
-                      className=" border border-gray-400 text-black rounded-full p-0.5 ml-1s"
-                      sx={{ fontSize: "0.9rem" }}
-                    />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleaffectedClassModalOpen}
-            >
-              + Add Class
-            </Button>
-
-            {/* add affected class modal */}
-            <Modal
-              open={affectedClassModalOpen}
-              onClose={handleaffectedClassModalClose}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
-              className="flex items-center justify-center"
-              BackdropProps={{
-                style: { backgroundColor: "rgba(0,0,0,0.4)" },
-              }}
-            >
-              <div className="w-[450px] h-max p-6 rounded-lg shadow-md bg-white">
-                <p className="text-lg font-bold mb-3">Add Affected Class</p>
-
-                <Dropdown
-                  label="Project name"
-                  options={filteredBatchesOptions}
-                  selected={selectedAffectedClass}
-                  onChange={(value: any) => {
-                    setselectedAffectedClass(value);
-                  }}
-                  width="full"
-                />
-
-                <Button
-                  className=""
-                  variant="contained"
-                  sx={{ marginTop: "1rem" }}
-                  onClick={handleaffectedClassAdd}
-                >
-                  Add
-                </Button>
+                    <p>{field?.affectedClassName}</p>{" "}
+                    {/* Access the property here */}
+                    <button
+                      title="Delete"
+                      onClick={() => removeaffectedClasses(index)} // Remove by index
+                    >
+                      <CloseIcon
+                        className=" border border-gray-400 text-black rounded-full p-0.5 ml-1s"
+                        sx={{ fontSize: "0.9rem" }}
+                      />
+                    </button>
+                  </div>
+                ))}
               </div>
-            </Modal>
-          </div>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleaffectedClassModalOpen}
+                sx={{ margin: ".3rem 0 0 0" }}
+              >
+                + Add Class
+              </Button>
+
+              {/* add affected class modal */}
+              <Modal
+                open={affectedClassModalOpen}
+                onClose={handleaffectedClassModalClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                className="flex items-center justify-center"
+                BackdropProps={{
+                  style: { backgroundColor: "rgba(0,0,0,0.4)" },
+                }}
+              >
+                <div className="w-[450px] h-max p-6 rounded-lg shadow-md bg-white flex flex-col">
+                  <p className="text-lg font-bold mb-3">Add Affected Class</p>
+
+                  <Dropdown
+                    label="Class name"
+                    options={filteredBatchesOptions}
+                    selected={selectedAffectedClass}
+                    onChange={(value: any) => {
+                      setselectedAffectedClass(value);
+                    }}
+                    width="full"
+                    disabled={isOtherClassChecked} // <-- disable when "Other Class" is checked
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isOtherClassChecked}
+                        onChange={handleCheckboxChange}
+                        color="primary"
+                      />
+                    }
+                    label="Other Class"
+                  />
+                  {isOtherClassChecked && (
+                    <TextField
+                      label="Enter Class Name"
+                      fullWidth
+                      size="medium"
+                      value={otherClassText}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setOtherClassText(val);
+                        setselectedAffectedClass(val); // Also update selectedAffectedClass
+                      }}
+                      sx={{ marginTop: ".4rem" }}
+                    />
+                  )}
+
+                  <Button
+                    className=""
+                    variant="contained"
+                    sx={{ marginTop: "1rem" }}
+                    onClick={handleaffectedClassAdd}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </Modal>
+            </div>
+          )}
 
           {/* support for reason */}
           <div className="support-reason col-span-2">
