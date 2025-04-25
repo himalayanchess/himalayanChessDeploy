@@ -8,6 +8,7 @@ import {
   setselectedDatesAttendanceRecord,
 } from "@/redux/attendanceSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { MapPinHouse } from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -213,16 +214,22 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
           </div>
         </div>
 
-        <h3 className="font-semibold px-3 mb-1 mt-2 text-center text-xl">
+        <h3 className="font-semibold px-3  mt-2 text-center text-xl">
           Latest Update
         </h3>
-        <div className="mt-1 px-3">
+        <div className="mt-1 px-4">
           {attendanceUpdatedByData ? (
             <>
               <p className="text-md">
                 by: {"  "}
                 <span className="font-bold">
                   {attendanceUpdatedByData?.userName}
+                </span>
+              </p>
+              <p className="branch my-1 flex items-center">
+                <MapPinHouse className="text-gray-500" size={15} />
+                <span className="ml-1 text-sm text-gray-500">
+                  {attendanceUpdatedByData?.userBranch}
                 </span>
               </p>
               <div className="flex">

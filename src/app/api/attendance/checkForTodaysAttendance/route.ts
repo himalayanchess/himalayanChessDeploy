@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     if (attendanceRecord) {
       return NextResponse.json({
         msg: "Todays attendance record found",
-        statusCode: 200,
+        statusCode: 200, 
         attendanceRecord,
       });
     }

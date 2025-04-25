@@ -29,6 +29,8 @@ const AttendanceSchema = new mongoose.Schema(
         },
         userName: { type: String },
         userRole: { type: String },
+        userBranch: { type: String },
+        userIsGlobalAdmin: { type: Boolean, default: false },
         status: {
           type: String,
           enum: ["present", "absent", "leave", "holiday"],
@@ -43,6 +45,7 @@ const AttendanceSchema = new mongoose.Schema(
         },
         userName: { type: String },
         userRole: { type: String },
+        userBranch: { type: String },
         updatedAt: {
           type: Date,
           default: Date.now,

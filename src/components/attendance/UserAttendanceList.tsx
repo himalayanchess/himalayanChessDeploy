@@ -28,6 +28,8 @@ import {
   setattendanceUpdatedByData,
   updateAttendanceChartData,
 } from "@/redux/attendanceSlice";
+import Dropdown from "../Dropdown";
+import { getAllBranches } from "@/redux/allListSlice";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(utc);
@@ -36,7 +38,17 @@ const timeZone = "Asia/Kathmandu";
 
 const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   const dispatch = useDispatch<any>();
+
+  const { allActiveBranchesList } = useSelector(
+    (state: any) => state.allListReducer
+  );
+
   const session = useSession();
+
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
 
   const { control, handleSubmit, watch, reset } = useForm<any>({
     defaultValues: {
@@ -50,27 +62,51 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   });
 
   // state vars
+  const [filteredUsers, setfilteredUsers] = useState<any>([]);
   const [saveAttendanceLoading, setsaveAttendanceLoading] = useState(false);
   const [attendanceStateChanged, setattendanceStateChanged] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [allUpdatedByList, setallUpdatedByList] = useState<any>([]);
+  const [selectedBranch, setselectedBranch] = useState("");
 
   // Watch attendance data for real-time updates
   const userAttendance = watch("userAttendance");
 
+  // change latest updated by when branch changes
+  useEffect(() => {
+    const tempFilteredLatestUpdatedbyList =
+      selectedBranch?.toLowerCase() == "all"
+        ? allUpdatedByList
+        : allUpdatedByList?.filter(
+            (updatedBy: any) =>
+              updatedBy?.userBranch?.toLowerCase() ==
+              selectedBranch?.toLowerCase()
+          );
+
+    let latestUpdate =
+      tempFilteredLatestUpdatedbyList[
+        tempFilteredLatestUpdatedbyList.length - 1
+      ];
+
+    dispatch(setattendanceUpdatedByData(latestUpdate));
+  }, [selectedBranch, allUpdatedByList]);
+
+  // chart data
   useEffect(() => {
     if (!initialLoadComplete) return;
 
+    // Use filteredUsers instead of userAttendance
     const present =
-      userAttendance?.filter((a: any) => a.status === "present").length || 0;
+      filteredUsers?.filter((a: any) => a.status === "present").length || 0;
     const absent =
-      userAttendance?.filter((a: any) => a.status === "absent").length || 0;
+      filteredUsers?.filter((a: any) => a.status === "absent").length || 0;
     const leave =
-      userAttendance?.filter((a: any) => a.status === "leave").length || 0;
+      filteredUsers?.filter((a: any) => a.status === "leave").length || 0;
     const holiday =
-      userAttendance?.filter((a: any) => a.status === "holiday").length || 0;
+      filteredUsers?.filter((a: any) => a.status === "holiday").length || 0;
 
-    const total = userAttendance?.length ?? 0;
+    const total = filteredUsers?.length ?? 0;
 
     const chartData = [
       {
@@ -101,7 +137,35 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
     ];
 
     dispatch(updateAttendanceChartData(chartData));
-  }, [userAttendance, initialLoadComplete, attendanceStateChanged]);
+  }, [filteredUsers, initialLoadComplete, attendanceStateChanged]); // Changed dependency to filteredUsers
+
+  // filter users according to branch
+  useEffect(() => {
+    let filteredUsers =
+      selectedBranch?.toLowerCase() === "all"
+        ? fields
+        : fields.filter(
+            (user: any) =>
+              user?.userBranch?.toLowerCase() === selectedBranch?.toLowerCase()
+          );
+
+    setfilteredUsers(filteredUsers);
+  }, [fields, selectedBranch]);
+
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+    }
+    setselectedBranch(branchName);
+  }, [session?.data?.user]);
 
   // Set default values when users load
   useEffect(() => {
@@ -110,21 +174,28 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       allActiveUsersList.length > 0 &&
       !initialLoadComplete
     ) {
-      // Set default values (all absent)
-      const defaultAttendance = allActiveUsersList.map((user: any) => ({
-        userId: user._id,
-        userName: user.name,
-        userRole: user.role,
-        status: "absent",
-      }));
+      const initializeAttendance = async () => {
+        // First try to load existing attendance
+        const hasAttendance = await checkForTodaysAttendance();
 
-      replace(defaultAttendance);
-      setInitialLoadComplete(true);
+        // Only set defaults if no attendance was found
+        if (!hasAttendance) {
+          const defaultAttendance = allActiveUsersList.map((user: any) => ({
+            userId: user._id,
+            userName: user.name,
+            userRole: user.role,
+            userBranch: user.branchName,
+            userIsGlobalAdmin: user.isGlobalAdmin,
+            status: "absent",
+          }));
+          replace(defaultAttendance);
+        }
+        setInitialLoadComplete(true);
+      };
 
-      // Then check for today's attendance
-      checkForTodaysAttendance();
+      initializeAttendance();
     }
-  }, [allActiveUsersList, initialLoadComplete]);
+  }, [allActiveUsersList, initialLoadComplete, session?.data?.user]);
 
   async function checkForTodaysAttendance() {
     try {
@@ -133,27 +204,50 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       );
 
       if (resData?.statusCode === 200 && resData?.attendanceRecord) {
-        replace(
-          resData.attendanceRecord.userAttendance.map((user: any) => ({
+        const updatedAttendance = resData.attendanceRecord.userAttendance.map(
+          (user: any) => ({
             userId: user.userId,
             userName: user.userName,
             userRole: user.userRole,
+            userBranch: user.userBranch,
+            userIsGlobalAdmin: user.userIsGlobalAdmin,
             status: user.status,
-          }))
+          })
         );
 
-        if (resData.attendanceRecord.updatedBy?.length > 0) {
-          dispatch(
-            setattendanceUpdatedByData(
-              resData.attendanceRecord.updatedBy[
-                resData.attendanceRecord.updatedBy.length - 1
-              ]
-            )
-          );
+        replace(updatedAttendance);
+        setfilteredUsers(updatedAttendance); // Update filtered users initially
+
+        // updated by according to branch
+        if (resData?.attendanceRecord?.updatedBy?.length > 0) {
+          // setallupdatedbylist so that i can filter latest udpted by when branch changes
+          setallUpdatedByList(resData?.attendanceRecord?.updatedBy);
+
+          const updatedByList = resData.attendanceRecord.updatedBy;
+          let latestUpdate;
+          if (isSuperOrGlobalAdmin) {
+            latestUpdate = updatedByList[updatedByList.length - 1];
+          } else {
+            let filteredUpdatedByByBranch = updatedByList?.filter(
+              (updatedBy: any) =>
+                updatedBy?.userBranch?.toLowerCase() ===
+                session?.data?.user?.branchName?.toLowerCase()
+            );
+            latestUpdate =
+              filteredUpdatedByByBranch[filteredUpdatedByByBranch.length - 1];
+          }
+
+          if (latestUpdate) {
+            dispatch(setattendanceUpdatedByData(latestUpdate));
+          }
         }
+
+        return true;
       }
+      return false;
     } catch (error) {
       console.error("Error checking today's attendance:", error);
+      return false;
     }
   }
 
@@ -168,6 +262,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
             userId: session?.data?.user?._id,
             userRole: session?.data?.user?.role,
             userName: session?.data?.user?.name,
+            userBranch: session?.data?.user?.branchName,
             updatedAt: dayjs().tz(timeZone).utc(),
           },
         }
@@ -176,15 +271,16 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       if (resData?.statusCode === 200) {
         handleconfirmModalClose();
         // update the attendanceUpdateByData
-        dispatch(
-          setattendanceUpdatedByData({
-            userId: session?.data?.user?._id,
-            userRole: session?.data?.user?.role,
-            userName: session?.data?.user?.name,
-            updatedAt: dayjs().tz(timeZone).utc().format(),
-          })
-        );
+        const updatedByUser = {
+          userId: session?.data?.user?._id,
+          userRole: session?.data?.user?.role,
+          userName: session?.data?.user?.name,
+          userBranch: session?.data?.user?.branchName,
+          updatedAt: dayjs().tz(timeZone).utc().format(),
+        };
 
+        dispatch(setattendanceUpdatedByData(updatedByUser));
+        setallUpdatedByList((prev: any) => [...prev, updatedByUser]);
         // update attendance record list of today
         dispatch(getAllAttendanceRecords());
       }
@@ -204,6 +300,11 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   function handleconfirmModalClose() {
     setconfirmModalOpen(false);
   }
+
+  //initial load
+  useEffect(() => {
+    dispatch(getAllBranches());
+  }, []);
 
   if (allUsersLoading || !initialLoadComplete) {
     return (
@@ -228,12 +329,30 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       className="flex flex-col h-full bg-white p-5 rounded-md shadow-md"
     >
       {/* header */}
-      <div className="header flex justify-between items-center">
+      <div className="header flex justify-between items-end">
         {/* title */}
-        <p className="text-2xl flex items-center">
-          <CalendarCheck2 />
-          <span className="ml-2">Daily Attendance</span>
-        </p>
+        <div className="title-dropdown flex items-end gap-4">
+          <p className="text-2xl flex items-end">
+            <CalendarCheck2 />
+            <span className="ml-2">Daily Attendance</span>
+          </p>
+          <Dropdown
+            label="Branch"
+            options={[
+              "All",
+              ...(allActiveBranchesList?.map(
+                (branch: any) => branch.branchName
+              ) || []),
+            ]}
+            selected={selectedBranch}
+            disabled={!isSuperOrGlobalAdmin}
+            onChange={setselectedBranch}
+          />
+
+          <span className="text-sm text-gray-500">
+            Showing {filteredUsers?.length} users
+          </span>
+        </div>
         {/* date */}
         <p className="text-xl">
           {dayjs().tz(timeZone).startOf("day").format("MMMM D, YYYY - dddd")}
@@ -248,10 +367,11 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
 
       <div className="attendanceTable mt-2 rounded-md border h-full flex-1 overflow-y-auto">
         {/* Header */}
-        <div className="py-2  grid grid-cols-[70px,repeat(4,1fr)] bg-gray-100 ">
+        <div className="py-2  grid grid-cols-[50px,repeat(5,1fr)] gap-2 bg-gray-100 ">
           <span className="font-bold text-center text-sm">SN</span>
           <span className="font-bold text-sm">Name</span>
           <span className="font-bold text-sm">Role</span>
+          <span className="font-bold text-sm">Branch</span>
           <span className="font-bold text-center col-span-2 text-sm">
             Status
           </span>
@@ -259,77 +379,94 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
 
         {/* User List */}
         <div className="mt-2">
-          {fields.map((field: any, index: any) => (
-            <div
-              key={field.id}
-              className="py-2 border-b grid grid-cols-[70px,repeat(4,1fr)] items-center transition-all ease duration-150 hover:bg-gray-100"
-            >
-              <p className="text-center text-sm">{index + 1}</p>
-              <p className="text-left  text-sm">{field.userName}</p>
-              <p className="text-left text-sm">{field.userRole}</p>
+          {filteredUsers.map((field: any, filteredIndex: any) => {
+            // Find the original index in the fields array
+            const originalIndex = fields.findIndex(
+              (f: any) => f.userId === field.userId
+            );
 
-              <div className="status-column col-span-2 w-full">
-                <Controller
-                  name={`userAttendance.${index}.status`}
-                  control={control}
-                  render={({ field }: any) => (
-                    <Box
-                      display="flex"
-                      justifyContent="center"
-                      alignItems="center"
-                      gap={2}
-                      flexWrap="wrap"
-                    >
-                      {["present", "absent", "leave", "holiday"].map(
-                        (status) => (
-                          <Button
-                            key={status}
-                            variant={
-                              field.value === status ? "contained" : "outlined"
-                            }
-                            color={
-                              status === "present"
-                                ? "success"
-                                : status === "absent"
-                                ? "error"
-                                : status === "leave"
-                                ? "info"
-                                : "secondary"
-                            }
-                            onClick={() => {
-                              field.onChange(status);
-                              setattendanceStateChanged((prev) => !prev);
-                            }}
-                            startIcon={
-                              status === "present" ? (
-                                <CheckCircle />
-                              ) : status === "absent" ? (
-                                <Cancel />
-                              ) : status === "leave" ? (
-                                <Cancel />
-                              ) : (
-                                <Cancel />
-                              )
-                            }
-                            size="small"
-                            sx={{
-                              textTransform: "none",
-                              padding: ".3rem .7rem",
-                              height: "max-content",
-                              width: "max-content",
-                              fontSize: "0.7rem",
-                            }}
-                          >
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                          </Button>
-                        )
-                      )}
-                    </Box>
+            return (
+              <div
+                key={`${field.userName}_${filteredIndex}`}
+                className="py-2 border-b grid grid-cols-[50px,repeat(5,1fr)] gap-2 items-center transition-all ease duration-150 hover:bg-gray-100"
+              >
+                <p className="text-center text-sm">{filteredIndex + 1}</p>
+                <p className="text-left  text-sm">{field.userName}</p>
+                <p className="text-left text-xs">
+                  {field.userRole}
+                  {field?.userIsGlobalAdmin && (
+                    <span className="bg-gray-400 text-white font-bold text-xs px-2 py-0.5 rounded-full ml-2">
+                      {"Global"}
+                    </span>
                   )}
-                />
+                </p>
+                <p className="text-left text-xs">{field.userBranch || "N/A"}</p>
+
+                <div className="status-column col-span-2 w-full">
+                  <Controller
+                    name={`userAttendance.${originalIndex}.status`} // Use originalIndex here
+                    control={control}
+                    render={({ field }: any) => (
+                      <Box
+                        display="grid"
+                        gridTemplateColumns="repeat(4, 1fr)"
+                        gap={1}
+                      >
+                        {["present", "absent", "leave", "holiday"].map(
+                          (status) => (
+                            <Button
+                              key={status}
+                              variant={
+                                field.value === status
+                                  ? "contained"
+                                  : "outlined"
+                              }
+                              color={
+                                status === "present"
+                                  ? "success"
+                                  : status === "absent"
+                                  ? "error"
+                                  : status === "leave"
+                                  ? "info"
+                                  : "secondary"
+                              }
+                              onClick={() => {
+                                field.onChange(status);
+                                console.log("selected index", originalIndex);
+
+                                setattendanceStateChanged((prev) => !prev);
+                              }}
+                              startIcon={
+                                status === "present" ? (
+                                  <CheckCircle />
+                                ) : status === "absent" ? (
+                                  <Cancel />
+                                ) : status === "leave" ? (
+                                  <Cancel />
+                                ) : (
+                                  <Cancel />
+                                )
+                              }
+                              size="small"
+                              sx={{
+                                textTransform: "none",
+                                padding: ".3rem .7rem",
+                                height: "max-content",
+                                width: "max-content",
+                                fontSize: "0.7rem",
+                              }}
+                            >
+                              {status.charAt(0).toUpperCase() + status.slice(1)}
+                            </Button>
+                          )
+                        )}
+                      </Box>
+                    )}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

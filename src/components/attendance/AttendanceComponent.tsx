@@ -91,7 +91,7 @@ const AttendanceComponent = () => {
           <div className="attendancehistorylist flex-1 mr-4">
             <StudentsAttendanceList
             // studentsAttendanceRecord={studentsAttendanceRecord}
-            />
+            />  
           </div>
           <StudentsAttendanceChart
           // attendanceRecords={allActiveAttedanceRecordsList}

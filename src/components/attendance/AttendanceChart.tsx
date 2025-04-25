@@ -14,6 +14,7 @@ import {
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { MapPinHouse } from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -51,7 +52,7 @@ const AttendanceChart = ({ allUsersLoading }: any) => {
   };
 
   return (
-    <div className="flex flex-col w-[25%] h-full rounded-md">
+    <div className="flex flex-col w-[22%] h-full rounded-md">
       <div className="mb-2 py-2 px-5 h-3/4 flex flex-col bg-white rounded-md shadow-md">
         <p className="text-center text-xl font-bold mb-2">Attendance Summary</p>
 
@@ -104,11 +105,17 @@ const AttendanceChart = ({ allUsersLoading }: any) => {
         <p className="text-center text-xl font-bold">Latest Update</p>
         <div>
           {attendanceUpdatedByData ? (
-            <div className="mt-4">
+            <div className="mt-2">
               <p className="text-md">
                 by:{" "}
                 <span className="font-bold">
                   {attendanceUpdatedByData?.userName}
+                </span>
+              </p>
+              <p className="branch my-1 flex items-center">
+                <MapPinHouse className="text-gray-500" size={15} />
+                <span className="ml-1 text-sm text-gray-500">
+                  {attendanceUpdatedByData?.userBranch}
                 </span>
               </p>
               <div className="flex">

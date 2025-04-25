@@ -26,6 +26,7 @@ export const fetchAllTrainersLeaveRequests = createAsyncThunk(
 
 const initialState: any = {
   allTrainersLeaveRequests: [],
+  allTrainersLeaveRequestsLoading: true,
   status: "idle", // "idle" | "loading" | "succeeded" | "failed"
   error: null,
 };
@@ -57,6 +58,7 @@ const leaveRequestSlice = createSlice({
     builder
       .addCase(fetchAllTrainersLeaveRequests.pending, (state) => {
         state.status = "loading";
+        state.allTrainersLeaveRequestsLoading = false;
       })
       .addCase(fetchAllTrainersLeaveRequests.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -68,6 +70,7 @@ const leaveRequestSlice = createSlice({
             (a: any, b: any) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           ); // Sorting by latest createdAt
+        state.allTrainersLeaveRequestsLoading = false;
       });
   },
 });

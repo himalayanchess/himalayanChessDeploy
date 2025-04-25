@@ -8,7 +8,11 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import BrowserNotSupportedIcon from "@mui/icons-material/BrowserNotSupported";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllBatches } from "@/redux/allListSlice";
+import {
+  fetchAllBatches,
+  fetchAllProjects,
+  getAllBranches,
+} from "@/redux/allListSlice";
 import Dropdown from "../Dropdown";
 import axios from "axios";
 import Link from "next/link";
@@ -25,22 +29,28 @@ const timeZone = "Asia/Kathmandu";
 const StudentsAttendanceList = () => {
   const affiliatedToOptions = ["All", "HCA", "School"];
   const session = useSession();
+
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    (session?.data?.user?.role?.toLowerCase() === "admin" &&
+      session?.data?.user?.isGlobalAdmin);
+
   // dispatch
   const dispatch = useDispatch<any>();
   //   selector
   const { studentsAttendanceSelectedDay } = useSelector(
     (state: any) => state.attendanceReducer
   );
-  const { allActiveBatches } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveBatches, allActiveBranchesList, allActiveProjects } =
+    useSelector((state: any) => state.allListReducer);
 
   const [studentAttendanceRecordsLoading, setstudentAttendanceRecordsLoading] =
     useState(false);
 
   const [selectedAffiliatedTo, setselectedAffiliatedTo] = useState("All");
   const [selectedBatch, setselectedBatch] = useState("None");
-  const [selectedBranch, setselectedBranch] = useState("None");
+  const [selectedProject, setselectedProject] = useState("All");
+  const [selectedBranch, setselectedBranch] = useState("");
   const [
     filteredStudentAttendanceRecords,
     setfilteredStudentAttendanceRecords,
@@ -94,6 +104,40 @@ const StudentsAttendanceList = () => {
     setstudentAttendanceRecordsLoading(false);
   }
 
+  // if affiliated to changes then reset project dropdown
+  useEffect(() => {
+    // Check if the user is a superadmin or global admin
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    // Only reset if it's a superadmin or global admin
+    if (isSuperOrGlobalAdmin) {
+      setselectedProject("All");
+      setselectedBranch("All");
+      setselectedBatch("None");
+    }
+  }, [selectedAffiliatedTo, session?.data?.user]);
+
+  // branch access
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "All";
+    let affiliatedTo = "All";
+    if (!isSuperOrGlobalAdmin) {
+      branchName = user?.branchName;
+      affiliatedTo = "HCA";
+    }
+    setselectedBranch(branchName);
+    setselectedAffiliatedTo(affiliatedTo);
+  }, [session?.data?.user]);
+
   //   filter batch
   useEffect(() => {
     // filter batches
@@ -104,6 +148,25 @@ const StudentsAttendanceList = () => {
             (batch: any) =>
               batch?.affiliatedTo?.toLowerCase() ==
               selectedAffiliatedTo?.toLowerCase()
+          );
+
+    // filter by branch
+    tempFilteredBatches =
+      selectedBranch.toLowerCase() == "all"
+        ? tempFilteredBatches
+        : tempFilteredBatches?.filter(
+            (batch: any) =>
+              batch?.branchName?.toLowerCase() == selectedBranch?.toLowerCase()
+          );
+
+    // filter by project
+    tempFilteredBatches =
+      selectedProject.toLowerCase() == "all"
+        ? tempFilteredBatches
+        : tempFilteredBatches?.filter(
+            (batch: any) =>
+              batch?.projectName?.toLowerCase() ==
+              selectedProject?.toLowerCase()
           );
 
     //sort
@@ -118,7 +181,7 @@ const StudentsAttendanceList = () => {
     setfilteredBatches(tempFilteredBatches);
     // update redux state
     // dispatch(filterStudentsList(tempFilteredStudentsList));
-  }, [allActiveBatches, selectedAffiliatedTo, selectedBatch]);
+  }, [allActiveBatches, selectedProject, selectedBranch, selectedAffiliatedTo]);
 
   // fetch attendance record filtering batch and date in databse
   useEffect(() => {
@@ -136,6 +199,8 @@ const StudentsAttendanceList = () => {
   // intial data fetching
   useEffect(() => {
     dispatch(fetchAllBatches());
+    dispatch(getAllBranches());
+    dispatch(fetchAllProjects());
   }, []);
 
   return (
@@ -177,15 +242,40 @@ const StudentsAttendanceList = () => {
             selected={selectedAffiliatedTo}
             onChange={setselectedAffiliatedTo}
             width="full"
+            disabled={!isSuperOrGlobalAdmin}
           />
+
+          {isSuperOrGlobalAdmin && (
+            <Dropdown
+              label="School"
+              options={[
+                "All",
+                ...(allActiveProjects?.map((project: any) => project.name) ||
+                  []),
+              ]}
+              selected={selectedProject}
+              onChange={setselectedProject}
+              width="full"
+              disabled={
+                selectedAffiliatedTo?.toLowerCase() != "school" ||
+                !isSuperOrGlobalAdmin
+              }
+            />
+          )}
           <Dropdown
             label="Branch"
             options={[
-              "None",
-              ...filteredBatches?.map((batch: any) => batch?.batchName),
+              "All",
+              ...(allActiveBranchesList?.map(
+                (branch: any) => branch.branchName
+              ) || []),
             ]}
             selected={selectedBranch}
             onChange={setselectedBranch}
+            disabled={
+              selectedAffiliatedTo?.toLowerCase() != "hca" ||
+              !isSuperOrGlobalAdmin
+            }
             width="full"
           />
           <Dropdown
