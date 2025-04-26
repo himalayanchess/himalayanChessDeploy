@@ -149,8 +149,9 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
             <div className="grid grid-cols-7 gap-1 mt-0.5 mb-1">
               {days.map((day) => {
                 const isCurrentMonth = day.month() === currentMonth.month();
-                const hasAttendance =
-                  isCurrentMonth && getAttendanceForDay(day).length > 0;
+                // const hasAttendance =
+                //   isCurrentMonth && getAttendanceForDay(day).length > 0;
+                const hasAttendance = false;
                 const isSelected = selectedDay?.isSame(day, "day");
                 const isToday = day.isSame(dayjs(), "day");
                 const isDisabled = !isCurrentMonth;
@@ -165,7 +166,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
                       isSelected
                         ? "bg-blue-500 text-white"
                         : hasAttendance
-                        ? "bg-green-200"
+                        ? "bg-blue-100"
                         : "hover:bg-gray-200"
                     } ${isToday && !isSelected ? "ring-2 ring-blue-500" : ""}`}
                   >

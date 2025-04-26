@@ -114,6 +114,7 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
         ...leaveRequestRecord,
         approvalStatus: selectedApproveStatusMode,
         isResponded: true,
+        updateType: "updatedbysuperadmin",
       }
     );
     if (resData?.statusCode === 200) {

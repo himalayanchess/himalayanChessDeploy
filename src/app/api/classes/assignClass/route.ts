@@ -45,10 +45,7 @@ export async function POST(request: NextRequest) {
     // first convert date to nepali time format (understanding)
     const passedNepaliDate = dayjs(date).tz(timeZone).startOf("day");
     console.log("passed nepali date", passedNepaliDate.format());
-    const convertedUtcDate = dayjs(date)
-      .tz(timeZone)
-      .startOf("day")
-      .utc();
+    const convertedUtcDate = dayjs(date).tz(timeZone).startOf("day").utc();
 
     // 3 fields from dayjs
     const weekNumber = dayjs(passedNepaliDate).week();
@@ -151,10 +148,10 @@ export async function POST(request: NextRequest) {
     const savedNewAssignClass = await newAssignClass.save();
 
     if (savedNewAssignClass) {
-      // await sendAssignClassMail({
-      //   subject: "Class assignment to trainer",
-      //   assignedClass: reqBody,
-      // });
+      await sendAssignClassMail({
+        subject: "Class assignment to trainer",
+        assignedClass: reqBody,
+      });
       return NextResponse.json({
         statusCode: 200,
         msg: "Class Assigned",

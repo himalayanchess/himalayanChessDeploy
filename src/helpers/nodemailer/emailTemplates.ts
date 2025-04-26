@@ -6,6 +6,7 @@ import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 let timeZone = "Asia/Kathmandu";
+//done
 export function getOTPEmailContent(otp: any) {
   const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
 
@@ -95,6 +96,7 @@ export function getOTPEmailContent(otp: any) {
   return emailContent;
 }
 
+// done
 export function getLeaveRequestEmailContent({
   userName,
   userRole,
@@ -104,15 +106,16 @@ export function getLeaveRequestEmailContent({
   toDate,
   leaveDurationDays,
   affectedClasses,
+  supportReasonFileUrl,
 }: any) {
   const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
 
   const formattedFromDate = dayjs(fromDate)
     .tz("Asia/Kathmandu")
-    .format("MMMM D, YYYY");
+    .format("MMMM D, YYYY, ddd");
   const formattedToDate = dayjs(toDate)
     .tz("Asia/Kathmandu")
-    .format("MMMM D, YYYY");
+    .format("MMMM D, YYYY, ddd");
 
   const formattedAffectedClasses = affectedClasses.length
     ? affectedClasses
@@ -121,144 +124,163 @@ export function getLeaveRequestEmailContent({
     : "None";
 
   return `
-      <html>
-        <head>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 0;
-              background-color: #f4f7fa;
-              color: #333;
-              width: 100%;
-              overflow-x: hidden;
-            }
-            .container {
-              width: 100%;
-              max-width: 100%;
-              background-color: #ffffff;
-              padding: 20px;
-              border-radius: 10px;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-              margin: 20px auto;
-              box-sizing: border-box;
-            }
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fa;
+            color: #333;
+            width: 100%;
+            overflow-x: hidden;
+          }
+          .container {
+            width: 100%;
+            max-width: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin: 20px auto;
+            box-sizing: border-box;
+          }
+          .header {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #e3f2fd;
+          }
+          .content {
+            font-size: 16px;
+            line-height: 1.8;
+            padding-bottom: 20px;
+            color: #555555;
+          }
+          .highlight {
+            font-weight: bold;
+            color: #4caf50;
+          }
+          .footer {
+            font-size: 12px;
+            text-align: center;
+            color: #888888;
+            margin-top: 30px;
+          }
+          .footer p {
+            margin: 0;
+          }
+          .section-title {
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 10px;
+          }
+          .leave-request {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          }
+          .leave-details {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          }
+          .affected-classes {
+            background-color: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          }
+          .support-reason-file {
+            background-color: #fce4ec;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          }
+          .support-reason-file-title {
+            font-weight: 600;
+            color: #d81b60;
+            margin-bottom: 10px;
+          }
+          @media (max-width: 600px) {
             .header {
-              text-align: center;
-              font-size: 28px;
-              font-weight: 600;
-              padding: 20px;
-              border-radius: 10px;
-              margin-bottom: 20px;
+              font-size: 24px;
             }
             .content {
-              font-size: 16px;
-              line-height: 1.8;
-              padding-bottom: 20px;
-              color: #555555;
+              font-size: 14px;
             }
-            .highlight {
-              font-weight: bold;
-              color: #4caf50;
+            .leave-request,
+            .leave-details,
+            .affected-classes,
+            .support-reason-file {
+              padding: 10px;
             }
-            .footer {
-              font-size: 12px;
-              text-align: center;
-              color: #888888;
-              margin-top: 30px;
-            }
-            .footer p {
-              margin: 0;
-            }
-            .section-title {
-              font-weight: 600;
-              color: #1a73e8; /* Primary accent color */
-            }
-            .section-content {
-              margin-bottom: 15px;
-            }
-            /* Background colors for different sections */
-            .leave-request {
-              background-color: #f0f8ff; /* Light blue background for leave request section */
+            .container {
               padding: 15px;
-              border-radius: 8px;
-              margin-bottom: 20px;
             }
-            .leave-details {
-              background-color: #e8f5e9; /* Light green background for details section */
-              padding: 15px;
-              border-radius: 8px;
-              margin-bottom: 20px;
-            }
-            .affected-classes {
-              background-color: #fff3e0; /* Light orange background for affected classes section */
-              padding: 15px;
-              border-radius: 8px;
-            }
-  
-            /* Media Queries for responsiveness */
-            @media (max-width: 600px) {
-              .header {
-                font-size: 24px;
-              }
-              .content {
-                font-size: 14px;
-              }
-              .leave-request,
-              .leave-details,
-              .affected-classes {
-                padding: 10px;
-              }
-              .container {
-                padding: 15px;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">Leave Request Notification</div>
-            <div class="content">
-              <div class="leave-request">
-                <p><strong>Date: </strong>${currentDate}</p>
-                <p><strong>Dear Superadmin,</strong></p>
-                <p><span class="">${userName}</span> (Role: ${userRole}) has submitted a leave request.</p>
-              </div>
-  
-              <div class="leave-details">
-                <p><strong>Subject:</strong> ${leaveSubject}</p>
-                <p><strong>Reason:</strong> ${leaveReason}</p>
-                <p><strong>Duration:</strong> ${formattedFromDate} to ${formattedToDate} (${leaveDurationDays} days)</p>
-              </div>
-  
-              <div class="affected-classes">
-                <p><strong>Affected Classes:</strong> ${formattedAffectedClasses}</p>
-              </div>
-  
-              <p>Please review and take the necessary action.</p>
-              <p>Best Regards,</p>
-              <p><strong>Himalayan Chess Academy</strong></p>
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">Leave Request Notification</div>
+          <div class="content">
+            <div class="leave-request">
+              <p><strong>Date: </strong>${currentDate}</p>
+              <p><strong>Dear Sir/Ma'am,</strong></p>
+              <p><span class="">${userName}</span> (Role: ${userRole}) has submitted a leave request.</p>
             </div>
-  
-            <div class="footer">
-              <p>© Himalayan Chess Academy, All rights reserved.</p>
+
+            <div class="leave-details">
+              <p><strong>Subject:</strong> ${leaveSubject}</p>
+              <p><strong>Reason:</strong> ${leaveReason}</p>
+              <p><strong>Duration:</strong> ${formattedFromDate} to ${formattedToDate} (${leaveDurationDays} days)</p>
             </div>
+
+            <div class="affected-classes">
+              <p><strong>Affected Classes:</strong> ${formattedAffectedClasses}</p>
+            </div>
+
+            <div class="support-reason-file">
+              <div class="support-reason-file-title">Support Reason File:</div>
+              <p>${
+                supportReasonFileUrl
+                  ? `<a href="${supportReasonFileUrl}" target="_blank">View Attached File</a>`
+                  : "N/A"
+              }</p>
+            </div>
+
+            <p>Please review and take the necessary action.</p>
+            <p>Best Regards,</p>
+            <p><strong>Himalayan Chess Academy</strong></p>
           </div>
-        </body>
-      </html>
-    `;
+
+          <div class="footer">
+            <p>© Himalayan Chess Academy, All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
 }
 
+// done
 export function getLeaveRequestResponseEmailContent(
   leaveRequest: any,
   leaveStatus: any
 ) {
   const formattedFromDate = dayjs(leaveRequest.fromDate)
     .tz("Asia/Kathmandu")
-    .format("MMMM D, YYYY [at] h:mm A");
+    .format("MMMM D, YYYY, ddd");
   const formattedToDate = dayjs(leaveRequest.toDate)
     .tz("Asia/Kathmandu")
-    .format("MMMM D, YYYY [at] h:mm A");
+    .format("MMMM D, YYYY, ddd");
 
   const formattedAffectedClasses = leaveRequest.affectedClasses.length
     ? leaveRequest.affectedClasses
@@ -266,8 +288,15 @@ export function getLeaveRequestResponseEmailContent(
         .join(", ")
     : "None";
 
+  const supportReasonFile = leaveRequest.supportReasonFileUrl
+    ? `<a href="${leaveRequest.supportReasonFileUrl}" target="_blank" style="color:#1e88e5;">View File</a>`
+    : "N/A";
+
   const statusColor =
-    leaveStatus.toLowerCase() === "approved" ? "#28a745" : "#dc3545"; // Green for approved, Red for rejected
+    leaveStatus.toLowerCase() === "approved" ? "#2e7d32" : "#c62828"; // Soft Green or Red
+
+  const statusBackground =
+    leaveStatus.toLowerCase() === "approved" ? "#e8f5e9" : "#ffebee"; // Light Green or Red
 
   return `
     <html>
@@ -277,34 +306,33 @@ export function getLeaveRequestResponseEmailContent(
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f7fa;
+            background-color: #f1f5f9;
             color: #333;
             line-height: 1.6;
           }
           .container {
             width: 100%;
             max-width: 700px;
-            margin: 0 auto;
-            padding: 30px;
+            margin: 20px auto;
+            padding: 25px;
             background-color: #ffffff;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
           }
           .header {
             text-align: center;
-            padding: 15px;
+            padding-bottom: 20px;
           }
           .content-section {
             margin-bottom: 20px;
             padding: 20px;
-            background-color: ${
-              leaveStatus.toLowerCase() === "approved" ? "#dfffdb" : "#ffdbe2"
-            };
-            border-radius: 8px;
+            background-color: ${statusBackground};
+            border-radius: 10px;
           }
           .content-section h3 {
-            font-size: 18px;
-            color: #4a90e2;
-            margin-bottom: 10px;
+            font-size: 20px;
+            color: #1e88e5;
+            margin-bottom: 12px;
           }
           .content-section p {
             font-size: 16px;
@@ -312,61 +340,75 @@ export function getLeaveRequestResponseEmailContent(
           }
           .highlight {
             font-weight: bold;
-            color: ${statusColor}; /* Dynamic color for status */
+            color: ${statusColor};
+          }
+          .details-section {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
           }
           .footer {
             text-align: center;
-            font-size: 12px;
-            color: #888;
+            font-size: 13px;
+            color: #90a4ae;
             margin-top: 30px;
           }
           .footer a {
-            color: #4a90e2;
+            color: #1e88e5;
             text-decoration: none;
           }
           @media (max-width: 600px) {
             .container {
               padding: 15px;
             }
-            .header h2 {
-              font-size: 20px;
+            .content-section h3,
+            .details-section h3 {
+              font-size: 18px;
             }
-            .content-section h3 {
-              font-size: 16px;
+            .content-section p,
+            .details-section p {
+              font-size: 14px;
             }
           }
         </style>
       </head>
       <body>
         <div class="container">
-          <!-- User Greeting Section -->
+          <!-- Header -->
+          <div class="header">
+            <h2>Leave Request Response</h2>
+          </div>
+
+          <!-- Response Section -->
           <div class="content-section">
-            <p><b>Response Date: </b> ${dayjs()
+            <p><strong>Response Date:</strong> ${dayjs()
               .tz(timeZone)
               .format("MMMM D, YYYY [at] h:mm A")}</p>
-            <p><b>Dear</b> ${leaveRequest.userName},</p>
-            <p>Your leave request has been <span class="" style="color:${
-              leaveStatus == "approved" ? "green" : "red"
-            };">${leaveStatus}</span>.</p>
+            <p><strong>Applicant:</strong> ${leaveRequest.userName}</p>
+            <p>The leave request has been <span class="highlight">${leaveStatus}</span>.</p>
           </div>
 
           <!-- Request Details Section -->
-          <div class="" style="background:#f2f2f2;padding: 20px;border-radius: 8px;">
-            <h3>Request Details:</h3>
-                 <p><b>Requested Date: </b> ${dayjs(leaveRequest?.nepaliDate)
-                   .tz(timeZone)
-                   .format("MMMM D, YYYY [at] h:mm A")}</p>
+          <div class="details-section">
+            <h3>Leave Request Details:</h3>
+            <p><strong>Requested Date:</strong> ${dayjs(
+              leaveRequest?.nepaliDate
+            )
+              .tz(timeZone)
+              .format("MMMM D, YYYY [at] h:mm A")}</p>
             <p><strong>Subject:</strong> ${leaveRequest.leaveSubject}</p>
             <p><strong>Reason:</strong> ${leaveRequest.leaveReason}</p>
             <p><strong>Duration:</strong> ${formattedFromDate} - ${formattedToDate} (${
     leaveRequest.leaveDurationDays
   } days)</p>
             <p><strong>Affected Classes:</strong> ${formattedAffectedClasses}</p>
+            <p><strong>Support Reason File:</strong> ${supportReasonFile}</p>
           </div>
 
-          <!-- Footer Section -->
+          <!-- Footer -->
           <div class="footer">
-            <p>© Himalayan Chess Academy, All rights reserved. | <a href="#">Unsubscribe</a></p>
+            <p>© Himalayan Chess Academy, All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -374,6 +416,7 @@ export function getLeaveRequestResponseEmailContent(
   `;
 }
 
+// done
 export function getClassAssignedEmailContent({
   trainerName,
   trainerId,
@@ -389,6 +432,7 @@ export function getClassAssignedEmailContent({
   affiliatedTo,
   isPlayDay,
   assignedByName,
+  classStudyMaterials = [],
 }: any) {
   const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
 
@@ -402,6 +446,26 @@ export function getClassAssignedEmailContent({
   const assignedDate = dayjs(date)
     .tz("Asia/Kathmandu")
     .format("MMMM D, YYYY, h:mm A");
+
+  // Updated Study Materials HTML
+  const studyMaterialsContent = classStudyMaterials.length
+    ? `
+
+      ${classStudyMaterials
+        .map(
+          (material: any) => `
+            <p style="margin: 6px 0;">
+              ${material.fileName}
+              —
+              <a href="${material.fileUrl}" target="_blank" style="color: #1a73e8; text-decoration: none;">
+                View File
+              </a>
+            </p>
+          `
+        )
+        .join("")}
+    `
+    : `<p style="color: #888;">No study materials available.</p>`;
 
   return `
     <html>
@@ -451,7 +515,13 @@ export function getClassAssignedEmailContent({
           p {
             margin: 6px 0;
           }
-
+          a {
+            color: #1a73e8;
+            text-decoration: none;
+          }
+          a:hover {
+            text-decoration: underline;
+          }
           @media (max-width: 600px) {
             .header {
               font-size: 20px;
@@ -473,9 +543,9 @@ export function getClassAssignedEmailContent({
         <div class="container">
           <div class="header">Class Assigned Notification</div>
 
-          <p><strong>Dear Superadmin,</strong></p>
-          <p>A new class has been assigned to the following trainer:</p>
-          <p><b>Date: </b>${currentDate}</p>
+          <p><strong>Dear Sir/Ma'am,</strong></p>
+          <p>A new class has been assigned with the following details:</p>
+          <p><b>Notification Date: </b>${currentDate}</p>
 
           <div class="section">
             <div class="section-title">Trainer Information</div>
@@ -503,6 +573,11 @@ export function getClassAssignedEmailContent({
             <p><strong>Date:</strong> ${assignedDate}</p>
           </div>
 
+          <div class="section">
+            <div class="section-title">Study Materials</div>
+            ${studyMaterialsContent}
+          </div>
+
           <p>Thank you.</p>
           <p><strong>Himalayan Chess Academy</strong></p>
 
@@ -515,85 +590,207 @@ export function getClassAssignedEmailContent({
   `;
 }
 
-export function getBirthdayEmailContent({ birthdayStudents, todaysDate }: any) {
-  const currentDate = dayjs().tz(timeZone).format("MMMM D, YYYY [at] h:mm A");
+// done
+export function getBirthdayEmailContent({
+  birthdayPeople,
+  weekRange,
+  currentUser,
+}: any) {
+  // Filter birthday people based on current user's permission
+  let visibleBirthdayPeople = birthdayPeople;
 
-  const studentListHTML = birthdayStudents
-    .map(
-      (s: any) =>
-        `<p><strong>🎉 ${s.name}</strong> — ${s.phone || "No phone number"}</p>`
-    )
+  if (
+    !currentUser.isGlobalAdmin &&
+    currentUser.role.toLowerCase() !== "superadmin"
+  ) {
+    // If normal branch admin, only show people from their branch
+    visibleBirthdayPeople = birthdayPeople.filter(
+      (person: any) => person.branchName === currentUser.branchName
+    );
+  }
+
+  // 1. Sort visibleBirthdayPeople by nearest birthday
+  visibleBirthdayPeople = visibleBirthdayPeople.sort((a: any, b: any) => {
+    const today = dayjs().tz(timeZone);
+
+    const aBirthday = dayjs(a.dob).tz(timeZone).year(today.year());
+    const bBirthday = dayjs(b.dob).tz(timeZone).year(today.year());
+
+    let aDiff = aBirthday.diff(today, "day");
+    let bDiff = bBirthday.diff(today, "day");
+
+    // If already passed, consider next year
+    if (aDiff < 0) {
+      aDiff = dayjs(a.dob).tz(timeZone).add(1, "year").diff(today, "day");
+    }
+    if (bDiff < 0) {
+      bDiff = dayjs(b.dob).tz(timeZone).add(1, "year").diff(today, "day");
+    }
+
+    return aDiff - bDiff;
+  });
+
+  // 2. Collect stats
+  const totalBirthdays = visibleBirthdayPeople.length;
+
+  const branchStats: Record<
+    string,
+    {
+      total: number;
+      students: number;
+      admins: number;
+      trainers: number;
+      superadmin: number;
+    }
+  > = {};
+
+  let hasSuperadminBirthday = false;
+
+  visibleBirthdayPeople.forEach((person: any) => {
+    const branch = person.branchName || "Unknown Branch";
+
+    if (!branchStats[branch]) {
+      branchStats[branch] = {
+        total: 0,
+        students: 0,
+        admins: 0,
+        trainers: 0,
+        superadmin: 0,
+      };
+    }
+
+    branchStats[branch].total += 1;
+
+    if (person.extractedRole?.toLowerCase() === "student") {
+      branchStats[branch].students += 1;
+    } else if (person.role?.toLowerCase() === "admin") {
+      branchStats[branch].admins += 1;
+    } else if (person.role?.toLowerCase() === "trainer") {
+      branchStats[branch].trainers += 1;
+    } else if (person.role?.toLowerCase() === "superadmin") {
+      branchStats[branch].superadmin += 1;
+      hasSuperadminBirthday = true;
+    }
+
+    if (person.isGlobalAdmin) {
+      hasSuperadminBirthday = true;
+    }
+  });
+
+  const branchSummaryHTML = Object.entries(branchStats)
+    .map(([branch, counts]) => {
+      return `<li><strong>${branch}:</strong> ${counts.total} birthdays (Students: ${counts.students}, Admins: ${counts.admins}, Trainers: ${counts.trainers})</li>`;
+    })
     .join("");
 
+  // 3. Generate birthday list HTML
+  const birthdayListHTML = visibleBirthdayPeople
+    .map((person: any) => {
+      const phone = person.phone || "N/A";
+      const email = person.email || "N/A";
+      const branch = person.branchName || "N/A";
+      const dobFormatted = person.dob
+        ? dayjs(person.dob).tz(timeZone).format("MMMM D, ddd")
+        : "N/A";
+
+      let roleDisplay = "N/A";
+      if (person.extractedRole) {
+        if (person.extractedRole.toLowerCase() === "student") {
+          roleDisplay = "Student";
+        } else if (person.extractedRole.toLowerCase() === "user") {
+          roleDisplay = person.role || "N/A";
+        }
+      }
+
+      const isSuperadmin =
+        person.role?.toLowerCase() === "superadmin" || person.isGlobalAdmin;
+
+      return `
+        <div style="margin-bottom: 20px; ${
+          isSuperadmin
+            ? "background-color: #e6f7ff; padding: 10px; border: 2px solid blue; border-radius: 8px;"
+            : ""
+        }">
+          <p class="person-name" style="font-size: 18px;">
+            🎉 <strong ${isSuperadmin ? 'style="color: blue;"' : ""}>${
+        person.name
+      }</strong> ${
+        isSuperadmin
+          ? '<span style="font-size: 12px; background-color: blue; color: white; padding: 2px 6px; border-radius: 4px;">SUPERADMIN</span>'
+          : ""
+      }
+          </p>
+          <ul class="person-details" style="list-style-type: none; padding: 0;">
+            <li><strong>Role:</strong> ${roleDisplay}</li>
+            <li><strong>Birthday:</strong> ${dobFormatted}</li>
+            <li><strong>Branch:</strong> ${branch}</li>
+            <li><strong>Phone:</strong> ${phone}</li>
+            <li><strong>Email:</strong> ${email}</li>
+          </ul>
+        </div>
+      `;
+    })
+    .join("");
+
+  const currentDateTime = dayjs().tz(timeZone).format("MMMM D, YYYY — hh:mm A");
+
+  // 4. Return final HTML
   return `
     <html>
       <head>
         <style>
           body {
             font-family: Arial, sans-serif;
-            background-color: #f2f4f8;
-            margin: 0;
-            padding: 0;
-            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
           }
           .container {
-            max-width: 700px;
-            margin: 0 auto;
+            background: white;
             padding: 20px;
-            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
           }
           .header {
-            background-color: #ffe082;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #d84315;
             text-align: center;
             margin-bottom: 20px;
           }
-          .section {
-            background-color: #fff8e1;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            border-radius: 6px;
+          .meta, .section {
+            margin-bottom: 20px;
           }
           .footer {
             text-align: center;
             font-size: 12px;
-            color: #888;
-            margin-top: 30px;
-            padding: 10px 0;
-          }
-          p {
-            margin: 6px 0;
-          }
-
-          @media (max-width: 600px) {
-            .header {
-              font-size: 20px;
-              padding: 15px;
-            }
-            .section {
-              padding: 10px 15px;
-            }
-            .container {
-              padding: 15px;
-            }
+            color: #777;
+            margin-top: 40px;
           }
         </style>
       </head>
       <body>
         <div class="container">
-          <div class="">🎂 Students with Birthdays Today</div>
-
-          <p><strong>Date:</strong> ${currentDate}</p>
-
-          <div class="section">
-            <p>The following students have birthdays today:</p>
-            ${studentListHTML}
+          <div class="header">
+            <h1>🎂 Weekly Birthday Reminder</h1>
+            ${
+              hasSuperadminBirthday
+                ? `<h2 style="color: blue;">✨ Superadmin Has Birthday This Week! ✨</h2>`
+                : ""
+            }
           </div>
 
-          <p>Let's wish them a wonderful day! 🎉</p>
+          <div class="meta">
+            <p><strong>Reminder Date:</strong> ${currentDateTime}</p>
+            <p><strong>Birthday Week:</strong> ${weekRange}</p>
+            <p><strong>Total Birthdays:</strong> ${totalBirthdays}</p>
+          </div>
+
+          <div class="section">
+            <p><strong>Branch Summary:</strong></p>
+            <ul>${branchSummaryHTML}</ul>
+
+            <p>The following students/users have birthdays this week:</p>
+            ${birthdayListHTML}
+          </div>
+
+          <p style="margin-top: 20px;">Let's wish them all a wonderful birthday! 🎉</p>
           <p><strong>Himalayan Chess Academy</strong></p>
 
           <div class="footer">

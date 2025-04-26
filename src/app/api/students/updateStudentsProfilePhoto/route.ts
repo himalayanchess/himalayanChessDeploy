@@ -1,5 +1,4 @@
 import { dbconnect } from "@/helpers/dbconnect/dbconnect";
-import { sendLeaveRequestResponseMail } from "@/helpers/nodemailer/nodemailer";
 import HcaAffiliatedStudent from "@/models/HcaAffiliatedStudent";
 import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {

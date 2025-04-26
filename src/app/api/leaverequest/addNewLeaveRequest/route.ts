@@ -74,13 +74,17 @@ export async function POST(req: NextRequest) {
 
     const savedNewLeaveRequest = await newLeaveRequest.save();
 
-    // send mail to super admin (superadmin mail from env inside this function)
-    if (savedNewLeaveRequest) {
-      // await sendLeaveRequestMail({
-      //   subject: "Request for leave",
-      //   leaveRequest: savedNewLeaveRequest,
-      // });
-    }
+    // send mail to super admin (superadmin from env inside this function)
+
+    // ##################
+    // this just creats a new leave request by adds upload file afterthis
+    // so it is updated again after file upload add this send mail there so that it contains supportReasonFileUrl
+    // if (savedNewLeaveRequest) {
+    //   await sendLeaveRequestMail({
+    //     subject: "Request for leave",
+    //     leaveRequest: savedNewLeaveRequest,
+    //   });
+    // }
 
     if (savedNewLeaveRequest) {
       return NextResponse.json({

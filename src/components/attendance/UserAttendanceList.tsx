@@ -95,18 +95,25 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   // chart data
   useEffect(() => {
     if (!initialLoadComplete) return;
+    let filtered =
+      selectedBranch?.toLowerCase() === "all"
+        ? userAttendance
+        : userAttendance.filter(
+            (user: any) =>
+              user?.userBranch?.toLowerCase() === selectedBranch?.toLowerCase()
+          );
 
     // Use filteredUsers instead of userAttendance
     const present =
-      filteredUsers?.filter((a: any) => a.status === "present").length || 0;
+      filtered?.filter((a: any) => a.status === "present").length || 0;
     const absent =
-      filteredUsers?.filter((a: any) => a.status === "absent").length || 0;
+      filtered?.filter((a: any) => a.status === "absent").length || 0;
     const leave =
-      filteredUsers?.filter((a: any) => a.status === "leave").length || 0;
+      filtered?.filter((a: any) => a.status === "leave").length || 0;
     const holiday =
-      filteredUsers?.filter((a: any) => a.status === "holiday").length || 0;
+      filtered?.filter((a: any) => a.status === "holiday").length || 0;
 
-    const total = filteredUsers?.length ?? 0;
+    const total = filtered?.length ?? 0;
 
     const chartData = [
       {
@@ -137,7 +144,13 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
     ];
 
     dispatch(updateAttendanceChartData(chartData));
-  }, [filteredUsers, initialLoadComplete, attendanceStateChanged]); // Changed dependency to filteredUsers
+  }, [
+    filteredUsers,
+    userAttendance,
+    selectedBranch,
+    initialLoadComplete,
+    attendanceStateChanged,
+  ]); // Changed dependency to filteredUsers
 
   // filter users according to branch
   useEffect(() => {

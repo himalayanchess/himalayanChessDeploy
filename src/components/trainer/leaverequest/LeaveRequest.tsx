@@ -300,7 +300,7 @@ const LeaveRequest = ({ role = "" }: any) => {
           };
           const { data: updateLeaveRequestResData } = await axios.post(
             "/api/leaverequest/updateLeaveRequest",
-            tempsavedLeaveRequest
+            { ...tempsavedLeaveRequest, updateType: "newleaverequest" }
           );
           // no resData.statusCode in cloudinary response
           console.log(
@@ -340,7 +340,7 @@ const LeaveRequest = ({ role = "" }: any) => {
           <CircleFadingArrowUp />
           <span className="ml-2">Request for leave</span>
         </h1>
-        <p className="text-xs mt-1 text-gray-500">
+        <p className="text-md mt-1 text-gray-500">
           This will be sent to superadmin for approval.{" "}
           <b>You cannot delete this request once sent.</b>
         </p>

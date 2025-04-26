@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
 
     // Check for existing branch by name or code (case-insensitive)
     const branchExists = await Branch.findOne({
+      _id: { $ne: reqBody._id },
       $or: [
         {
           branchName: {

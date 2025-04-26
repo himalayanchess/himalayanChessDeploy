@@ -81,7 +81,7 @@ const TrainersLeaveRequestList = ({ role }: any) => {
                   </p>
                   {/* approval status */}
                   <p
-                    className={`px-3 py-1 text-xs  text-white rounded-full ${
+                    className={`px-3 py-0.5 text-xs font-bold  text-white rounded-full ${
                       leaveRequest?.approvalStatus?.toLowerCase() === "pending"
                         ? "bg-gray-400"
                         : leaveRequest?.approvalStatus?.toLowerCase() ===

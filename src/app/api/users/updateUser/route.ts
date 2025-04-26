@@ -31,12 +31,16 @@ export async function POST(request: NextRequest) {
       : "";
     // Check if another user already has the same name
     const existingUser = await User.findOne({
-      name: { $regex: `^${reqBody.name}$`, $options: "i" }, // Case-insensitive search
-      _id: { $ne: reqBody._id }, // Exclude the current batch
+      _id: { $ne: reqBody._id }, // Exclude the current user
+      $or: [
+        { name: { $regex: `^${reqBody.name}$`, $options: "i" } },
+        { email: { $regex: `^${reqBody.email}$`, $options: "i" } },
+      ],
     });
+
     if (existingUser) {
       return NextResponse.json({
-        msg: "User already exists",
+        msg: "Username or email already exists",
         statusCode: 409, // Conflict status
       });
     }

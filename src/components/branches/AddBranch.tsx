@@ -43,6 +43,7 @@ const AddBranch = () => {
       contactName: "",
       contactPhone: "",
       contactEmail: "",
+      mapLocation: "",
       activeStatus: true,
     },
   });
@@ -198,6 +199,20 @@ const AddBranch = () => {
               type="date"
               error={!!errors.establishedDate}
               helperText={errors.establishedDate?.message}
+            />
+          )}
+        />
+
+        <Controller
+          name="mapLocation"
+          control={control}
+          // rules={{ required: "Address is required" }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Map Location"
+              error={errors.mapLocation}
+              helperText={errors.mapLocation?.message}
             />
           )}
         />

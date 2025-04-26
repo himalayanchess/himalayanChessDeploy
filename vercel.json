@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/checkStudentsBirthdays",
-      "schedule": "15 0 * * *"
+      "path": "/api/cron/checkUsersBirthdays",
+      "schedule": "15 0 * * 0"
     }
   ]
 }

@@ -7,6 +7,7 @@ import { Button, Divider } from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import {
   Mail,
@@ -40,6 +41,7 @@ const ViewBranch = ({ branchRecord }: any) => {
       session?.data?.user?.isGlobalAdmin);
 
   const [loaded, setLoaded] = useState(false);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const formatDate = (date: string) => {
     return dayjs(date).tz(timeZone).format("MMMM D, YYYY, dddd");
@@ -59,23 +61,27 @@ const ViewBranch = ({ branchRecord }: any) => {
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
       <div className="header flex items-end justify-between">
-        <h1 className="text-2xl font-bold flex items-center">
-          <MapPinHouse />
-          <span className="ml-2 mr-3">Branch Details</span>
-          {session?.data?.user?.role?.toLowerCase() == "superadmin" && (
-            <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/branches/updatebranch/${
-                branchRecord?._id
-              }`}
-              className="mr-3"
-            >
-              <Button variant="text" size="small">
-                <Edit />
-                <span className="ml-1">Edit</span>
-              </Button>
-            </Link>
-          )}
-        </h1>
+        <div className="title-name flex flex-col">
+          <h1 className="text-2xl font-bold flex items-center">
+            <MapPinHouse />
+            <span className="ml-2 mr-3">Branch Detail</span>
+            {session?.data?.user?.role?.toLowerCase() == "superadmin" && (
+              <Link
+                href={`/${session?.data?.user?.role?.toLowerCase()}/branches/updatebranch/${
+                  branchRecord?._id
+                }`}
+                className="mr-3"
+              >
+                <Button variant="text" size="small">
+                  <Edit />
+                  <span className="ml-1">Edit</span>
+                </Button>
+              </Link>
+            )}
+          </h1>
+
+          <span>of {branchRecord?.branchName}</span>
+        </div>
 
         <div className="buttons flex gap-4">
           {/* home button */}
@@ -95,7 +101,7 @@ const ViewBranch = ({ branchRecord }: any) => {
       {/* divider */}
       <Divider style={{ margin: ".7rem 0" }} />
 
-      <div className="grid grid-cols-2 auto-rows-max w-full gap-4">
+      <div className="flex-1 h-full overflow-y-auto grid grid-cols-2 auto-rows-max w-full gap-4">
         {/* Basic Branch Information */}
         <div className="bg-gray-50 rounded-xl  p-4 ">
           <div className="">
@@ -192,6 +198,39 @@ const ViewBranch = ({ branchRecord }: any) => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* maplocation */}
+        <div className="maplocation col-span-2">
+          <h1 className="text-sm font-bold text-gray-500 mb-2">Map Location</h1>
+          {branchRecord?.mapLocation ? (
+            <div className="relative">
+              {/* Loading overlay */}
+              <div
+                className={`absolute inset-0 bg-gray-100 flex items-center justify-center ${
+                  isMapLoaded ? "hidden" : "block"
+                }`}
+              >
+                <div className="animate-pulse flex flex-col items-center">
+                  <CircularProgress />
+                  <p className="text-gray-500">Loading map...</p>
+                </div>
+              </div>
+
+              {/* Map iframe */}
+              <iframe
+                src={branchRecord.mapLocation}
+                className="w-full"
+                height="450"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                onLoad={() => setIsMapLoaded(true)}
+                style={{ visibility: isMapLoaded ? "visible" : "hidden" }}
+              ></iframe>
+            </div>
+          ) : (
+            <p>N/A</p>
+          )}
         </div>
       </div>
     </div>

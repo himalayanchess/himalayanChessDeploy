@@ -37,7 +37,10 @@ export async function POST(req: NextRequest) {
       email: { $regex: new RegExp(`^${reqBody.email}$`, "i") },
     });
     if (userExists) {
-      return NextResponse.json({ msg: "User already exists", statusCode: 204 });
+      return NextResponse.json({
+        msg: "Username or email already exists",
+        statusCode: 204,
+      });
     }
     // hash the password using bcryptjs
     const salt = await bcryptjs.genSalt(10);

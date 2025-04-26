@@ -51,6 +51,7 @@ const UpdateBranch = ({ branchRecord }: any) => {
       address: "",
       country: "Nepal",
       establishedDate: "",
+      mapLocation: "",
       isMainBranch: false,
       contactName: "",
       contactPhone: "",
@@ -110,7 +111,7 @@ const UpdateBranch = ({ branchRecord }: any) => {
       <Divider sx={{ margin: "0.7rem 0" }} />
 
       <form
-        className="updateBranchForm form-fields mt-4 grid grid-cols-2 gap-7 w-full h-fit"
+        className="updateBranchForm flex-1 h-full overflow-y-auto form-fields mt-4 grid grid-cols-2 gap-5 w-full"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -223,6 +224,21 @@ const UpdateBranch = ({ branchRecord }: any) => {
           )}
         />
 
+        <Controller
+          name="mapLocation"
+          control={control}
+          // rules={{ required: "Address is required" }}
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Map Location"
+              type="text"
+              error={errors.mapLocation}
+              helperText={errors.mapLocation?.message}
+            />
+          )}
+        />
+
         {/* Contact Name */}
         <Controller
           name="contactName"
@@ -287,8 +303,8 @@ const UpdateBranch = ({ branchRecord }: any) => {
           onClick={handleconfirmModalOpen}
           variant="contained"
           color="info"
-          size="large"
-          className="col-span-2 w-max"
+          size="medium"
+          className="col-span-2 w-max h-max"
         >
           Submit
         </Button>

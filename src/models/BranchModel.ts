@@ -15,6 +15,7 @@ const BranchSchema = new mongoose.Schema(
     isMainBranch: { type: Boolean, default: false },
     affiliatedTo: { type: String, default: "HCA" },
 
+    mapLocation: { type: String, default: "" },
     activeStatus: { type: Boolean, default: true }, // Is the branch active?
   },
   { timestamps: true }

@@ -111,8 +111,12 @@ const AssignedClasses = ({ selectedDate }: any) => {
                 onClick={() => handleEditAssignedModalOpen(assignedClass)}
               >
                 <p className="text-sm">
-                  {index + 1}. {assignedClass?.batchName}
+                  {index + 1}.{" "}
+                  {assignedClass?.isPlayDay
+                    ? "All Branch Batches"
+                    : assignedClass?.batchName}
                 </p>
+
                 {assignedClass?.affiliatedTo?.toLowerCase() == "hca" ? (
                   <p className="text-sm mt-1 flex items-center text-gray-600">
                     <MapPinHouse size={15} />

@@ -1,5 +1,8 @@
 import { dbconnect } from "@/helpers/dbconnect/dbconnect";
-import { sendLeaveRequestResponseMail } from "@/helpers/nodemailer/nodemailer";
+import {
+  sendLeaveRequestMail,
+  sendLeaveRequestResponseMail,
+} from "@/helpers/nodemailer/nodemailer";
 import LeaveRequest from "@/models/LeaveRequestModel";
 import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
@@ -14,11 +17,20 @@ export async function POST(request: NextRequest) {
       { new: true }
     );
     if (updatedLeaveRequest) {
+      // updateleaverequest (this api) is called while adding new leave request as well as update leave request from admin
+      // send mail according to updateType ["newLeaveRequest","updatedBySuperadmin"]
       // send responded mail
-      await sendLeaveRequestResponseMail({
-        subject: "Update on Your Leave Request",
-        leaveRequest: updatedLeaveRequest,
-      });
+      if (reqBody?.updateType?.toLowerCase() == "newleaverequest") {
+        await sendLeaveRequestMail({
+          subject: "Request for leave",
+          leaveRequest: updatedLeaveRequest,
+        });
+      } else if (reqBody?.updateType?.toLowerCase() == "updatedbysuperadmin") {
+        await sendLeaveRequestResponseMail({
+          subject: "Update on Leave Request",
+          leaveRequest: updatedLeaveRequest,
+        });
+      }
 
       return NextResponse.json({
         msg: "LeaveRequest updated",
