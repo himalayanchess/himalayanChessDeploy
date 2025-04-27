@@ -57,25 +57,28 @@ export async function POST(request: NextRequest) {
     // Optional: Get geolocation data or other login-related info as needed
     // let latitude = null;
     // let longitude = null;
-    // try {
-    //   const geoResponse = await axios.get(
-    //     `https://ipapi.co/${publicIpAddress}/json/`
-    //   );
-    //   latitude = geoResponse.data.latitude || null;
-    //   longitude = geoResponse.data.longitude || null;
-    // } catch (geoError) {
-    //   console.log("Error fetching geolocation", geoError);
-    // }
+    let ispOrg = "";
+    try {
+      const geoResponse = await axios.get(
+        `https://ipapi.co/${publicIpAddress}/json/`
+      );
+      ispOrg = geoResponse.data.ispOrg || null;
+    } catch (geoError) {
+      console.log("Error fetching geolocation", geoError);
+    }
 
     // Record the login
     const newLoginRecord = new LoginRecord({
       userId: fetchedUser._id,
       email: fetchedUser.email,
+      role: fetchedUser.role,
+      branchName: fetchedUser.branchName,
+      branchId: fetchedUser.branchId,
+      isGlobalAdmin: fetchedUser.isGlobalAdmin,
       publicIpAddress,
       privateIpAddress, // Storing private IP
       userAgent, // Storing user-agent
-
-      timestamp: new Date(),
+      ispOrg,
     });
 
     await newLoginRecord.save(); // Save the login record to your database

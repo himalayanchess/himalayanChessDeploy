@@ -44,13 +44,9 @@ const LoginRecordSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    latitude: {
-      type: Number,
-      default: null,
-    },
-    longitude: {
-      type: Number,
-      default: null,
+    ispOrg: {
+      type: String,
+      default: "",
     },
   },
   { timestamps: true }
