@@ -24,7 +24,11 @@ const page = () => {
 
   const onSubmit = async (data: any) => {
     setLoading(true);
-    const { data: resData } = await axios.post("/api/users/login", data);
+    // Get client location
+
+    const { data: resData } = await axios.post("/api/users/login", {
+      ...data,
+    });
 
     if (resData.statusCode == 200) {
       console.log("after login check success");
