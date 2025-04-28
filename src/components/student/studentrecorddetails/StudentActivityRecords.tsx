@@ -23,10 +23,7 @@ const StudentActivityRecords = ({
   allActiveStudentsActivityRecords,
   allStudentsActivityRecordsLoading,
 }: any) => {
-  console.log(
-    "inside student activity records",
-    allActiveStudentsActivityRecords
-  );
+  // console.log("inside student activity records", studentRecord);
 
   // dispatch
   const dispatch = useDispatch<any>();
@@ -94,25 +91,32 @@ const StudentActivityRecords = ({
 
   // Filter batches based on "Affiliated To" and "Project"
   useEffect(() => {
-    let tempFilteredBatches = allActiveBatches.slice();
+    // let tempFilteredBatches = allActiveBatches.slice();
 
-    if (selectedAffiliatedTo.toLowerCase() !== "all") {
-      tempFilteredBatches = tempFilteredBatches.filter(
-        (batch: any) =>
-          batch?.affiliatedTo.toLowerCase() ===
-          selectedAffiliatedTo.toLowerCase()
-      );
-    }
+    // if (selectedAffiliatedTo.toLowerCase() !== "all") {
+    //   tempFilteredBatches = tempFilteredBatches.filter(
+    //     (batch: any) =>
+    //       batch?.affiliatedTo.toLowerCase() ===
+    //       selectedAffiliatedTo.toLowerCase()
+    //   );
+    // }
 
-    if (
-      selectedAffiliatedTo.toLowerCase() === "school" &&
-      selectedProject.toLowerCase() !== "all"
-    ) {
-      tempFilteredBatches = tempFilteredBatches.filter(
-        (batch: any) =>
-          batch?.projectName?.toLowerCase() === selectedProject?.toLowerCase()
-      );
-    }
+    // if (
+    //   selectedAffiliatedTo.toLowerCase() === "school" &&
+    //   selectedProject.toLowerCase() !== "all"
+    // ) {
+    //   tempFilteredBatches = tempFilteredBatches.filter(
+    //     (batch: any) =>
+    //       batch?.projectName?.toLowerCase() === selectedProject?.toLowerCase()
+    //   );
+    // }
+
+    // only show all the active batches of student.batches (acitve or completed)
+    let tempFilteredBatches: any = studentRecord?.batches?.filter(
+      (batch: any) => {
+        return batch?.activeStatus;
+      }
+    );
 
     setFilteredBatches(tempFilteredBatches || []);
   }, [selectedAffiliatedTo, allActiveBatches, selectedProject]);
@@ -195,10 +199,12 @@ const StudentActivityRecords = ({
   return (
     <div className="w-full">
       {/* header */}
-      <div className="header w-full">
+      <div className="header w-full grid gap-3 grid-cols-2">
         {/* Top Filters */}
-        <div className="topheader w-full grid grid-cols-4 gap-3 mt-0">
-          <Dropdown
+        <div className="topheader w-full flex flex-col gap-0 mt-0">
+          <div className="dropdowns w-full flex gap-2">
+            {/* asuming not needed for students activity records */}
+            {/* <Dropdown
             label="Affiliated to"
             options={affilatedToOptions}
             width="full"
@@ -207,8 +213,10 @@ const StudentActivityRecords = ({
               setselectedAffiliatedTo(value);
               setselectedProject("All");
             }}
-          />
-          <Dropdown
+          /> */}
+            {/* asuming not needed for students activity records */}
+
+            {/* <Dropdown
             label="Project"
             width="full"
             options={[
@@ -218,45 +226,46 @@ const StudentActivityRecords = ({
             disabled={selectedAffiliatedTo.toLowerCase() !== "school"}
             selected={selectedProject}
             onChange={setselectedProject}
-          />
-          <Dropdown
-            label="Batch"
-            width="full"
-            options={[
-              "All",
-              ...(filteredBatches?.map((batch: any) => batch.batchName) || []),
-            ]}
-            selected={selectedBatch}
-            onChange={setselectedBatch}
-          />
-          <Input
-            label="Month"
-            type="month"
-            value={selectedMonth}
-            disabled={useAdvancedDate}
-            onChange={(e: any) => setselectedMonth(e.target.value)}
-          />
-        </div>
-
-        {/* Checkbox for Advanced Date Selection */}
-        <div className="mt-2 flex items-center gap-2">
-          <input
-            id="advancedcheckbox"
-            type="checkbox"
-            checked={useAdvancedDate}
-            onChange={() => setUseAdvancedDate(!useAdvancedDate)}
-            className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer focus:ring-blue-500"
-          />
-          <label
-            htmlFor="advancedcheckbox"
-            className="text-sm font-medium text-gray-700 cursor-pointer"
-          >
-            Use Advanced Date Selection
-          </label>
+          /> */}
+            <Dropdown
+              label="Batch"
+              width="full"
+              options={[
+                "All",
+                ...(filteredBatches?.map((batch: any) => batch.batchName) ||
+                  []),
+              ]}
+              selected={selectedBatch}
+              onChange={setselectedBatch}
+            />
+            <Input
+              label="Month"
+              type="month"
+              value={selectedMonth}
+              disabled={useAdvancedDate}
+              onChange={(e: any) => setselectedMonth(e.target.value)}
+            />
+          </div>
+          {/* Checkbox for Advanced Date Selection */}
+          <div className="mt-2 flex items-center gap-2">
+            <input
+              id="advancedcheckbox"
+              type="checkbox"
+              checked={useAdvancedDate}
+              onChange={() => setUseAdvancedDate(!useAdvancedDate)}
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer focus:ring-blue-500"
+            />
+            <label
+              htmlFor="advancedcheckbox"
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              Use Advanced Date Selection
+            </label>
+          </div>
         </div>
 
         {/* Start and End Date Inputs */}
-        <div className="bottom-header mt-2 grid grid-cols-4 gap-3">
+        <div className="bottom-header  w-full  grid grid-cols-2 gap-3">
           <Input
             label="Start Date"
             type="date"

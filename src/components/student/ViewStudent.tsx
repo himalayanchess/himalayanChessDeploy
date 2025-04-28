@@ -37,6 +37,7 @@ import StudentEventInfo from "./studentrecorddetails/StudentEventInfo";
 import { fetchAllStudentsActivityRecords } from "@/redux/activityRecordSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { fetchAllStudentsTestHistory } from "@/redux/testHistorySlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -56,6 +57,9 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     allActiveStudentsActivityRecords,
     allStudentsActivityRecordsLoading,
   } = useSelector((state: any) => state.activityRecordReducer);
+
+  const { allActiveStudentsTestHistory, allStudentsTestHistoryLoading } =
+    useSelector((state: any) => state.testHistoryReducer);
 
   // dispatch
   const dispatch = useDispatch<any>();
@@ -105,7 +109,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
         case "courses":
           return <StudentCoursesInfo studentRecord={studentRecord} />;
         case "testhistory":
-          return <StudentTestHistory studentRecord={studentRecord} />;
+          return (
+            <StudentTestHistory
+              studentRecord={studentRecord}
+              allActiveStudentsTestHistory={allActiveStudentsTestHistory}
+              allStudentsTestHistoryLoading={allStudentsTestHistoryLoading}
+            />
+          );
         case "activity":
           return (
             <StudentActivityRecords
@@ -177,6 +187,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     if (studentRecord) {
       setLoaded(true);
       dispatch(fetchAllStudentsActivityRecords(studentRecord?._id));
+      dispatch(fetchAllStudentsTestHistory(studentRecord?._id));
     }
   }, [studentRecord]);
 

@@ -17,12 +17,26 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { todaysDate } = reqBody; // Nepali date string passed from the client (ISO format)
     console.log("get present trainers", reqBody);
+    const passedNepaliDate = dayjs(todaysDate)?.tz(timeZone)?.startOf("day");
+    const startOfDay = dayjs(passedNepaliDate)
+      .tz(timeZone)
+      .startOf("day")
+      .utc()
+      .toDate(); // 2025-04-27T18:15:00.000Z in date from not in string
+    // .format() was giving it in string so no result was given
+    const endOfDay = dayjs(passedNepaliDate)
+      .tz(timeZone)
+      .endOf("day")
+      .utc()
+      .toDate();
+
+    console.log("my main nepli date check in server", startOfDay, endOfDay);
 
     // Query to find records where nepaliDate matches exactly
     const presentTrainers = await Attendance.aggregate([
       {
         $match: {
-          nepaliDate: dayjs(todaysDate)?.tz(timeZone)?.startOf("day")?.format(), // Exact match for the Nepali date string
+          utcDate: { $gte: startOfDay, $lte: endOfDay },
         },
       },
       { $unwind: "$userAttendance" },

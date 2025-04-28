@@ -64,17 +64,19 @@ const UserActivityRecords = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(7);
   const [selectedRecord, setselectedRecord] = useState<any>(null);
-  const [viewStudyMaterialsModalOpen, setviewStudyMaterialsModalOpen] =
-    useState(false);
+  const [
+    viewclassStudyMaterialsModalOpen,
+    setviewclassStudyMaterialsModalOpen,
+  ] = useState(false);
 
   // Modal operations
-  function handleviewStudyMaterialsModalOpen(record: any) {
+  function handleviewclassStudyMaterialsModalOpen(record: any) {
     setselectedRecord(record);
-    setviewStudyMaterialsModalOpen(true);
+    setviewclassStudyMaterialsModalOpen(true);
   }
 
-  function handleviewStudyMaterialsModalClose() {
-    setviewStudyMaterialsModalOpen(false);
+  function handleviewclassStudyMaterialsModalClose() {
+    setviewclassStudyMaterialsModalOpen(false);
   }
 
   const handlePageChange = (event: any, value: any) => {
@@ -395,13 +397,13 @@ const UserActivityRecords = ({
                         size="small"
                         variant="outlined"
                         onClick={() =>
-                          handleviewStudyMaterialsModalOpen(record)
+                          handleviewclassStudyMaterialsModalOpen(record)
                         }
                       >
                         View
                       </Button>
                       <span className="ml-2 text-xs bg-gray-400 text-white font-bold h-[20px] w-[20px] flex items-center justify-center rounded-full">
-                        {record?.studyMaterials?.length || "0"}
+                        {record?.classStudyMaterials?.length || "0"}
                       </span>
                     </div>
                   </div>
@@ -410,20 +412,26 @@ const UserActivityRecords = ({
 
           {/* view study materials modal */}
           <Modal
-            open={viewStudyMaterialsModalOpen}
-            onClose={handleviewStudyMaterialsModalClose}
+            open={viewclassStudyMaterialsModalOpen}
+            onClose={handleviewclassStudyMaterialsModalClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
             className="flex items-center justify-center"
           >
             <Box className="w-[400px] max-h-[60%] p-4 overflow-y-auto flex flex-col bg-white rounded-xl shadow-lg">
-              <h1 className="text-xl font-bold">Study Materials</h1>
+              <h1 className="text-xl font-bold">
+                Study Materials
+                <span className="text-sm ml-2 font-medium">
+                  (Showing {selectedRecord?.classStudyMaterials?.length})
+                  materials
+                </span>
+              </h1>
               <Divider sx={{ margin: ".3rem 0" }} />
               <div className="materials mt-2 flex flex-col gap-3">
-                {selectedRecord?.studyMaterials?.length === 0 ? (
+                {selectedRecord?.classStudyMaterials?.length === 0 ? (
                   <p className="text-gray-500">No study materials</p>
                 ) : (
-                  selectedRecord?.studyMaterials?.map(
+                  selectedRecord?.classStudyMaterials?.map(
                     (material: any, index: any) => (
                       <Link
                         href={`${material?.fileUrl}`}

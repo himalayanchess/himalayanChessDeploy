@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     const allStudentsActivityRecords = await ActivityRecord.aggregate([
       // 1. Find records containing this student
-      { $match: { "studentRecords._id": studentId } },
+      { $match: { "studentRecords._id": studentId, activeStatus: true } },
 
       // 2. Transform - keep all fields but filter studentRecords
       {

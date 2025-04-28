@@ -7,6 +7,7 @@ import leaveApprovalReducer from "@/redux/leaveApprovalSlice";
 import trainerHistoryReducer from "@/redux/trainerHistorySlice";
 import activityRecordReducer from "@/redux/activityRecordSlice";
 import attendanceReducer from "@/redux/attendanceSlice";
+import testHistoryReducer from "@/redux/testHistorySlice";
 
 export const myStore = configureStore({
   reducer: {
@@ -18,5 +19,6 @@ export const myStore = configureStore({
     trainerHistoryReducer,
     activityRecordReducer,
     attendanceReducer,
+    testHistoryReducer,
   },
 });

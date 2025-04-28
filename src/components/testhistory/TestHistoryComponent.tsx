@@ -132,6 +132,16 @@ const TestHistoryComponent = ({ role }: any) => {
               selectedBranch?.toLowerCase()
           );
 
+    // filter by student name
+    tempFilteredTestHistoriesList =
+      selectedStudent?.toLowerCase() === "all"
+        ? tempFilteredTestHistoriesList
+        : tempFilteredTestHistoriesList.filter(
+            (testRecord: any) =>
+              testRecord.studentName?.toLowerCase() ==
+              selectedStudent?.toLowerCase()
+          );
+
     // is below pass checkeed
     if (isBelowPassChecked) {
       tempFilteredTestHistoriesList = tempFilteredTestHistoriesList.filter(
@@ -227,6 +237,7 @@ const TestHistoryComponent = ({ role }: any) => {
     searchText,
     selectedCourse,
     selectedBatch,
+    selectedStudent,
     selectedBranch,
     isBelowPassChecked,
   ]);

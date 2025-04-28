@@ -66,8 +66,12 @@ const ManageClass = ({ selectedDate }: any) => {
       session?.data?.user?.isGlobalAdmin);
 
   // use selectors
-  const { allActiveStudentsList, allActiveBatches, allActiveBranchesList } =
-    useSelector((state: any) => state.allListReducer);
+  const {
+    allActiveStudentsList,
+    allActiveBatches,
+    allActiveTrainerList,
+    allActiveBranchesList,
+  } = useSelector((state: any) => state.allListReducer);
   //state vars
 
   const [affiliatedTo, setaffiliatedTo] = useState("HCA");
@@ -340,6 +344,8 @@ const ManageClass = ({ selectedDate }: any) => {
         presentTrainersResData
       );
 
+      // not used as we can assign the class to different days
+      // and this shows trainers of todays present only
       setTrainersList(presentTrainersResData.presentTrainersList);
 
       const { data: courseResData } = await axios.get(
@@ -813,14 +819,14 @@ const ManageClass = ({ selectedDate }: any) => {
           render={({ field }) => (
             <Dropdown
               label="Trainer name"
-              options={trainersList.map((trainer: any) => trainer.userName)}
+              options={allActiveTrainerList.map((trainer: any) => trainer.name)}
               selected={field.value || ""}
               onChange={(value: any) => {
                 field.onChange(value);
-                const selectedTrainer: any = trainersList.find(
-                  (trainer: any) => trainer.userName === value
+                const selectedTrainer: any = allActiveTrainerList.find(
+                  (trainer: any) => trainer.name === value
                 );
-                setValue("trainerId", selectedTrainer?.userId || "");
+                setValue("trainerId", selectedTrainer?._id || "");
               }}
               error={errors.trainerName}
               helperText={errors.trainerName?.message}
