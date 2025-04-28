@@ -186,6 +186,7 @@ const AddProject = () => {
         formData.append("file", contractFile);
         const folderName = `contractpapers/${resData?.savednewProject?.name}`;
         formData.append("folderName", folderName);
+        formData.append("cloudinaryFileType", "otherFiles");
 
         const { data: uploadresData } = await axios.post(
           "/api/fileupload/uploadfile",

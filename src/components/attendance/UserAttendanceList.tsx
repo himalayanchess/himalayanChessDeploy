@@ -342,13 +342,14 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       className="flex flex-col h-full bg-white p-5 rounded-md shadow-md"
     >
       {/* header */}
-      <div className="header flex justify-between items-end">
+      <div className="header flex justify-between  flex-col">
         {/* title */}
-        <div className="title-dropdown flex items-end gap-4">
-          <p className="text-2xl flex items-end">
-            <CalendarCheck2 />
-            <span className="ml-2">Daily Attendance</span>
-          </p>
+        <p className="text-2xl flex items-end mb-1">
+          <CalendarCheck2 />
+          <span className="ml-2">Daily Attendance</span>
+        </p>
+        {/* dropdown-date */}
+        <div className="dropdown-date flex items-end gap-4">
           <Dropdown
             label="Branch"
             options={[
@@ -365,14 +366,14 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
           <span className="text-sm text-gray-500">
             Showing {filteredUsers?.length} users
           </span>
+          {/* date */}
+          <p className="text-xl ml-auto">
+            {dayjs().tz(timeZone).startOf("day").format("MMMM D, YYYY - dddd")}
+            <span className="ml-4">
+              #Week{dayjs().tz(timeZone).startOf("day").week()}
+            </span>
+          </p>
         </div>
-        {/* date */}
-        <p className="text-xl">
-          {dayjs().tz(timeZone).startOf("day").format("MMMM D, YYYY - dddd")}
-          <span className="ml-4">
-            #Week{dayjs().tz(timeZone).startOf("day").week()}
-          </span>
-        </p>
       </div>
 
       {/* divider */}

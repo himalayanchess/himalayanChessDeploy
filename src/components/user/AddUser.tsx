@@ -205,7 +205,7 @@ const AddUser = () => {
                     <Dropdown
                       label="Role"
                       options={roleOptions}
-                      selected={field.value}
+                      selected={field.value || ""}
                       onChange={(value: any) => {
                         field.onChange(value);
                         setselectedRole(value);
@@ -310,7 +310,7 @@ const AddUser = () => {
                   <Dropdown
                     label="Gender"
                     options={genderOptions}
-                    selected={field.value}
+                    selected={field.value || ""}
                     onChange={(value: any) => {
                       field.onChange(value);
                     }}
@@ -336,7 +336,7 @@ const AddUser = () => {
                     options={allActiveBranchesList?.map(
                       (branch: any) => branch.branchName
                     )}
-                    selected={field.value}
+                    selected={field.value || ""}
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList.find(
@@ -478,7 +478,7 @@ const AddUser = () => {
                 <Dropdown
                   label="completedStatus"
                   options={completedStatusOptions}
-                  selected={field.value}
+                  selected={field.value || ""}
                   onChange={(value: any) => {
                     field.onChange(value);
                   }}
@@ -569,7 +569,7 @@ const AddUser = () => {
                   <Dropdown
                     label="Title"
                     options={titleOptions}
-                    selected={field.value}
+                    selected={field.value || ""}
                     onChange={(value: any) => {
                       field.onChange(value);
                     }}

@@ -112,13 +112,14 @@ const AttendanceHistoryList = () => {
   return (
     <div className="flex flex-col h-full bg-white p-5 rounded-md shadow-md">
       {/* header */}
-      <div className="header flex justify-between items-end ">
+      <div className="header flex flex-col ">
         {/* title */}
-        <div className="title-dropdown flex  items-end gap-4">
-          <p className="text-2xl flex items-center">
-            <HistoryIcon sx={{ fontSize: "1.7rem" }} />
-            <span className="ml-2">Attendance History</span>
-          </p>
+        <p className="text-2xl flex items-center">
+          <HistoryIcon sx={{ fontSize: "1.7rem" }} />
+          <span className="ml-2">Attendance History</span>
+        </p>
+        {/* dropdown-date */}
+        <div className="dropdown-date flex items-end  gap-4">
           <Dropdown
             label="Branch"
             options={[
@@ -135,24 +136,24 @@ const AttendanceHistoryList = () => {
           <span className="text-sm text-gray-500">
             Showing {filteredAttendance?.length} users
           </span>
-        </div>
-        {/* right side */}
-        <div className="flex items-center text-xl">
-          {!selectedDatesAttendanceRecord ? (
-            <span className="text-gray-500 text-sm">No record found</span>
-          ) : (
-            <>
-              <span>
-                {dayjs(selectedDatesAttendanceRecord?.utcDate)
-                  .tz(timeZone)
-                  .startOf("day")
-                  .format("MMMM D, YYYY - dddd")}
-              </span>
-              <span className="ml-4">
-                #Week{dayjs().tz(timeZone).startOf("day").week()}
-              </span>
-            </>
-          )}
+          {/* right side */}
+          <div className=" text-xl ml-auto">
+            {!selectedDatesAttendanceRecord ? (
+              <span className="text-gray-500 text-sm">No record found</span>
+            ) : (
+              <>
+                <span>
+                  {dayjs(selectedDatesAttendanceRecord?.utcDate)
+                    .tz(timeZone)
+                    .startOf("day")
+                    .format("MMMM D, YYYY - dddd")}
+                </span>
+                <span className="ml-4">
+                  #Week{dayjs().tz(timeZone).startOf("day").week()}
+                </span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

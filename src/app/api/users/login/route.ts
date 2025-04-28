@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       const geoResponse = await axios.get(
         `https://ipapi.co/${publicIpAddress}/json/`
       );
-      ispOrg = geoResponse.data.ispOrg || null;
+      ispOrg = geoResponse.data.org || null;
     } catch (geoError) {
       console.log("Error fetching geolocation", geoError);
     }

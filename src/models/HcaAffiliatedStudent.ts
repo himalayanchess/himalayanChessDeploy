@@ -20,7 +20,7 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
           activeStatus: { type: Boolean, default: true }, // delete status
         },
       ],
-    },
+    },  
     joinedDate: { type: Date }, // Date when the student joined
     endDate: { type: Date }, // End date of the student's association
     address: { type: String }, // End date of the student's association

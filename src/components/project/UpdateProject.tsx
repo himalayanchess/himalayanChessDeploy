@@ -59,6 +59,8 @@ const UpdateProject = ({ projectRecord }: any) => {
   const [updatedcontractFile, setupdatedcontractFile] = useState<File | any>(
     null
   );
+  const [updatedcontractFileName, setupdatedcontractFileName] =
+  useState("Not Selected");
   const [loaded, setLoaded] = useState(false);
   const [updateProjectLoading, setUpdateProjectLoading] = useState(false);
   const [updateContractFileLoading, setupdateContractFileLoading] =
@@ -71,8 +73,6 @@ const UpdateProject = ({ projectRecord }: any) => {
   const [updateContractPaperModalOpen, setupdateContractPaperModalOpen] =
     useState<any>();
 
-  const [updatedcontractFileName, setupdatedcontractFileName] =
-    useState("Not Selected");
   const [selectedDeleteTrainerIndex, setSelectedDeleteTrainerIndex] =
     useState("");
   const [selectedDeleteTimeSlotIndex, setSelectedDeleteTimeSlotIndex] =
@@ -578,8 +578,8 @@ const UpdateProject = ({ projectRecord }: any) => {
             />
           </div>
         </div>
-        {/* Address Information */}
-        <div className="address-info col-span-2 grid grid-cols-2 gap-5">
+        {/* contract  Information */}
+        <div className="address-info col-span-2 grid grid-cols-2 gap-1">
           <h3 className="h1 col-span-2 text-lg font-bold"> Contract info</h3>
 
           {/* Contract Drive Link */}
@@ -602,7 +602,7 @@ const UpdateProject = ({ projectRecord }: any) => {
           <div className="col-span-1 flex flex-col items-center justify-center">
             {projectRecord?.contractPaper ? (
               <p className="text-sm font-bold text-green-500 mb-1">
-                Contract paper already incuded (
+                Contract paper already included (
                 {
                   <Link
                     href={projectRecord?.contractPaper}

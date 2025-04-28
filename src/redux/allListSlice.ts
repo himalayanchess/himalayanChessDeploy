@@ -129,6 +129,24 @@ export const getAllStudyMaterials = createAsyncThunk(
   }
 );
 
+// get all test history
+export const getAllTestHistories = createAsyncThunk(
+  "testhistory/getAllTestHistories",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.get(
+        "/api/testhistory/getAllTestHistories"
+      );
+
+      return resData.allTestHistories;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const initialState: any = {
   allTrainerList: [],
   allActiveTrainerList: [],
@@ -168,6 +186,11 @@ const initialState: any = {
   allActiveStudyMaterialsList: [],
   allFilteredActiveStudyMaterialsList: [],
   allStudyMaterialsLoading: true,
+
+  allTestHistoryList: [],
+  allActiveTestHistoryList: [],
+  allFilteredActiveTestHistoryList: [],
+  allTestHistoryLoading: true,
 
   status: "",
 };
@@ -278,6 +301,25 @@ const allListSlice = createSlice({
     },
     filterStudyMaterialsList: (state, action) => {
       state.allFilteredActiveStudyMaterialsList = action.payload;
+    },
+
+    // test history
+    // filter test histories
+    filterTestHistoriesList: (state, action) => {
+      state.allFilteredActiveTestHistoryList = action.payload;
+    },
+    // delete test history
+    deleteTestHistory: (state, action) => {
+      console.log("inside deleteTestHistory redux", action.payload);
+
+      const testHistoryId = action.payload;
+
+      let tempAllActiveTestHistoriesList =
+        state.allActiveTestHistoryList?.filter(
+          (testHistory: any) => testHistory?._id != testHistoryId
+        );
+      state.allActiveTestHistoryList = tempAllActiveTestHistoriesList;
+      state.allFilteredActiveTestHistoryList = tempAllActiveTestHistoriesList;
     },
   },
   extraReducers: (builder) => {
@@ -490,6 +532,31 @@ const allListSlice = createSlice({
         state.allActiveStudyMaterialsList = sortedStudyMaterials;
         state.allFilteredActiveStudyMaterialsList = sortedStudyMaterials;
         state.allStudyMaterialsLoading = false;
+      })
+      // all test histories
+      .addCase(getAllTestHistories.pending, (state) => {
+        state.allTestHistoryLoading = true;
+      })
+      .addCase(getAllTestHistories.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log("after all test histories", action.payload);
+
+        state.allTestHistoryList = action.payload?.sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedTestHistories = action.payload
+          ?.filter((testHistory: any) => testHistory.activeStatus)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        // Filtering active Projects after sorting
+        state.allActiveTestHistoryList = sortedTestHistories;
+        state.allFilteredActiveTestHistoryList = sortedTestHistories;
+        state.allTestHistoryLoading = false;
       });
   },
 });
@@ -510,6 +577,8 @@ export const {
   addNewStudyMaterial,
   deleteStudyMaterial,
   filterStudyMaterialsList,
+  filterTestHistoriesList,
+  deleteTestHistory,
 } = allListSlice.actions;
 
 export default allListSlice.reducer;
