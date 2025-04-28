@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const presentTrainers = await Attendance.aggregate([
       {
         $match: {
-          nepaliDate: todaysDate, // Exact match for the Nepali date string
+          nepaliDate: dayjs(todaysDate)?.tz(timeZone)?.startOf("day")?.format(), // Exact match for the Nepali date string
         },
       },
       { $unwind: "$userAttendance" },

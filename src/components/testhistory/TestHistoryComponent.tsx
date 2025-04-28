@@ -221,6 +221,7 @@ const TestHistoryComponent = ({ role }: any) => {
     // update redux state
     dispath(filterTestHistoriesList(tempFilteredTestHistoriesList));
   }, [
+    allActiveTestHistoryList,
     allActiveBatches,
     allActiveStudentsList,
     searchText,
