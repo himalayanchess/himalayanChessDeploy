@@ -335,7 +335,10 @@ const ManageClass = ({ selectedDate }: any) => {
           todaysDate: dayjs().tz(timeZone).startOf("day").format(),
         }
       );
-      // console.log("presetnt trainers resdata", presentTrainersResData);
+      console.log(
+        "presetnt trainers resdataaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        presentTrainersResData
+      );
 
       setTrainersList(presentTrainersResData.presentTrainersList);
 
