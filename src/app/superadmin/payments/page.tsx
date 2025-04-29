@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import ActivityRecordComponent from "@/components/activityrecord/ActivityRecordComponent";
+import PaymentComponent from "@/components/payments/PaymentComponent";
 
 const page = () => {
   return (
@@ -17,6 +18,7 @@ const page = () => {
         <Header />
         <div className="pb-6 h-[91dvh]  flex flex-col py-5 px-14 ">
           {/* <ActivityRecordComponent /> */}
+          <PaymentComponent />
         </div>
       </div>
     </div>
