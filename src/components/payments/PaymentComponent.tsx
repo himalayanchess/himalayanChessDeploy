@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import DownloadIcon from "@mui/icons-material/Download";
-
+import AddIcon from "@mui/icons-material/Add";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -35,6 +35,8 @@ import { useSession } from "next-auth/react";
 import ActivityRecordList from "../activityrecord/ActivityRecordList";
 import PaymentRecordList from "./PaymentRecordList";
 import { exportOverallPaymentRecords } from "@/helpers/exportToExcel/exportOverallPaymentRecords";
+import Link from "next/link";
+import SearchInput from "../SearchInput";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -79,6 +81,7 @@ const PaymentComponent = () => {
   const [selectedProject, setselectedProject] = useState("All");
   const [filteredStudents, setfilteredStudents] = useState([]);
   const [selectedStudent, setselectedStudent] = useState("All");
+  const [searchText, setsearchText] = useState("");
 
   const [filteredPaymentRecordsCount, setfilteredPaymentRecordsCount] =
     useState(0);
@@ -86,6 +89,7 @@ const PaymentComponent = () => {
   const [paymentRecordsPerPage] = useState(7);
   const [selectedMonth, setselectedMonth] = useState(defaultMonth);
   const [useAdvancedDate, setUseAdvancedDate] = useState(false);
+  const [showAllRecords, setshowAllRecords] = useState(false);
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
 
@@ -190,23 +194,38 @@ const PaymentComponent = () => {
       );
     }
 
+    // filter by search text
+    if (searchText.trim() !== "") {
+      filtered = filtered.filter(
+        (record: any) =>
+          record.prePaymentTitle
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          record.prePaymentDescription
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
+      );
+    }
+
     // Date Filtering
-    if (useAdvancedDate) {
-      filtered = filtered.filter((record: any) => {
-        const recordDate = dayjs(record.issuedDate)
-          .tz(timeZone)
-          .format("YYYY-MM-DD");
+    if (!showAllRecords) {
+      if (useAdvancedDate) {
+        filtered = filtered.filter((record: any) => {
+          const recordDate = dayjs(record.issuedDate)
+            .tz(timeZone)
+            .format("YYYY-MM-DD");
 
-        return recordDate >= startDate && recordDate <= endDate;
-      });
-    } else {
-      filtered = filtered.filter((record: any) => {
-        const recordMonth = dayjs(record.issuedDate)
-          .tz(timeZone)
-          .format("YYYY-MM");
+          return recordDate >= startDate && recordDate <= endDate;
+        });
+      } else {
+        filtered = filtered.filter((record: any) => {
+          const recordMonth = dayjs(record.issuedDate)
+            .tz(timeZone)
+            .format("YYYY-MM");
 
-        return recordMonth === selectedMonth;
-      });
+          return recordMonth === selectedMonth;
+        });
+      }
     }
 
     // Sort by createdAt descending
@@ -224,12 +243,14 @@ const PaymentComponent = () => {
     selectedPaymentType,
     selectedPaymentStatus,
     selectedBranch,
+    searchText,
     selectedProject,
     selectedStudent,
     useAdvancedDate,
     startDate,
     endDate,
     selectedMonth,
+    showAllRecords,
   ]);
 
   // branch access
@@ -262,10 +283,21 @@ const PaymentComponent = () => {
 
   return (
     <div className="flex-1 flex flex-col py-3 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl font-medium text-gray-700 flex items-center ">
-        <CircleDollarSign />
-        <span className="ml-2">Payment Records</span>
-      </h2>
+      <div className="title-button flex justify-between">
+        <h2 className="text-3xl font-medium text-gray-700 flex items-center ">
+          <CircleDollarSign />
+          <span className="ml-2">Payment Records</span>
+        </h2>
+
+        <Link
+          href={`/${session?.data?.user?.role?.toLowerCase()}/payments/addpayment`}
+        >
+          <Button variant="contained" size="small">
+            <AddIcon />
+            <span className="ml-2">Add payment record</span>
+          </Button>
+        </Link>
+      </div>
       <div className="activityrecord-header mt-1 w-full flex items-end justify-between">
         <div className="batch-date w-full flex flex-col  items-end gap-0 ">
           {/* batchlist dropdown */}
@@ -335,7 +367,7 @@ const PaymentComponent = () => {
                 label="Date"
                 type="month"
                 value={selectedMonth}
-                disabled={useAdvancedDate}
+                disabled={useAdvancedDate || showAllRecords}
                 onChange={(e: any) => setselectedMonth(e.target.value)}
                 width="full"
               />
@@ -350,23 +382,43 @@ const PaymentComponent = () => {
           </div>
 
           <div className="bottomheader flex flex-col  justify-center w-full">
-            {/* Checkbox for Advanced Date Selection */}
-            <div className="mt-2 flex items-center gap-2">
-              <input
-                id="advancedcheckbox"
-                type="checkbox"
-                checked={useAdvancedDate}
-                onChange={() => setUseAdvancedDate(!useAdvancedDate)}
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer focus:ring-blue-500"
-              />
-              <label
-                htmlFor="advancedcheckbox"
-                className="text-sm font-medium text-gray-700 cursor-pointer"
-              >
-                Use Advanced Date Selection
-              </label>
-            </div>
+            <div className="checkboxes flex items-center gap-3">
+              {/* Checkbox for Advanced Date Selection */}
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  id="advancedcheckbox"
+                  type="checkbox"
+                  checked={useAdvancedDate}
+                  onChange={() => setUseAdvancedDate(!useAdvancedDate)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="advancedcheckbox"
+                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  Use Advanced Date Selection
+                </label>
+              </div>
 
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  id="showallrecords"
+                  type="checkbox"
+                  checked={showAllRecords}
+                  onChange={() => {
+                    setshowAllRecords(!showAllRecords);
+                    setUseAdvancedDate(false);
+                  }}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="showallrecords"
+                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  Show all records
+                </label>
+              </div>
+            </div>
             {/* Start and End Date Inputs */}
             <div className="bottom-header mt-2 w-full  flex justify-between items-end">
               <div className="buttons flex-1 grid grid-cols-4  items-end gap-3">
@@ -374,22 +426,26 @@ const PaymentComponent = () => {
                   label="Start Date"
                   type="date"
                   value={startDate}
-                  disabled={!useAdvancedDate}
+                  disabled={!useAdvancedDate || showAllRecords}
                   onChange={(e: any) => setStartDate(e.target.value)}
                 />
                 <Input
                   label="End Date"
                   type="date"
                   value={endDate}
-                  disabled={!useAdvancedDate}
+                  disabled={!useAdvancedDate || showAllRecords}
                   onChange={(e: any) => setEndDate(e.target.value)}
                 />
-
                 {/* count */}
                 <span className="text-sm text-gray-600">{showingText}</span>
+                <SearchInput
+                  placeholder="Search"
+                  value={searchText}
+                  onChange={(e: any) => setsearchText(e.target.value)}
+                />
               </div>
 
-              <div className="exceldownloadbutton">
+              <div className="exceldownloadbutton ml-3">
                 <Button
                   onClick={exportToExcel}
                   variant="contained"

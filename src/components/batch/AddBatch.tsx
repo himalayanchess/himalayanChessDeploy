@@ -94,7 +94,7 @@ const AddBatch = () => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
       setValue("branchId", user?.branchId);

@@ -13,12 +13,15 @@ const PaymentSchema = new mongoose.Schema(
     prePaymentDescription: { type: String },
     paymentPurpose: { type: String },
     otherPaymentPurpose: { type: Boolean, default: false },
+    branchName: { type: String },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
+
     // for incoming
     // schools => projectname,id / organizers / workshops/ sales/ student fee => studentname,id
     paymentSource: { type: String }, // Hca for outgoing else select
     otherPaymentSource: { type: Boolean, default: false },
     paymentSourceInfo: {
-      type: { 
+      type: {
         senderName: { type: String },
         phone: { type: Number },
         email: { type: String },
@@ -69,6 +72,7 @@ const PaymentSchema = new mongoose.Schema(
           paymentMethod: { type: String, enum: ["Cash", "Online", "Bank"] },
           paymentTitle: { type: String },
           paymentTime: { type: Date, default: Date.now },
+          activeStatus: { type: Boolean, default: true },
         },
       ],
       default: [],
@@ -80,7 +84,9 @@ const PaymentSchema = new mongoose.Schema(
           fileUrl: { type: String, required: true },
           fileType: { type: String },
           uploadedAt: { type: Date, default: Date.now },
-          uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          uploadedById: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          uploadedByName: { type: String },
+          activeStatus: { type: Boolean, default: true },
         },
       ],
       default: [],

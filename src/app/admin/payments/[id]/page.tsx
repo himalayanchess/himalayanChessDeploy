@@ -4,57 +4,63 @@ import Sidebar from "@/components/Sidebar";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
-import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import ViewProject from "@/components/project/ViewProject";
 import ViewBatch from "@/components/batch/ViewBatch";
+import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 
 const page = ({ params }: any) => {
-  const { id: batchId }: any = use(params);
+  const { id: paymentRecordId }: any = use(params);
 
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
-  const [batchRecord, setbatchRecord] = useState<any>(null);
+  const [paymentRecord, setpaymentRecord] = useState<any>(null);
 
-  async function getbatchRecord() {
+  async function getpaymentRecord() {
     try {
       setLoading(true);
-      const { data: resData } = await axios.post("/api/batches/getBatch", {
-        batchId,
-      });
-      setbatchRecord(resData.batchRecord);
+      const { data: resData } = await axios.post(
+        "/api/payments/getPaymentRecord",
+        {
+          paymentRecordId,
+        }
+      );
+      setpaymentRecord(resData.paymentRecord);
 
       if (resData?.statusCode == 204) {
         setinvalidId(true);
       }
       setLoading(false);
     } catch (error) {
-      console.log("error in view batch : [id], getbatchRecord api", error);
+      console.log(
+        "error in viewpayment record : [id], getpaymentRecord api",
+        error
+      );
     }
   }
   // initial fecth of selected activity record
   useEffect(() => {
-    getbatchRecord();
-  }, [batchId]);
+    getpaymentRecord();
+  }, [paymentRecordId]);
   return (
     <div>
       <Sidebar
-        menuItems={superadminMenuItems}
+        menuItems={adminMenuItems}
         // role={session?.data?.user.role}
-        role="superadmin"
-        activeMenu="Batches"
+        role="admin"
+        activeMenu="Payment"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 flex flex-col h-[91dvh]  py-5 px-14 ">
-          {loading || !batchId ? (
+          {loading || !paymentRecordId ? (
             <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
               <CircularProgress />
               <span className="mt-2">Loading record...</span>
             </div>
           ) : invalidId ? (
-            <p>Invalid batch id</p>
+            <p>Invalid payment record id</p>
           ) : (
-            <ViewBatch batchRecord={batchRecord} />
+            <ViewBatch paymentRecord={paymentRecord} />
           )}
         </div>
       </div>

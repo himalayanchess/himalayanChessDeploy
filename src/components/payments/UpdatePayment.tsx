@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Box, Button, Divider, dividerClasses, Modal } from "@mui/material";
+import { Box, Button, Divider, Modal, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import axios from "axios";
+import CloseIcon from "@mui/icons-material/Close";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -24,8 +27,16 @@ import {
   Book,
   CircleDollarSign,
   DollarSign,
+  File,
   FileSpreadsheet,
+  FileText,
+  Receipt,
+  TriangleAlert,
 } from "lucide-react";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -45,7 +56,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const AddPayment = () => {
+const UpdatePayment = ({ paymentRecord }: any) => {
   const router = useRouter();
   const session = useSession();
   const dispatch = useDispatch<any>();
@@ -53,6 +64,9 @@ const AddPayment = () => {
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
     (session?.data?.user?.role?.toLowerCase() === "admin" &&
       session?.data?.user?.isGlobalAdmin);
+
+  //   console.log("updatePayment", paymentRecord);
+
   // selectors
   const {
     allActiveProjects,
@@ -64,6 +78,7 @@ const AddPayment = () => {
   const paymentPurposeOptions = [
     "Student Fee",
     "Rating Fee",
+    "Trainer Fee",
     "Salaries",
     "Arbiter Fee",
     "Chess Equipment Fee",
@@ -97,8 +112,11 @@ const AddPayment = () => {
   const [recipientIsHcaUser, setrecipientIsHcaUser] = useState(false);
   const [selectedPaymentSource, setselectedPaymentSource] = useState("");
   const [selectedPaymentPurpose, setselectedPaymentPurpose] = useState("");
-  const [addPaymentLoading, setAddPaymentLoading] = useState(false);
-  const [addPaymentFileLoading, setAddPaymentFileLoading] = useState(false);
+  const [updatePaymentLoading, setUpdatePaymentLoading] = useState(false);
+  const [updatePaymentFileLoading, setUpdatePaymentFileLoading] =
+    useState(false);
+  const [deletePaymentFileLoading, setdeletePaymentFileLoading] =
+    useState(false);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [otherPaymentSource, setotherPaymentSource] = useState(false);
@@ -106,12 +124,22 @@ const AddPayment = () => {
   const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
   const [selectedPaymentType, setSelectedPaymentType] = useState("Incoming");
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
+  const [
+    confirmDeletePaymentFileModalOpen,
+    setConfirmDeletePaymentFileModalOpen,
+  ] = useState(false);
+
   const [selectedDeleteInstallmentIndex, setselectedDeleteInstallmentIndex] =
     useState<any>("");
+  const [selectedDeletePaymentFileName, setselectedDeletePaymentFileName] =
+    useState<any>(null);
+
+  const [fileName, setfileName] = useState("");
   const [selectedDeleteInstallmentAmount, setselectedDeleteInstallmentAmount] =
     useState<any>(0);
+  const [loaded, setLoaded] = useState(false);
 
-  // Modal operation - no changes needed here
+  // Modal operation
   const handleConfirmDeleteModalOpen = (index: number, amount: any) => {
     setselectedDeleteInstallmentIndex(index);
     setselectedDeleteInstallmentAmount(amount);
@@ -122,26 +150,32 @@ const AddPayment = () => {
     setConfirmDeleteModalOpen(false);
   };
 
+  // Modal operation
+  const handleconfirmDeletePaymentFileModalOpen = (paymentFileName: any) => {
+    setselectedDeletePaymentFileName(paymentFileName);
+    setConfirmDeletePaymentFileModalOpen(true);
+  };
+
+  const handleconfirmDeletePaymentFileModalClose = () => {
+    setselectedDeletePaymentFileName(null);
+    setConfirmDeletePaymentFileModalOpen(false);
+  };
+
   // Payment type options
   const paymentTypeOptions = ["Incoming", "Outgoing"];
   const paymentMethodOptions = ["Cash", "Online", "Bank"];
   const paymentStatusOptions = ["Pending", "Paid"];
 
-  // default values
   const defaultValues = {
     paymentType: "Incoming",
     prePaymentTitle: "",
     issuedDate: "",
-    // record added date from server
-    // recordAddedDate: "",
     prePaymentDescription: "",
     paymentPurpose: "",
-    // otherPaymentPurpose also pass in onsubmit
     otherPaymentPurpose: false,
     paymentSource: "",
     branchName: "",
     branchId: "",
-    // otherPaymentSource also pass in onsubmit
     otherPaymentSource: false,
     paymentSourceInfo: {
       senderName: "",
@@ -171,16 +205,10 @@ const AddPayment = () => {
     installments: [
       { amount: 0, paidDate: "", paymentMethod: "", paymentTitle: "" },
     ],
+    paymentFiles: [],
     paymentStatus: "Pending",
-    // payment files from update payment
-    // paymentFiles: [],
-    // updateby from update payment
-    // updatedBy: [],
-    // created by in onsubmit function from session
-    // createdBy:{},
     activeStatus: true,
   };
-
   // Form setup
   const {
     register,
@@ -194,6 +222,9 @@ const AddPayment = () => {
   } = useForm<any>({
     defaultValues,
   });
+
+  // payment fields
+  const paymentFiles = watch("paymentFiles");
 
   const {
     fields: installmentFields,
@@ -209,6 +240,7 @@ const AddPayment = () => {
   const handleFileUploadModalClose = () => {
     setPaymentFile(null);
     setFileUploadModalOpen(false);
+    setfileName("");
   };
 
   // Handle confirm modal
@@ -220,6 +252,48 @@ const AddPayment = () => {
     const file = e.target.files?.[0];
     if (file) setPaymentFile(file);
   };
+
+  //handleDeletePaymentFile
+  async function handleDeletePaymentFile() {
+    try {
+      if (selectedDeletePaymentFileName.trim() == "") {
+        notify("Payment file name  is required", 204);
+        return;
+      }
+      setdeletePaymentFileLoading(true);
+      const { data: resData } = await axios.post(
+        "/api/payments/deletePaymentFile",
+        {
+          paymentFileName: selectedDeletePaymentFileName,
+        }
+      );
+      if (resData?.statusCode == 200) {
+        notify(resData?.msg, resData?.statusCode);
+        //update state
+        const updatedFiles = paymentFiles?.filter(
+          (file: any) =>
+            file.activeStatus &&
+            file.fileName?.toLowerCase() !==
+              selectedDeletePaymentFileName.toLowerCase()
+        );
+
+        if (updatedFiles) {
+          setValue("paymentFiles", updatedFiles);
+        }
+        handleconfirmDeletePaymentFileModalClose();
+        return;
+      }
+      notify(resData?.msg, resData?.statusCode);
+      return;
+      // else
+
+      console.log("res dta deletePaymentFile", resData);
+    } catch (error: any) {
+      console.log("error in handleDeletePaymentFile ", error);
+    } finally {
+      setdeletePaymentFileLoading(false);
+    }
+  }
 
   function handleRecipientIsHcaUser(e: any) {
     const checked = e.target.checked;
@@ -241,23 +315,45 @@ const AddPayment = () => {
     }));
   }
 
-  // Add payment by file
-  const handleAddPaymentByFile = async () => {
+  // Update payment by file
+  const handleUpdatePaymentByFile = async () => {
     try {
-      setAddPaymentFileLoading(true);
+      setUpdatePaymentFileLoading(true);
+      if (fileName.trim() == "") {
+        notify("File name  is required", 204);
+        return;
+      }
       if (!paymentFile) {
         notify("File is required", 204);
         return;
       }
-      if (paymentFile.type !== "application/json") {
-        notify("Please upload a valid JSON file", 204);
+
+      // check payment file name
+      const { data: checkPaymentFileNameResData } = await axios.post(
+        "/api/payments/checkPaymentFileName",
+        {
+          fileName,
+        }
+      );
+      if (checkPaymentFileNameResData?.statusCode == 204) {
+        notify(
+          checkPaymentFileNameResData?.msg,
+          checkPaymentFileNameResData.statusCode
+        );
         return;
       }
 
       const formData = new FormData();
       formData.append("file", paymentFile);
+      const folderName = `paymentFile/${fileName}`;
+      formData.append("folderName", folderName);
+      // ["profileImage","studyMaterials","otherFiles"]
+      let fileUrl = "";
+
+      formData.append("cloudinaryFileType", "otherFiles");
+
       const { data: resData } = await axios.post(
-        "/api/uploadbyfile/addNewFilePayment",
+        "/api/fileupload/uploadfile",
         formData,
         {
           headers: {
@@ -266,43 +362,104 @@ const AddPayment = () => {
         }
       );
 
-      if (resData?.statusCode === 200) {
-        notify(resData?.msg, resData?.statusCode);
-        handleFileUploadModalClose();
-        setTimeout(() => {
-          router.push(`/${session?.data?.user?.role?.toLowerCase()}/payments`);
-        }, 50);
-      } else {
-        notify(resData?.msg, resData?.statusCode);
+      // cloudinary error
+      if (resData.error) {
+        notify("Error uploading file", 204);
+        setUpdatePaymentFileLoading(false);
+        return;
+      }
+
+      // cloudinary success
+      else {
+        fileUrl = resData.res.secure_url;
+        const fileExtension = paymentFile?.name
+          ?.split(".")
+          ?.pop()
+          ?.toLowerCase();
+        const tempPaymentFile = {
+          fileName,
+          fileUrl,
+          fileType: paymentFile?.type.startsWith("image/")
+            ? "image"
+            : paymentFile?.type === "application/pdf"
+            ? "pdf"
+            : fileExtension === "pgn"
+            ? "pgn"
+            : "others",
+          // uploaded at from server
+          uploadedByName: session?.data?.user?.name,
+          uploadedById: session?.data?.user?._id,
+          activeStatus: true,
+        };
+        const { data: addNewPaymentFileResData } = await axios.post(
+          "/api/payments/addNewPaymentFile",
+          {
+            paymentRecordId: paymentRecord?._id,
+            ...tempPaymentFile,
+          }
+        );
+
+        if (addNewPaymentFileResData?.statusCode == 200) {
+          notify(
+            addNewPaymentFileResData?.msg,
+            addNewPaymentFileResData?.statusCode
+          );
+
+          // update watch("paymentFileds") to update list in ui
+          const latestFile =
+            addNewPaymentFileResData?.updatedPayment?.paymentFiles?.at(-1);
+          if (latestFile) {
+            setValue("paymentFiles", [...paymentFiles, latestFile]);
+          }
+          // update redux state after adding new study material
+          // dispatch(
+          //   addNewStudyMaterial(addNewPaymentFileResData?.newStudyMaterial)
+          // );
+          handleFileUploadModalClose();
+          setUpdatePaymentFileLoading(false);
+
+          return;
+        }
+        setUpdatePaymentFileLoading(false);
+
+        notify(
+          addNewPaymentFileResData?.msg,
+          addNewPaymentFileResData?.statusCode
+        );
+        return;
       }
     } catch (error) {
       notify("Invalid data inside JSON file", 204);
-      console.error("Error in handleAddPaymentByFile", error);
+      console.error("Error in handleUpdatePaymentByFile", error);
     } finally {
-      setAddPaymentFileLoading(false);
+      setUpdatePaymentFileLoading(false);
     }
   };
 
+  // console.log("watch paymetfiles", paymentFiles);
+
   // On submit function
   const onSubmit = async (data: any) => {
-    setAddPaymentLoading(true);
+    setUpdatePaymentLoading(true);
     try {
-      console.log("submit payment", {
-        ...data,
-        otherPaymentPurpose,
-        otherPaymentSource,
-        createdBy: session?.data?.user,
-      });
-
-      const { data: resData } = await axios.post(
-        "/api/payments/addNewPayment",
-        {
+      console.log(
+        "submit payment",
+        JSON.stringify({
           ...data,
           otherPaymentPurpose,
           otherPaymentSource,
-          createdBy: session?.data?.user,
-        }
+          updatedBy: session?.data?.user,
+          paymentId: paymentRecord._id,
+        })
       );
+
+      const { data: resData } = await axios.put("/api/payments/updatePayment", {
+        ...data,
+        otherPaymentPurpose,
+        otherPaymentSource,
+        updatedBy: session?.data?.user,
+        paymentId: paymentRecord._id,
+      });
       if (resData.statusCode === 200) {
         notify(resData.msg, resData.statusCode);
         handleConfirmModalClose();
@@ -313,10 +470,10 @@ const AddPayment = () => {
         notify(resData.msg, resData.statusCode);
       }
     } catch (error) {
-      console.error("Error submitting payment:", error);
-      notify("Failed to add payment", 500);
+      console.error("Error updating payment:", error);
+      notify("Failed to update payment", 500);
     } finally {
-      setAddPaymentLoading(false);
+      setUpdatePaymentLoading(false);
     }
   };
 
@@ -327,7 +484,6 @@ const AddPayment = () => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
       setValue("branchId", user?.branchId);
@@ -338,12 +494,11 @@ const AddPayment = () => {
   useEffect(() => {
     setValue("paymentSource", "");
   }, [otherPaymentSource]);
+
   // clear paymentPurpose when otherpaymentPurposeChanges
   useEffect(() => {
     setValue("paymentPurpose", "");
   }, [otherPaymentPurpose]);
-
-  // console.log("installments feid", installmentFields);
 
   // get initial data
   useEffect(() => {
@@ -352,15 +507,51 @@ const AddPayment = () => {
     dispatch(getAllUsers());
     dispatch(getAllBranches());
   }, []);
+
+  // Load payment record data
+  useEffect(() => {
+    if (paymentRecord) {
+      reset({
+        ...paymentRecord,
+        issuedDate: paymentRecord.issuedDate
+          ? dayjs(paymentRecord.issuedDate).tz(timeZone).format("YYYY-MM-DD")
+          : "",
+        installments: paymentRecord.installments
+          ?.filter((installment: any) => installment?.activeStatus)
+          ?.map((inst: any) => ({
+            ...inst,
+            paidDate: inst.paidDate
+              ? dayjs(inst.paidDate).tz(timeZone).format("YYYY-MM-DD")
+              : "",
+          })),
+      });
+
+      setSelectedPaymentType(paymentRecord.paymentType);
+      setselectedPaymentSource(paymentRecord.paymentSource);
+      setselectedPaymentPurpose(paymentRecord.paymentPurpose);
+      setrecipientIsHcaUser(!!paymentRecord.recipient?.userId);
+      setotherPaymentSource(paymentRecord.otherPaymentSource);
+      setotherPaymentPurpose(paymentRecord.otherPaymentPurpose);
+      // const [otherPaymentSource, setotherPaymentSource] = useState(false);
+      // const [otherPaymentPurpose, setotherPaymentPurpose] = useState(false);
+
+      setLoaded(true);
+    }
+  }, [paymentRecord, reset]);
+
+  if (!loaded)
+    return (
+      <div className="flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md"></div>
+    );
   return (
     <div className="flex gap-4 w-full h-full">
       {/* addpayment */}
-      <div className="flex-[0.75] flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md">
+      <div className="flex-[0.75] flex w-full flex-col h-full overflow-hidden bg-white px-5 py-5 rounded-md shadow-md">
         <div className="heading flex items-center gap-4">
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl font-bold flex items-center">
               <CircleDollarSign />
-              <span className="ml-2">Add Payment</span>
+              <span className="ml-2">Update Payment</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
@@ -391,7 +582,17 @@ const AddPayment = () => {
           }}
           onSubmit={handleSubmit(onSubmit)}
         >
-          <h1 className="col-span-2 font-bold">Pre payment information</h1>
+          <p className="w-full col-span-2 flex items-start bg-yellow-100 p-2">
+            <TriangleAlert className="text-yellow-600" />
+            <span className="ml-1 font-medium text-gray-600 ">
+              <span className="text-yellow-600">Important: </span> Uploading a
+              file will just upload the file and not update any other fields.
+            </span>
+          </p>
+          <h1 className="col-span-2 font-bold text-gray-500 flex items-center">
+            <Receipt />
+            <span className="ml-1">Pre payment information</span>
+          </h1>
           {/* Payment Type */}
           <div className="first grid grid-cols-2 gap-4">
             <Controller
@@ -402,7 +603,8 @@ const AddPayment = () => {
                 <Dropdown
                   label="Payment Type"
                   options={paymentTypeOptions}
-                  selected={field.value}
+                  selected={field.value || ""}
+                  disabled
                   onChange={(value: any) => {
                     field.onChange(value);
                     setSelectedPaymentType(value);
@@ -447,7 +649,8 @@ const AddPayment = () => {
                 <Input
                   label="Issued Date"
                   type="date"
-                  selected={field.value || ""}
+                  value={field.value || ""}
+                  disabled
                   onChange={field.onChange}
                   error={errors.issuedDate}
                   helperText={errors.issuedDate?.message}
@@ -463,6 +666,7 @@ const AddPayment = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                value={field.value || ""}
                 label="Pre Payment Title"
                 type="text"
                 required
@@ -483,6 +687,8 @@ const AddPayment = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                value={field.value || ""}
+                disabled
                 label="Amount (Rs.)"
                 type="number"
                 required
@@ -501,7 +707,7 @@ const AddPayment = () => {
               <Dropdown
                 label="Payment Status"
                 options={paymentStatusOptions}
-                selected={field.value}
+                selected={field.value || ""}
                 onChange={field.onChange}
                 error={errors.paymentStatus}
                 helperText={errors.paymentStatus?.message}
@@ -523,7 +729,7 @@ const AddPayment = () => {
                 options={allActiveBranchesList?.map(
                   (branch: any) => branch.branchName
                 )}
-                selected={field.value}
+                selected={field.value || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
                   const selectedBranch: any = allActiveBranchesList?.find(
@@ -536,7 +742,7 @@ const AddPayment = () => {
                 error={errors.branchName}
                 helperText={errors.branchName?.message}
                 required
-                disabled={!isSuperOrGlobalAdmin}
+                disabled
                 width="full"
               />
             )}
@@ -553,7 +759,10 @@ const AddPayment = () => {
                   Pre Payment Description *
                 </label>
                 <textarea
-                  {...field}
+                  {...{
+                    ...field,
+                    value: field.value || "", // safe default
+                  }}
                   rows={4}
                   className={`w-full border-2 border-gray-300 p-2 rounded-md outline-none ${
                     errors.prePaymentDescription ? "border-red-500" : ""
@@ -561,12 +770,13 @@ const AddPayment = () => {
                 />
                 {errors.prePaymentDescription && (
                   <p className="mt-1 text-sm text-red-600">
-                    {errors?.prePaymentDescription?.message as string}
+                    {errors.prePaymentDescription.message as string}
                   </p>
                 )}
               </div>
             )}
           />
+
           {/* Payment Source fo */}
           <Controller
             name="paymentSource"
@@ -621,10 +831,7 @@ const AddPayment = () => {
                           setValue("studentId", "");
                         }
                       }}
-                      disabled={
-                        selectedPaymentType?.toLowerCase() === "outgoing" ||
-                        otherPaymentSource
-                      }
+                      disabled
                       required
                       width="full"
                       error={errors.paymentSource}
@@ -637,6 +844,7 @@ const AddPayment = () => {
                           type="checkbox"
                           id="othersourceid"
                           checked={otherPaymentSource}
+                          disabled
                           onChange={handleOtherSourceChange}
                         />
                         <label
@@ -653,6 +861,8 @@ const AddPayment = () => {
                     <Input
                       {...field}
                       label="Other payment source"
+                      value={field.value || ""}
+                      disabled
                       type="text"
                       required
                       error={errors.paymentSource}
@@ -687,7 +897,7 @@ const AddPayment = () => {
                       label="Payment purpose"
                       options={paymentPurposeOptions}
                       selected={field.value || ""}
-                      disabled={otherPaymentPurpose}
+                      disabled
                       onChange={(value: any) => {
                         field.onChange(value);
                         // reset other fields
@@ -709,6 +919,7 @@ const AddPayment = () => {
                         type="checkbox"
                         id="otherpurposeid"
                         checked={otherPaymentPurpose}
+                        disabled
                         onChange={handleOtherPurposeChange}
                       />
                       <label
@@ -724,6 +935,8 @@ const AddPayment = () => {
                     <Input
                       {...field}
                       label="Other payment purpose"
+                      value={field.value || ""}
+                      disabled
                       type="text"
                       required
                       error={errors.paymentPurpose}
@@ -755,7 +968,8 @@ const AddPayment = () => {
                           options={allActiveProjects?.map(
                             (project: any) => project.name
                           )}
-                          selected={field.value}
+                          selected={field.value || ""}
+                          disabled
                           onChange={(value: any) => {
                             field.onChange(value);
                             const selectedProject: any =
@@ -787,7 +1001,8 @@ const AddPayment = () => {
                           options={allActiveHcaStudentsList?.map(
                             (student: any) => student.name
                           )}
-                          selected={field.value}
+                          selected={field.value || ""}
+                          disabled
                           onChange={(value: any) => {
                             field.onChange(value);
                             const selectedStudent: any =
@@ -817,6 +1032,7 @@ const AddPayment = () => {
                         label="Sender Name"
                         type="text"
                         required
+                        value={field.value || ""}
                         error={!!(errors.paymentSourceInfo as any)?.senderName}
                         helperText={
                           (errors.paymentSourceInfo as any)?.senderName?.message
@@ -838,6 +1054,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Phone"
+                        value={field.value || ""}
                         type="number"
                         error={!!(errors.paymentSourceInfo as any)?.phone}
                         helperText={
@@ -860,6 +1077,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Email"
+                        value={field.value || ""}
                         type="email"
                         error={!!(errors.paymentSourceInfo as any)?.email}
                         helperText={
@@ -876,6 +1094,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Bank Name"
+                        value={field.value || ""}
                         type="text"
                         error={!!(errors.paymentSourceInfo as any)?.bankName}
                         helperText={
@@ -892,6 +1111,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Bank Account Number"
+                        value={field.value || ""}
                         type="number"
                         error={
                           !!(errors.paymentSourceInfo as any)?.bankAccountNumber
@@ -911,6 +1131,7 @@ const AddPayment = () => {
                       <Dropdown
                         {...field}
                         label="Ewallet name "
+                        value={field.value || ""}
                         options={[
                           "None",
                           ...eWalletsInNepalOptions.map(
@@ -940,6 +1161,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Ewallet number"
+                        value={field.value || ""}
                         type="number"
                         error={
                           !!(errors.paymentSourceInfo as any)?.ewalletNumber
@@ -970,6 +1192,7 @@ const AddPayment = () => {
                         type="checkbox"
                         id="othersourceid"
                         checked={recipientIsHcaUser}
+                        disabled
                         onChange={handleRecipientIsHcaUser}
                       />
                       <label
@@ -1025,6 +1248,7 @@ const AddPayment = () => {
                           <Input
                             {...field}
                             label="Recipient Name"
+                            value={field.value || ""}
                             type="text"
                             required
                             error={!!(errors.recipient as any)?.name}
@@ -1041,6 +1265,7 @@ const AddPayment = () => {
                           <Input
                             {...field}
                             label="Phone"
+                            value={field.value || ""}
                             type="tel"
                             error={!!(errors.recipient as any)?.phone}
                             helperText={
@@ -1056,6 +1281,7 @@ const AddPayment = () => {
                           <Input
                             {...field}
                             label="Email"
+                            value={field.value || ""}
                             type="email"
                             error={!!(errors.recipient as any)?.email}
                             helperText={
@@ -1074,6 +1300,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Bank Name"
+                        value={field.value || ""}
                         type="text"
                         error={!!(errors.recipient as any)?.bankName}
                         helperText={
@@ -1090,6 +1317,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Bank Account Number"
+                        value={field.value || ""}
                         type="number"
                         error={!!(errors.recipient as any)?.bankAccountNumber}
                         helperText={
@@ -1106,6 +1334,7 @@ const AddPayment = () => {
                       <Dropdown
                         {...field}
                         label="Ewallet name "
+                        value={field.value || ""}
                         options={[
                           "None",
                           ...eWalletsInNepalOptions.map(
@@ -1134,6 +1363,7 @@ const AddPayment = () => {
                       <Input
                         {...field}
                         label="Ewallet number"
+                        value={field.value || ""}
                         type="number"
                         error={!!(errors.recipient as any)?.ewalletNumber}
                         helperText={
@@ -1152,141 +1382,147 @@ const AddPayment = () => {
             <Divider sx={{ margin: ".5rem 0" }} />
           </div>
 
-          <h1 className="col-span-2 font-bold">
-            Payment Installments {`(${installmentFields?.length})`}
+          <h1 className="col-span-2 font-bold text-gray-500 flex items-center">
+            <CurrencyExchangeIcon sx={{ fontSize: "1.2rem" }} />
+            <span className="ml-1">
+              Payment Installments {`(${installmentFields?.length})`}
+            </span>
           </h1>
 
           <div className="installments-array-fields col-span-2">
             <div className="installment-container flex flex-col gap-3">
-              {installmentFields.length === 0 ? (
+              {installmentFields.filter((field: any) => field?.activeStatus)
+                .length === 0 ? (
                 <p className="text-gray-500 mb-2">No Installments yet.</p>
               ) : (
-                installmentFields.map((field: any, index: number) => (
-                  <div
-                    key={`${field?.id}`}
-                    className="p-4 border rounded-md bg-gray-50 grid grid-cols-[repeat(4,1fr),50px] gap-4"
-                  >
-                    {/* Amount */}
-                    <Controller
-                      name={`installments.${index}.amount`}
-                      control={control}
-                      rules={{
-                        required: "Amount is required",
-                        min: {
-                          value: 1,
-                          message: "Amount must be greater than 0",
-                        },
-                      }}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label="Amount"
-                          type="number"
-                          error={
-                            !!(errors.installments as any)?.[index]?.amount
-                          }
-                          helperText={
-                            (errors.installments as any)?.[index]?.amount
-                              ?.message
-                          }
-                          required
-                          width="full"
-                        />
-                      )}
-                    />
-
-                    {/* Paid Date */}
-                    <Controller
-                      name={`installments.${index}.paidDate`}
-                      control={control}
-                      rules={{
-                        required: "Paid Date is required",
-                      }}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label="Paid Date"
-                          type="date"
-                          error={
-                            !!(errors.installments as any)?.[index]?.paidDate
-                          }
-                          helperText={
-                            (errors.installments as any)?.[index]?.paidDate
-                              ?.message
-                          }
-                          required
-                          width="full"
-                        />
-                      )}
-                    />
-
-                    {/* Payment Method Dropdown */}
-                    <Controller
-                      name={`installments.${index}.paymentMethod`}
-                      control={control}
-                      rules={{ required: "Payment method is required" }}
-                      render={({ field }) => (
-                        <Dropdown
-                          label="Payment Method"
-                          options={["Cash", "Online", "Bank"]}
-                          selected={field.value || ""}
-                          onChange={field.onChange}
-                          error={
-                            !!(errors.installments as any)?.[index]
-                              ?.paymentMethod
-                          }
-                          helperText={
-                            (errors.installments as any)?.[index]?.paymentMethod
-                              ?.message
-                          }
-                          required
-                          width="full"
-                        />
-                      )}
-                    />
-
-                    {/* Payment Title */}
-                    <Controller
-                      name={`installments.${index}.paymentTitle`}
-                      control={control}
-                      rules={{ required: "Payment title is required" }}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label="Payment Title"
-                          type="text"
-                          error={
-                            !!(errors.installments as any)?.[index]
-                              ?.paymentTitle
-                          }
-                          helperText={
-                            (errors.installments as any)?.[index]?.paymentTitle
-                              ?.message
-                          }
-                          required
-                          width="full"
-                        />
-                      )}
-                    />
-
-                    {/* Remove Button */}
+                installmentFields
+                  .filter((field: any) => field?.activeStatus)
+                  .map((field: any, index: number) => (
                     <div
-                      title="Delete"
-                      className="remove-button flex items-center"
+                      key={`${field?.id}`}
+                      className="p-4 border rounded-md bg-gray-50 grid grid-cols-[repeat(4,1fr),50px] gap-4"
                     >
-                      <Button
-                        type="button"
-                        variant="text"
-                        color="error"
-                        onClick={() =>
-                          handleConfirmDeleteModalOpen(index, field?.amount)
-                        }
+                      {/* Amount */}
+                      <Controller
+                        name={`installments.${index}.amount`}
+                        control={control}
+                        rules={{
+                          required: "Amount is required",
+                          min: {
+                            value: 1,
+                            message: "Amount must be greater than 0",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            label="Amount"
+                            type="number"
+                            error={
+                              !!(errors.installments as any)?.[index]?.amount
+                            }
+                            helperText={
+                              (errors.installments as any)?.[index]?.amount
+                                ?.message
+                            }
+                            required
+                            width="full"
+                          />
+                        )}
+                      />
+
+                      {/* Paid Date */}
+                      <Controller
+                        name={`installments.${index}.paidDate`}
+                        control={control}
+                        rules={{
+                          required: "Paid Date is required",
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            label="Paid Date"
+                            type="date"
+                            error={
+                              !!(errors.installments as any)?.[index]?.paidDate
+                            }
+                            helperText={
+                              (errors.installments as any)?.[index]?.paidDate
+                                ?.message
+                            }
+                            required
+                            width="full"
+                          />
+                        )}
+                      />
+
+                      {/* Payment Method Dropdown */}
+                      <Controller
+                        name={`installments.${index}.paymentMethod`}
+                        control={control}
+                        rules={{ required: "Payment method is required" }}
+                        render={({ field }) => (
+                          <Dropdown
+                            label="Payment Method"
+                            options={["Cash", "Online", "Bank"]}
+                            selected={field.value || ""}
+                            onChange={field.onChange}
+                            error={
+                              !!(errors.installments as any)?.[index]
+                                ?.paymentMethod
+                            }
+                            helperText={
+                              (errors.installments as any)?.[index]
+                                ?.paymentMethod?.message
+                            }
+                            required
+                            width="full"
+                          />
+                        )}
+                      />
+
+                      {/* Payment Title */}
+                      <Controller
+                        name={`installments.${index}.paymentTitle`}
+                        control={control}
+                        rules={{ required: "Payment title is required" }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            label="Payment Title"
+                            type="text"
+                            error={
+                              !!(errors.installments as any)?.[index]
+                                ?.paymentTitle
+                            }
+                            helperText={
+                              (errors.installments as any)?.[index]
+                                ?.paymentTitle?.message
+                            }
+                            required
+                            width="full"
+                          />
+                        )}
+                      />
+
+                      {/* Remove Button */}
+                      <div
+                        title="Delete"
+                        className="remove-button flex items-center"
                       >
-                        <DeleteIcon />
-                      </Button>
+                        <Button
+                          type="button"
+                          variant="text"
+                          color="error"
+                          onClick={() =>
+                            handleConfirmDeleteModalOpen(index, field?.amount)
+                          }
+                        >
+                          <DeleteIcon />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))
               )}
             </div>
 
@@ -1329,7 +1565,7 @@ const AddPayment = () => {
                     color="error"
                     onClick={() => {
                       removeInstallment(Number(selectedDeleteInstallmentIndex));
-                      notify(`${selectedDeleteInstallmentIndex}`, 200);
+                      notify(`Installment deleted`, 200);
                       handleConfirmDeleteModalClose();
                     }}
                   >
@@ -1348,6 +1584,7 @@ const AddPayment = () => {
                   paidDate: "",
                   paymentMethod: "",
                   paymentTitle: "",
+                  activeStatus: true,
                 })
               }
               variant="outlined"
@@ -1356,6 +1593,248 @@ const AddPayment = () => {
               + Add Installment
             </Button>
           </div>
+
+          <div className="col-span-2">
+            <Divider sx={{ margin: ".5rem 0" }} />
+          </div>
+
+          {/* payment files */}
+          <div className="paymentfiles-header col-span-2 flex gap-4 items-center">
+            <h1 className=" font-bold text-gray-500 flex items-center">
+              <File />
+              <span className="ml-1">
+                Payment Files{" "}
+                {`(${
+                  paymentFiles?.filter((file: any) => file.activeStatus)?.length
+                })`}
+              </span>
+            </h1>
+
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleFileUploadModalOpen}
+            >
+              <AddIcon />
+              <span className="ml-1">Add payment files</span>
+            </Button>
+
+            {/* add payment file modal */}
+            <Modal
+              open={fileUploadModalOpen}
+              onClose={handleFileUploadModalClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+              className="flex items-center justify-center"
+              BackdropProps={{
+                style: { backgroundColor: "rgba(0,0,0,0.4)" },
+              }}
+            >
+              <div className="w-96 h-max p-6 rounded-lg shadow-md bg-white">
+                {/* title close */}
+                <div className="title-close flex justify-between">
+                  {/* TITLE */}
+                  <h1 className="font-bold flex items-center">
+                    <CloudUploadIcon />
+                    <span className="ml-2">Upload payment file</span>
+                  </h1>
+                  {/* close button */}
+                  <Button
+                    variant="text"
+                    color="inherit"
+                    onClick={handleFileUploadModalClose}
+                  >
+                    <CloseIcon />
+                  </Button>
+                </div>
+                {/* divider */}
+                <Divider sx={{ margin: ".4rem 0" }} />
+                {/* inputfield */}
+                <TextField
+                  size="small"
+                  label="File name"
+                  className="w-full "
+                  sx={{ marginTop: "0.9rem" }}
+                  value={fileName}
+                  onChange={({ target }) => setfileName(target.value)}
+                />
+
+                {/* <label htmlFor="studymaterialupload">upload here</label> */}
+                <input
+                  // accept="application/pdf,image/*" // allow pdf and image
+                  onChange={handlePaymentFileChange}
+                  type="file"
+                  id="studymaterialupload"
+                  name="contractInput"
+                  className="mt-4"
+                />
+
+                {/* upload button */}
+                {updatePaymentFileLoading ? (
+                  <LoadingButton
+                    size="large"
+                    loading={updatePaymentFileLoading}
+                    loadingPosition="start"
+                    variant="contained"
+                    className="w-full"
+                    sx={{ marginTop: "1.5rem" }}
+                  >
+                    <span>Uploading</span>
+                  </LoadingButton>
+                ) : (
+                  <Button
+                    variant="contained"
+                    className="w-full"
+                    onClick={handleUpdatePaymentByFile}
+                    sx={{ marginTop: "1.5rem" }}
+                  >
+                    Upload
+                  </Button>
+                )}
+              </div>
+            </Modal>
+          </div>
+
+          {/* payment files container */}
+          {paymentFiles?.filter((file: any) => file.activeStatus)?.length ===
+          0 ? (
+            <p className="text-gray-500">
+              No documents attached to this payment.
+            </p>
+          ) : (
+            <div className=" w-full col-span-2">
+              <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] gap-1 w-full bg-gray-200">
+                <span className="py-3 text-center text-sm font-bold text-gray-600">
+                  SN
+                </span>
+                <span className="py-3 col-span-2 text-left text-sm font-bold text-gray-600">
+                  File Name
+                </span>
+                <span className="py-3 text-left text-sm font-bold text-gray-600">
+                  File Type
+                </span>
+                <span className="py-3 text-left text-sm  font-bold text-gray-600">
+                  Uploaded By
+                </span>
+
+                <span className="py-3 text-left text-sm font-bold text-gray-600">
+                  Uploaded At
+                </span>
+                <span className="py-3 text-center text-sm font-bold text-gray-600">
+                  Action
+                </span>
+              </div>
+              {paymentFiles
+                ?.filter((file: any) => file.activeStatus)
+                ?.map((file: any, index: number) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-[70px,repeat(6,1fr)] gap-1 py-2 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  >
+                    <span className="text-sm text-center font-medium text-gray-600">
+                      {index + 1}
+                    </span>
+                    <Link
+                      title="View"
+                      target="_blank"
+                      href={`${file?.fileUrl}`}
+                      className="text-left col-span-2 text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
+                    >
+                      {file?.fileType?.toLowerCase() == "image" ? (
+                        <ImageOutlinedIcon
+                          className=" text-gray-500"
+                          fontSize="small"
+                        />
+                      ) : file?.fileType?.toLowerCase() === "pdf" ? (
+                        <PictureAsPdfOutlinedIcon
+                          className=" text-gray-500"
+                          fontSize="small"
+                        />
+                      ) : (
+                        <InsertDriveFileOutlinedIcon
+                          className=" text-gray-500"
+                          fontSize="small"
+                        />
+                      )}
+                      <span className="ml-2">{file?.fileName}</span>
+                    </Link>
+                    <span className="text-sm text-left font-medium text-gray-600">
+                      {file.fileType}
+                    </span>
+                    <span className="text-sm text-left font-medium text-gray-600">
+                      {file.uploadedByName || "N/A"}
+                    </span>
+                    <p className="text-sm text-gray-500 ">
+                      {dayjs(file.uploadedAt)
+                        .tz(timeZone)
+                        .format("DD MMM, YYYY hh:mm A")}
+                    </p>
+                    <div className="text-center" title="Delete">
+                      <Button
+                        className="w-max"
+                        color="error"
+                        onClick={() =>
+                          handleconfirmDeletePaymentFileModalOpen(
+                            file?.fileName
+                          )
+                        }
+                      >
+                        <DeleteIcon />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* confirm delete payment file delete modal */}
+          <Modal
+            open={confirmDeletePaymentFileModalOpen}
+            onClose={handleconfirmDeletePaymentFileModalClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            className="flex items-center justify-center"
+          >
+            <Box className="w-[400px] h-max p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
+              <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
+              <p className="mb-0 text-gray-600">
+                You want to detete this payment file.
+              </p>{" "}
+              <p className="text-lg font-bold">
+                {" "}
+                {selectedDeletePaymentFileName}
+              </p>
+              <div className="buttons mt-4 flex gap-5">
+                <Button
+                  variant="outlined"
+                  onClick={handleconfirmDeletePaymentFileModalClose}
+                  className="text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                {deletePaymentFileLoading ? (
+                  <LoadingButton
+                    size="large"
+                    loading={deletePaymentFileLoading}
+                    loadingPosition="start"
+                    variant="contained"
+                  >
+                    <span>Deleting </span>
+                  </LoadingButton>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="info"
+                    onClick={() => {
+                      handleDeletePaymentFile();
+                    }}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </Box>
+          </Modal>
 
           {/* Submit button */}
           <div className="submitbutton mt-3 col-span-2">
@@ -1390,10 +1869,10 @@ const AddPayment = () => {
                 >
                   Cancel
                 </Button>
-                {addPaymentLoading ? (
+                {updatePaymentLoading ? (
                   <LoadingButton
                     size="large"
-                    loading={addPaymentLoading}
+                    loading={updatePaymentLoading}
                     loadingPosition="start"
                     variant="contained"
                   >
@@ -1408,7 +1887,7 @@ const AddPayment = () => {
                       if (!isValid) handleConfirmModalClose();
                     }}
                   >
-                    Add payment
+                    Update payment
                   </Button>
                 )}
               </div>
@@ -1441,13 +1920,13 @@ const AddPayment = () => {
               : "bg-gray-200 text-gray-700"
           }`}
             >
-              {watch("paymentStatus") === "Pending" && (
+              {watch("paymentStatus")?.toLowerCase() === "pending" && (
                 <QueryBuilder fontSize="small" />
               )}
-              {watch("paymentStatus") === "Partial" && (
+              {watch("paymentStatus")?.toLowerCase() === "partial" && (
                 <HourglassBottom fontSize="small" />
               )}
-              {watch("paymentStatus") === "Paid" && (
+              {watch("paymentStatus")?.toLowerCase() === "paid" && (
                 <DoneAll fontSize="small" />
               )}
               {watch("paymentStatus")}
@@ -1498,39 +1977,41 @@ const AddPayment = () => {
 
           <div className=" flex flex-col gap-2   pb-9  flex-1 h-full overflow-y-auto pr-1">
             {watch("installments")?.length > 0 ? (
-              watch("installments").map((installment: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:bg-gray-50 transition-all"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
-                      <CalendarMonth
-                        fontSize="small"
-                        className="text-gray-400"
-                      />
-                      {installment?.paidDate
-                        ? dayjs(installment.paidDate)
-                            .tz(timeZone)
-                            .format("DD MMM, YYYY")
-                        : "Date"}
-                    </p>
-                    <span className="text-xs bg-green-400  text-white font-bold px-2 py-0.5 rounded-full">
-                      {installment?.paymentMethod || "Payment Method"}
-                    </span>
-                  </div>
+              watch("installments")
+                .filter((installment: any) => installment.activeStatus)
+                .map((installment: any, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:bg-gray-50 transition-all"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <CalendarMonth
+                          fontSize="small"
+                          className="text-gray-400"
+                        />
+                        {installment?.paidDate
+                          ? dayjs(installment.paidDate)
+                              .tz(timeZone)
+                              .format("DD MMM, YYYY")
+                          : "Date"}
+                      </p>
+                      <span className="text-xs bg-green-400  text-white font-bold px-2 py-0.5 rounded-full">
+                        {installment?.paymentMethod || "Payment Method"}
+                      </span>
+                    </div>
 
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    {installment?.paymentTitle || "Payment Title"}
-                  </p>
-
-                  <div className="flex items-center gap-1">
-                    <p className="text-sm font-bold text-green-700">
-                      Rs. {installment?.amount || "Amount"}
+                    <p className="text-sm font-medium text-gray-700 mb-1">
+                      {installment?.paymentTitle || "Payment Title"}
                     </p>
+
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm font-bold text-green-700">
+                        Rs. {installment?.amount || "Amount"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))
             ) : (
               <p className="text-sm text-gray-400 text-center">
                 No installments added yet.
@@ -1543,4 +2024,4 @@ const AddPayment = () => {
   );
 };
 
-export default AddPayment;
+export default UpdatePayment;

@@ -3,6 +3,17 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import CircularProgress from "@mui/material/CircularProgress";
 import ViewKanbanOutlinedIcon from "@mui/icons-material/ViewKanbanOutlined";
 import { Box, Button, Modal } from "@mui/material";
+import {
+  ArrowDownward,
+  ArrowUpward,
+  HourglassEmpty,
+  AccessTime,
+  CheckCircle,
+  AttachMoney,
+} from "@mui/icons-material";
+import ArrowCircleUpIcon from "@mui/icons-material/ArrowCircleUp";
+import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
+import { CircleCheck } from "lucide-react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import LockIcon from "@mui/icons-material/Lock";
@@ -146,6 +157,7 @@ const PaymentRecordList = ({
                     href={`/${session?.data?.user?.role?.toLowerCase()}/payments/${
                       paymentRecord?._id
                     }`}
+                    // target="_blank"
                     className=" text-left px-1 text-xs font-medium text-gray-600 underline hover:text-blue-500"
                   >
                     {dayjs(paymentRecord?.issuedDate)
@@ -155,14 +167,57 @@ const PaymentRecordList = ({
                   <span className=" text-left px-1 col-span-2 text-xs font-medium text-gray-600">
                     {paymentRecord?.prePaymentTitle}
                   </span>
-                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
-                    {paymentRecord?.paymentType}
+                  <span className="text-left px-1 text-xs font-medium text-gray-600 flex items-center gap-1">
+                    {paymentRecord?.paymentType === "Incoming" ? (
+                      <ArrowCircleDownIcon
+                        fontSize="small"
+                        className="text-green-600"
+                      />
+                    ) : (
+                      <ArrowCircleUpIcon
+                        fontSize="small"
+                        className="text-red-600"
+                      />
+                    )}
+
+                    <span
+                      className={` ${
+                        paymentRecord?.paymentType?.toLowerCase() === "incoming"
+                          ? "text-green-600"
+                          : paymentRecord?.paymentType?.toLowerCase() ===
+                            "outgoing"
+                          ? "text-red-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {paymentRecord?.paymentType}
+                    </span>
                   </span>
-                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
+                  <span
+                    className={`text-left px-1 text-xs font-medium flex items-center gap-1 
+      ${
+        paymentRecord?.paymentStatus?.toLowerCase() === "pending"
+          ? "text-yellow-600"
+          : paymentRecord?.paymentStatus?.toLowerCase() === "partial"
+          ? "text-blue-600"
+          : paymentRecord?.paymentStatus?.toLowerCase() === "paid"
+          ? "text-green-600"
+          : "text-gray-600"
+      }`}
+                  >
+                    {paymentRecord?.paymentStatus === "Pending" && (
+                      <AccessTime fontSize="small" />
+                    )}
+                    {paymentRecord?.paymentStatus === "Partial" && (
+                      <HourglassEmpty fontSize="small" />
+                    )}
+                    {paymentRecord?.paymentStatus === "Paid" && (
+                      <CircleCheck size={18} fontSize="small" />
+                    )}
                     {paymentRecord?.paymentStatus}
                   </span>
                   <span className=" text-left px-1 text-xs font-medium text-gray-600">
-                    {paymentRecord?.totalAmount}
+                    Rs. {paymentRecord?.totalAmount}
                   </span>
 
                   {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
@@ -170,7 +225,7 @@ const PaymentRecordList = ({
                       <>
                         {/* edit */}
                         <Link
-                          href={`/${session?.data?.user?.role?.toLowerCase()}/payments/updatepaymentrecord/${
+                          href={`/${session?.data?.user?.role?.toLowerCase()}/payments/updatepayment/${
                             paymentRecord?._id
                           }`}
                           title="Edit"

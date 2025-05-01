@@ -14,6 +14,7 @@ import {
   LayoutList,
   Trophy,
   LibraryBig,
+  DollarSign,
 } from "lucide-react";
 
 // import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -74,5 +75,10 @@ export const adminMenuItems = [
     icon: Trophy,
     label: "Tournaments",
     linkName: "tournaments",
+  },
+  {
+    icon: DollarSign,
+    label: "Payments",
+    linkName: "payments",
   },
 ];

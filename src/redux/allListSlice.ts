@@ -165,6 +165,25 @@ export const getAllPaymentRecords = createAsyncThunk(
   }
 );
 
+// get all selected students payment reocrds
+export const getAllSelectedStudentsPaymentRecords = createAsyncThunk(
+  "payments/getAllSelectedStudentsPaymentRecords",
+  async (studentId, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.post(
+        "/api/payments/getAllSelectedStudentsPaymentRecords",
+        { studentId }
+      );
+
+      return resData.allSelectedStudentsPaymentRecords;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const initialState: any = {
   allTrainerList: [],
   allActiveTrainerList: [],
@@ -211,10 +230,17 @@ const initialState: any = {
   allFilteredActiveTestHistoryList: [],
   allTestHistoryLoading: true,
 
+  // all payment records
   allPaymentRecordsList: [],
   allActivePaymentRecordsList: [],
   allFilteredActivePaymentRecordsList: [],
   allPaymentRecordsLoading: true,
+
+  // all payment records
+  allSelectedStudentsPaymentRecordsList: [],
+  allActiveSelectedStudentsPaymentRecordsList: [],
+  allFilteredActiveSelectedStudentsPaymentRecordsList: [],
+  allSelectedStudentsPaymentRecordsLoading: true,
 
   status: "",
 };
@@ -363,6 +389,11 @@ const allListSlice = createSlice({
       state.allActivePaymentRecordsList = tempAllActivePaymentRecordsList;
       state.allFilteredActivePaymentRecordsList =
         tempAllActivePaymentRecordsList;
+    },
+    // filter all selected students payment records
+    filterSelectedStudentsPaymentRecordsList: (state, action) => {
+      state.allFilteredActiveSelectedStudentsPaymentRecordsList =
+        action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -613,7 +644,7 @@ const allListSlice = createSlice({
         state.allFilteredActiveTestHistoryList = sortedTestHistories;
         state.allTestHistoryLoading = false;
       })
-      // all test histories
+      // all payment records
       .addCase(getAllPaymentRecords.pending, (state) => {
         state.allPaymentRecordsLoading = true;
       })
@@ -637,7 +668,41 @@ const allListSlice = createSlice({
         state.allActivePaymentRecordsList = sortedPaymentRecords;
         state.allFilteredActivePaymentRecordsList = sortedPaymentRecords;
         state.allPaymentRecordsLoading = false;
-      });
+      })
+      // all selected students payment records
+      .addCase(getAllSelectedStudentsPaymentRecords.pending, (state) => {
+        state.allSelectedStudentsPaymentRecordsLoading = true;
+      })
+      .addCase(
+        getAllSelectedStudentsPaymentRecords.fulfilled,
+        (state, action) => {
+          state.status = "succeeded";
+          console.log(
+            "after all getAllSelectedStudentsPaymentRecords records",
+            action.payload
+          );
+
+          state.allSelectedStudentsPaymentRecordsList = action.payload?.sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+          const sortedSelectedStudentsPaymentRecords = action.payload
+            ?.filter((record: any) => record.activeStatus)
+            .sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+
+          // Filtering active Projects after sorting
+          state.allActiveSelectedStudentsPaymentRecordsList =
+            sortedSelectedStudentsPaymentRecords;
+          state.allFilteredActiveSelectedStudentsPaymentRecordsList =
+            sortedSelectedStudentsPaymentRecords;
+          state.allSelectedStudentsPaymentRecordsLoading = false;
+        }
+      );
   },
 });
 
@@ -661,6 +726,7 @@ export const {
   deleteTestHistory,
   filterPaymentRecordsList,
   deletePaymentRecord,
+  filterSelectedStudentsPaymentRecordsList,
 } = allListSlice.actions;
 
 export default allListSlice.reducer;

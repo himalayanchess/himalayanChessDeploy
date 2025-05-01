@@ -26,7 +26,7 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
 
   return (
     <motion.div
-      className="h-screen overflow-y-auto z-40 overflow-x-hidden bg-gray-700 text-white fixed top-0 left-0 flex flex-col items-center pt-[9vh] shadow-md"
+      className="h-screen overflow-y-auto z-40 overflow-x-hidden bg-gray-700 text-white fixed top-0 left-0 flex flex-col pt-[3vh] items-center  shadow-md"
       initial={{ width: "3.4dvw" }}
       animate={{ width: isExpanded ? "15dvw" : "3.4dvw" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -47,7 +47,7 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
               <div key={index} className="relative">
                 <Link
                   href={`/${role.toLowerCase()}/${item.linkName}`}
-                  className={`flex items-center justify-start gap-3 px-3 py-3 w-full ${
+                  className={`flex items-center justify-start gap-3 px-3 py-2.5 w-full ${
                     activeMenu === item.label
                       ? "bg-gray-200 text-black rounded-l-xl"
                       : "hover:bg-gray-600"

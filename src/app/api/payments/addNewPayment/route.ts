@@ -47,6 +47,10 @@ export async function POST(req: NextRequest) {
       paymentStatus,
       totalPaid,
       remainingAmount,
+      createdBy: {
+        ...reqBody?.createdBy,
+        paymentCreatedAt: dayjs().utc().format(),
+      },
     });
 
     const savednewPayment = await newPayment.save();
