@@ -10,6 +10,7 @@ import {
   LayoutList,
   IdCard,
   Edit,
+  DollarSign,
 } from "lucide-react";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -21,7 +22,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTrainersActivityRecords } from "@/redux/trainerHistorySlice";
 
 import { useSession } from "next-auth/react";
-import { fetchAllProjects } from "@/redux/allListSlice";
+import {
+  fetchAllProjects,
+  getAllSelectedUsersPaymentRecords,
+} from "@/redux/allListSlice";
 import UserAttendanceChart from "../student/UserAttendanceChart";
 import BasicUserInformation from "./userrecorddetail/BasicUserInformation";
 import UserProjectsInformation from "./userrecorddetail/UserProjectsInformation";
@@ -30,6 +34,7 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import Link from "next/link";
+import UserPaymentRecords from "./userrecorddetail/UserPaymentRecords";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -44,6 +49,12 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
     allActiveTrainersActivityRecords,
     allTrainersActivityRecordsLoading,
   } = useSelector((state: any) => state.trainerHistoryReducer);
+  //use selector
+  const {
+    allActiveSelectedUsersPaymentRecordsList,
+    allFilteredActiveSelectedUsersPaymentRecordsList,
+    allSelectedUsersPaymentRecordsLoading,
+  } = useSelector((state: any) => state.allListReducer);
 
   const dispatch = useDispatch<any>();
   const session = useSession();
@@ -62,6 +73,7 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
     { label: "Basic Information", value: "basic", icon: <InfoOutlinedIcon /> },
     { label: "Projects", value: "projects", icon: <School /> },
     { label: "Activity Records", value: "activity", icon: <LayoutList /> },
+    { label: "Payment Records", value: "payment", icon: <DollarSign /> },
   ];
 
   // show dynamic compnent
@@ -90,6 +102,20 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
               }
             />
           );
+        case "payment":
+          return (
+            <UserPaymentRecords
+              allActiveSelectedUsersPaymentRecordsList={
+                allActiveSelectedUsersPaymentRecordsList
+              }
+              allFilteredActiveSelectedUsersPaymentRecordsList={
+                allFilteredActiveSelectedUsersPaymentRecordsList
+              }
+              allSelectedUsersPaymentRecordsLoading={
+                allSelectedUsersPaymentRecordsLoading
+              }
+            />
+          );
         default:
           return <BasicUserInformation userRecord={userRecord} />;
       }
@@ -114,6 +140,13 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
     if (userRecord) {
       dispatch(fetchAllTrainersActivityRecords({ trainerId: userRecord?._id }));
       dispatch(fetchAllProjects());
+    }
+  }, [userRecord]);
+
+  // fetch initial data for user payment
+  useEffect(() => {
+    if (userRecord) {
+      dispatch(getAllSelectedUsersPaymentRecords(userRecord?._id));
     }
   }, [userRecord]);
 

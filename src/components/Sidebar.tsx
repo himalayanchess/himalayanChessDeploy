@@ -36,7 +36,6 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
       <nav className="flex flex-col justify-between h-full w-full">
         <div className="top-menus">
           {menuItems.map((item: any, index: any) => {
-            // Skip 'projects' menu item if not super/global admin
             if (
               (item.linkName === "projects" || item.linkName === "branches") &&
               !isSuperOrGlobalAdmin
@@ -44,7 +43,13 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
               return null;
 
             return (
-              <div key={index} className="relative">
+              <motion.div
+                key={index}
+                className="relative"
+                whileHover="hover"
+                initial="rest"
+                animate="rest"
+              >
                 <Link
                   href={`/${role.toLowerCase()}/${item.linkName}`}
                   className={`flex items-center justify-start gap-3 px-3 py-2.5 w-full ${
@@ -53,20 +58,31 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
                       : "hover:bg-gray-600"
                   } transition-all`}
                 >
-                  <span className="text-xl flex-shrink-0">{<item.icon />}</span>
+                  {/* Icon with scale on hover */}
+                  <motion.span
+                    className="text-xl flex-shrink-0"
+                    variants={{
+                      rest: { scale: 1 },
+                      hover: { scale: 0.9 },
+                    }}
+                    transition={{ duration: 0.15, ease: "easeInOut" }}
+                  >
+                    {<item.icon />}
+                  </motion.span>
+
+                  {/* Text with translate on hover */}
                   <motion.span
                     className="text-md whitespace-nowrap"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{
-                      opacity: isExpanded ? 1 : 0,
-                      x: isExpanded ? 0 : -20,
+                    variants={{
+                      rest: { x: 0, opacity: isExpanded ? 1 : 0 },
+                      hover: { x: 6, opacity: isExpanded ? 1 : 0 },
                     }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ duration: 0.15, ease: "easeInOut" }}
                   >
                     {item.label}
                   </motion.span>
                 </Link>
-              </div>
+              </motion.div>
             );
           })}
         </div>

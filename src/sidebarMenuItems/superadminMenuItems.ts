@@ -14,6 +14,8 @@ import {
   Trophy,
   MapPinHouse,
   LibraryBig,
+  Combine,
+  CalendarRange,
 } from "lucide-react";
 // import DashboardIcon from "@mui/icons-material/Dashboard";
 // import PeopleIcon from "@mui/icons-material/People";
@@ -54,7 +56,7 @@ export const superadminMenuItems = [
   },
   { icon: LayoutList, label: "Activity Records", linkName: "activityrecords" },
   {
-    icon: LayoutList,
+    icon: CalendarRange,
     label: "Assigned Classes",
     linkName: "assignedclasses",
   },

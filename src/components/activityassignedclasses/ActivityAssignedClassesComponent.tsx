@@ -33,7 +33,18 @@ import { exportOverallActivityRecordToExcel } from "@/helpers/exportToExcel/expo
 import ActivityRecordList from "../activityrecord/ActivityRecordList";
 import ActivityAssignedClassesRecordList from "./ActivityAssignedClassesRecordList";
 import { useSession } from "next-auth/react";
-
+import {
+  BarChart as BarChartIcon,
+  Dashboard as DashboardIcon,
+  LibraryBooks as LibraryBooksIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  MedicalServices as MedicalServicesIcon,
+  Numbers as NumbersIcon,
+  School as SchoolIcon,
+  Folder as FolderIcon,
+  NoteAlt as NoteAltIcon,
+} from "@mui/icons-material";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isoWeek);
@@ -313,11 +324,11 @@ const ActivityAssignedClassesComponent = () => {
 
   return (
     <div className="flex-1 flex flex-col py-3 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl font-medium text-gray-700 flex items-center ">
+      <h2 className="text-3xl font-medium text-gray-700 flex items-center mb-2">
         <File />
         <span className="ml-2">Assigned Classes</span>
       </h2>
-      <div className="activityrecord-header my-0 w-full flex items-end justify-between">
+      <div className="activityrecord-header mb-3 w-full flex items-end justify-between">
         <div className="batch-date w-full flex flex-col  items-end gap-0 ">
           {/* batchlist dropdown */}
           <div className="topheader w-full grid grid-cols-5  gap-3 mt-0">
@@ -448,8 +459,8 @@ const ActivityAssignedClassesComponent = () => {
       </div>
 
       {/* Activity assigned class record list */}
-      <div className="list-chart flex-1 h-full flex gap-2 mb-2">
-        <div className="classlist  flex-[0.75]">
+      <div className="list-chart flex-1 h-full flex gap-4 mb-2">
+        <div className="classlist flex-[0.75]  bg-white ">
           <ActivityAssignedClassesRecordList
             loading={allActivityRecordsLoading}
             allFilteredActiveActivityRecords={allFilteredActiveActivityRecords}
@@ -457,103 +468,133 @@ const ActivityAssignedClassesComponent = () => {
             currentPage={currentPage}
           />
         </div>
-        <div className="recordchart flex-[0.25] flex flex-col h-[350px] overflow-y-auto rounded-md mt-3 border py-2 px-4">
-          <h1 className="text-center">Record Statistics</h1>
-          <p>TrainerName: {selectedTrainer}</p>
-          {/* record content */}
-          <div className="record-content mt-2 space-y-4 overflow-y-auto pr-1">
+
+        <div className="recordchart border p-3 flex-[0.25] flex flex-col h-[350px] overflow-y-auto rounded-lg shadow-sm bg-white ">
+          <div className="flex flex-col items-start gap-2 justify-between mb-4">
+            <h1 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+              <BarChartIcon fontSize="small" />
+              Record Statistics
+            </h1>
+            <div className="text-sm bg-blue-50 text-blue-600 px-2 py-1 rounded-full">
+              Trainer: <b>{selectedTrainer}</b>
+            </div>
+          </div>
+
+          <div className="record-content space-y-4  overflow-y-auto pr-1">
             {/* Overall Stats */}
-            <div className="card">
-              <h2 className="text-sm font-semibold">Overall Class Records</h2>
-              <div className="card-body mt-1 grid grid-cols-3 gap-2">
-                <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                  <span className="text-sm">Classes</span>
-                  <span className="font-bold">
-                    {recordStats?.overall?.total ?? 0}
-                  </span>
-                </div>
-                <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                  <span className="text-sm">Taken</span>
-                  <span className="font-bold">
-                    {recordStats?.overall?.taken ?? 0}
-                  </span>
-                </div>
-                <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                  <span className="text-sm">Not Taken</span>
-                  <span className="font-bold">
-                    {recordStats?.overall?.notTaken ?? 0}
-                  </span>
-                </div>
+            <div className="card  rounded-lg p-0 ">
+              <div className="flex items-center gap-2 mb-2">
+                <DashboardIcon fontSize="small" className="text-gray-500" />
+                <h2 className="text-sm font-semibold text-gray-600">
+                  Overall Class Records
+                </h2>
+              </div>
+              <div className="card-body grid grid-cols-3 gap-2">
+                <StatCard
+                  value={recordStats?.overall?.total ?? 0}
+                  label="Classes"
+                  icon={<LibraryBooksIcon fontSize="small" />}
+                  color="bg-purple-50 text-purple-600"
+                />
+                <StatCard
+                  value={recordStats?.overall?.taken ?? 0}
+                  label="Taken"
+                  icon={<CheckCircleIcon fontSize="small" />}
+                  color="bg-green-50 text-green-600"
+                />
+                <StatCard
+                  value={recordStats?.overall?.notTaken ?? 0}
+                  label="Not Taken"
+                  icon={<CancelIcon fontSize="small" />}
+                  color="bg-red-50 text-red-600"
+                />
               </div>
             </div>
 
             {/* HCA Stats */}
-            <div className="card">
-              <h2 className="text-sm font-semibold">HCA Class Stats</h2>
-              <div className="card-body mt-1 grid grid-cols-3 gap-2">
-                <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                  <span className="text-sm">Total</span>
-                  <span className="font-bold">
-                    {recordStats?.hca?.total ?? 0}
-                  </span>
-                </div>
-                <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                  <span className="text-sm">Taken</span>
-                  <span className="font-bold">
-                    {recordStats?.hca?.taken ?? 0}
-                  </span>
-                </div>
-                <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                  <span className="text-sm">Not Taken</span>
-                  <span className="font-bold">
-                    {recordStats?.hca?.notTaken ?? 0}
-                  </span>
-                </div>
+            <div className="card  rounded-lg  ">
+              <div className="flex items-center gap-2 mb-2">
+                <MedicalServicesIcon
+                  fontSize="small"
+                  className="text-gray-500"
+                />
+                <h2 className="text-sm font-semibold text-gray-600">
+                  HCA Class Stats
+                </h2>
+              </div>
+              <div className="card-body grid grid-cols-3 gap-2">
+                <StatCard
+                  value={recordStats?.hca?.total ?? 0}
+                  label="Total"
+                  icon={<NumbersIcon fontSize="small" />}
+                  color="bg-blue-50 text-blue-600"
+                />
+                <StatCard
+                  value={recordStats?.hca?.taken ?? 0}
+                  label="Taken"
+                  icon={<CheckCircleIcon fontSize="small" />}
+                  color="bg-green-50 text-green-600"
+                />
+                <StatCard
+                  value={recordStats?.hca?.notTaken ?? 0}
+                  label="Not Taken"
+                  icon={<CancelIcon fontSize="small" />}
+                  color="bg-red-50 text-red-600"
+                />
               </div>
             </div>
 
             {/* School Project Stats */}
-            <div className="card">
-              <h2 className="text-sm font-semibold">
-                Project-wise Stats (School)
-              </h2>
+            <div className="card  rounded-lg pb-5">
+              <div className="flex items-center gap-2 mb-2">
+                <SchoolIcon fontSize="small" className="text-gray-500" />
+                <h2 className="text-sm font-semibold text-gray-600">
+                  Project-wise Stats (School)
+                </h2>
+              </div>
               {recordStats?.school?.projectWise?.length > 0 ? (
-                <div className="card-body mt-1 space-y-2">
+                <div className="card-body space-y-3">
                   {recordStats.school.projectWise.map((project: any) => (
                     <div
                       key={project.projectName}
-                      className="bg-gray-50 border p-2 rounded-md flex flex-col"
+                      className="bg-white  pl-4 rounded-md shadow-xs"
                     >
-                      <h3 className="text-sm font-medium">
-                        {project.projectName}
-                      </h3>
-                      <div className="grid grid-cols-3 gap-2 mt-1">
-                        <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                          <span className="text-xs">Total</span>
-                          <span className="font-bold text-sm">
-                            {project.total}
-                          </span>
-                        </div>
-                        <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                          <span className="text-xs">Taken</span>
-                          <span className="font-bold text-sm">
-                            {project.taken}
-                          </span>
-                        </div>
-                        <div className="stat bg-gray-100 p-1 rounded-md flex flex-col items-center">
-                          <span className="text-xs">Not Taken</span>
-                          <span className="font-bold text-sm">
-                            {project.notTaken}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <FolderIcon
+                          fontSize="small"
+                          className="text-gray-400"
+                        />
+                        <h3 className="text-sm font-medium text-gray-700">
+                          {project.projectName}
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <MiniStatCard
+                          value={project.total}
+                          label="Total"
+                          color="bg-blue-50 text-blue-600"
+                        />
+                        <MiniStatCard
+                          value={project.taken}
+                          label="Taken"
+                          color="bg-green-50 text-green-600"
+                        />
+                        <MiniStatCard
+                          value={project.notTaken}
+                          label="Not Taken"
+                          color="bg-red-50 text-red-600"
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-xs text-gray-500 mt-2">
-                  No project records available.
-                </p>
+                <div className="text-center py-3 bg-white rounded border">
+                  <NoteAltIcon fontSize="small" className="text-gray-400" />
+                  <p className="text-xs text-gray-500 mt-1">
+                    No project records available
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -578,3 +619,36 @@ const ActivityAssignedClassesComponent = () => {
 };
 
 export default ActivityAssignedClassesComponent;
+
+// StatCard component (define this separately)
+function StatCard({ value, label, icon, color }: any) {
+  return (
+    <div
+      className={`stat p-2 rounded-md flex flex-col items-center ${
+        color.split(" ")[0]
+      }`}
+    >
+      <div
+        className={`w-6 h-6 rounded-full ${
+          color.split(" ")[1]
+        } flex items-center justify-center mb-1`}
+      >
+        {icon}
+      </div>
+      <span className="text-xs">{label}</span>
+      <span className="font-bold text-sm">{value}</span>
+    </div>
+  );
+}
+
+// MiniStatCard component
+function MiniStatCard({ value, label, color }: any) {
+  return (
+    <div
+      className={`stat p-1 mt-1 rounded flex flex-col items-center ${color}`}
+    >
+      <span className="text-sm">{label}</span>
+      <span className="font-bold text-md">{value}</span>
+    </div>
+  );
+}

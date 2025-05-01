@@ -45,7 +45,6 @@ const page = () => {
         console.log("after success overl login session is", session);
 
         setTimeout(() => {
-          setLoading(false);
           let redirectRoute = "/login";
           const sessionRole = session?.user?.role?.toLowerCase();
           switch (sessionRole) {
@@ -67,7 +66,7 @@ const page = () => {
           console.log(redirectRoute);
           notify(resData?.msg, resData?.statusCode);
           router.push(redirectRoute);
-          setLoading(false);
+          // setLoading(false);
         }, 1000);
       }
     } else {

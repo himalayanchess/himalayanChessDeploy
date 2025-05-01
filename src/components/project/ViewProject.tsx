@@ -12,6 +12,7 @@ import {
   CircleFadingArrowUp,
   CalendarCheck2,
   Edit,
+  DollarSign,
 } from "lucide-react";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
@@ -29,6 +30,8 @@ import ProjectTimeSlots from "./projectrecorddetails/ProjectTimeSlots";
 import ProjectActivityRecords from "./projectrecorddetails/ProjectActivityRecords";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllActivityRecords } from "@/redux/activityRecordSlice";
+import ProjectPaymentRecords from "./projectrecorddetails/ProjectPaymentRecords";
+import { getAllSelectedProjectsPaymentRecords } from "@/redux/allListSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -41,6 +44,12 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
   const { allActiveActivityRecords, allActivityRecordsLoading } = useSelector(
     (state: any) => state.activityRecordReducer
   );
+  //use selector for projects payment
+  const {
+    allActiveSelectedProjectsPaymentRecordsList,
+    allFilteredActiveSelectedProjectsPaymentRecordsList,
+    allSelectedProjectsPaymentRecordsLoading,
+  } = useSelector((state: any) => state.allListReducer);
 
   const dispatch = useDispatch<any>();
 
@@ -68,6 +77,7 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
       icon: <AccessTimeOutlinedIcon />,
     },
     { label: "Activity Records", value: "activity", icon: <LayoutList /> },
+    { label: "Payment Records", value: "payment", icon: <DollarSign /> },
   ];
 
   // show dynamic compnent
@@ -88,6 +98,20 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
               allActivityRecordsLoading={allActivityRecordsLoading}
             />
           );
+        case "payment":
+          return (
+            <ProjectPaymentRecords
+              allActiveSelectedProjectsPaymentRecordsList={
+                allActiveSelectedProjectsPaymentRecordsList
+              }
+              allFilteredActiveSelectedProjectsPaymentRecordsList={
+                allFilteredActiveSelectedProjectsPaymentRecordsList
+              }
+              allSelectedProjectsPaymentRecordsLoading={
+                allSelectedProjectsPaymentRecordsLoading
+              }
+            />
+          );
         default:
           return <BasicProjectInformation projectRecord={projectRecord} />;
       }
@@ -98,6 +122,13 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
     if (projectRecord) {
       setLoaded(true);
       dispatch(fetchAllActivityRecords());
+    }
+  }, [projectRecord]);
+
+  // fetch initial data for project payment
+  useEffect(() => {
+    if (projectRecord) {
+      dispatch(getAllSelectedProjectsPaymentRecords(projectRecord?._id));
     }
   }, [projectRecord]);
 

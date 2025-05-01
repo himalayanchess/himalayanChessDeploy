@@ -19,9 +19,8 @@ import { CircleDollarSign, LayoutList } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  filterPaymentRecordsList,
-  filterSelectedStudentsPaymentRecordsList,
-  getAllSelectedStudentsPaymentRecords,
+  filterSelectedUsersPaymentRecordsList,
+  getAllSelectedUsersPaymentRecords,
 } from "@/redux/allListSlice";
 import {
   ArrowDownward,
@@ -49,10 +48,10 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const StudentPayment = ({
-  allActiveSelectedStudentsPaymentRecordsList,
-  allFilteredActiveSelectedStudentsPaymentRecordsList,
-  allSelectedStudentsPaymentRecordsLoading,
+const UserPaymentRecords = ({
+  allActiveSelectedUsersPaymentRecordsList,
+  allFilteredActiveSelectedUsersPaymentRecordsList,
+  allSelectedUsersPaymentRecordsLoading,
 }: any) => {
   // session
   const session = useSession();
@@ -87,19 +86,19 @@ const StudentPayment = ({
   // export to excel
   const exportToExcel = () => {
     exportOverallPaymentRecords(
-      allFilteredActiveSelectedStudentsPaymentRecordsList
+      allFilteredActiveSelectedUsersPaymentRecordsList
     );
   };
 
   // Calculate showing text
 
-  const showingText = `Showing ${allFilteredActiveSelectedStudentsPaymentRecordsList?.length} records`;
+  const showingText = `Showing ${allFilteredActiveSelectedUsersPaymentRecordsList?.length} records`;
 
   // filter activity records list
   useEffect(() => {
-    if (!allActiveSelectedStudentsPaymentRecordsList) return;
+    if (!allActiveSelectedUsersPaymentRecordsList) return;
 
-    let filtered = allActiveSelectedStudentsPaymentRecordsList;
+    let filtered = allActiveSelectedUsersPaymentRecordsList;
 
     // filter by payment status
     filtered =
@@ -152,9 +151,9 @@ const StudentPayment = ({
     );
 
     // Set results
-    dispatch(filterSelectedStudentsPaymentRecordsList(filtered));
+    dispatch(filterSelectedUsersPaymentRecordsList(filtered));
   }, [
-    allActiveSelectedStudentsPaymentRecordsList,
+    allActiveSelectedUsersPaymentRecordsList,
     selectedPaymentStatus,
     searchText,
     useAdvancedDate,
@@ -272,7 +271,7 @@ const StudentPayment = ({
         </div>
       </div>
 
-      {/* student payment record record list */}
+      {/* users payment record record list */}
       <div className="overflow-y-auto mt-3 flex-1 h-full bg-white rounded-lg shadow-sm">
         {/* Table Headings */}
         <div className="table-headings  grid grid-cols-[50px,repeat(6,1fr)] gap-2 w-full bg-gray-200 px-4 mb-2">
@@ -297,7 +296,7 @@ const StudentPayment = ({
         </div>
 
         {/* Loading Spinner */}
-        {allSelectedStudentsPaymentRecordsLoading && (
+        {allSelectedUsersPaymentRecordsLoading && (
           <div className="w-full text-center my-6">
             <CircularProgress sx={{ color: "gray" }} />
             <p className="text-gray-500">Getting records</p>
@@ -305,8 +304,8 @@ const StudentPayment = ({
         )}
 
         {/* No Records Found */}
-        {allFilteredActiveSelectedStudentsPaymentRecordsList.length === 0 &&
-          !allSelectedStudentsPaymentRecordsLoading && (
+        {allFilteredActiveSelectedUsersPaymentRecordsList?.length === 0 &&
+          !allSelectedUsersPaymentRecordsLoading && (
             <div className="flex justify-center items-center text-gray-500 w-full my-4">
               <SearchOffIcon className="mr-2" sx={{ fontSize: "1.5rem" }} />
               <p className="text-md">No records found</p>
@@ -314,9 +313,9 @@ const StudentPayment = ({
           )}
 
         {/* Table Contents */}
-        {!allSelectedStudentsPaymentRecordsLoading && (
+        {!allSelectedUsersPaymentRecordsLoading && (
           <div className="table-contents grid gap-0">
-            {allFilteredActiveSelectedStudentsPaymentRecordsList?.map(
+            {allFilteredActiveSelectedUsersPaymentRecordsList?.map(
               (paymentRecord: any, index: number) => (
                 <div
                   key={paymentRecord?._id}
@@ -404,4 +403,4 @@ const StudentPayment = ({
   );
 };
 
-export default StudentPayment;
+export default UserPaymentRecords;

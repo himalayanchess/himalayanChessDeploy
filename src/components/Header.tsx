@@ -154,12 +154,12 @@ const Header = () => {
                             variant="contained"
                             size="medium"
                             color="error"
-                            onClick={async () => {
+                            onClick={async (e) => {
+                              e.preventDefault();
                               console.log("logout");
                               setlogoutLoading(true);
                               await signOut({ redirect: false });
                               router.push("/login");
-                              setlogoutLoading(false);
                             }}
                             sx={{
                               marginRight: ".5rem",

@@ -6,28 +6,28 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    const { studentId } = reqBody;
-    const allSelectedStudentsPaymentRecords = await Payment.find({
-      studentId,
+    const { projectId } = reqBody;
+    const allSelectedProjectsPaymentRecords = await Payment.find({
+      projectId,
     });
-    if (allSelectedStudentsPaymentRecords) {
+    if (allSelectedProjectsPaymentRecords) {
       return NextResponse.json({
-        msg: "All Selected students payment record found",
+        msg: "All Selected Projects payment record found",
         statusCode: 200,
-        allSelectedStudentsPaymentRecords,
+        allSelectedProjectsPaymentRecords,
       });
     }
     return NextResponse.json({
-      msg: "All Selected students payment record failed to fetch",
+      msg: "All Selected Projects payment record failed to fetch",
       statusCode: 204,
     });
   } catch (error) {
     console.log(
-      "Internal error in getallSelectedStudentsPaymentRecords route",
+      "Internal error in getallSelectedProjectsPaymentRecords route",
       error
     );
     return NextResponse.json({
-      msg: "Internal error in getallSelectedStudentsPaymentRecords",
+      msg: "Internal error in getallSelectedProjectsPaymentRecords",
       statusCode: 204,
       error,
     });

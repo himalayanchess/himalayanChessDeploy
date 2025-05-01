@@ -4,8 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import React, { use, useEffect, useState } from "react";
-import ViewProject from "@/components/project/ViewProject";
-import ViewBatch from "@/components/batch/ViewBatch";
+import ViewPayment from "@/components/payments/ViewPayment";
 import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 
 const page = ({ params }: any) => {
@@ -46,7 +45,7 @@ const page = ({ params }: any) => {
       <Sidebar
         menuItems={adminMenuItems}
         // role={session?.data?.user.role}
-        role="admin"
+        role="Admin"
         activeMenu="Payment"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
@@ -60,7 +59,7 @@ const page = ({ params }: any) => {
           ) : invalidId ? (
             <p>Invalid payment record id</p>
           ) : (
-            <ViewBatch paymentRecord={paymentRecord} />
+            <ViewPayment paymentRecord={paymentRecord} />
           )}
         </div>
       </div>

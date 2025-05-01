@@ -15,6 +15,7 @@ import {
   Trophy,
   LibraryBig,
   DollarSign,
+  CalendarRange,
 } from "lucide-react";
 
 // import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -57,7 +58,7 @@ export const adminMenuItems = [
   },
   { icon: LayoutList, label: "Activity Records", linkName: "activityrecords" },
   {
-    icon: LayoutList,
+    icon: CalendarRange,
     label: "Assigned Classes",
     linkName: "assignedclasses",
   },

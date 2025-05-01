@@ -343,14 +343,13 @@ const UpdatePayment = ({ paymentRecord }: any) => {
         return;
       }
 
+      let fileUrl = "";
       const formData = new FormData();
       formData.append("file", paymentFile);
       const folderName = `paymentFile/${fileName}`;
       formData.append("folderName", folderName);
-      // ["profileImage","studyMaterials","otherFiles"]
-      let fileUrl = "";
-
-      formData.append("cloudinaryFileType", "otherFiles");
+      // ["profileImage","studyMaterials","otherFiles","paymentFiles"]
+      formData.append("cloudinaryFileType", "paymentFiles");
 
       const { data: resData } = await axios.post(
         "/api/fileupload/uploadfile",
@@ -1218,6 +1217,7 @@ const UpdatePayment = ({ paymentRecord }: any) => {
                             (user: any) => user.name
                           )}
                           selected={field.value || ""}
+                          disabled
                           onChange={(value: any) => {
                             field.onChange(value);
                             const selectedUser: any = allActiveUsersList?.find(
@@ -1599,25 +1599,33 @@ const UpdatePayment = ({ paymentRecord }: any) => {
           </div>
 
           {/* payment files */}
-          <div className="paymentfiles-header col-span-2 flex gap-4 items-center">
-            <h1 className=" font-bold text-gray-500 flex items-center">
-              <File />
-              <span className="ml-1">
-                Payment Files{" "}
-                {`(${
-                  paymentFiles?.filter((file: any) => file.activeStatus)?.length
-                })`}
-              </span>
-            </h1>
+          <div className="paymentfiles-header flex flex-col col-span-2">
+            <div className="text-sm p-2 bg-yellow-100 rounded-md mb-2 text-gray-700">
+              <span className="font-bold text-yellow-700 mr-2">Note:</span>
+              Uploading a payment file will immediately update the payment
+              record . All other fields in the form will remain unchanged.
+            </div>
+            <div className="title-button flex gap-4 ">
+              <h1 className=" font-bold text-gray-500 flex items-center">
+                <File />
+                <span className="ml-1">
+                  Payment Files{" "}
+                  {`(${
+                    paymentFiles?.filter((file: any) => file.activeStatus)
+                      ?.length
+                  })`}
+                </span>
+              </h1>
 
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleFileUploadModalOpen}
-            >
-              <AddIcon />
-              <span className="ml-1">Add payment files</span>
-            </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleFileUploadModalOpen}
+              >
+                <AddIcon />
+                <span className="ml-1">Add payment files</span>
+              </Button>
+            </div>
 
             {/* add payment file modal */}
             <Modal

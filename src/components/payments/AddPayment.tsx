@@ -64,6 +64,7 @@ const AddPayment = () => {
   const paymentPurposeOptions = [
     "Student Fee",
     "Rating Fee",
+    "Trainer Fee",
     "Salaries",
     "Arbiter Fee",
     "Chess Equipment Fee",
@@ -93,9 +94,18 @@ const AddPayment = () => {
     "Hamro Pay",
   ];
 
+  const paymentSourceOptions = [
+    "Schools",
+    "Workshops",
+    "Student fee",
+    "Organizers",
+    "Sales",
+  ];
+
   // State variables
   const [recipientIsHcaUser, setrecipientIsHcaUser] = useState(false);
   const [selectedPaymentSource, setselectedPaymentSource] = useState("");
+  const [selectedBranch, setselectedBranch] = useState("");
   const [selectedPaymentPurpose, setselectedPaymentPurpose] = useState("");
   const [addPaymentLoading, setAddPaymentLoading] = useState(false);
   const [addPaymentFileLoading, setAddPaymentFileLoading] = useState(false);
@@ -103,7 +113,11 @@ const AddPayment = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [otherPaymentSource, setotherPaymentSource] = useState(false);
   const [otherPaymentPurpose, setotherPaymentPurpose] = useState(false);
-  const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
+  const [filteredPaymentSourceOptions, setfilteredPaymentSourceOptions] =
+    useState<any>([]);
+  const [filteredStudentsListOptions, setfilteredStudentsListOptions] =
+    useState([]);
+
   const [selectedPaymentType, setSelectedPaymentType] = useState("Incoming");
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
   const [selectedDeleteInstallmentIndex, setselectedDeleteInstallmentIndex] =
@@ -124,8 +138,6 @@ const AddPayment = () => {
 
   // Payment type options
   const paymentTypeOptions = ["Incoming", "Outgoing"];
-  const paymentMethodOptions = ["Cash", "Online", "Bank"];
-  const paymentStatusOptions = ["Pending", "Paid"];
 
   // default values
   const defaultValues = {
@@ -204,13 +216,6 @@ const AddPayment = () => {
     name: "installments",
   });
 
-  // Handle file upload modal
-  const handleFileUploadModalOpen = () => setFileUploadModalOpen(true);
-  const handleFileUploadModalClose = () => {
-    setPaymentFile(null);
-    setFileUploadModalOpen(false);
-  };
-
   // Handle confirm modal
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -240,48 +245,6 @@ const AddPayment = () => {
       },
     }));
   }
-
-  // Add payment by file
-  const handleAddPaymentByFile = async () => {
-    try {
-      setAddPaymentFileLoading(true);
-      if (!paymentFile) {
-        notify("File is required", 204);
-        return;
-      }
-      if (paymentFile.type !== "application/json") {
-        notify("Please upload a valid JSON file", 204);
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", paymentFile);
-      const { data: resData } = await axios.post(
-        "/api/uploadbyfile/addNewFilePayment",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (resData?.statusCode === 200) {
-        notify(resData?.msg, resData?.statusCode);
-        handleFileUploadModalClose();
-        setTimeout(() => {
-          router.push(`/${session?.data?.user?.role?.toLowerCase()}/payments`);
-        }, 50);
-      } else {
-        notify(resData?.msg, resData?.statusCode);
-      }
-    } catch (error) {
-      notify("Invalid data inside JSON file", 204);
-      console.error("Error in handleAddPaymentByFile", error);
-    } finally {
-      setAddPaymentFileLoading(false);
-    }
-  };
 
   // On submit function
   const onSubmit = async (data: any) => {
@@ -328,11 +291,58 @@ const AddPayment = () => {
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
     // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "";
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
       setValue("branchId", user?.branchId);
+      branchName = session?.data?.user?.branchName;
     }
+    setselectedBranch(branchName);
   }, [session?.data?.user]);
+
+  // filter payment source list
+  // dont show schools for superorglobaladmin
+  useEffect(() => {
+    if (session?.data?.user) {
+      const isSuperOrGlobalAdmin =
+        session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+        (session?.data?.user?.role?.toLowerCase() === "admin" &&
+          session?.data?.user?.isGlobalAdmin);
+
+      // Filter payment sources
+      const options = paymentSourceOptions.filter((source: string) =>
+        isSuperOrGlobalAdmin ? true : source.toLowerCase() !== "schools"
+      );
+      setfilteredPaymentSourceOptions(options);
+
+      // Filter students list
+      const tempfilteredHcaStudents = isSuperOrGlobalAdmin
+        ? allActiveHcaStudentsList
+        : allActiveHcaStudentsList.filter(
+            (student: any) =>
+              student?.branchName?.toLowerCase() ===
+              session?.data?.user?.branchName?.toLowerCase()
+          );
+
+      setfilteredStudentsListOptions(tempfilteredHcaStudents);
+    }
+  }, [session?.data?.user, allActiveHcaStudentsList]);
+
+  // also filter students if branchchanges
+  useEffect(() => {
+    const tempfilteredHcaStudents =
+      selectedBranch?.toLowerCase() == ""
+        ? allActiveHcaStudentsList
+        : allActiveHcaStudentsList.filter(
+            (student: any) =>
+              student?.branchName?.toLowerCase() ===
+              selectedBranch?.toLowerCase()
+          );
+    setfilteredStudentsListOptions(tempfilteredHcaStudents);
+    //reset student id and name
+    setValue("studentId", "");
+    setValue("studentName", "");
+  }, [selectedBranch]);
 
   // clear paymentSource when otherPaymentSourceChanges
   useEffect(() => {
@@ -530,8 +540,8 @@ const AddPayment = () => {
                     (branch: any) =>
                       branch?.branchName?.toLowerCase() == value?.toLowerCase()
                   );
-
                   setValue("branchId", selectedBranch?._id);
+                  setselectedBranch(value);
                 }}
                 error={errors.branchName}
                 helperText={errors.branchName?.message}
@@ -591,14 +601,11 @@ const AddPayment = () => {
                     <Dropdown
                       {...field}
                       label="Payment Source"
-                      options={[
-                        "HCA",
-                        "Schools",
-                        "Organizers",
-                        "Workshops",
-                        "Sales",
-                        "Student fee",
-                      ]}
+                      options={
+                        selectedPaymentType?.toLowerCase() == "outgoing"
+                          ? ["HCA"]
+                          : filteredPaymentSourceOptions
+                      }
                       selected={
                         selectedPaymentType?.toLowerCase() === "outgoing"
                           ? "HCA"
@@ -784,14 +791,14 @@ const AddPayment = () => {
                       render={({ field }) => (
                         <Dropdown
                           label="Student name"
-                          options={allActiveHcaStudentsList?.map(
+                          options={filteredStudentsListOptions?.map(
                             (student: any) => student.name
                           )}
                           selected={field.value}
                           onChange={(value: any) => {
                             field.onChange(value);
                             const selectedStudent: any =
-                              allActiveHcaStudentsList?.find(
+                              filteredStudentsListOptions?.find(
                                 (student: any) =>
                                   student?.name?.toLowerCase() ==
                                   value?.toLowerCase()

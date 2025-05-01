@@ -181,7 +181,7 @@ const PaymentRecordList = ({
                     )}
 
                     <span
-                      className={` ${
+                      className={`font-bold ${
                         paymentRecord?.paymentType?.toLowerCase() === "incoming"
                           ? "text-green-600"
                           : paymentRecord?.paymentType?.toLowerCase() ===
@@ -194,7 +194,7 @@ const PaymentRecordList = ({
                     </span>
                   </span>
                   <span
-                    className={`text-left px-1 text-xs font-medium flex items-center gap-1 
+                    className={`text-left px-1 text-xs font-bold flex items-center gap-1 
       ${
         paymentRecord?.paymentStatus?.toLowerCase() === "pending"
           ? "text-yellow-600"
@@ -216,7 +216,7 @@ const PaymentRecordList = ({
                     )}
                     {paymentRecord?.paymentStatus}
                   </span>
-                  <span className=" text-left px-1 text-xs font-medium text-gray-600">
+                  <span className=" text-left px-1 text-sm font-bold text-gray-600">
                     Rs. {paymentRecord?.totalAmount}
                   </span>
 

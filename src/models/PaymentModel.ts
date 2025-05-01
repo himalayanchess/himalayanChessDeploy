@@ -1,4 +1,3 @@
-import { dayOptions } from "@/options/projectOptions";
 import mongoose from "mongoose";
 
 const PaymentSchema = new mongoose.Schema(

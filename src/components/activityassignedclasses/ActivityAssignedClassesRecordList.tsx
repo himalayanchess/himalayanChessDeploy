@@ -46,7 +46,7 @@ const ActivityAssignedClassesRecordList = ({
   if (!loaded) return <div></div>;
 
   return (
-    <div className="overflow-y-auto mt-3 flex-1 h-full border flex flex-col bg-white rounded-lg">
+    <div className="overflow-y-auto flex-1 h-full border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
       <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">

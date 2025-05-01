@@ -38,6 +38,7 @@ import { fetchAllStudentsActivityRecords } from "@/redux/activityRecordSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchAllStudentsTestHistory } from "@/redux/testHistorySlice";
+import { getAllSelectedStudentsPaymentRecords } from "@/redux/allListSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -58,9 +59,15 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     allStudentsActivityRecordsLoading,
   } = useSelector((state: any) => state.activityRecordReducer);
 
+  // use use selectro for students test history
   const { allActiveStudentsTestHistory, allStudentsTestHistoryLoading } =
     useSelector((state: any) => state.testHistoryReducer);
-
+  //use selector for students payment
+  const {
+    allActiveSelectedStudentsPaymentRecordsList,
+    allFilteredActiveSelectedStudentsPaymentRecordsList,
+    allSelectedStudentsPaymentRecordsLoading,
+  } = useSelector((state: any) => state.allListReducer);
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -129,7 +136,19 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
             />
           );
         case "payment":
-          return <StudentPayment studentRecord={studentRecord} />;
+          return (
+            <StudentPayment
+              allActiveSelectedStudentsPaymentRecordsList={
+                allActiveSelectedStudentsPaymentRecordsList
+              }
+              allFilteredActiveSelectedStudentsPaymentRecordsList={
+                allFilteredActiveSelectedStudentsPaymentRecordsList
+              }
+              allSelectedStudentsPaymentRecordsLoading={
+                allSelectedStudentsPaymentRecordsLoading
+              }
+            />
+          );
         case "events":
           return <StudentEventInfo studentRecord={studentRecord} />;
         default:
@@ -188,6 +207,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       setLoaded(true);
       dispatch(fetchAllStudentsActivityRecords(studentRecord?._id));
       dispatch(fetchAllStudentsTestHistory(studentRecord?._id));
+    }
+  }, [studentRecord]);
+
+  // fetch initial data for student payment
+  useEffect(() => {
+    if (studentRecord) {
+      dispatch(getAllSelectedStudentsPaymentRecords(studentRecord?._id));
     }
   }, [studentRecord]);
 

@@ -19,9 +19,8 @@ import { CircleDollarSign, LayoutList } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  filterPaymentRecordsList,
-  filterSelectedStudentsPaymentRecordsList,
-  getAllSelectedStudentsPaymentRecords,
+  filterSelectedProjectsPaymentRecordsList,
+  getAllSelectedProjectsPaymentRecords,
 } from "@/redux/allListSlice";
 import {
   ArrowDownward,
@@ -49,10 +48,10 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const StudentPayment = ({
-  allActiveSelectedStudentsPaymentRecordsList,
-  allFilteredActiveSelectedStudentsPaymentRecordsList,
-  allSelectedStudentsPaymentRecordsLoading,
+const ProjectPaymentRecords = ({
+  allActiveSelectedProjectsPaymentRecordsList,
+  allFilteredActiveSelectedProjectsPaymentRecordsList,
+  allSelectedProjectsPaymentRecordsLoading,
 }: any) => {
   // session
   const session = useSession();
@@ -87,19 +86,19 @@ const StudentPayment = ({
   // export to excel
   const exportToExcel = () => {
     exportOverallPaymentRecords(
-      allFilteredActiveSelectedStudentsPaymentRecordsList
+      allFilteredActiveSelectedProjectsPaymentRecordsList
     );
   };
 
   // Calculate showing text
 
-  const showingText = `Showing ${allFilteredActiveSelectedStudentsPaymentRecordsList?.length} records`;
+  const showingText = `Showing ${allFilteredActiveSelectedProjectsPaymentRecordsList?.length} records`;
 
   // filter activity records list
   useEffect(() => {
-    if (!allActiveSelectedStudentsPaymentRecordsList) return;
+    if (!allActiveSelectedProjectsPaymentRecordsList) return;
 
-    let filtered = allActiveSelectedStudentsPaymentRecordsList;
+    let filtered = allActiveSelectedProjectsPaymentRecordsList;
 
     // filter by payment status
     filtered =
@@ -152,9 +151,9 @@ const StudentPayment = ({
     );
 
     // Set results
-    dispatch(filterSelectedStudentsPaymentRecordsList(filtered));
+    dispatch(filterSelectedProjectsPaymentRecordsList(filtered));
   }, [
-    allActiveSelectedStudentsPaymentRecordsList,
+    allActiveSelectedProjectsPaymentRecordsList,
     selectedPaymentStatus,
     searchText,
     useAdvancedDate,
@@ -272,7 +271,7 @@ const StudentPayment = ({
         </div>
       </div>
 
-      {/* student payment record record list */}
+      {/* Projects payment record record list */}
       <div className="overflow-y-auto mt-3 flex-1 h-full bg-white rounded-lg shadow-sm">
         {/* Table Headings */}
         <div className="table-headings  grid grid-cols-[50px,repeat(6,1fr)] gap-2 w-full bg-gray-200 px-4 mb-2">
@@ -297,7 +296,7 @@ const StudentPayment = ({
         </div>
 
         {/* Loading Spinner */}
-        {allSelectedStudentsPaymentRecordsLoading && (
+        {allSelectedProjectsPaymentRecordsLoading && (
           <div className="w-full text-center my-6">
             <CircularProgress sx={{ color: "gray" }} />
             <p className="text-gray-500">Getting records</p>
@@ -305,8 +304,8 @@ const StudentPayment = ({
         )}
 
         {/* No Records Found */}
-        {allFilteredActiveSelectedStudentsPaymentRecordsList.length === 0 &&
-          !allSelectedStudentsPaymentRecordsLoading && (
+        {allFilteredActiveSelectedProjectsPaymentRecordsList?.length === 0 &&
+          !allSelectedProjectsPaymentRecordsLoading && (
             <div className="flex justify-center items-center text-gray-500 w-full my-4">
               <SearchOffIcon className="mr-2" sx={{ fontSize: "1.5rem" }} />
               <p className="text-md">No records found</p>
@@ -314,9 +313,9 @@ const StudentPayment = ({
           )}
 
         {/* Table Contents */}
-        {!allSelectedStudentsPaymentRecordsLoading && (
+        {!allSelectedProjectsPaymentRecordsLoading && (
           <div className="table-contents grid gap-0">
-            {allFilteredActiveSelectedStudentsPaymentRecordsList?.map(
+            {allFilteredActiveSelectedProjectsPaymentRecordsList?.map(
               (paymentRecord: any, index: number) => (
                 <div
                   key={paymentRecord?._id}
@@ -404,4 +403,4 @@ const StudentPayment = ({
   );
 };
 
-export default StudentPayment;
+export default ProjectPaymentRecords;

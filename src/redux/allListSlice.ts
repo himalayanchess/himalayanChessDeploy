@@ -176,7 +176,45 @@ export const getAllSelectedStudentsPaymentRecords = createAsyncThunk(
         { studentId }
       );
 
-      return resData.allSelectedStudentsPaymentRecords;
+      return resData.allSelectedStudentsPaymentRecords || [];
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// get all selected users payment reocrds
+export const getAllSelectedUsersPaymentRecords = createAsyncThunk(
+  "payments/getAllSelectedUsersPaymentRecords",
+  async (userId, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.post(
+        "/api/payments/getAllSelectedUsersPaymentRecords",
+        { userId }
+      );
+
+      return resData.allSelectedUsersPaymentRecords;
+    } catch (error: any) {
+      // Use rejectWithValue to handle errors
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// get all selected Projects payment reocrds
+export const getAllSelectedProjectsPaymentRecords = createAsyncThunk(
+  "payments/getAllSelectedProjectsPaymentRecords",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      // Use axios to make the get request
+      const { data: resData } = await axios.post(
+        "/api/payments/getAllSelectedProjectsPaymentRecords",
+        { projectId }
+      );
+
+      return resData.allSelectedProjectsPaymentRecords;
     } catch (error: any) {
       // Use rejectWithValue to handle errors
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -236,11 +274,23 @@ const initialState: any = {
   allFilteredActivePaymentRecordsList: [],
   allPaymentRecordsLoading: true,
 
-  // all payment records
+  // all students payment records
   allSelectedStudentsPaymentRecordsList: [],
   allActiveSelectedStudentsPaymentRecordsList: [],
   allFilteredActiveSelectedStudentsPaymentRecordsList: [],
   allSelectedStudentsPaymentRecordsLoading: true,
+
+  // all users payment records
+  allSelectedUsersPaymentRecordsList: [],
+  allActiveSelectedUsersPaymentRecordsList: [],
+  allFilteredActiveSelectedUsersPaymentRecordsList: [],
+  allSelectedUsersPaymentRecordsLoading: true,
+
+  // all Projects payment records
+  allSelectedProjectsPaymentRecordsList: [],
+  allActiveSelectedProjectsPaymentRecordsList: [],
+  allFilteredActiveSelectedProjectsPaymentRecordsList: [],
+  allSelectedProjectsPaymentRecordsLoading: true,
 
   status: "",
 };
@@ -393,6 +443,15 @@ const allListSlice = createSlice({
     // filter all selected students payment records
     filterSelectedStudentsPaymentRecordsList: (state, action) => {
       state.allFilteredActiveSelectedStudentsPaymentRecordsList =
+        action.payload;
+    },
+    // filter all selected users payment records
+    filterSelectedUsersPaymentRecordsList: (state, action) => {
+      state.allFilteredActiveSelectedUsersPaymentRecordsList = action.payload;
+    },
+    // filter all selected Projects payment records
+    filterSelectedProjectsPaymentRecordsList: (state, action) => {
+      state.allFilteredActiveSelectedProjectsPaymentRecordsList =
         action.payload;
     },
   },
@@ -702,6 +761,70 @@ const allListSlice = createSlice({
             sortedSelectedStudentsPaymentRecords;
           state.allSelectedStudentsPaymentRecordsLoading = false;
         }
+      )
+      // all selected users payment records
+      .addCase(getAllSelectedUsersPaymentRecords.pending, (state) => {
+        state.allSelectedUsersPaymentRecordsLoading = true;
+      })
+      .addCase(getAllSelectedUsersPaymentRecords.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log(
+          "after all getAllSelectedUsersPaymentRecords records",
+          action.payload
+        );
+
+        state.allSelectedUsersPaymentRecordsList = action.payload?.sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+        const sortedSelectedUsersPaymentRecords = action.payload
+          ?.filter((record: any) => record.activeStatus)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
+        // Filtering active Projects after sorting
+        state.allActiveSelectedUsersPaymentRecordsList =
+          sortedSelectedUsersPaymentRecords;
+        state.allFilteredActiveSelectedUsersPaymentRecordsList =
+          sortedSelectedUsersPaymentRecords;
+        state.allSelectedUsersPaymentRecordsLoading = false;
+      })
+      // all selected Projects payment records
+      .addCase(getAllSelectedProjectsPaymentRecords.pending, (state) => {
+        state.allSelectedProjectsPaymentRecordsLoading = true;
+      })
+      .addCase(
+        getAllSelectedProjectsPaymentRecords.fulfilled,
+        (state, action) => {
+          state.status = "succeeded";
+          console.log(
+            "after all getAllSelectedProjectsPaymentRecords records",
+            action.payload
+          );
+
+          state.allSelectedProjectsPaymentRecordsList = action.payload?.sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
+          const sortedSelectedProjectsPaymentRecords = action.payload
+            ?.filter((record: any) => record.activeStatus)
+            .sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+
+          // Filtering active Projects after sorting
+          state.allActiveSelectedProjectsPaymentRecordsList =
+            sortedSelectedProjectsPaymentRecords;
+          state.allFilteredActiveSelectedProjectsPaymentRecordsList =
+            sortedSelectedProjectsPaymentRecords;
+          state.allSelectedProjectsPaymentRecordsLoading = false;
+        }
       );
   },
 });
@@ -727,6 +850,8 @@ export const {
   filterPaymentRecordsList,
   deletePaymentRecord,
   filterSelectedStudentsPaymentRecordsList,
+  filterSelectedUsersPaymentRecordsList,
+  filterSelectedProjectsPaymentRecordsList,
 } = allListSlice.actions;
 
 export default allListSlice.reducer;

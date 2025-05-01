@@ -8,6 +8,7 @@ import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
 import UpdateUser from "@/components/user/UpdateUser";
 import UpdateBatch from "@/components/batch/UpdateBatch";
 import ViewStudent from "@/components/student/ViewStudent";
+import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 
 const page = ({ params }: any) => {
   const { id: studentId }: any = use(params);
@@ -39,7 +40,7 @@ const page = ({ params }: any) => {
   return (
     <div>
       <Sidebar
-        menuItems={superadminMenuItems}
+        menuItems={adminMenuItems}
         // role={session?.data?.user.role}
         role="admin"
         activeMenu="Students"

@@ -17,12 +17,8 @@ import {
 import Dropdown from "../Dropdown";
 import { CircleDollarSign, LayoutList } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchAllActivityRecords } from "@/redux/activityRecordSlice";
 import {
-  fetchAllActivityRecords,
-  filterActivityRecords,
-} from "@/redux/activityRecordSlice";
-import {
-  fetchAllBatches,
   fetchAllProjects,
   fetchAllTrainers,
   filterPaymentRecordsList,
@@ -30,9 +26,7 @@ import {
   getAllPaymentRecords,
   getAllStudents,
 } from "@/redux/allListSlice";
-import { exportOverallActivityRecordToExcel } from "@/helpers/exportToExcel/exportOverallActivityRecordToExcel";
 import { useSession } from "next-auth/react";
-import ActivityRecordList from "../activityrecord/ActivityRecordList";
 import PaymentRecordList from "./PaymentRecordList";
 import { exportOverallPaymentRecords } from "@/helpers/exportToExcel/exportOverallPaymentRecords";
 import Link from "next/link";
@@ -118,7 +112,7 @@ const PaymentComponent = () => {
     }
   }, [useAdvancedDate]);
 
-  // Reset batch when branch changes
+  // Reset student and project when branch changes
   useEffect(() => {
     setselectedStudent("All");
     setselectedProject("All");
@@ -272,13 +266,11 @@ const PaymentComponent = () => {
   }, [session?.data?.user]);
 
   useEffect(() => {
-    dispatch(fetchAllActivityRecords());
-    dispatch(fetchAllBatches());
+    dispatch(getAllPaymentRecords());
     dispatch(fetchAllTrainers());
     dispatch(getAllBranches());
     dispatch(getAllStudents());
     dispatch(fetchAllProjects());
-    dispatch(getAllPaymentRecords());
   }, []);
 
   return (

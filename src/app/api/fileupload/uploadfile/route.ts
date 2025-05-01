@@ -28,6 +28,12 @@ const cloudinaryConfigs = {
     api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY_3,
     api_secret: process.env.CLOUDINARY_SECRET_KEY_3,
   },
+  // inttemp09
+  paymentFiles: {
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME_3,
+    api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY_3,
+    api_secret: process.env.CLOUDINARY_SECRET_KEY_3,
+  },
 };
 
 interface cloudinaryResut {
@@ -44,7 +50,7 @@ export async function POST(request: NextRequest) {
     let cloudinaryFileType = formData.get("cloudinaryFileType") as string;
 
     // can have these values
-    // ["profileImage","studyMaterials","otherFiles"]
+    // ["profileImage","studyMaterials","otherFiles","paymentFiles"]
     if (!cloudinaryFileType) {
       cloudinaryFileType = "otherFiles";
     }

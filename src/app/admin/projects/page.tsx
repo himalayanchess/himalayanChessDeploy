@@ -15,7 +15,7 @@ const Projects = () => {
       session?.data?.user?.isGlobalAdmin);
   return (
     <div className="">
-      <Sidebar role="Admin" menuItems={adminMenuItems} activeMenu="Projects" />
+      <Sidebar role="Admin" menuItems={adminMenuItems} activeMenu="Schools" />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 h-[91dvh] flex py-5 px-14 ">

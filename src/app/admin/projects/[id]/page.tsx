@@ -62,7 +62,7 @@ const page = ({ params }: any) => {
         menuItems={superadminMenuItems}
         // role={session?.data?.user.role}
         role="superadmin"
-        activeMenu="Projects"
+        activeMenu="Schools"
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
