@@ -1,18 +1,17 @@
 import { dbconnect } from "@/helpers/dbconnect/dbconnect";
 import User from "@/models/UserModel";
-import Attendance from "@/models/AttendanceModel";
 import Payment from "@/models/PaymentModel";
-
-import Course from "@/models/CourseModel";
 import Branch from "@/models/BranchModel";
+import HcaAffiliatedStudent from "@/models/HcaAffiliatedStudent";
 
 import { NextRequest, NextResponse } from "next/server";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import ActivityRecord from "@/models/ActivityRecordModel";
+import NonAffiliatedStudent from "@/models/NonAffiliatedStudentModel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -25,91 +24,112 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    console.log("logging dashboard data ", reqBody);
+    console.log("Logging dashboard data:", reqBody);
 
     const { passedRole, branchName, isGlobalAdmin } = reqBody;
 
     const today = dayjs().tz(timeZone);
-    const monthStart = today.tz(timeZone).startOf("month").toDate();
-    const monthEnd = today.tz(timeZone).endOf("month").toDate();
+    const startOfWeek = today.startOf("week");
+    const endOfWeek = today.endOf("week");
+    const startOfToday = dayjs().startOf("day").toDate();
+    const endOfToday = dayjs().endOf("day").toDate();
 
-    // is super or global admin
     const isSuperOrGlobalAdmin =
-      passedRole?.toLowerCase() == "superadmin" || isGlobalAdmin;
+      passedRole?.toLowerCase() === "superadmin" || isGlobalAdmin;
 
-    // dynamic admin user count query
-    let adminUserQuery: any = { role: "Admin" };
-    // If passedRole is not superadmin or globaladmin, add branchName condition
-    if (!isSuperOrGlobalAdmin) {
-      adminUserQuery.branchName = branchName; // Add branch condition
-    }
+    // branch filter
+    const branchFilter = isSuperOrGlobalAdmin ? {} : { branchName };
 
-    // dynamic trainer user count query
-    let trainerUserQuery: any = { role: "Trainer" };
-    // If passedRole is not superadmin or globaladmin, add branchName condition
-    if (!isSuperOrGlobalAdmin) {
-      trainerUserQuery.branchName = branchName; // Add branch condition
-    }
+    // overall filter
+    const overallFilter = {
+      activeStatus: true,
+      ...branchFilter,
+    };
 
     const [
-      presentCount,
-      absentCount,
-      leaveCount,
-      holidayCount,
-
       adminCount,
       trainerCount,
-
       pendingPayments,
       partialPayments,
-
       branches,
+      hcaStudents,
+      schoolStudents,
+      users,
+      todaysAssignedClasses,
     ] = await Promise.all([
-      Attendance.countDocuments({
-        date: { $gte: monthStart, $lte: monthEnd },
-        status: "Present",
-      }),
-      Attendance.countDocuments({
-        date: { $gte: monthStart, $lte: monthEnd },
-        status: "Absent",
-      }),
-      Attendance.countDocuments({
-        date: { $gte: monthStart, $lte: monthEnd },
-        status: "Leave",
-      }),
-      Attendance.countDocuments({
-        date: { $gte: monthStart, $lte: monthEnd },
-        status: "Holiday",
-      }),
-
-      // Dynamic user query
-      User.countDocuments(adminUserQuery),
-      User.countDocuments(trainerUserQuery),
-
+      User.countDocuments({ role: "Admin", ...branchFilter }),
+      User.countDocuments({ role: "Trainer", ...branchFilter }),
       Payment.countDocuments({ status: "Pending" }),
       Payment.countDocuments({ status: "Partial" }),
-
       Branch.countDocuments({}),
+      HcaAffiliatedStudent.find(overallFilter).select(
+        "_id name dob role branchName branchId imageUrl"
+      ),
+      NonAffiliatedStudent.countDocuments({ activeStatus: true }),
+
+      User.find(overallFilter).select(
+        "_id name dob role branchName branchId imageUrl"
+      ),
+      ActivityRecord.find({
+        ...overallFilter,
+        utcDate: {
+          $gte: startOfToday,
+          $lte: endOfToday,
+        },
+      }),
     ]);
+
+    // Combine all people from HCA students and users
+    const allPeople = [
+      ...hcaStudents.map((s: any) => ({
+        ...s.toObject(),
+        extractedRole: "Student",
+      })),
+      ...users.map((u: any) => ({ ...u.toObject(), extractedRole: u?.role })),
+    ];
+
+    // Prepare day/month for each day this week
+    const weekDates: any = [];
+    for (let i = 0; i < 7; i++) {
+      const date = startOfWeek.add(i, "day");
+      weekDates.push({ day: date.date(), month: date.month() }); // month is 0-indexed
+    }
+
+    // Filter birthdays this week (by day/month only)
+    const birthdayThisWeek = allPeople
+      .filter((person) => {
+        if (!person.dob) return false;
+        const dob = dayjs(person.dob).tz(timeZone);
+        return weekDates.some(
+          (d: any) => d.day === dob.date() && d.month === dob.month()
+        );
+      })
+      .sort((a, b) => {
+        const dayA = dayjs(a.dob).tz(timeZone).date();
+        const dayB = dayjs(b.dob).tz(timeZone).date();
+        return dayA - dayB;
+      });
 
     return NextResponse.json({
       date: today.format("D MMMM, YYYY"),
-      attendance: {
-        Present: presentCount,
-        Absent: absentCount,
-        Leave: leaveCount,
-        Holiday: holidayCount,
-      },
+
       users: {
         Admin: adminCount,
         Trainers: trainerCount,
       },
-
       payment: {
         Pending: pendingPayments,
         Partial: partialPayments,
       },
       branches,
+      birthdayThisWeek,
+      todaysAssignedClasses,
+      totalClasses: todaysAssignedClasses.length,
+      classesTaken: todaysAssignedClasses.filter(
+        (classRecord: any) => classRecord.recordUpdatedByTrainer === true
+      ).length,
+      hcaAffiliatedStudents: hcaStudents?.length || 0,
+      schoolStudents,
     });
   } catch (err: any) {
     console.error("Error fetching dashboard data:", err);

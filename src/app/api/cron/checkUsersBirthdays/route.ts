@@ -6,49 +6,43 @@ import { sendBirthdayMail } from "@/helpers/nodemailer/nodemailer";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import type { NextRequest } from "next/server";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isSameOrAfter);
 
 export async function GET(request: NextRequest) {
   // const authHeader = request.headers.get("authorization");
-
   // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
   //   return new Response("Unauthorized", { status: 401 });
   // }
 
   try {
     await dbconnect();
+
     const today = dayjs().tz("Asia/Kathmandu");
     const startOfWeek = today.startOf("week");
     const endOfWeek = today.endOf("week");
 
+    // Generate a list of { day, month } for the current week
+    const weekDates: any = [];
+    for (let i = 0; i < 7; i++) {
+      const date = startOfWeek.add(i, "day");
+      weekDates.push({ day: date.date(), month: date.month() }); // month is 0-indexed
+    }
+
+    // Only get HCA-affiliated students
     const students = await HcaAffiliatedStudent.find();
-    const users = await User.find().select("-password");
 
-    const allPeople = [
-      ...students.map((student: any) => ({
-        ...student.toObject(),
-        extractedRole: "Student",
-      })),
-      ...users.map((user: any) => ({
-        ...user.toObject(),
-        extractedRole: "User",
-      })),
-    ];
+    const birthdayPeople = students.filter((student: any) => {
+      if (!student.dob) return false;
 
-    const birthdayPeople = allPeople.filter((person) => {
-      if (!person.dob) return false;
-      const dob = dayjs(person.dob).tz("Asia/Kathmandu");
-      const dobThisYear = dob.year(today.year());
-      return (
-        dobThisYear.isSameOrAfter(startOfWeek, "day") &&
-        dobThisYear.isSameOrBefore(endOfWeek, "day")
+      const dob = dayjs(student.dob).tz("Asia/Kathmandu");
+      const dobDay = dob.date();
+      const dobMonth = dob.month();
+
+      return weekDates.some(
+        (d: any) => d.day === dobDay && d.month === dobMonth
       );
     });
 
@@ -57,7 +51,7 @@ export async function GET(request: NextRequest) {
     }
 
     await sendBirthdayMail({
-      subject: "🎉 Users and Students with Birthdays This Week!",
+      subject: "🎉 HCA Students with Birthdays This Week!",
       birthdayPeople,
       weekRange: `${startOfWeek.format("MMMM D")} - ${endOfWeek.format(
         "MMMM D"
@@ -65,7 +59,7 @@ export async function GET(request: NextRequest) {
     });
 
     return Response.json({
-      msg: `Sent birthday email for ${birthdayPeople.length} person(s).`,
+      msg: `Sent birthday email for ${birthdayPeople.length} student(s).`,
       statusCode: 200,
     });
   } catch (error) {

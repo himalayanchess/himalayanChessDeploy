@@ -60,9 +60,10 @@ const Header = () => {
         {session?.data?.user && (
           <div className="branchInformation flex items-center gap-2 text-sm font-medium">
             <MapPinHouse size={20} className="text-gray-600" />
-            {session?.data?.user?.role?.toLowerCase() === "superadmin"
+            {/* {session?.data?.user?.role?.toLowerCase() === "superadmin"
               ? "All Branches"
-              : session?.data?.user?.branchName || "No Branch"}
+              : session?.data?.user?.branchName || "No Branch"} */}
+            {session?.data?.user?.branchName || "No Branch"}
           </div>
         )}
         {/* user-info */}
