@@ -308,8 +308,8 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
           </div>
         </div>
       )}
-      {/* user attendance chart */}
-      <div className="userattendancechart w-[35%] h-full flex flex-col justify-between ">
+      {/* user attendance chart right side*/}
+      <div className="userattendancechart w-[35%]  h-full flex flex-col justify-between ">
         <StudentAttendance studentRecord={studentRecord} />
       </div>
     </div>

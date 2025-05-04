@@ -148,10 +148,10 @@ export async function POST(request: NextRequest) {
     const savedNewAssignClass = await newAssignClass.save();
 
     if (savedNewAssignClass) {
-      await sendAssignClassMail({
-        subject: "Class assignment to trainer",
-        assignedClass: reqBody,
-      });
+      // await sendAssignClassMail({
+      //   subject: "Class assignment to trainer",
+      //   assignedClass: reqBody,
+      // });
       return NextResponse.json({
         statusCode: 200,
         msg: "Class Assigned",

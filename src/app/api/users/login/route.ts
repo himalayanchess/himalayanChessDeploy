@@ -44,44 +44,46 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // commented (not added login recored for now)################
     // Get private IP address from headers (X-Forwarded-For or Remote Address)
-    const privateIpAddress =
-      request.headers.get("x-forwarded-for") || "unknown";
-    const userAgent = request.headers.get("user-agent"); // Get the user-agent
+    // const privateIpAddress =
+    //   request.headers.get("x-forwarded-for") || "unknown";
+    // const userAgent = request.headers.get("user-agent"); // Get the user-agent
 
-    // Get public IP using ipify API
-    const ipResponse = await fetch("https://api.ipify.org?format=json");
-    const ipData = await ipResponse.json();
-    const publicIpAddress = ipData.ip || "unknown";
+    // // Get public IP using ipify API
+    // const ipResponse = await fetch("https://api.ipify.org?format=json");
+    // const ipData = await ipResponse.json();
+    // const publicIpAddress = ipData.ip || "unknown";
 
-    // Optional: Get geolocation data or other login-related info as needed
+    // ############Optional: Get geolocation data or other login-related info as needed
     // let latitude = null;
     // let longitude = null;
-    let ispOrg = "";
-    try {
-      const geoResponse = await axios.get(
-        `https://ipapi.co/${publicIpAddress}/json/`
-      );
-      ispOrg = geoResponse.data.org || null;
-    } catch (geoError) {
-      console.log("Error fetching geolocation", geoError);
-    }
+    // let ispOrg = "";
+    // try {
+    //   const geoResponse = await axios.get(
+    //     `https://ipapi.co/${publicIpAddress}/json/`
+    //   );
+    //   ispOrg = geoResponse.data.org || null;
+    // } catch (geoError) {
+    //   console.log("Error fetching geolocation", geoError);
+    // }
 
-    // Record the login
-    const newLoginRecord = new LoginRecord({
-      userId: fetchedUser._id,
-      email: fetchedUser.email,
-      role: fetchedUser.role,
-      branchName: fetchedUser.branchName,
-      branchId: fetchedUser.branchId,
-      isGlobalAdmin: fetchedUser.isGlobalAdmin,
-      publicIpAddress,
-      privateIpAddress, // Storing private IP
-      userAgent, // Storing user-agent
-      ispOrg,
-    });
+    // // Record the login
+    // const newLoginRecord = new LoginRecord({
+    //   userId: fetchedUser._id,
+    //   email: fetchedUser.email,
+    //   role: fetchedUser.role,
+    //   branchName: fetchedUser.branchName,
+    //   branchId: fetchedUser.branchId,
+    //   isGlobalAdmin: fetchedUser.isGlobalAdmin,
+    //   publicIpAddress,
+    //   privateIpAddress, // Storing private IP
+    //   userAgent, // Storing user-agent
+    //   ispOrg,
+    // });
 
-    await newLoginRecord.save(); // Save the login record to your database
+    // await newLoginRecord.save(); // Save the login record to your database
+    //############# commented (not added login recored for now)################
 
     // Finally, send the success response
     return NextResponse.json({

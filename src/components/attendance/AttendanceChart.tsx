@@ -44,12 +44,12 @@ const AttendanceChart = ({ allUsersLoading }: any) => {
   };
 
   // Darker shades for chart bars
-  const barColors: any = {
-    Present: "#9ce09b",
-    Absent: "#f07878",
-    Leave: "#8492e0",
-    Holiday: "#af7cde",
-  };
+    const barColors: any = {
+      Present: "#9ce09b",
+      Absent: "#f07878",
+      Leave: "#8492e0",
+      Holiday: "#af7cde",
+    };
 
   return (
     <div className="flex flex-col w-[22%] h-full rounded-md">
@@ -84,12 +84,12 @@ const AttendanceChart = ({ allUsersLoading }: any) => {
           </Box>
         ) : (
           <div className="chartcontainer w-full flex-1 flex items-center justify-center ">
-            <ResponsiveContainer width="90%" height="90%">
+            <ResponsiveContainer width="100%" height="90%">
               <BarChart data={filteredChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" fontSize={12} />
                 <Tooltip />
-                <Bar dataKey="value" name="Attendance">
+                <Bar dataKey="value" name="Attendance" barSize={40}>
                   {filteredChartData.map((entry: any, index: any) => (
                     <Cell key={`cell-${index}`} fill={barColors[entry.name]} />
                   ))}

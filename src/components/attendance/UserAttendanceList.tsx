@@ -339,12 +339,12 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col h-full bg-white p-5 rounded-md shadow-md"
+      className="flex flex-col h-full bg-white px-4 py-2 rounded-md shadow-md"
     >
       {/* header */}
       <div className="header flex justify-between  flex-col">
         {/* title */}
-        <p className="text-2xl flex items-end mb-1">
+        <p className="text-2xl flex items-center mb-1">
           <CalendarCheck2 />
           <span className="ml-2">Daily Attendance</span>
         </p>
@@ -379,7 +379,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
       {/* divider */}
       <Divider style={{ margin: ".5rem 0" }} />
 
-      <div className="attendanceTable mt-2 rounded-md border h-full flex-1 overflow-y-auto">
+      <div className="attendanceTable mt-0 rounded-md border h-full flex-1 overflow-y-auto">
         {/* Header */}
         <div className="py-2  grid grid-cols-[50px,repeat(5,1fr)] gap-2 bg-gray-100 ">
           <span className="font-bold text-center text-sm">SN</span>
@@ -489,7 +489,7 @@ const UserAttendanceList = ({ allActiveUsersList, allUsersLoading }: any) => {
         onClick={handleconfirmModalOpen}
         variant="contained"
         color="primary"
-        sx={{ marginTop: "1rem", width: "max-content" }}
+        sx={{ marginTop: "0.7rem", width: "max-content" }}
       >
         Save Attendance
       </Button>

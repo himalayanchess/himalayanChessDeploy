@@ -7,6 +7,7 @@ import AddUser from "@/components/user/AddUserPageBased";
 import AddCourse from "@/components/course/AddCourse";
 import Header from "@/components/Header";
 import { superadminMenuItems } from "@/sidebarMenuItems/superadminMenuItems";
+import DashboardComponent from "@/components/dashboard/DashboardComponent";
 const page = () => {
   const router = useRouter();
   const session = useSession();
@@ -22,7 +23,7 @@ const page = () => {
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="pb-6 h-[91dvh] flex py-5 px-14 ">Dashboard</div>
+        <DashboardComponent />
       </div>
     </div>
   );

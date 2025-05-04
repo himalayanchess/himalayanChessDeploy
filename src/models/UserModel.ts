@@ -51,6 +51,13 @@ const UserSchema = new mongoose.Schema(
     emergencyContactNo: { type: Number },
     branchName: { type: String, default: "" },
     branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
+    // for login access
+    isActive: {
+      type: Boolean,
+
+      default: true,
+    },
+    /// for deletion
     activeStatus: {
       type: Boolean,
       default: true,
@@ -63,10 +70,10 @@ const UserSchema = new mongoose.Schema(
     // forgot password
     forgotPasswordOtp: { type: String },
     forgotPasswordExpires: { type: Number },
-    // add later when login
-    loginLogRecord: {
-      type: Array,
-      default: [],
+
+    imageUrl: {
+      type: String,
+      default: "",
     },
   },
   { timestamps: true }
