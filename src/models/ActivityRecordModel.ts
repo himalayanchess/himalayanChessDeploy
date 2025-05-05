@@ -70,6 +70,8 @@ const ActivityRecordSchema = new mongoose.Schema(
     studentRecords: {
       type: Array,
     },
+    description: { type: String, default: "" },
+    currentClassNumber: { type: Number, default: 0 },
     userPresentStatus: {
       type: String,
       enum: ["present", "absent", "holiday"],

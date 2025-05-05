@@ -85,7 +85,11 @@ const ManageClass = ({ selectedDate }: any) => {
   const [selectedBatchStudents, setselectedBatchStudents] = useState<any>([]);
   const [batchId, setBatchId] = useState("");
   const [projectId, setprojectId] = useState("");
-  const [filteredBranches, setfilteredBranches] = useState([]);
+  const [filteredTotalNoOfClasses, setfilteredTotalNoOfClasses] = useState<any>(
+    []
+  );
+  const [filteredBatchTotalClassesTaken, setfilteredBatchTotalClassesTaken] =
+    useState<any>(null);
   const [classStudyMaterials, setclassStudyMaterials] = useState([]);
   const [assignClassLoading, setassignClassLoading] = useState(false);
   const [confirmModalOpen, setconfirmModalOpen] = useState(false);
@@ -137,6 +141,8 @@ const ManageClass = ({ selectedDate }: any) => {
       trainerRole: "Primary",
       branchName: "",
       branchId: "",
+      description: "",
+      currentClassNumber: "",
       // isPlayDay from state variable
       // holiday status from state variable
 
@@ -225,6 +231,8 @@ const ManageClass = ({ selectedDate }: any) => {
       startTime: "",
       endTime: "",
       holidayDescription: "",
+      description: "",
+      currentClassNumber: "",
       userPresentStatus: "absent",
     };
 
@@ -251,6 +259,7 @@ const ManageClass = ({ selectedDate }: any) => {
         setselectedBranch(user?.branchName || ""); // Restore selected branch if not global
       }
     }
+    setfilteredBatchTotalClassesTaken(null);
 
     setBatchId(""); // Reset batchId state
     setprojectId(""); // Reset projectId state
@@ -261,6 +270,7 @@ const ManageClass = ({ selectedDate }: any) => {
     setValue("batchName", "");
     setValue("batchId", "");
     setBatchId("");
+    setfilteredBatchTotalClassesTaken(null);
   }, [selectedBranch]);
 
   // fitler selected batch students
@@ -382,7 +392,7 @@ const ManageClass = ({ selectedDate }: any) => {
           handleconfirmModalOpen(); // Open modal instead of submitting form
         }
       }}
-      className="bg-white px-4 rounded-lg"
+      className="px-4 rounded-lg h-full flex flex-col overflow-y-auto "
     >
       {/* Project Selection */}
       <div className="header flex justify-between items-center">
@@ -566,7 +576,6 @@ const ManageClass = ({ selectedDate }: any) => {
           )}
         />
       )}
-
       {/*  start time end time (if not holiday) */}
       {!holidayStatus && (
         /* time slots */
@@ -674,9 +683,7 @@ const ManageClass = ({ selectedDate }: any) => {
           />
         </div>
       )}
-
       {/* time selection */}
-
       {/* playday and all batch students includes message */}
       {isPlayDay && (
         <div className="message bg-yellow-100 rounded-md p-2 my-3 border-2 border-yellow-200 text-sm">
@@ -692,7 +699,7 @@ const ManageClass = ({ selectedDate }: any) => {
         </div>
       )}
       {/* Dropdowns */}
-      <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
+      <div className="grid grid-cols-2 gap-3 mb-0 mt-2">
         {/* Project Name (only shown for School) */}
         {affiliatedTo?.toLowerCase() === "school" && (
           <Controller
@@ -745,6 +752,8 @@ const ManageClass = ({ selectedDate }: any) => {
                     (branch: any) => branch.branchName === value
                   );
                   setValue("branchId", selectedBranch?._id || "");
+                  setValue("currentClassNumber", "");
+                  setfilteredBatchTotalClassesTaken(null);
                   setselectedBranch(value);
                 }}
                 error={errors.branchName}
@@ -769,10 +778,23 @@ const ManageClass = ({ selectedDate }: any) => {
                 selected={field.value || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
+
                   const selectedBatch: any = filteredBatches.find(
                     (batch: any) => batch.batchName === value
                   );
                   setValue("batchId", selectedBatch?._id || "");
+                  setValue("currentClassNumber", "");
+                  setfilteredBatchTotalClassesTaken(
+                    selectedBatch?.totalClassesTaken
+                  );
+
+                  // set total no. of classes when batch is selected
+                  const totalClasses = selectedBatch?.totalNoOfClasses || 0;
+                  const classArray = Array.from(
+                    { length: totalClasses + 1 },
+                    (_, i) => i
+                  );
+                  setfilteredTotalNoOfClasses(classArray);
                   setBatchId(selectedBatch?._id);
                 }}
                 error={errors.batchName}
@@ -856,10 +878,59 @@ const ManageClass = ({ selectedDate }: any) => {
             />
           )}
         />
+
+        {/* description */}
+        <Controller
+          name="description"
+          control={control}
+          rules={
+            {
+              // required: "Description is required",
+            }
+          }
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="text"
+              label="Class description"
+              error={errors.description}
+              helperText={errors.description?.message}
+              // required={true}
+            />
+          )}
+        />
+
+        {/* current class number */}
+        <Controller
+          name="currentClassNumber"
+          control={control}
+          rules={{
+            required: "Class no. is required",
+          }}
+          render={({ field }) => (
+            <Dropdown
+              label={`Current class no.${
+                filteredBatchTotalClassesTaken
+                  ? ` (${filteredBatchTotalClassesTaken}) taken`
+                  : ""
+              }`}
+              options={filteredTotalNoOfClasses}
+              selected={field.value || ""}
+              onChange={(value: any) => {
+                field.onChange(value);
+              }}
+              error={errors.currentClassNumber}
+              helperText={errors.currentClassNumber?.message}
+              width="full"
+              required
+            />
+          )}
+        />
       </div>
-      <Divider sx={{ margin: "1rem 0" }} />
+      <Divider sx={{ margin: ".5rem 0" }} />
+
       {/* Students List */}
-      <div className="flex-1 h-full  overflow-y-auto">
+      <div className=" pb-4">
         <h1 className="text-lg font-bold mb-2 flex items-center">
           <Users />
           <span className="ml-2 text-lg">
@@ -872,7 +943,7 @@ const ManageClass = ({ selectedDate }: any) => {
         {selectedBatchStudents.length === 0 ? (
           <p>No Students</p>
         ) : (
-          <div className="flex-1 h-[147px]  flex flex-col rounded-md overflow-y-auto border">
+          <div className="flex-1 h-[147px]  flex flex-col rounded-md  border">
             {/* heading */}
             <div className="heading grid grid-cols-[70px,repeat(4,1fr)] bg-gray-200 text-sm">
               <span className="py-2 text-center font-bold">SN</span>

@@ -5,6 +5,8 @@ import {
   Contact,
   School,
   TimerReset,
+  CalendarCheck2,
+  CalendarClock,
 } from "lucide-react";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
@@ -146,6 +148,35 @@ const BasicBatchInfo = ({ batchRecord }: any) => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Classes Information */}
+      <div className="bg-gray-50 rounded-xl p-4">
+        <p className="text-sm text-gray-500 mb-2 font-bold flex items-center">
+          {/* <InfoOutlinedIcon /> */}
+          <span className="ml-0.5">Classes Information</span>
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="">
+            <p className="text-xs text-gray-500">Total No. of Classes</p>
+            <div className="detail flex items-center text-gray-500">
+              <CalendarClock />
+              <p className="font-bold text-xl  ml-2">
+                {batchRecord?.totalNoOfClasses || "N/A"}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">Total Classes Taken</p>
+            <p className=" text-lg flex text-gray-500 font-bold items-center">
+              <CalendarCheck2 className="text-gray-500" />
+              <span className="ml-2 text-xl">
+                {batchRecord?.totalClassesTaken || "N/A"}
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

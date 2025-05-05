@@ -424,6 +424,8 @@ export function getClassAssignedEmailContent({
   courseId,
   batchName,
   batchId,
+  description,
+  currentClassNumber,
   startTime,
   endTime,
   userPresentStatus,
@@ -447,10 +449,8 @@ export function getClassAssignedEmailContent({
     .tz("Asia/Kathmandu")
     .format("MMMM D, YYYY, h:mm A");
 
-  // Updated Study Materials HTML
   const studyMaterialsContent = classStudyMaterials.length
     ? `
-
       ${classStudyMaterials
         .map(
           (material: any) => `
@@ -559,12 +559,14 @@ export function getClassAssignedEmailContent({
             <p><strong>Batch:</strong> ${batchName}</p>
             <p><strong>Affiliated To:</strong> ${affiliatedTo}</p>
             <p><strong>Play Day:</strong> ${isPlayDay ? "Yes" : "No"}</p>
+            <p><strong>Description:</strong> ${description?.trim() || "N/A"}</p>
           </div>
 
           <div class="section">
             <div class="section-title">Schedule</div>
             <p><strong>Start:</strong> ${formattedStartTime}</p>
             <p><strong>End:</strong> ${formattedEndTime}</p>
+            <p><strong>Current Class Number:</strong> ${currentClassNumber}</p>
           </div>
 
           <div class="section">

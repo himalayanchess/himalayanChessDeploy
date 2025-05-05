@@ -302,6 +302,13 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
             <span className="ml-1"></span>
             Study Materials
           </Button>
+
+          <p className="text-gray-500">
+            Current class number:{" "}
+            <span className="font-bold">
+              {assignedClass?.currentClassNumber || "N/A"}
+            </span>
+          </p>
         </div>
 
         {/* updated-branch */}

@@ -73,6 +73,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
       batchEndDate: "",
       branchName: "",
       branchId: "",
+      totalNoOfClasses: 0,
     },
   });
   // on submit function
@@ -101,6 +102,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
     if (batchRecord) {
       reset({
         ...batchRecord,
+        totalNoOfClasses: batchRecord?.totalNoOfClasses,
         assignedTrainers: batchRecord.assignedTrainers || [],
         timeSlots: batchRecord.timeSlots || [],
       });
@@ -248,53 +250,75 @@ const UpdateBatch = ({ batchRecord }: any) => {
 
         {/* third row */}
         <div className="third col-span-2 grid grid-cols-2 gap-4">
-          {/* Project start date */}
+          <div className="stat-end-date grid grid-cols-2 gap-4">
+            {/* Project start date */}
+            <Controller
+              name="batchStartDate"
+              control={control}
+              rules={{
+                required: "Start date is required",
+              }}
+              render={({ field }) => {
+                return (
+                  <Input
+                    {...field}
+                    value={
+                      field.value
+                        ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                        : ""
+                    }
+                    label="Start Date"
+                    type="date"
+                    required={true}
+                    error={errors?.batchStartDate}
+                    helperText={errors?.batchStartDate?.message}
+                  />
+                );
+              }}
+            />
+            {/* Project start date  (optional)*/}
+            <Controller
+              name="batchEndDate"
+              control={control}
+              rules={
+                {
+                  // required: "End date is required",
+                }
+              }
+              render={({ field }) => {
+                return (
+                  <Input
+                    {...field}
+                    value={
+                      field.value
+                        ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
+                        : ""
+                    }
+                    label="End Date"
+                    type="date"
+                    error={errors?.batchEndDate}
+                    helperText={errors?.batchEndDate?.message}
+                  />
+                );
+              }}
+            />
+          </div>
+          {/* totalNoOfClasses */}
           <Controller
-            name="batchStartDate"
+            name="totalNoOfClasses"
             control={control}
             rules={{
-              required: "Start date is required",
+              required: "Total no. of classes required",
             }}
             render={({ field }) => {
               return (
                 <Input
                   {...field}
-                  value={
-                    field.value
-                      ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
-                      : ""
-                  }
-                  label="Start Date"
-                  type="date"
-                  required={true}
-                  error={errors?.batchStartDate}
-                  helperText={errors?.batchStartDate?.message}
-                />
-              );
-            }}
-          />
-          {/* Project start date  (optional)*/}
-          <Controller
-            name="batchEndDate"
-            control={control}
-            rules={
-              {
-                // required: "End date is required",
-              }
-            }
-            render={({ field }) => {
-              return (
-                <Input
-                  {...field}
-                  value={
-                    field.value
-                      ? dayjs(field.value).tz(timeZone).format("YYYY-MM-DD")
-                      : ""
-                  }
-                  label="End Date"
-                  type="date"
-                  error={errors?.batchEndDate}
-                  helperText={errors?.batchEndDate?.message}
+                  value={field.value || ""}
+                  label="Total No. of Classes"
+                  type="number"
+                  error={errors?.totalNoOfClasses}
+                  helperText={errors?.totalNoOfClasses?.message}
                 />
               );
             }}
