@@ -4,6 +4,7 @@ import SearchInput from "../SearchInput";
 import Link from "next/link";
 import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
+import DownloadIcon from "@mui/icons-material/Download";
 
 import {
   Button,
@@ -17,6 +18,7 @@ import { filterBranchList, getAllBranches } from "@/redux/allListSlice";
 import { BookCopy, MapPinHouse } from "lucide-react";
 import BranchList from "./BranchList";
 import { useSession } from "next-auth/react";
+import { exportBranchesListToExcel } from "@/helpers/exportToExcel/exportBranchesListToExcel";
 
 const BranchComponent = ({ role = "" }: any) => {
   const session = useSession();
@@ -52,6 +54,11 @@ const BranchComponent = ({ role = "" }: any) => {
   const startItem = (currentPage - 1) * branchesPerPage + 1;
   const endItem = Math.min(currentPage * branchesPerPage, filteredBranchCount);
   const showingText = `Showing ${startItem}-${endItem} of ${filteredBranchCount}`;
+
+  //export to excel
+  const exportToExcel = () => {
+    exportBranchesListToExcel(allFilteredActiveBranchesList);
+  };
 
   // Reset current page to 1 and searchtext when selectedAffiliatedTo changes
   useEffect(() => {
@@ -108,10 +115,24 @@ const BranchComponent = ({ role = "" }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-        <MapPinHouse />
-        <span className="ml-2">Branches List</span>
-      </h2>
+      <div className="main-header flex justify-between">
+        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+          <MapPinHouse />
+          <span className="ml-2">Branches List</span>
+        </h2>
+        {/* excel button */}
+        <div className="excelbutton">
+          <Button
+            onClick={exportToExcel}
+            variant="contained"
+            color="success"
+            disabled={allFilteredActiveBranchesList?.length === 0}
+            startIcon={<DownloadIcon />}
+          >
+            Export to Excel
+          </Button>
+        </div>
+      </div>
       <div className="branches-header my-0 flex items-end justify-between">
         {/* title and Dropdown */}
         <div className="title-options  ">

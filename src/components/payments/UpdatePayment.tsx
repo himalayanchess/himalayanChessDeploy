@@ -346,7 +346,7 @@ const UpdatePayment = ({ paymentRecord }: any) => {
       let fileUrl = "";
       const formData = new FormData();
       formData.append("file", paymentFile);
-      const folderName = `paymentFile/${fileName}`;
+      const folderName = `paymentFile/${paymentRecord?.branchName}/${fileName}`;
       formData.append("folderName", folderName);
       // ["profileImage","studyMaterials","otherFiles","paymentFiles"]
       formData.append("cloudinaryFileType", "paymentFiles");

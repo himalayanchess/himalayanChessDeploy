@@ -132,11 +132,11 @@ const UpdateTestRecord = ({ testRecord }: any) => {
       setupdateTestMaterialFileLoading(true);
       const formData = new FormData();
       formData.append("file", updatedtestMaterialFile);
-      const folderName = `testMaterials/${testRecord?.courseName}/${dayjs(
-        testRecord?.examUtcDate
-      )
-        .tz(timeZone)
-        .format("YYYY-MM-DD")}/${testRecord?.studentName}`;
+      const folderName = `testMaterials/${testRecord?.branchName}/${
+        testRecord?.courseName
+      }/${dayjs(testRecord?.examUtcDate).tz(timeZone).format("YYYY-MM-DD")}/${
+        testRecord?.studentName
+      }`;
       formData.append("folderName", folderName);
       // test material also in studtmaterials google account
       formData.append("cloudinaryFileType", "studyMaterials");

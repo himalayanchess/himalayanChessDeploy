@@ -86,6 +86,8 @@ export function exportStudentActivityRecordsToExcel(
         : "N/A",
       Remark: studentRecord?.remark || "N/A",
       "Completed Status": studentRecord?.completedStatus ? "Yes" : "No",
+      Description: record.description || "N/A",
+      "Current Class Number": record.currentClassNumber || 0,
       "Week Number": record.weekNumber || "N/A",
       "Holiday Status": record.holidayStatus ? "Yes" : "No",
       "Holiday Description": record.holidayDescription || "N/A",

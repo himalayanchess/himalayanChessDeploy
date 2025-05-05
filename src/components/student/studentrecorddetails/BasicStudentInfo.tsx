@@ -88,9 +88,10 @@ const BasicStudentInfo = ({ studentRecord }: any) => {
     // valid different image
     const formData = new FormData();
     formData.append("file", imageFile);
-    const folderName = `studentProfileImages/${studentRecord?.name}`;
+    const folderName = `studentProfileImages/${studentRecord?.branchName}/${studentRecord?.name}`;
     formData.append("folderName", folderName);
     formData.append("cloudinaryFileType", "profileImage");
+
     const { data: editProfilePhotoResData } = await axios.post(
       "/api/fileupload/uploadfile",
       formData,

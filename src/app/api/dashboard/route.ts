@@ -16,6 +16,7 @@ import Project from "@/models/ProjectModel";
 import Course from "@/models/CourseModel";
 import StudyMaterial from "@/models/StudyMaterialsModel";
 import LeaveRequest from "@/models/LeaveRequestModel";
+import Batch from "@/models/BatchModel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
       totalBranches,
       pendingLeaveRequests,
       totalStudyMaterials,
+      activeBranchBatchList,
     ] = await Promise.all([
       ActivityRecord.find({
         ...overallFilter,
@@ -89,6 +91,10 @@ export async function POST(request: NextRequest) {
         ...overallFilter,
       }),
       StudyMaterial.countDocuments({ activeStatus: true }),
+      Batch.find({
+        activeStatus: true,
+        branchName: reqBody?.branchName,
+      }),
     ]);
 
     // Combine all people from HCA students and users
@@ -147,6 +153,7 @@ export async function POST(request: NextRequest) {
       totalBranches,
       pendingLeaveRequests,
       totalStudyMaterials,
+      activeBranchBatchList,
     });
   } catch (err: any) {
     console.error("Error fetching dashboard data:", err);

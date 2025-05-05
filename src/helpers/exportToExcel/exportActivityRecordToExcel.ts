@@ -23,6 +23,8 @@ export const exportActivityRecordToExcel = (activityRecord: any) => {
     "Departure Time": activityRecord.departureTime || "N/A",
     "Holiday Status": activityRecord.holidayStatus ? "Yes" : "No",
     "Holiday Description": activityRecord.holidayDescription || "N/A",
+    "Current Class Number": activityRecord.currentClassNumber || 0,
+    Description: activityRecord.description || "N/A",
   };
 
   // Generate Student Records

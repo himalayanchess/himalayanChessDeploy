@@ -176,7 +176,7 @@ const AddUser = () => {
 
       {/* form */}
       <form
-        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-3"
+        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -476,7 +476,7 @@ const AddUser = () => {
               }}
               render={({ field }) => (
                 <Dropdown
-                  label="completedStatus"
+                  label="Completed Status"
                   options={completedStatusOptions}
                   selected={field.value || ""}
                   onChange={(value: any) => {

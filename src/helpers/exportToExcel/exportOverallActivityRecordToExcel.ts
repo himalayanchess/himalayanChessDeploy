@@ -33,6 +33,8 @@ export function exportOverallActivityRecordToExcel(filteredRecords: any) {
       "Week Number": record.weekNumber || "N/A",
       "Holiday Status": record.holidayStatus ? "Yes" : "No",
       "Holiday Description": record.holidayDescription || "N/A",
+      Description: record.description || "N/A",
+      "Current Class Number": record.currentClassNumber || 0,
       "Study Materials Count": record.classStudyMaterials?.length || 0,
       "Study Materials Details": studyMaterials,
       "Active Status": record.activeStatus ? "Active" : "Inactive",

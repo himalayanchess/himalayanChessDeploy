@@ -240,6 +240,20 @@ const BasicUserInformation = ({ userRecord }: any) => {
                   <p className="font-bold ml-1 text-xl">
                     {userRecord?.name || "N/A"}
                   </p>
+                  <span
+                    className={` ml-2 flex items-center gap-2 px-3 py-1 rounded-full text-xs  font-bold 
+    ${
+      userRecord?.isActive
+        ? "bg-green-100 text-green-700"
+        : "bg-red-100 text-red-700"
+    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full 
+      ${userRecord?.isActive ? "bg-green-500" : "bg-red-500"}`}
+                    ></span>
+                    {userRecord?.isActive ? "Active" : "Inactive"}
+                  </span>
                 </div>
                 {/* role */}
                 <p className="role text-sm bg-gray-200 rounded-full text-gray-600 font-bold px-3 py-0.5">

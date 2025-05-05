@@ -16,7 +16,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 
-import dayjs from "dayjs";
 import {
   fetchAllBatches,
   fetchAllTrainers,
@@ -24,6 +23,13 @@ import {
   getAllCourses,
   getAllStudents,
 } from "@/redux/allListSlice";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const timeZone = "Asia/Kathmandu";
 
 const AddTestHistory = () => {
   const router = useRouter();
@@ -117,7 +123,11 @@ const AddTestHistory = () => {
         try {
           const formData = new FormData();
           formData.append("file", testMaterialFile);
-          const folderName = `testMaterials/${data?.courseName}/${data?.examDate}/${data?.studentName}`;
+          const folderName = `testMaterials/${data?.branchName}/${
+            data?.courseName
+          }/${dayjs(data?.examUtcDate).tz(timeZone).format("YYYY-MM-DD")}/${
+            data?.studentName
+          }`;
           formData.append("folderName", folderName);
           // test material also in studtmaterials google account
           formData.append("cloudinaryFileType", "studyMaterials");

@@ -34,6 +34,8 @@ export function exportTrainerActivityRecordsToExcel(
         ? dayjs(record.endTime).tz(timeZone).format("hh:mm A")
         : "N/A",
       "Week Number": record.weekNumber || "N/A",
+      Description: record.description || "N/A",
+      "Current Class Number": record.currentClassNumber || 0,
       "Holiday Status": record.holidayStatus ? "Yes" : "No",
       "Holiday Description": record.holidayDescription || "N/A",
       "Study Materials Count": record.classStudyMaterials?.length || 0,

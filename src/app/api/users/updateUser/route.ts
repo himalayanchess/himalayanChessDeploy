@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
         dob: utcDob,
         joinedDate: utcJoinedDate,
         endDate: utcEndDate,
+        isActive: reqBody?.isActive?.toLowerCase() == "active",
       }
     );
     if (updatedUser) {

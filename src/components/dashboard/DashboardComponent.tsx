@@ -17,23 +17,23 @@ import {
   User,
   User2,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import hcalogo from "@/images/hca-transparent.png";
 
 import Image from "next/image";
-import { Avatar, Button, Skeleton, Box, Modal, Divider } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Skeleton,
+  Box,
+  Modal,
+  Divider,
+  Stack,
+  Pagination,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -67,6 +67,7 @@ const DashboardComponent = () => {
   const [formattedTime, setFormattedTime] = useState("");
   const [dashboardDataLoading, setdashboardDataLoading] = useState(true);
   const [birthdayThisWeek, setbirthdayThisWeek] = useState([]);
+  const [filteredBranchBatchList, setfilteredBranchBatchList] = useState([]);
   const [todaysAssignedClasses, settodaysAssignedClasses] = useState([]);
   const [countData, setcountData] = useState({
     totalClasses: 0,
@@ -91,6 +92,12 @@ const DashboardComponent = () => {
   const [birthdayUsersModalOpen, setbirthdayUsersModalOpen] = useState(false);
   const [viewTodaysClassModalOpen, setviewTodaysClassModalOpen] =
     useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [batchesPerPage] = useState(4);
+
+  const handlePageChange = (event: any, value: any) => {
+    setCurrentPage(value);
+  };
 
   //modal operations
   function handlebirthdayUsersModalOpen() {
@@ -144,6 +151,14 @@ const DashboardComponent = () => {
 
       // birthday
       setbirthdayThisWeek(resData.birthdayThisWeek || []);
+      // branch batch list
+      let tempFilteredBranchBatchList = resData?.activeBranchBatchList;
+      tempFilteredBranchBatchList?.filter(
+        (batch: any) =>
+          !batch?.batchEndDate ||
+          batch?.completedStatus?.toLowerCase() == "ongoing"
+      );
+      setfilteredBranchBatchList(tempFilteredBranchBatchList);
       // todaysAssignedClasses
       settodaysAssignedClasses(resData?.todaysAssignedClasses || []);
 
@@ -194,10 +209,10 @@ const DashboardComponent = () => {
   }, [session?.data?.user]);
 
   return (
-    <div className="flex flex-col h-[91dvh]  py-5 px-14 overflow-x-hidden">
+    <div className="flex flex-col h-[91dvh]  py-5 px-9 overflow-x-hidden">
       <div className="main-container flex-1 h-full flex w-full ">
         {/* left side */}
-        <div className="userdetails w-full h-full overflow-autorounded-md  mr-4 flex flex-col gap-3">
+        <div className="userdetails w-full h-full overflow-autorounded-md  mr-3 flex flex-col gap-3">
           {/* top part */}
           <div className="top-part w-full  flex-[0.5] grid grid-cols-3 gap-3">
             {/* consists of 3 cols, first,second col => colspan wht 2 rows, good morning and birthday users, third col => user attendance chart */}
@@ -421,30 +436,110 @@ const DashboardComponent = () => {
               </Box>
             </Modal>
 
-            {/* attendance chart */}
-            <div className="attendance-chart flex-1 bg-white rounded-lg shadow-md p-3 flex flex-col justify-between">
-              <h1 className="flex items-center text-gray-500 mb-1">
-                <AlignEndHorizontal />
-                <span className="ml-1 font-bold">Your Attendance Overview</span>
-              </h1>
-              <div className="w-full h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                    <Tooltip />
-                    <Bar dataKey="value" barSize={40}>
-                      {data.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={barColors[entry.status] || "#ccc"} // fallback color if status not found
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* batch table */}
+            {dashboardDataLoading ? (
+              <div className="batch-table bg-white rounded-lg shadow-md p-3 flex flex-col justify-between">
+                <h1 className="flex items-center text-gray-500 mb-1">
+                  <Skeleton variant="text" width="100px" height={20} />
+                </h1>
+
+                {/* Table Skeleton */}
+                <div className="batchoverview-table rounded-md overflow-hidden w-full flex flex-col">
+                  {/* Table rows */}
+                  <div className="table-contents">
+                    {[...Array(5)].map((_, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-3 gap-1 border-b border-gray-200 items-center"
+                      >
+                        <Skeleton variant="text" width="100%" height={30} />
+                        <Skeleton variant="text" width="100%" height={30} />
+                        <Skeleton variant="text" width="100%" height={30} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pagination Skeleton */}
+                <Stack spacing={2} className="mt-3">
+                  <Skeleton variant="text" width="100%" height={30} />
+                </Stack>
               </div>
-            </div>
+            ) : (
+              <div className="batch-table bg-white rounded-lg shadow-md p-3 flex flex-col justify-between">
+                <h1 className="flex items-center text-gray-500 mb-1">
+                  <AlignEndHorizontal size={18} />
+                  <span className="ml-1 font-bold">Batches overview</span>
+                </h1>
+
+                {/* batchoverfiew-table */}
+
+                <div className="batchoverview-table rounded-md overflow-hidden w-full  flex flex-col">
+                  {/* heading */}
+                  <div className="table-headings px-2 mb-1 grid grid-cols-[repeat(4,1fr)] gap-1 w-full bg-gray-200">
+                    <span className="py-2 col-span-2  text-left text-xs font-bold text-gray-600">
+                      Batch Name
+                    </span>
+                    <span className="py-2 text-center text-xs font-bold text-gray-600">
+                      Total Classes
+                    </span>
+                    <span className="py-2 text-center text-xs font-bold text-gray-600">
+                      Taken
+                    </span>
+                  </div>
+
+                  {/* batch list */}
+                  <div className="table-contents overflow-y-auto h-full flex-1 grid grid-cols-1 grid-rows-4">
+                    {filteredBranchBatchList?.length === 0 ? (
+                      <div className="flex-1 flex  text-gray-500 w-max mx-auto my-3">
+                        <SearchOffIcon
+                          className="mr-1"
+                          sx={{ fontSize: "1.5rem" }}
+                        />
+                        <p className="text-md">No batches</p>
+                      </div>
+                    ) : (
+                      filteredBranchBatchList
+                        .slice(
+                          (currentPage - 1) * batchesPerPage,
+                          currentPage * batchesPerPage
+                        )
+                        .map((batch: any, index: any) => {
+                          return (
+                            <div
+                              key={batch?._id}
+                              className="grid grid-cols-[repeat(4,1fr)] gap-1 px-2 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                            >
+                              <span className="py-2 col-span-2 text-left text-xs font-medium text-gray-600">
+                                {batch?.batchName || "N/A"}
+                              </span>
+                              <span className="py-2  text-center text-xs font-medium text-gray-600">
+                                {batch?.totalNoOfClasses || "N/A"}
+                              </span>
+                              <span className="py-2 text-center text-xs font-medium text-gray-600">
+                                {batch?.totalClassesTaken || "N/A"}
+                              </span>
+                            </div>
+                          );
+                        })
+                    )}
+                  </div>
+                </div>
+
+                {/* pagination */}
+                <Stack spacing={2} className="mx-auto w-max mt-3">
+                  <Pagination
+                    size="small"
+                    count={Math.ceil(
+                      filteredBranchBatchList?.length / batchesPerPage
+                    )} // Total pages
+                    page={currentPage} //allCoursesLoading Current page
+                    onChange={handlePageChange} // Handle page change
+                    shape="rounded"
+                  />
+                </Stack>
+              </div>
+            )}
           </div>
           {/* bottom part */}
           <div className="bottom-part grid grid-cols-3 grid-rows-2 gap-3 flex-1 h-full ">
@@ -701,7 +796,7 @@ const DashboardComponent = () => {
         </div>
 
         {/* right side */}
-        <div className="userattendancechart w-[30%] p-4 bg-white rounded-md shadow-md h-full flex flex-col gap-4">
+        <div className="userattendancechart w-[27%] p-4 bg-white rounded-md shadow-md h-full flex flex-col gap-4">
           {/* Top: User Info */}
           <div className="flex-1 flex flex-col justify-center items-center text-center p-2 rounded-md">
             <Avatar

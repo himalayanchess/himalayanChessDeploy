@@ -12,9 +12,16 @@ import UpdateProject from "@/components/project/UpdateProject";
 import ViewProject from "@/components/project/ViewProject";
 import ViewCourse from "@/components/course/ViewCourse";
 import ViewBranch from "@/components/branches/ViewBranch";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllBatches } from "@/redux/allListSlice";
 
 const page = ({ params }: any) => {
   const { id: branchId }: any = use(params);
+
+  // dispatch
+  const dispath = useDispatch<any>();
+  // selector
+  const { allActiveBatches } = useSelector((state: any) => state.allListReducer);
 
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
@@ -38,7 +45,10 @@ const page = ({ params }: any) => {
   }
   // initial fecth of selected activity record
   useEffect(() => {
-    getbranchRecord();
+    if (branchId) {
+      getbranchRecord();
+      dispath(fetchAllBatches());
+    }
   }, [branchId]);
   return (
     <div>
@@ -59,7 +69,10 @@ const page = ({ params }: any) => {
           ) : invalidId ? (
             <p>Invalid branch id</p>
           ) : (
-            <ViewBranch branchRecord={branchRecord} />
+            <ViewBranch
+              branchRecord={branchRecord}
+              allActiveBatches={allActiveBatches}
+            />
           )}
         </div>
       </div>

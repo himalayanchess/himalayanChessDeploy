@@ -22,6 +22,8 @@ import { Controller, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import UserList from "@/components/user/UserList";
 import { useDispatch, useSelector } from "react-redux";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import {
   fetchAllBatches,
   fetchAllProjects,
@@ -31,11 +33,12 @@ import {
 import SearchInput from "../SearchInput";
 import Link from "next/link";
 import BatchList from "./BatchList";
+import { exportBatchesListToExcel } from "@/helpers/exportToExcel/exportBatchesListToExcel";
 
 const BatchComponent = ({ role = "" }: any) => {
   // dispatch
   const dispatch = useDispatch<any>();
-  
+
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -70,6 +73,11 @@ const BatchComponent = ({ role = "" }: any) => {
   const startItem = (currentPage - 1) * batchesPerPage + 1;
   const endItem = Math.min(currentPage * batchesPerPage, filteredBatchCount);
   const showingText = `Showing ${startItem}-${endItem} of ${filteredBatchCount}`;
+
+  //export to excel
+  const exportToExcel = () => {
+    exportBatchesListToExcel(allFilteredActiveBatches);
+  };
 
   // Reset current page to 1 and search text when selectedStatus changes
   useEffect(() => {
@@ -189,10 +197,25 @@ const BatchComponent = ({ role = "" }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-        <Component />
-        <span className="ml-1">Batch List</span>
-      </h2>
+      <div className="main-header flex justify-between">
+        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+          <Component />
+          <span className="ml-1">Batch List</span>
+        </h2>
+
+        {/* excel button */}
+        <div className="excelbutton">
+          <Button
+            onClick={exportToExcel}
+            variant="contained"
+            color="success"
+            disabled={allFilteredActiveBatches?.length === 0}
+            startIcon={<DownloadIcon />}
+          >
+            Export to Excel
+          </Button>
+        </div>
+      </div>
       {/* title and Dropdown */}
       <div className="batches-header my-0 flex items-end justify-between gap-2">
         <div className="dropdowns-showing flex flex-1  gap-4 items-end">

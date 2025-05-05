@@ -10,6 +10,8 @@ import { Users } from "lucide-react";
 import AddStudent from "./AddStudent";
 import axios from "axios";
 import StudentFilterComponent from "../filtercomponents/StudentFilterComponent";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,6 +21,7 @@ import {
   getAllStudents,
 } from "@/redux/allListSlice";
 import { useSession } from "next-auth/react";
+import { exportStudentsListToExcel } from "@/helpers/exportToExcel/exportStudentsListToExcel";
 
 const StudentComponent = ({ role }: any) => {
   const session = useSession();
@@ -58,6 +61,11 @@ const StudentComponent = ({ role }: any) => {
   // handle page change
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
+  };
+
+  //export to excel
+  const exportToExcel = () => {
+    exportStudentsListToExcel(allFilteredActiveStudents);
   };
 
   // reset acive status to "active" when selectedAffiliatedTo changes
@@ -202,10 +210,24 @@ const StudentComponent = ({ role }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-        <Users />
-        <span className="ml-2">Student Management</span>
-      </h2>{" "}
+      <div className="main-head flex justify-between">
+        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+          <Users />
+          <span className="ml-2">Student Management</span>
+        </h2>{" "}
+        {/* excel button */}
+        <div className="excelbutton">
+          <Button
+            onClick={exportToExcel}
+            variant="contained"
+            color="success"
+            disabled={allFilteredActiveStudents?.length === 0}
+            startIcon={<DownloadIcon />}
+          >
+            Export to Excel
+          </Button>
+        </div>
+      </div>
       {/* student header */}
       <div className="student-header my-0 flex items-end justify-between gap-2">
         {/* dropdown */}

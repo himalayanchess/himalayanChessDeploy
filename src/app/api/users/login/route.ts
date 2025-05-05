@@ -23,10 +23,19 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // inactive user
-    if (!fetchedUser.activeStatus) {
+    // inactive user (login control)
+    if (!fetchedUser.isActive) {
       return NextResponse.json({
         msg: "User is inactive",
+        statusCode: 204,
+      });
+    }
+
+    // deleted user
+    if (!fetchedUser.activeStatus) {
+      return NextResponse.json({
+        // msg: "User is inactive",
+        msg: "User not found",
         statusCode: 204,
       });
     }

@@ -73,7 +73,7 @@ const UserList = ({
   return (
     <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
@@ -88,6 +88,9 @@ const UserList = ({
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Role
+        </span>
+        <span className="py-3 text-left text-sm font-bold text-gray-600">
+          Active Status
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Actions
@@ -119,7 +122,7 @@ const UserList = ({
               return (
                 <div
                   key={user?._id}
-                  className="grid grid-cols-[70px,repeat(5,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className="grid grid-cols-[70px,repeat(6,1fr)] border-b  border-gray-200 py-1 items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
@@ -143,6 +146,19 @@ const UserList = ({
                       </span>
                     )}
                   </span>
+                  <span
+                    className={` ml-2 w-max flex items-center gap-2 px-3 py-1 rounded-full text-xs  font-bold 
+    ${
+      user?.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full 
+      ${user?.isActive ? "bg-green-500" : "bg-red-500"}`}
+                    ></span>
+                    {user?.isActive ? "Active" : "Inactive"}
+                  </span>
+
                   {role?.toLowerCase() == "superadmin" ? (
                     <div className="text-sm text-gray-500">
                       {/* edit modal */}

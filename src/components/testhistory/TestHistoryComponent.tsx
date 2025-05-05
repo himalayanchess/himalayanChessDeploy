@@ -7,6 +7,8 @@ import { Box, Button, Modal } from "@mui/material";
 import { Pagination, Stack } from "@mui/material";
 import { FileSpreadsheet, Users } from "lucide-react";
 import axios from "axios";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import StudentFilterComponent from "../filtercomponents/StudentFilterComponent";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +23,7 @@ import {
 import { useSession } from "next-auth/react";
 import StudentList from "../student/StudentList";
 import TestHistoryList from "./TestHistoryList";
+import { exportTestHistoryListToExcel } from "@/helpers/exportToExcel/exportTestHistoryListToExcel";
 
 const TestHistoryComponent = ({ role }: any) => {
   const session = useSession();
@@ -68,6 +71,10 @@ const TestHistoryComponent = ({ role }: any) => {
   // handle page change
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
+  };
+  //export to excel
+  const exportToExcel = () => {
+    exportTestHistoryListToExcel(allFilteredActiveTestHistoryList);
   };
 
   // reset acive status to "active" when selectedAffiliatedTo changes
@@ -252,10 +259,24 @@ const TestHistoryComponent = ({ role }: any) => {
   }, []);
   return (
     <div className="flex-1 flex flex-col py-5 px-7 border bg-white rounded-lg">
-      <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-        <FileSpreadsheet />
-        <span className="ml-2">Test History</span>
-      </h2>{" "}
+      <div className="flex justify-between">
+        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+          <FileSpreadsheet />
+          <span className="ml-2">Test History</span>
+        </h2>{" "}
+        {/* excel button */}
+        <div className="excelbutton">
+          <Button
+            onClick={exportToExcel}
+            variant="contained"
+            color="success"
+            disabled={allFilteredActiveTestHistoryList?.length === 0}
+            startIcon={<DownloadIcon />}
+          >
+            Export to Excel
+          </Button>
+        </div>
+      </div>
       {/* student header */}
       <div className="student-header my-0 flex items-end justify-between gap-2">
         {/* dropdown */}

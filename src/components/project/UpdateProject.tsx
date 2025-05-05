@@ -60,7 +60,7 @@ const UpdateProject = ({ projectRecord }: any) => {
     null
   );
   const [updatedcontractFileName, setupdatedcontractFileName] =
-  useState("Not Selected");
+    useState("Not Selected");
   const [loaded, setLoaded] = useState(false);
   const [updateProjectLoading, setUpdateProjectLoading] = useState(false);
   const [updateContractFileLoading, setupdateContractFileLoading] =
@@ -216,8 +216,9 @@ const UpdateProject = ({ projectRecord }: any) => {
       const formData = new FormData();
       formData.append("file", updatedcontractFile);
 
-      const folderName = `contractpapers/${projectRecord?.name}`;
+      const folderName = `schoolcontractpapers/${projectRecord?.name}`;
       formData.append("folderName", folderName);
+      formData.append("cloudinaryFileType", "otherFiles");
 
       const { data: resData } = await axios.post(
         "/api/fileupload/uploadfile",

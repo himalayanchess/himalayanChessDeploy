@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { Ban } from "lucide-react";
 
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -63,7 +64,10 @@ const UserProjectsInformation = ({
           </h2>
 
           {trainerProjects?.length === 0 && !allProjectsLoading ? (
-            <p className="text-gray-500">No assigned projects</p>
+            <p className="w-full py-4 flex items-center justify-center">
+              <Ban />
+              <span className="ml-2">No records found</span>
+            </p>
           ) : (
             <div className="overflow-y-auto mt-2 border  flex-1 flex flex-col bg-white rounded-lg">
               {/* Table Headings */}

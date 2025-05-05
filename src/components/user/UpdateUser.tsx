@@ -156,6 +156,7 @@ const UpdateUser = ({ userRecord }: any) => {
       email: "",
       password: "",
       completedStatus: "",
+      isActive: "",
 
       title: "None",
       fideId: 0,
@@ -215,7 +216,7 @@ const UpdateUser = ({ userRecord }: any) => {
 
     const formData = new FormData();
     formData.append("file", cvFile);
-    const folderName = `cv/${userRecord?.name}`;
+    const folderName = `cv/${userRecord?.branchName}/${userRecord?.name}`;
     formData.append("folderName", folderName);
 
     const { data: uploadresData } = await axios.post(
@@ -264,6 +265,7 @@ const UpdateUser = ({ userRecord }: any) => {
     if (userRecord) {
       reset({
         ...userRecord,
+        isActive: userRecord?.isActive ? "Active" : "Inactive",
       });
       setselectedRole(userRecord?.role);
       setisGlobalAdmin(userRecord?.isGlobalAdmin);
@@ -308,7 +310,7 @@ const UpdateUser = ({ userRecord }: any) => {
 
       {/* form */}
       <form
-        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-3"
+        className="addstudentform form-fields flex-1 h-full overflow-y-auto grid grid-cols-2 gap-5"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -724,7 +726,7 @@ const UpdateUser = ({ userRecord }: any) => {
               }}
               render={({ field }) => (
                 <Dropdown
-                  label="completedStatus"
+                  label="Status"
                   options={completedStatusOptions}
                   selected={field.value || ""}
                   onChange={(value: any) => {
@@ -737,6 +739,30 @@ const UpdateUser = ({ userRecord }: any) => {
                 />
               )}
             />
+
+            {/* active status to block login */}
+            <Controller
+              name="isActive"
+              control={control}
+              rules={{
+                required: "Status is required",
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Active Status"
+                  options={["Active", "Inactive"]}
+                  selected={field.value || ""}
+                  onChange={(value: any) => {
+                    field.onChange(value);
+                  }}
+                  required={true}
+                  error={errors.isActive}
+                  helperText={errors.isActive?.message}
+                  width="full"
+                />
+              )}
+            />
+
             {/* reset password (edit mode) */}
             {/* {mode == "edit" && (
               <>

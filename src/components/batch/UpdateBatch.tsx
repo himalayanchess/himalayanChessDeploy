@@ -6,7 +6,11 @@ import { Box, Button, Divider, Modal } from "@mui/material";
 import axios from "axios";
 import { notify } from "@/helpers/notify";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProjects, getAllBranches } from "@/redux/allListSlice";
+import {
+  fetchAllProjects,
+  getAllBranches,
+  getAllCourses,
+} from "@/redux/allListSlice";
 import { LoadingButton } from "@mui/lab";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
@@ -33,9 +37,8 @@ const UpdateBatch = ({ batchRecord }: any) => {
   const dispatch = useDispatch<any>();
 
   // use selector
-  const { allActiveProjects, allActiveBranchesList } = useSelector(
-    (state: any) => state.allListReducer
-  );
+  const { allActiveProjects, allActiveBranchesList, allActiveCoursesList } =
+    useSelector((state: any) => state.allListReducer);
 
   const [loaded, setLoaded] = useState(false);
   const affiliatedOptions = ["HCA", "School"];
@@ -74,6 +77,8 @@ const UpdateBatch = ({ batchRecord }: any) => {
       branchName: "",
       branchId: "",
       totalNoOfClasses: 0,
+      currentCourseId: "",
+      currentCourseName: "",
     },
   });
   // on submit function
@@ -105,6 +110,12 @@ const UpdateBatch = ({ batchRecord }: any) => {
         totalNoOfClasses: batchRecord?.totalNoOfClasses,
         assignedTrainers: batchRecord.assignedTrainers || [],
         timeSlots: batchRecord.timeSlots || [],
+        currentCourseId: batchRecord?.currentCourseId,
+        currentCourseName:
+          !batchRecord?.currentCourseName ||
+          batchRecord.currentCourseName?.toLowerCase() === "none"
+            ? "None"
+            : batchRecord.currentCourseName,
       });
       setselectedAffiliatedTo(batchRecord?.affiliatedTo);
       setLoaded(true);
@@ -115,6 +126,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
   useEffect(() => {
     dispatch(fetchAllProjects());
     dispatch(getAllBranches());
+    dispatch(getAllCourses());
   }, []);
 
   if (!loaded)
@@ -204,6 +216,7 @@ const UpdateBatch = ({ batchRecord }: any) => {
                   label="Batch Name"
                   type="text"
                   required={true}
+                  disabled
                   error={errors?.batchName}
                   helperText={errors?.batchName?.message}
                 />
@@ -304,25 +317,49 @@ const UpdateBatch = ({ batchRecord }: any) => {
             />
           </div>
           {/* totalNoOfClasses */}
-          <Controller
-            name="totalNoOfClasses"
-            control={control}
-            rules={{
-              required: "Total no. of classes required",
-            }}
-            render={({ field }) => {
-              return (
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  label="Total No. of Classes"
-                  type="number"
-                  error={errors?.totalNoOfClasses}
-                  helperText={errors?.totalNoOfClasses?.message}
+          <div className="grid grid-cols-2 gap-4">
+            <Controller
+              name="totalNoOfClasses"
+              control={control}
+              rules={{
+                required: "Total no. of classes required",
+              }}
+              render={({ field }) => {
+                return (
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    label="Total No. of Classes"
+                    type="number"
+                    error={errors?.totalNoOfClasses}
+                    helperText={errors?.totalNoOfClasses?.message}
+                  />
+                );
+              }}
+            />
+            {/* complete status */}
+            <Controller
+              name="completedStatus"
+              control={control}
+              rules={{
+                required: "Status is required",
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  label="Status"
+                  options={["Ongoing", "Completed"]}
+                  selected={field.value || ""}
+                  onChange={(value: any) => {
+                    field.onChange(value);
+                  }}
+                  error={errors.completeStatus}
+                  helperText={errors.completeStatus?.message}
+                  required={true}
+                  width="full"
                 />
-              );
-            }}
-          />
+              )}
+            />
+          </div>
         </div>
 
         {/* fourth row */}
@@ -349,7 +386,8 @@ const UpdateBatch = ({ batchRecord }: any) => {
 
                     setValue("branchId", selectedBranch?._id || "");
                   }}
-                  disabled={!isSuperOrGlobalAdmin}
+                  // disabled={!isSuperOrGlobalAdmin}
+                  disabled
                   error={errors.branchName}
                   helperText={errors.branchName?.message}
                   required={true}
@@ -360,29 +398,44 @@ const UpdateBatch = ({ batchRecord }: any) => {
           </div>
         )}
         {/* Complete Status */}
-        <div className="completeStatus col-span-1">
-          <Controller
-            name="completedStatus"
-            control={control}
-            rules={{
-              required: "Status is required",
-            }}
-            render={({ field }) => (
-              <Dropdown
-                label="Status"
-                options={["Ongoing", "Completed"]}
-                selected={field.value || ""}
-                onChange={(value: any) => {
-                  field.onChange(value);
-                }}
-                error={errors.completeStatus}
-                helperText={errors.completeStatus?.message}
-                required={true}
-                width="full"
-              />
-            )}
-          />
-        </div>
+
+        {/* current course */}
+        <Controller
+          name="currentCourseName"
+          control={control}
+          rules={
+            {
+              // required: "Current course is required",
+            }
+          }
+          render={({ field }) => (
+            <Dropdown
+              label="Current Course Name"
+              options={[
+                "None",
+                ...allActiveCoursesList?.map((course: any) => course.name),
+              ]}
+              selected={field.value || ""}
+              onChange={(value: any) => {
+                field.onChange(value);
+
+                if (value?.toLowerCase() === "none") {
+                  setValue("currentCourseName", "None");
+                  setValue("currentCourseId", "");
+                } else {
+                  const selectedCourse: any = allActiveCoursesList.find(
+                    (course: any) => course.name === value
+                  );
+                  setValue("currentCourseId", selectedCourse?._id || "");
+                }
+              }}
+              error={errors.currentCourseName}
+              helperText={errors.currentCourseName?.message}
+              width="full"
+            />
+          )}
+        />
+
         {/* add or edit button */}
         <Button
           onClick={handleconfirmModalOpen}

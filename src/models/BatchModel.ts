@@ -14,7 +14,8 @@ const BatchSchema = new mongoose.Schema(
     branchName: { type: String, default: "" },
     totalNoOfClasses: { type: Number, default: 0 },
     totalClassesTaken: { type: Number, default: 0 },
-
+    currentCourseId: { type: mongoose.Schema.Types.Mixed, ref: "Course" }, // Accepts any type
+    currentCourseName: { type: String, default: "" },
     activeStatus: { type: Boolean, default: true }, // Active status of the batch
   },
   { timestamps: true }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
 import { School } from "lucide-react";
+import DownloadIcon from "@mui/icons-material/Download";
 
 import { Button, Pagination, Stack } from "@mui/material";
 import ProjectList from "./ProjectList";
@@ -14,6 +15,7 @@ import {
   filterProjectsList,
   getAllUsers,
 } from "@/redux/allListSlice";
+import { exportProjectsListToExcel } from "@/helpers/exportToExcel/exportProjectsListToExcel";
 
 const ProjectComponent = ({ role }: any) => {
   // dispatch
@@ -44,6 +46,11 @@ const ProjectComponent = ({ role }: any) => {
   const startItem = (currentPage - 1) * projectsPerPage + 1;
   const endItem = Math.min(currentPage * projectsPerPage, filteredProjectCount);
   const showingText = `Showing ${startItem}-${endItem} of ${filteredProjectCount}`;
+
+  //export to excel
+  const exportToExcel = () => {
+    exportProjectsListToExcel(allFilteredActiveProjects);
+  };
 
   // Reset current page to 1 and searchtext when selectedStatus changes
   useEffect(() => {
@@ -103,13 +110,27 @@ const ProjectComponent = ({ role }: any) => {
   }, []);
   return (
     <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
+      <div className="flex justify-between">
+        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+          <School />
+          <span className="ml-2">Schools List</span>
+        </h2>
+        {/* excel button */}
+        <div className="excelbutton">
+          <Button
+            onClick={exportToExcel}
+            variant="contained"
+            color="success"
+            disabled={allFilteredActiveProjects?.length === 0}
+            startIcon={<DownloadIcon />}
+          >
+            Export to Excel
+          </Button>
+        </div>
+      </div>
       <div className="title-search-container  flex justify-between items-end">
         {/* title and Dropdown */}
         <div className="title-options">
-          <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-            <School />
-            <span className="ml-2">Schools List</span>
-          </h2>
           <div className="dropdown flex gap-4 mb-1 items-end">
             <Dropdown
               label="Status"

@@ -17,6 +17,7 @@ import {
   CalendarArrowUp,
   CalendarArrowDown,
   MapPinHouse,
+  CalendarCheck2,
 } from "lucide-react";
 
 dayjs.extend(utc);
@@ -216,7 +217,7 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
                 }`}
                 className="font-medium ml-1 text-md underline hover:text-blue-500"
               >
-                {activityRecord?.courseName}
+                {activityRecord?.courseName || "N/A"}
               </Link>
             ) : (
               <p className="font-medium ml-1 text-md text-gray-700">N/A</p>
@@ -224,12 +225,23 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
           </div>
         </div>
 
-        <div className=" mt-2 gap-1">
+        <div className=" mt-2 grid grid-cols-2 gap-1">
           <div>
             <p className="text-sm text-gray-500">Main Study Topic</p>
             <p className="font-medium text-md">
               <StickyNote2OutlinedIcon sx={{ color: "gray" }} />
-              <span className="ml-1">{activityRecord?.mainStudyTopic}</span>
+              <span className="ml-1">
+                {activityRecord?.mainStudyTopic || "N/A"}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Current Class Number</p>
+            <p className="font-medium text-md text-gray-500 flex items-center">
+              <CalendarCheck2 />
+              <span className="ml-2 text-xl font-bold">
+                {activityRecord?.currentClassNumber || "N/A"}
+              </span>
             </p>
           </div>
         </div>
@@ -260,6 +272,15 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
             <p className="text-sm text-gray-500">Week Number</p>
             <p className="font-medium text-md">#{activityRecord?.weekNumber}</p>
           </div>
+        </div>
+      </div>
+
+      <div className={`bg-gray-50 col-span-2 rounded-xl  p-4 `}>
+        <p className="font-bold text-gray-500 text-sm">Class Description</p>
+        <div>
+          <p className="text-md text-gray-500">
+            {activityRecord?.description?.trim() || "N/A"}
+          </p>
         </div>
       </div>
     </div>

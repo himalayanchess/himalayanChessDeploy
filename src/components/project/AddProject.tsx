@@ -184,7 +184,7 @@ const AddProject = () => {
       if (contractFile) {
         const formData = new FormData();
         formData.append("file", contractFile);
-        const folderName = `contractpapers/${resData?.savednewProject?.name}`;
+        const folderName = `schoolcontractpapers/${resData?.savednewProject?.name}`;
         formData.append("folderName", folderName);
         formData.append("cloudinaryFileType", "otherFiles");
 

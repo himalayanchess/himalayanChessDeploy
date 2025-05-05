@@ -7,6 +7,7 @@ import {
   TimerReset,
   CalendarCheck2,
   CalendarClock,
+  Book,
 } from "lucide-react";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
@@ -175,6 +176,36 @@ const BasicBatchInfo = ({ batchRecord }: any) => {
                 {batchRecord?.totalClassesTaken || "N/A"}
               </span>
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* course Information */}
+      <div className="bg-gray-50 rounded-xl p-4">
+        <p className="text-sm text-gray-500 mb-2 font-bold flex items-center">
+          {/* <InfoOutlinedIcon /> */}
+          <span className="ml-0.5">Course Information</span>
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="col-span-2">
+            <p className="text-xs text-gray-500">Current Course</p>
+            <div className="detail flex items-center text-gray-500">
+              <Book />
+              {batchRecord?.currentCourseName &&
+              batchRecord.currentCourseName?.toLowerCase() !== "none" ? (
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/courses/${
+                    batchRecord?.currentCourseId
+                  }`}
+                >
+                  <p className="font-bold text-lg ml-2 underline hover:text-blue-500">
+                    {batchRecord.currentCourseName}
+                  </p>
+                </Link>
+              ) : (
+                <p className="font-bold text-lg ml-2">None</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

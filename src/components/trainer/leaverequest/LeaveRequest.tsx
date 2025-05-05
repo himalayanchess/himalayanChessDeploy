@@ -272,7 +272,7 @@ const LeaveRequest = ({ role = "" }: any) => {
         const extractedDate = dayjs(nepaliTodaysDate)
           .tz(timeZone)
           .format("YYYY-MM-DD");
-        const folderName = `leaveSupportReasons/${sessionData?.user?.name}/${extractedDate}`;
+        const folderName = `leaveSupportReasons/${data?.branchName}/${sessionData?.user?.name}/${extractedDate}`;
         formData.append("folderName", folderName);
         formData.append("cloudinaryFileType", "otherFiles");
 

@@ -8,7 +8,6 @@ import LockIcon from "@mui/icons-material/Lock";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box, Button, Modal, Radio, FormControlLabel } from "@mui/material";
-import AddBatch from "./AddBatch";
 import Link from "next/link";
 import { notify } from "@/helpers/notify";
 import { deleteBatch } from "@/redux/allListSlice";

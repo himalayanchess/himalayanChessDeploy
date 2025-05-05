@@ -22,6 +22,8 @@ import { Controller, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import UserList from "@/components/user/UserList";
 import { useDispatch, useSelector } from "react-redux";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import {
   filterUsersList,
   getAllBranches,
@@ -29,6 +31,7 @@ import {
 } from "@/redux/allListSlice";
 import SearchInput from "../SearchInput";
 import Link from "next/link";
+import { exportUsersListToExcel } from "@/helpers/exportToExcel/exportUsersListToExcel";
 
 const UsersComponent = ({ role = "" }: any) => {
   console.log("role inside users comp", role);
@@ -51,12 +54,20 @@ const UsersComponent = ({ role = "" }: any) => {
   const [searchText, setsearchText] = useState("");
   const [selectedRole, setSelectedRole] = useState("All");
   const [selectedBranch, setselectedBranch] = useState("");
+  // not the delete activeStatus
+  // isActive property for login access
+  const [selectedActiveStatus, setselectedActiveStatus] = useState("All");
   const [filteredUsersCount, setFilteredUsersCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
   const [usersPerPage] = useState(7);
 
   const handlePageChange = (event: any, value: any) => {
     setCurrentPage(value);
+  };
+
+  //export to excel
+  const exportToExcel = () => {
+    exportUsersListToExcel(allFilteredActiveUsersList);
   };
 
   // Calculate showing text
@@ -89,6 +100,14 @@ const UsersComponent = ({ role = "" }: any) => {
               user.branchName.toLowerCase() == selectedBranch?.toLowerCase()
           );
 
+    // filter by active status (isActive)
+    tempFilteredUsersList =
+      selectedActiveStatus?.toLowerCase() === "all"
+        ? tempFilteredUsersList
+        : selectedActiveStatus?.toLowerCase() === "active"
+        ? tempFilteredUsersList.filter((user: any) => user.isActive)
+        : tempFilteredUsersList.filter((user: any) => !user.isActive);
+
     if (searchText.trim() !== "") {
       tempFilteredUsersList = tempFilteredUsersList.filter((user: any) =>
         user.name.toLowerCase().includes(searchText.toLowerCase())
@@ -105,7 +124,13 @@ const UsersComponent = ({ role = "" }: any) => {
     setFilteredUsersCount(tempFilteredUsersList?.length);
     setCurrentPage(1);
     dispatch(filterUsersList(tempFilteredUsersList));
-  }, [allActiveUsersList, selectedRole, selectedBranch, searchText]);
+  }, [
+    allActiveUsersList,
+    selectedRole,
+    selectedBranch,
+    selectedActiveStatus,
+    searchText,
+  ]);
 
   // branch access
   useEffect(() => {
@@ -130,19 +155,34 @@ const UsersComponent = ({ role = "" }: any) => {
   return (
     <div className="flex w-full">
       <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
+        <div className="main-header flex justify-between">
+          <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+            <CircleUser />
+            <span className="ml-2">Users List</span>
+          </h2>
+          {/* excel button */}
+          <div className="excelbutton">
+            <Button
+              onClick={exportToExcel}
+              variant="contained"
+              color="success"
+              disabled={allFilteredActiveUsersList?.length === 0}
+              startIcon={<DownloadIcon />}
+            >
+              Export to Excel
+            </Button>
+          </div>
+        </div>
         <div className="title-search-container mb-0 flex justify-between items-end">
           {/* title and Dropdown */}
-          <div className="title-options">
-            <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-              <CircleUser />
-              <span className="ml-2">Users List</span>
-            </h2>
-            <div className="dropdown flex gap-4  mb-1 items-end">
+          <div className="title-options  w-full flex-1">
+            <div className="dropdown  w-full grid grid-cols-4 gap-3 mb-1 items-end">
               <Dropdown
                 label="Role"
                 options={options}
                 selected={selectedRole}
                 onChange={setSelectedRole}
+                width="full"
               />
               <Dropdown
                 label="Branch"
@@ -161,6 +201,14 @@ const UsersComponent = ({ role = "" }: any) => {
                 }
                 selected={selectedBranch}
                 onChange={setselectedBranch}
+                width="full"
+              />
+              <Dropdown
+                label="Active Status"
+                options={["All", "Active", "Inactive"]}
+                selected={selectedActiveStatus}
+                onChange={setselectedActiveStatus}
+                width="full"
               />
               <span className="text-sm text-gray-600">{showingText}</span>
             </div>

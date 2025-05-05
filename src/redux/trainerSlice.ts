@@ -137,7 +137,7 @@ const trainerSlice = createSlice({
       });
 
       // Set the all lessons to selectedCourseLessons state
-      state.selectedCourseLessons = ["Play", ...allLessons];
+      state.selectedCourseLessons = ["Play", "Test", ...allLessons];
     },
 
     // update todays classes record when trainer updates the student record
