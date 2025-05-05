@@ -134,6 +134,8 @@ const ActivityRecordComponent = () => {
               record.affiliatedTo.toLowerCase() ==
               selectedAffiliatedTo?.toLowerCase()
           );
+
+    // filter by branch
     filtered =
       selectedBranch?.toLowerCase() == "all"
         ? filtered
@@ -277,7 +279,7 @@ const ActivityRecordComponent = () => {
               label="Batch"
               options={[
                 "All",
-                ...filteredBatches?.map((batch: any) => batch.batchName ),
+                ...filteredBatches?.map((batch: any) => batch.batchName),
               ]}
               selected={selectedBatchName}
               onChange={setselectedBatchName}

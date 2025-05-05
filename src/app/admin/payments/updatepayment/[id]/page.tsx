@@ -62,7 +62,8 @@ const page = ({ params }: any) => {
           ) : invalidId ? (
             <p>Invalid student id</p>
           ) : (
-            <UpdatePayment paymentRecord={paymentRecord} />
+            // <UpdatePayment paymentRecord={paymentRecord} />
+            <p>No access</p>
           )}
         </div>
       </div>

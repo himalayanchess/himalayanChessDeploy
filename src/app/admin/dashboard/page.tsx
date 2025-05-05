@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 
 import Header from "@/components/Header";
 import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
+import DashboardComponent from "@/components/dashboard/DashboardComponent";
 const page = () => {
   const router = useRouter();
   const session = useSession();
@@ -21,7 +22,7 @@ const page = () => {
       />
       <main className="ml-[3rem] w-[96%]  min-h-[100dvh] ">
         <Header />
-        <div className="dashboard-container py-6 px-14">Dashboard</div>
+        <DashboardComponent />
       </main>
     </div>
   );

@@ -12,6 +12,10 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import ActivityRecord from "@/models/ActivityRecordModel";
 import NonAffiliatedStudent from "@/models/NonAffiliatedStudentModel";
+import Project from "@/models/ProjectModel";
+import Course from "@/models/CourseModel";
+import StudyMaterial from "@/models/StudyMaterialsModel";
+import LeaveRequest from "@/models/LeaveRequestModel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -47,29 +51,19 @@ export async function POST(request: NextRequest) {
     };
 
     const [
-      adminCount,
-      trainerCount,
-      pendingPayments,
-      partialPayments,
-      branches,
+      todaysAssignedClasses,
       hcaStudents,
       schoolStudents,
       users,
-      todaysAssignedClasses,
+      pendingPayments,
+      partialPayments,
+      paidPayments,
+      affiliatedSchools,
+      totalCourses,
+      totalBranches,
+      pendingLeaveRequests,
+      totalStudyMaterials,
     ] = await Promise.all([
-      User.countDocuments({ role: "Admin", ...branchFilter }),
-      User.countDocuments({ role: "Trainer", ...branchFilter }),
-      Payment.countDocuments({ status: "Pending" }),
-      Payment.countDocuments({ status: "Partial" }),
-      Branch.countDocuments({}),
-      HcaAffiliatedStudent.find(overallFilter).select(
-        "_id name dob role branchName branchId imageUrl"
-      ),
-      NonAffiliatedStudent.countDocuments({ activeStatus: true }),
-
-      User.find(overallFilter).select(
-        "_id name dob role branchName branchId imageUrl"
-      ),
       ActivityRecord.find({
         ...overallFilter,
         utcDate: {
@@ -77,6 +71,24 @@ export async function POST(request: NextRequest) {
           $lte: endOfToday,
         },
       }),
+      HcaAffiliatedStudent.find(overallFilter).select(
+        "_id name dob role branchName branchId imageUrl"
+      ),
+      NonAffiliatedStudent.countDocuments({ activeStatus: true }),
+      User.find(overallFilter).select(
+        "_id name dob role branchName branchId imageUrl"
+      ),
+      Payment.countDocuments({ paymentStatus: "Pending", ...overallFilter }),
+      Payment.countDocuments({ paymentStatus: "Partial", ...overallFilter }),
+      Payment.countDocuments({ paymentStatus: "Paid", ...overallFilter }),
+      Project.countDocuments({ activeStatus: true }),
+      Course.countDocuments({ activeStatus: true }),
+      Branch.countDocuments({ activeStatus: true }),
+      LeaveRequest.countDocuments({
+        approvalStatus: "pending",
+        ...overallFilter,
+      }),
+      StudyMaterial.countDocuments({ activeStatus: true }),
     ]);
 
     // Combine all people from HCA students and users
@@ -113,15 +125,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       date: today.format("D MMMM, YYYY"),
 
-      users: {
-        Admin: adminCount,
-        Trainers: trainerCount,
-      },
-      payment: {
-        Pending: pendingPayments,
-        Partial: partialPayments,
-      },
-      branches,
       birthdayThisWeek,
       todaysAssignedClasses,
       totalClasses: todaysAssignedClasses.length,
@@ -130,6 +133,20 @@ export async function POST(request: NextRequest) {
       ).length,
       hcaAffiliatedStudents: hcaStudents?.length || 0,
       schoolStudents,
+      adminUsers: users?.filter(
+        (user: any) => user?.role?.toLowerCase() == "admin"
+      )?.length,
+      trainerUsers: users?.filter(
+        (user: any) => user?.role?.toLowerCase() == "trainer"
+      )?.length,
+      pendingPayments,
+      partialPayments,
+      paidPayments,
+      affiliatedSchools,
+      totalCourses,
+      totalBranches,
+      pendingLeaveRequests,
+      totalStudyMaterials,
     });
   } catch (err: any) {
     console.error("Error fetching dashboard data:", err);

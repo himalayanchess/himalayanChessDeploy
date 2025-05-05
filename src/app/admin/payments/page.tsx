@@ -13,7 +13,8 @@ const page = () => {
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <div className="pb-6 h-[91dvh]  flex flex-col py-5 px-14 ">
-          <PaymentComponent />
+          {/* <PaymentComponent /> */}
+          <p>No access</p>
         </div>
       </div>
     </div>

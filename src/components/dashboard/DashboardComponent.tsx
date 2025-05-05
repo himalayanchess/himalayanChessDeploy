@@ -5,8 +5,10 @@ import {
   BookOpenCheck,
   Cake,
   CalendarDays,
+  CaptionsOff,
   ChartBarBig,
   CircleUser,
+  Crown,
   DollarSign,
   MapPinHouse,
   RotateCw,
@@ -25,7 +27,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import hcalogo from "@/images/hca-transparent.png";
@@ -38,6 +40,7 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import Link from "next/link";
+import ViewAllAssignedClasses from "./ViewAllAssignedClasses";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -64,6 +67,7 @@ const DashboardComponent = () => {
   const [formattedTime, setFormattedTime] = useState("");
   const [dashboardDataLoading, setdashboardDataLoading] = useState(true);
   const [birthdayThisWeek, setbirthdayThisWeek] = useState([]);
+  const [todaysAssignedClasses, settodaysAssignedClasses] = useState([]);
   const [countData, setcountData] = useState({
     totalClasses: 0,
     classTaken: 0,
@@ -71,16 +75,22 @@ const DashboardComponent = () => {
     schoolStudents: 0,
     adminUsers: 0,
     trainerUsers: 0,
-    pendingPayment: 0,
-    partialPayment: 0,
+    pendingPayments: 0,
+    partialPayments: 0,
+    // not used
+    paidPayments: 0,
     affiliatedSchools: 0,
     totalCourses: 0,
     totalBranches: 0,
+    pendingLeaveRequests: 0,
+    // not used
     totalStudyMaterials: 0,
   });
 
   //modal states
   const [birthdayUsersModalOpen, setbirthdayUsersModalOpen] = useState(false);
+  const [viewTodaysClassModalOpen, setviewTodaysClassModalOpen] =
+    useState(false);
 
   //modal operations
   function handlebirthdayUsersModalOpen() {
@@ -88,6 +98,12 @@ const DashboardComponent = () => {
   }
   function handlebirthdayUsersModalClose() {
     setbirthdayUsersModalOpen(false);
+  }
+  function handleviewTodaysClassModalOpen() {
+    setviewTodaysClassModalOpen(true);
+  }
+  function handleviewTodaysClassModalClose() {
+    setviewTodaysClassModalOpen(false);
   }
 
   const startDay = currentMonth.startOf("week");
@@ -128,6 +144,9 @@ const DashboardComponent = () => {
 
       // birthday
       setbirthdayThisWeek(resData.birthdayThisWeek || []);
+      // todaysAssignedClasses
+      settodaysAssignedClasses(resData?.todaysAssignedClasses || []);
+
       // total classes and classes taken
       setcountData((prev: any) => {
         return {
@@ -136,6 +155,16 @@ const DashboardComponent = () => {
           classTaken: resData?.classesTaken,
           hcaAffiliatedStudents: resData?.hcaAffiliatedStudents,
           schoolStudents: resData?.schoolStudents,
+          adminUsers: resData?.adminUsers,
+          trainerUsers: resData?.trainerUsers,
+          pendingPayments: resData?.pendingPayments,
+          partialPayments: resData?.partialPayments,
+          paidPayments: resData?.paidPayments,
+          affiliatedSchools: resData?.affiliatedSchools,
+          totalCourses: resData?.totalCourses,
+          totalBranches: resData?.totalBranches,
+          pendingLeaveRequests: resData?.pendingLeaveRequests,
+          totalStudyMaterials: resData?.totalStudyMaterials,
         };
       });
 
@@ -232,64 +261,75 @@ const DashboardComponent = () => {
                 </div>
                 {/* birthday-users-list */}
                 <div className="birthday-users-list grid grid-cols-3 gap-2">
-                  {dashboardDataLoading
-                    ? // Show skeletons when loading
-                      Array.from({ length: 3 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="birthday-user bg-gray-100 rounded-lg p-2 flex"
-                        >
-                          <Skeleton variant="circular" width={24} height={24} />
-                          <div className="icon-name w-full flex flex-col ml-2">
-                            <Skeleton width="50%" height={20} />
-                            <Skeleton width="50%" height={15} />
-                            <div className="flex items-center">
-                              <Skeleton width={12} height={12} />
-                              <Skeleton
-                                width="38%"
-                                height={15}
-                                className="ml-2"
-                              />
-                            </div>
+                  {dashboardDataLoading ? (
+                    // Show skeletons
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className="birthday-user bg-gray-100 rounded-lg p-2 flex"
+                      >
+                        <Skeleton variant="circular" width={24} height={24} />
+                        <div className="icon-name w-full flex flex-col ml-2">
+                          <Skeleton width="50%" height={20} />
+                          <Skeleton width="50%" height={15} />
+                          <div className="flex items-center">
+                            <Skeleton width={12} height={12} />
+                            <Skeleton
+                              width="38%"
+                              height={15}
+                              className="ml-2"
+                            />
                           </div>
                         </div>
-                      ))
-                    : // Show actual birthday users when loaded
-                      birthdayThisWeek.slice(0, 3).map((birthdayuser: any) => (
-                        <div
-                          key={birthdayuser?._id}
-                          className="birthday-user bg-gray-100 rounded-lg p-2 flex"
+                      </div>
+                    ))
+                  ) : birthdayThisWeek.length == 0 ? (
+                    // Show message if no birthdays
+                    <div className="col-span-3 flex items-center justify-center  rounded-lg text-gray-500">
+                      <CaptionsOff style={{ fontSize: 40 }} />
+                      <span className="text-md font-medium ml-2">
+                        No birthday people this week
+                      </span>
+                    </div>
+                  ) : (
+                    // Show actual birthday users
+                    birthdayThisWeek.slice(0, 3).map((birthdayuser: any) => (
+                      <div
+                        key={birthdayuser?._id}
+                        className="birthday-user bg-gray-100 rounded-lg p-2 flex"
+                      >
+                        <Avatar
+                          src={birthdayuser?.imageUrl || undefined}
+                          sx={{
+                            height: "1.8rem",
+                            width: "1.8rem",
+                            fontSize: "0.7rem",
+                          }}
                         >
-                          <Avatar
-                            sx={{
-                              height: "1.4rem",
-                              width: "1.4rem",
-                              fontSize: "0.7rem",
-                            }}
-                          >
-                            {birthdayuser?.name[0]}{" "}
-                            {/* Display first letter of name */}
-                          </Avatar>
-                          <div className="icon-name flex flex-col ml-2">
-                            <span className="ml-1 text-sm font-bold text-gray-500">
-                              {birthdayuser?.name}
+                          {!birthdayuser?.imageUrl && birthdayuser?.name?.[0]}
+                        </Avatar>
+
+                        <div className="icon-name flex flex-col ml-2">
+                          <span className="ml-1 text-sm font-bold text-gray-500">
+                            {birthdayuser?.name}
+                          </span>
+                          <span className="ml-1 text-xs text-gray-500">
+                            {birthdayuser?.extractedRole}
+                          </span>
+                          <span className="ml-1 text-xs text-gray-500 flex items-center">
+                            <CalendarDays size={15} />
+                            <span className="ml-1">
+                              {birthdayuser?.dob
+                                ? dayjs(birthdayuser?.dob)
+                                    .tz(timeZone)
+                                    .format("DD MMM, YYYY")
+                                : "N/A"}
                             </span>
-                            <span className="ml-1 text-xs text-gray-500">
-                              {birthdayuser?.extractedRole}
-                            </span>
-                            <span className="ml-1 text-xs text-gray-500 flex items-center">
-                              <CalendarDays size={15} />
-                              <span className="ml-1">
-                                {birthdayuser?.dob
-                                  ? dayjs(birthdayuser?.dob)
-                                      .tz(timeZone)
-                                      .format("DD MMM, YYYY")
-                                  : "N/A"}
-                              </span>
-                            </span>
-                          </div>
+                          </span>
                         </div>
-                      ))}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -303,7 +343,7 @@ const DashboardComponent = () => {
               aria-describedby="birthday-users-modal-description"
               className="flex items-center justify-center"
             >
-              <Box className="w-[50%] max-h-[80%] p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
+              <Box className="w-[50%] max-h-[80%] overflow-y-auto p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between border-b pb-3 items-center w-full mb-6">
                   <p className="font-semibold text-2xl  flex text-gray-500 items-center">
@@ -331,14 +371,14 @@ const DashboardComponent = () => {
                       className="birthday-user bg-gray-100 rounded-lg p-2 flex"
                     >
                       <Avatar
+                        src={birthdayuser?.imageUrl || undefined}
                         sx={{
-                          height: "1.4rem",
-                          width: "1.4rem",
+                          height: "1.8rem",
+                          width: "1.8rem",
                           fontSize: "0.7rem",
                         }}
                       >
-                        {birthdayuser?.name[0]}{" "}
-                        {/* Display first letter of name */}
+                        {!birthdayuser?.imageUrl && birthdayuser?.name?.[0]}
                       </Avatar>
                       <div className="icon-name flex flex-col ml-2">
                         {birthdayuser?.extractedRole?.toLowerCase() ===
@@ -418,11 +458,22 @@ const DashboardComponent = () => {
                   <span className="ml-1">Todays classes</span>
                 </p>
                 {/* button */}
-                <Button className="flex items-center ">
+                <Button
+                  className="flex items-center "
+                  onClick={handleviewTodaysClassModalOpen}
+                >
                   <span className="mr-1">View all</span>
-                  <ArrowRight size={15} />
+                  {/* <ArrowRight size={15} /> */}
                 </Button>
               </div>
+              {/* view todays class modal */}
+              <ViewAllAssignedClasses
+                countData={countData}
+                handleClose={handleviewTodaysClassModalClose}
+                modalOpen={viewTodaysClassModalOpen}
+                todaysAssignedClasses={todaysAssignedClasses}
+              />
+
               {/* content */}
               <div className="content grid grid-cols-2 flex-1  place-items-center">
                 {/* count */}
@@ -451,10 +502,14 @@ const DashboardComponent = () => {
                   <span className="ml-1">Students</span>
                 </p>
                 {/* button */}
-                <Button className="flex items-center ">
-                  <span className="mr-1">View all</span>
-                  <ArrowRight size={15} />
-                </Button>
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/students`}
+                >
+                  <Button className="flex items-center ">
+                    <span className="mr-1">View all</span>
+                    <ArrowRight size={15} />
+                  </Button>
+                </Link>
               </div>
               {/* content */}
               <div className="content grid grid-cols-2 flex-1 place-items-center">
@@ -484,21 +539,31 @@ const DashboardComponent = () => {
                   <span className="ml-1">Users</span>
                 </p>
                 {/* button */}
-                <Button className="flex items-center ">
-                  <span className="mr-1">View all</span>
-                  <ArrowRight size={15} />
-                </Button>
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/users`}
+                >
+                  <Button className="flex items-center ">
+                    <span className="mr-1">View all</span>
+                    <ArrowRight size={15} />
+                  </Button>
+                </Link>
               </div>
               {/* content */}
               <div className="content grid grid-cols-2 flex-1 place-items-center">
                 {/* count */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {" "}
+                    {countData.adminUsers || 0}
+                  </p>
                   <p className="text-sm text-gray-500">Admin</p>
                 </div>
                 {/* classes taken */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {" "}
+                    {countData.trainerUsers || 0}
+                  </p>
                   <p className="text-sm text-gray-500">Trainers</p>
                 </div>
               </div>
@@ -513,21 +578,29 @@ const DashboardComponent = () => {
                   <span className="ml-1">Payment</span>
                 </p>
                 {/* button */}
-                <Button className="flex items-center ">
-                  <span className="mr-1">View all</span>
-                  <ArrowRight size={15} />
-                </Button>
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/payments`}
+                >
+                  <Button className="flex items-center ">
+                    <span className="mr-1">View all</span>
+                    <ArrowRight size={15} />
+                  </Button>
+                </Link>
               </div>
               {/* content */}
               <div className="content grid grid-cols-2 flex-1 place-items-center">
                 {/* count */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {countData.pendingPayments || 0}
+                  </p>
                   <p className="text-sm text-gray-500">Pending</p>
                 </div>
                 {/* classes taken */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {countData.partialPayments || 0}
+                  </p>
                   <p className="text-sm text-gray-500">Partial</p>
                 </div>
               </div>
@@ -551,15 +624,29 @@ const DashboardComponent = () => {
               <div className="content grid grid-cols-2 flex-1 place-items-center">
                 {/* count */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
-                  <p className="text-sm text-gray-500 underline">
-                    Affiliated Schools
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {countData.affiliatedSchools || 0}
                   </p>
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}
+                  >
+                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                      Affiliated Schools
+                    </p>
+                  </Link>
                 </div>
                 {/* classes taken */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
-                  <p className="text-sm text-gray-500 underline">Courses</p>
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {countData.totalCourses || 0}
+                  </p>
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/courses`}
+                  >
+                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                      Courses
+                    </p>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -570,7 +657,9 @@ const DashboardComponent = () => {
                 {/* topic */}
                 <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
                   <MapPinHouse size={18} />
-                  <span className="ml-1">Branches & Study Materials</span>
+                  <span className="ml-1">
+                    Branches & Pending Leave requests
+                  </span>
                 </p>
                 {/* button */}
                 {/* <Button className="flex items-center ">
@@ -582,15 +671,29 @@ const DashboardComponent = () => {
               <div className="content grid grid-cols-2 flex-1 place-items-center">
                 {/* count */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
-                  <p className="text-sm text-gray-500 underline">Branches</p>
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {countData.totalBranches || 0}
+                  </p>
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches`}
+                  >
+                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                      Branches
+                    </p>
+                  </Link>
                 </div>
                 {/* classes taken */}
                 <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">10 </p>
-                  <p className="text-sm text-gray-500 underline">
-                    Study Materials
+                  <p className="count text-3xl font-bold text-gray-500">
+                    {countData.pendingLeaveRequests || 0}
                   </p>
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/leaveapproval`}
+                  >
+                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                      Pending requests
+                    </p>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -600,20 +703,34 @@ const DashboardComponent = () => {
         {/* right side */}
         <div className="userattendancechart w-[30%] p-4 bg-white rounded-md shadow-md h-full flex flex-col gap-4">
           {/* Top: User Info */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center p-4 rounded-md">
-            <Avatar sx={{ width: 130, height: 130 }} />
+          <div className="flex-1 flex flex-col justify-center items-center text-center p-2 rounded-md">
+            <Avatar
+              src={session?.data?.user?.imageUrl || undefined}
+              sx={{ width: 200, height: 200 }}
+            />
             <h2 className="mt-3 text-xl  flex items-center text-gray-700">
               <span className="font-medium">Hi,</span>
-              <span className="ml-1 font-bold">Cyrus Maharjan</span>
+              <span className="ml-1 font-bold">
+                {session?.data?.user?.name || "User"}
+              </span>
             </h2>
             <p className="text-sm text-gray-500 flex items-center mt-1">
-              <User2 size={18} />
-              <span className="ml-1">Superadmin</span>
+              {session?.data?.user?.role?.toLowerCase() === "superadmin" && (
+                <Crown size={14} />
+              )}
+              {session?.data?.user?.role?.toLowerCase() === "admin" && (
+                <CircleUser size={14} />
+              )}
+              {session?.data?.user?.role?.toLowerCase() === "trainer" && (
+                <User size={14} />
+              )}
+              <span className="mx-1">{session?.data?.user?.role}</span>
+              {session?.data?.user?.isGlobalAdmin && <Crown size={14} />}
             </p>
           </div>
 
           {/* Bottom: Calendar */}
-          <div className="flex flex-col p-4 rounded-md">
+          <div className="flex flex-col p-2 rounded-md">
             {/* Header with Month and Controls */}
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">
@@ -655,7 +772,7 @@ const DashboardComponent = () => {
                   <div
                     key={index}
                     className={`
-                  p-2 rounded-md 
+                  p-2 rounded-md  cursor-pointer
                   ${isToday ? "bg-blue-500 text-white font-bold" : ""}
                   ${
                     !inCurrentMonth

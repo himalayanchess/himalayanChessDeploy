@@ -9,6 +9,7 @@ declare module "next-auth" {
     isGlobalAdmin: any;
     branchName: any;
     branchId: any;
+    imageUrl: any;
   }
   interface Session {
     user: {
@@ -19,6 +20,7 @@ declare module "next-auth" {
       isGlobalAdmin: any;
       branchName: any;
       branchId: any;
+      imageUrl: any;
     } & DefaultSession["user"];
   }
 }

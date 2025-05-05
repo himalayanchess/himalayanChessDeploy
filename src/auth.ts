@@ -45,6 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           isGlobalAdmin: resData?.fetchedUser.isGlobalAdmin || false,
           branchName: resData?.fetchedUser.branchName || "",
           branchId: resData?.fetchedUser.branchId || "",
+          imageUrl: resData?.fetchedUser.imageUrl || "",
         };
 
         // user for token now
@@ -63,6 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.isGlobalAdmin = user.isGlobalAdmin;
         token.branchName = user.branchName;
         token.branchId = user.branchId;
+        token.imageUrl = user.imageUrl;
       }
       return token;
     },
@@ -75,6 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.isGlobalAdmin = token.isGlobalAdmin;
         session.user.branchName = token.branchName;
         session.user.branchId = token.branchId;
+        session.user.imageUrl = token.imageUrl;
       }
       return session;
     },

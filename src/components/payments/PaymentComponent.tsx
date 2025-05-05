@@ -255,12 +255,13 @@ const PaymentComponent = () => {
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
     console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
-    let branchName = "All";
+    // let branchName = "All";
     let paymentType = "All";
-    if (!isSuperOrGlobalAdmin) {
-      branchName = user?.branchName;
-      paymentType = "All";
-    }
+    // if (!isSuperOrGlobalAdmin) {
+    //   branchName = user?.branchName;
+    //   paymentType = "All";
+    // }
+    let branchName = user?.branchName;
     setselectedBranch(branchName);
     setselectedPaymentType(paymentType);
   }, [session?.data?.user]);
@@ -320,7 +321,8 @@ const PaymentComponent = () => {
                   (branch: any) => branch.branchName
                 ) || []),
               ]}
-              disabled={!isSuperOrGlobalAdmin}
+              // disabled={!isSuperOrGlobalAdmin}
+              disabled
               selected={selectedBranch}
               onChange={setselectedBranch}
               width="full"

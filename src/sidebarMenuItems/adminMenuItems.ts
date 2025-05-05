@@ -77,9 +77,9 @@ export const adminMenuItems = [
     label: "Tournaments",
     linkName: "tournaments",
   },
-  {
-    icon: DollarSign,
-    label: "Payments",
-    linkName: "payments",
-  },
+  // {
+  //   icon: DollarSign,
+  //   label: "Payments",
+  //   linkName: "payments",
+  // },
 ];

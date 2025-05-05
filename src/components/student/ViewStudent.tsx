@@ -97,7 +97,15 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       icon: <HistoryOutlinedIcon />,
     },
     { label: "Records", value: "activity", icon: <LayoutList /> },
-    { label: "Payment", value: "payment", icon: <AttachMoneyOutlinedIcon /> },
+    ...(session?.data?.user?.role?.toLowerCase() === "superadmin"
+      ? [
+          {
+            label: "Payment",
+            value: "payment",
+            icon: <AttachMoneyOutlinedIcon />,
+          },
+        ]
+      : []),
     {
       label: "Tournaments",
       value: "events",

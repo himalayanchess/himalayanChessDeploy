@@ -73,7 +73,9 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
     { label: "Basic Information", value: "basic", icon: <InfoOutlinedIcon /> },
     { label: "Projects", value: "projects", icon: <School /> },
     { label: "Activity Records", value: "activity", icon: <LayoutList /> },
-    { label: "Payment Records", value: "payment", icon: <DollarSign /> },
+    ...(session?.data?.user?.role?.toLowerCase() === "superadmin"
+      ? [{ label: "Payment Records", value: "payment", icon: <DollarSign /> }]
+      : []),
   ];
 
   // show dynamic compnent

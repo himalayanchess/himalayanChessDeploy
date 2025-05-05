@@ -77,7 +77,15 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
       icon: <AccessTimeOutlinedIcon />,
     },
     { label: "Activity Records", value: "activity", icon: <LayoutList /> },
-    { label: "Payment Records", value: "payment", icon: <DollarSign /> },
+    ...(session?.data?.user?.role?.toLowerCase() === "superadmin"
+      ? [
+          {
+            label: "Payment Records",
+            value: "payment",
+            icon: <DollarSign />,
+          },
+        ]
+      : []),
   ];
 
   // show dynamic compnent

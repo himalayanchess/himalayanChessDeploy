@@ -91,7 +91,7 @@ const ProjectList = ({
           SN
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
-          Project Name
+          School Name
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
           Address
