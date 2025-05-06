@@ -163,7 +163,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
       completedStatus: "",
       enrolledCourses: [],
       eventsPlayed: [],
-      history: [],
+      litchesUsername: "",
+      litchesUrl: "",
       branchName: "",
       branchId: "",
       guardianInfo: { name: "", phone: "", email: "" },
@@ -303,6 +304,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
         projectId: studentRecord?.projectId || "",
         batches: activeBatches || [],
         enrolledCourses: activeEnrolledCourses || [],
+        litchesUsername: studentRecord?.litchesUsername || "",
+        litchesUrl: studentRecord?.litchesUrl || "",
       });
       setselectedAffiliatedTo(studentRecord?.affiliatedTo || "");
       setSelectedProject(studentRecord?.projectName || "");
@@ -682,7 +685,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
 
         {/* Chess Information */}
         <div className="info">
-          <p className="text-lg  mb-2 font-bold">Chess</p>
+          <p className="text-lg  mb-2 font-bold">Chess Information</p>
 
           <div className="basic-info-fields grid grid-cols-2  gap-4">
             {/* title */}
@@ -755,6 +758,53 @@ const UpdateStudent = ({ studentRecord }: any) => {
                 );
               }}
             />
+            {selectedAffiliatedTo.toLowerCase() == "hca" && (
+              <>
+                <Controller
+                  name="litchesUsername"
+                  control={control}
+                  rules={
+                    {
+                      // required: "Title is required",
+                    }
+                  }
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        label="Litches Username"
+                        type="text"
+                        error={errors.litchesUsername}
+                        helperText={errors.litchesUsername?.message}
+                      />
+                    );
+                  }}
+                />
+
+                <Controller
+                  name="litchesUrl"
+                  control={control}
+                  rules={
+                    {
+                      // required: "Title is required",
+                    }
+                  }
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        label="Litches URL"
+                        type="text"
+                        error={errors.litchesUrl}
+                        helperText={errors.litchesUrl?.message}
+                      />
+                    );
+                  }}
+                />
+              </>
+            )}
           </div>
         </div>
 

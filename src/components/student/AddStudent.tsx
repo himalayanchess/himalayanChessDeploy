@@ -215,7 +215,8 @@ const AddStudent = () => {
       enrolledCourses: [],
       // add file in studentform in (onSubmit)
       eventsPlayed: [],
-      history: [],
+      litchesUsername: "",
+      litchesUrl: "",
       guardianInfo: { name: "", phone: "", email: "" },
       emergencyContactName: "",
       emergencyContactNo: "",
@@ -489,6 +490,8 @@ const AddStudent = () => {
                     educationalInstitute: prevValues.educationalInstitute,
                     enrolledCourses: [],
                     batches: [],
+                    litchesUsername: prevValues?.litchesUsername,
+                    litchesUrl: prevValues?.litchesUrl,
                   };
                 } else {
                   return {
@@ -506,6 +509,8 @@ const AddStudent = () => {
                     educationalInstitute: "",
                     enrolledCourses: [],
                     batches: [],
+                    litchesUsername: "",
+                    litchesUrl: "",
                   };
                 }
               });
@@ -815,7 +820,7 @@ const AddStudent = () => {
 
         {/* Chess Information */}
         <div className="info">
-          <p className="text-lg  mb-2 font-bold">Chess</p>
+          <p className="text-lg  mb-2 font-bold">Chess Information</p>
 
           <div className="basic-info-fields grid grid-cols-2  gap-3">
             {/* title */}
@@ -886,6 +891,51 @@ const AddStudent = () => {
                 );
               }}
             />
+            {selectedAffiliatedTo.toLowerCase() == "hca" && (
+              <>
+                <Controller
+                  name="litchesUsername"
+                  control={control}
+                  rules={
+                    {
+                      // required: "Title is required",
+                    }
+                  }
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        label="Litches Username"
+                        type="text"
+                        error={errors.litchesUsername}
+                        helperText={errors.litchesUsername?.message}
+                      />
+                    );
+                  }}
+                />
+
+                <Controller
+                  name="litchesUrl"
+                  control={control}
+                  rules={
+                    {
+                      // required: "Title is required",
+                    }
+                  }
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        label="Litches URL"
+                        type="text"
+                        error={errors.litchesUrl}
+                        helperText={errors.litchesUrl?.message}
+                      />
+                    );
+                  }}
+                />
+              </>
+            )}
           </div>
         </div>
 

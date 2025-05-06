@@ -4,7 +4,15 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-import { ReceiptText, MapPinHouse, Contact, Crown, IdCard } from "lucide-react";
+import {
+  ReceiptText,
+  MapPinHouse,
+  Contact,
+  Crown,
+  IdCard,
+  SquareArrowDownRight,
+  SquareArrowOutUpRight,
+} from "lucide-react";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
@@ -426,7 +434,44 @@ const BasicStudentInfo = ({ studentRecord }: any) => {
         </div>
       </div>
 
-      {/* Guardian Information */}
+      {/* Litches Information */}
+      <div className="bg-gray-50 rounded-xl p-4 col-span-2">
+        <p className="text-sm text-gray-500 mb-2 font-bold">
+          {/* <SupervisorAccountOutlinedIcon /> */}
+          <span className="ml-0">Litches Information</span>
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <p className="text-xs text-gray-500">Litches Username</p>
+            <p className="font-medium flex items-center">
+              <PersonOutlineOutlinedIcon sx={{ color: "gray " }} />
+              <span className="ml-1">
+                {studentRecord?.litchesUsername || "N/A"}
+              </span>
+            </p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs text-gray-500">Litches URL</p>
+
+            <p className="font-medium flex items-center text-gray-500">
+              <SquareArrowOutUpRight size={17} />
+              {studentRecord?.litchesUrl ? (
+                <Link
+                  href={studentRecord?.litchesUrl}
+                  target="_blank"
+                  className="ml-1 text-blue-600 underline"
+                >
+                  Litches URL
+                </Link>
+              ) : (
+                <span className="ml-1">N/A</span>
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Guardian information */}
       <div className="bg-gray-50 rounded-xl p-4 col-span-2">
         <p className="text-sm text-gray-500 mb-2 font-bold">
           {/* <SupervisorAccountOutlinedIcon /> */}

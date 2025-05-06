@@ -533,7 +533,7 @@ const AddPayment = () => {
                 options={allActiveBranchesList?.map(
                   (branch: any) => branch.branchName
                 )}
-                selected={field.value}
+                selected={field.value || ""}
                 onChange={(value: any) => {
                   field.onChange(value);
                   const selectedBranch: any = allActiveBranchesList?.find(
@@ -925,6 +925,7 @@ const AddPayment = () => {
                           ),
                         ]}
                         selected={field.value || ""}
+                        onChange={field.onChange}
                         width="full"
                         error={!!(errors.paymentSourceInfo as any)?.ewalletName}
                         helperText={
@@ -1120,6 +1121,7 @@ const AddPayment = () => {
                           ),
                         ]}
                         selected={field.value || ""}
+                        onChange={field.onChange}
                         width="full"
                         error={!!(errors.recipient as any)?.ewalletName}
                         helperText={

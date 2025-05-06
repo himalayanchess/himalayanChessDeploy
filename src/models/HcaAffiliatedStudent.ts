@@ -20,7 +20,7 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
           activeStatus: { type: Boolean, default: true }, // delete status
         },
       ],
-    },  
+    },
     joinedDate: { type: Date }, // Date when the student joined
     endDate: { type: Date }, // End date of the student's association
     address: { type: String }, // End date of the student's association
@@ -57,7 +57,8 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    history: { type: Array, default: [] },
+    litchesUsername: { type: String, default: "" },
+    litchesUrl: { type: String, default: "" },
     branchName: { type: String, default: "" },
     branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
 
