@@ -17,7 +17,7 @@ const TournamentsComponent = () => {
       <ParticipantsPage /> */}
       <Link
         className="underline"
-        href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/litchesweeklytournament/addlitchesweeklytournament`}
+        href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/litchesweeklytournament`}
       >
         litchesweeklytournament
       </Link>

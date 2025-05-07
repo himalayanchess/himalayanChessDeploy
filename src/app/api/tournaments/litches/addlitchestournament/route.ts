@@ -3,18 +3,26 @@ import LitchesWeeklyTournament from "@/models/LitchesWeeklyTournamentModel";
 import { NextRequest, NextResponse } from "next/server";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
 import isoWeek from "dayjs/plugin/isoWeek";
 import weekday from "dayjs/plugin/weekday";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
+
 dayjs.extend(isoWeek);
 dayjs.extend(weekday);
+
+const timeZone = "Asia/Kathmandu";
 
 export async function POST(request: NextRequest) {
   try {
     await dbconnect();
 
     const body = await request.json();
+    console.log("adding litches tournamte", body);
+
     const {
       tournamentName,
       date, // from input[type=date], like "2025-04-14"
@@ -22,6 +30,8 @@ export async function POST(request: NextRequest) {
       tag,
       time,
       initialTime,
+      branchName,
+      branchId,
       increment,
       tournamentType,
       litchesWeeklyWinners = [],
@@ -30,6 +40,7 @@ export async function POST(request: NextRequest) {
     // Case-insensitive check for duplicate tournament
     const existing = await LitchesWeeklyTournament.findOne({
       tournamentName: { $regex: new RegExp(`^${tournamentName}$`, "i") },
+      activeStatus: true,
     });
 
     if (existing) {
@@ -39,13 +50,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Convert to UTC date
-    const parsedDate = dayjs(date).utc();
-    const isoDate = parsedDate.toDate();
+    const parsedDateUtc = dayjs(date).utc(); // UTC for ISO
+    const isoDate = parsedDateUtc.toDate(); // Keep this in UTC
 
-    const weekNo = parsedDate.isoWeek(); // ISO week of the year
-    const day = parsedDate.format("dddd"); // Full day name (e.g., Monday)
-    const year = parsedDate.year();
+    const parsedDateNepal = dayjs(date).tz(timeZone); // For Nepali time zone
+    const weekNo = parsedDateNepal.isoWeek(); // Week in Nepali time
+    const day = parsedDateNepal.format("dddd"); // Day in Nepali time
+    const year = parsedDateNepal.year(); // Year in Nepali time
 
     const clockTime = {
       initialTime, // initial time in minutes
@@ -64,6 +75,8 @@ export async function POST(request: NextRequest) {
       tag: "litches",
       day,
       tournamentUrl,
+      branchName,
+      branchId,
       time,
       clockTime,
       tournamentType,

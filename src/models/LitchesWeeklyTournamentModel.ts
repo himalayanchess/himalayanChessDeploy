@@ -20,6 +20,7 @@ const winnerSchema = new mongoose.Schema(
     medalPoints: { type: Number, default: 0 },
     rank: { type: Number, default: 0 },
     performanceUrl: { type: String, default: "" },
+    activeStatus: { type: Boolean, default: true },
   },
   { _id: false }
 );
@@ -33,6 +34,9 @@ const LitchesWeeklyTournamentSchema = new mongoose.Schema(
     tournamentUrl: { type: String, default: "" },
     time: { type: String, default: "" },
     clockTime: { type: clockTimeSchema },
+    branchName: { type: String, default: "" },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
+
     tournamentType: {
       type: String,
       enum: ["Standard", "Rapid", "Blitz"],
@@ -41,6 +45,7 @@ const LitchesWeeklyTournamentSchema = new mongoose.Schema(
     weekNo: { type: Number },
     year: { type: Number },
     litchesWeeklyWinners: { type: [winnerSchema], default: [] },
+    activeStatus: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

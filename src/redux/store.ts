@@ -8,6 +8,7 @@ import trainerHistoryReducer from "@/redux/trainerHistorySlice";
 import activityRecordReducer from "@/redux/activityRecordSlice";
 import attendanceReducer from "@/redux/attendanceSlice";
 import testHistoryReducer from "@/redux/testHistorySlice";
+import allTournamentReducer from "@/redux/allTournamentSlice";
 
 export const myStore = configureStore({
   reducer: {
@@ -20,5 +21,6 @@ export const myStore = configureStore({
     activityRecordReducer,
     attendanceReducer,
     testHistoryReducer,
+    allTournamentReducer,
   },
 });

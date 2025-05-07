@@ -37,7 +37,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const AddLitchesWeeklyTournaments = () => {
+const UpdateLitchesWeeklyTournament = ({ litchesTournamentRecord }: any) => {
   const router = useRouter();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -60,6 +60,7 @@ const AddLitchesWeeklyTournaments = () => {
   const [loading, setLoading] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [winnerToDelete, setWinnerToDelete] = useState<any>(null);
+  const [loaded, setLoaded] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -83,12 +84,9 @@ const AddLitchesWeeklyTournaments = () => {
       time: "",
       branchName: "",
       branchId: "",
-
       initialTime: "",
       increment: "",
-
       tournamentType: "",
-
       litchesWeeklyWinners: [],
     },
   });
@@ -109,8 +107,6 @@ const AddLitchesWeeklyTournaments = () => {
       studentName: "",
       litchesUsername: "",
       litchesUrl: "",
-      // calculate medal points based on rank
-      // medalPoints: 0,
       rank: "",
       performanceUrl: "",
     });
@@ -121,7 +117,6 @@ const AddLitchesWeeklyTournaments = () => {
 
   // Function to check for duplicate student names
   const isDuplicateStudentName = (studentName: string, index: number) => {
-    // Check if any other winner has the same student name
     return (
       litchesWeeklyWinners.filter(
         (winner: any, idx: number) =>
@@ -132,7 +127,6 @@ const AddLitchesWeeklyTournaments = () => {
 
   // Function to check for duplicate ranks
   const isDuplicateRank = (rank: string, index: number) => {
-    // Check if any other winner has the same rank
     return (
       litchesWeeklyWinners.filter(
         (winner: any, idx: number) => winner.rank === rank && idx !== index
@@ -155,10 +149,10 @@ const AddLitchesWeeklyTournaments = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // console.log("add tournamentdata", data);
+      console.log(data);
 
       const { data: response } = await axios.post(
-        "/api/tournaments/litches/addlitchestournament",
+        `/api/tournaments/litches/updatelitchestournament`,
         {
           ...data,
         }
@@ -176,31 +170,59 @@ const AddLitchesWeeklyTournaments = () => {
         notify(response.msg, response.statusCode);
       }
     } catch (error) {
-      console.error("Error submitting litches  tournament:", error);
-      notify("Failed to submit litches tournament", 500);
+      console.error("Error updating litches tournament:", error);
+      notify("Failed to update litches tournament", 500);
     } finally {
       setLoading(false);
     }
   };
 
-  // branch access
+  // Load tournament data
   useEffect(() => {
-    const user = session?.data?.user;
-    const isSuperOrGlobalAdmin =
-      user?.role?.toLowerCase() === "superadmin" ||
-      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+    if (litchesTournamentRecord) {
+      reset({
+        ...litchesTournamentRecord,
+        date: litchesTournamentRecord.date
+          ? dayjs(litchesTournamentRecord.date)
+              .tz(timeZone)
+              .format("YYYY-MM-DD")
+          : "",
+        time: litchesTournamentRecord.time
+          ? dayjs(litchesTournamentRecord.time).tz(timeZone).toISOString()
+          : null,
+        litchesWeeklyWinners:
+          litchesTournamentRecord?.litchesWeeklyWinners?.filter(
+            (winner: any) => winner.activeStatus
+          ),
+      });
 
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
-    let branchName = "";
-    if (!isSuperOrGlobalAdmin) {
-      setValue("branchName", user?.branchName);
-      setValue("branchId", user?.branchId);
-      branchName = session?.data?.user?.branchName;
+      // clock time
+      setValue("initialTime", litchesTournamentRecord?.clockTime?.initialTime);
+      setValue("increment", litchesTournamentRecord?.clockTime?.increment);
+
+      setValue("branchName", litchesTournamentRecord?.branchName);
+      setValue("branchId", litchesTournamentRecord?.branchId);
+
+      setselectedBranch(litchesTournamentRecord?.branchName);
+      setLoaded(true);
     }
-    setselectedBranch(branchName);
-  }, [session?.data?.user]);
+  }, [litchesTournamentRecord, reset]);
 
-  // also filter students if branchchanges
+  // branch access
+  //   useEffect(() => {
+  //     const user = session?.data?.user;
+  //     const isSuperOrGlobalAdmin =
+  //       user?.role?.toLowerCase() === "superadmin" ||
+  //       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+
+  //     if (!isSuperOrGlobalAdmin) {
+  //       setValue("branchName", user?.branchName);
+  //       setValue("branchId", user?.branchId);
+  //       setselectedBranch(user?.branchName);
+  //     }
+  //   }, [session?.data?.user]);
+
+  // filter students if branch changes
   useEffect(() => {
     const tempfilteredHcaStudents =
       selectedBranch?.toLowerCase() == ""
@@ -211,17 +233,18 @@ const AddLitchesWeeklyTournaments = () => {
               selectedBranch?.toLowerCase()
           );
     setfilteredStudentsListOptions(tempfilteredHcaStudents);
-
-    // Reset the winners field array
-    // replace this logic in update litches tournament
-    resetWinners([]);
-  }, [selectedBranch]);
+  }, [selectedBranch, allActiveHcaStudentsList]);
 
   // get initial data
   useEffect(() => {
     dispatch(getAllStudents());
     dispatch(getAllBranches());
   }, []);
+
+  if (!loaded)
+    return (
+      <div className="flex-1 flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md"></div>
+    );
 
   return (
     <div className="flex w-full h-full">
@@ -230,7 +253,7 @@ const AddLitchesWeeklyTournaments = () => {
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Add Litches Tournament</span>
+              <span className="ml-2">Update Litches Tournament</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
@@ -252,7 +275,7 @@ const AddLitchesWeeklyTournaments = () => {
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid grid-cols-2 gap-5 items-end">
-            {/* tournamet name */}
+            {/* tournament name */}
             <Controller
               name="tournamentName"
               control={control}
@@ -276,18 +299,9 @@ const AddLitchesWeeklyTournaments = () => {
             />
 
             {/* tournamentUrl */}
-
             <Controller
               name="tournamentUrl"
               control={control}
-              rules={
-                {
-                  // required: {
-                  //   value: true,
-                  //   message: "Tournament URL is required",
-                  // },
-                }
-              }
               render={({ field }) => (
                 <Input
                   label="Tournament URL"
@@ -318,6 +332,7 @@ const AddLitchesWeeklyTournaments = () => {
                       label="Date"
                       type="date"
                       value={field.value || ""}
+                      disabled
                       onChange={field.onChange}
                       required
                       error={errors.date}
@@ -350,8 +365,8 @@ const AddLitchesWeeklyTournaments = () => {
                           textField: {
                             error: !!errors.time,
                             helperText: errors.time?.message as string,
-                            size: "small", // Decreases input size
-                            sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
+                            size: "small",
+                            sx: { fontSize: "0.8rem", width: "150px" },
                           },
                         }}
                         sx={{
@@ -381,6 +396,7 @@ const AddLitchesWeeklyTournaments = () => {
                       (branch: any) => branch.branchName
                     )}
                     selected={field.value || ""}
+                    disabled
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList?.find(
@@ -399,7 +415,7 @@ const AddLitchesWeeklyTournaments = () => {
                 )}
               />
 
-              {/* tournamen type */}
+              {/* tournament type */}
               <Controller
                 name="tournamentType"
                 control={control}
@@ -408,6 +424,7 @@ const AddLitchesWeeklyTournaments = () => {
                   <Dropdown
                     label="Tournament Type"
                     options={tournamentTypeOptions}
+                    disabled
                     selected={field.value || ""}
                     onChange={field.onChange}
                     error={!!(errors.tournamentType as any)}
@@ -498,7 +515,6 @@ const AddLitchesWeeklyTournaments = () => {
                 <div className="flex justify-between items-center mb-1">
                   <p className="font-bold text-gray-500 flex items-center">
                     <MedalIcon size={15} />
-
                     <span className="ml-1">Winner #{index + 1}</span>
                   </p>
                   <IconButton
@@ -529,14 +545,12 @@ const AddLitchesWeeklyTournaments = () => {
                         selected={field.value || ""}
                         onChange={(value: any) => {
                           field.onChange(value);
-
                           const selectedStudent: any =
                             filteredStudentsListOptions?.find(
                               (student: any) =>
                                 student?.name?.toLowerCase() ===
                                 value?.toLowerCase()
                             );
-
                           setValue(
                             `litchesWeeklyWinners.${index}.studentId`,
                             selectedStudent?._id
@@ -549,7 +563,6 @@ const AddLitchesWeeklyTournaments = () => {
                             `litchesWeeklyWinners.${index}.litchesUrl`,
                             selectedStudent?.litchesUrl
                           );
-                          // reset litches winners performance url
                           setValue(
                             `litchesWeeklyWinners.${index}.performanceUrl`,
                             ""
@@ -602,7 +615,6 @@ const AddLitchesWeeklyTournaments = () => {
                   <Controller
                     name={`litchesWeeklyWinners.${index}.litchesUsername`}
                     control={control}
-                    // rules={{ required: "Litcher Username is required" }}
                     render={({ field }) => (
                       <Input
                         label="Litcher Username"
@@ -617,18 +629,15 @@ const AddLitchesWeeklyTournaments = () => {
                           (errors.litchesWeeklyWinners as any)?.[index]
                             ?.litchesUsername?.message
                         }
-                        // required
                         width="full"
                       />
                     )}
                   />
 
                   {/* litches url */}
-
                   <Controller
                     name={`litchesWeeklyWinners.${index}.litchesUrl`}
                     control={control}
-                    // rules={{ required: "Litcher URL is required" }}
                     render={({ field }) => (
                       <Input
                         label="Litcher URL"
@@ -643,7 +652,6 @@ const AddLitchesWeeklyTournaments = () => {
                           (errors.litchesWeeklyWinners as any)?.[index]
                             ?.litchesUrl?.message
                         }
-                        // required
                         width="full"
                       />
                     )}
@@ -653,7 +661,6 @@ const AddLitchesWeeklyTournaments = () => {
                   <Controller
                     name={`litchesWeeklyWinners.${index}.performanceUrl`}
                     control={control}
-                    // rules={{ required: "Litcher URL is required" }}
                     render={({ field }) => (
                       <Input
                         label="Performance URL"
@@ -668,7 +675,6 @@ const AddLitchesWeeklyTournaments = () => {
                           (errors.litchesWeeklyWinners as any)?.[index]
                             ?.performanceUrl?.message
                         }
-                        // required
                         width="full"
                       />
                     )}
@@ -716,7 +722,7 @@ const AddLitchesWeeklyTournaments = () => {
             </Box>
           </Modal>
 
-          {/* add tournament */}
+          {/* update tournament */}
           <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
             <Button
               variant="contained"
@@ -724,7 +730,7 @@ const AddLitchesWeeklyTournaments = () => {
               onClick={handleConfirmModalOpen}
               disabled={loading}
             >
-              Add Tournament
+              Update Tournament
             </Button>
           </Box>
 
@@ -735,14 +741,14 @@ const AddLitchesWeeklyTournaments = () => {
           <Modal
             open={confirmModalOpen}
             onClose={handleConfirmModalClose}
-            aria-labelledby="confirmadd-modal-title"
-            aria-describedby="confirmadd-modal-description"
+            aria-labelledby="confirmupdate-modal-title"
+            aria-describedby="confirmupdate-modal-description"
             className="flex items-center justify-center"
           >
             <Box className="w-[400px] h-max p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
               <p className="mb-6 text-gray-600">
-                You want to add this new tournament?
+                You want to update this tournament?
               </p>
               <div className="buttons flex gap-5">
                 <Button
@@ -759,7 +765,7 @@ const AddLitchesWeeklyTournaments = () => {
                     loadingPosition="start"
                     variant="contained"
                   >
-                    <span>Adding tournament</span>
+                    <span>Updating tournament</span>
                   </LoadingButton>
                 ) : (
                   <Button
@@ -784,4 +790,4 @@ const AddLitchesWeeklyTournaments = () => {
   );
 };
 
-export default AddLitchesWeeklyTournaments;
+export default UpdateLitchesWeeklyTournament;
