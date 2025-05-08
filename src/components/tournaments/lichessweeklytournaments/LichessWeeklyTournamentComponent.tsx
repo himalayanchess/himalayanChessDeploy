@@ -7,12 +7,12 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import LockIcon from "@mui/icons-material/Lock";
-import { Component, Trophy } from "lucide-react";
+import { Component, List, Trophy } from "lucide-react";
 import Header from "@/components/Header";
 import Dropdown from "@/components/Dropdown";
 import Input from "@/components/Input";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-
+import LeaderboardOutlinedIcon from "@mui/icons-material/LeaderboardOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -40,6 +40,7 @@ import { exportLichessTournamentListToExcel } from "@/helpers/exportToExcel/expo
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import LichessLeaderboardComponent from "./lichessleaderboard/LichessLeaderboardComponent";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -77,6 +78,7 @@ const LichessWeeklyTournamentComponent = () => {
     .format("YYYY-MM-DD");
   const defaultEndDate = dayjs().tz(timeZone).format("YYYY-MM-DD");
 
+  const [selectedMenu, setselectedMenu] = useState("tournamentlist");
   const [searchText, setsearchText] = useState("");
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredLichessTournamentCount, setfilteredLichessTournamentCount] =
@@ -220,23 +222,54 @@ const LichessWeeklyTournamentComponent = () => {
   return (
     <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
       <div className="main-header flex justify-between">
-        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
-          <Trophy />
-          <span className="ml-1">Lichess Tournaments List</span>
-        </h2>
+        <div className="title-menus flex items-center gap-4 ">
+          {/* title */}
 
-        {/* excel button */}
-        <div className="excelbutton">
+          <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+            <Trophy />
+            <span className="ml-1">Lichess </span>
+          </h2>
+
+          {/* menus */}
           <Button
-            onClick={exportToExcel}
-            variant="contained"
-            color="success"
-            disabled={allFilteredActiveLichessTournamentsList?.length === 0}
-            startIcon={<DownloadIcon />}
+            onClick={() => {
+              setselectedMenu("tournamentlist");
+            }}
+            color="primary"
+            variant={
+              selectedMenu === "tournamentlist" ? "contained" : "outlined"
+            }
+            startIcon={<List size={18} />}
           >
-            Export to Excel
+            Tournaments List
+          </Button>
+
+          <Button
+            onClick={() => {
+              setselectedMenu("leaderboard");
+            }}
+            color="primary"
+            variant={selectedMenu === "leaderboard" ? "contained" : "outlined"}
+            startIcon={<LeaderboardOutlinedIcon />}
+          >
+            Leaderboard
           </Button>
         </div>
+
+        {/* excel button */}
+        {selectedMenu?.toLowerCase() == "tournamentlist" && (
+          <div className="excelbutton">
+            <Button
+              onClick={exportToExcel}
+              variant="contained"
+              color="success"
+              disabled={allFilteredActiveLichessTournamentsList?.length === 0}
+              startIcon={<DownloadIcon />}
+            >
+              Export to Excel
+            </Button>
+          </div>
+        )}
       </div>
       {/* title and Dropdown */}
       <div className="batches-header my-0 flex items-end justify-between gap-2">
@@ -339,28 +372,50 @@ const LichessWeeklyTournamentComponent = () => {
           </label>
         </div>
         {/* count */}
-        <span className="text-sm text-gray-600">{showingText}</span>
+        {selectedMenu?.toLowerCase() == "tournamentlist" && (
+          <span className="text-sm text-gray-600">{showingText}</span>
+        )}
       </div>
-      {/* Table */}
-      <LichessTournamentsList
-        allFilteredActiveLichessTournamentsList={
-          allFilteredActiveLichessTournamentsList
-        }
-        currentPage={currentPage}
-        lichessTournamentsPerPage={lichessTournamentsPerPage}
-        allLichessTournamentsLoading={allLichessTournamentsLoading}
-      />
-      {/* pagination */}
-      <Stack spacing={2} className="mx-auto w-max mt-3">
-        <Pagination
-          count={Math.ceil(
-            filteredLichessTournamentCount / lichessTournamentsPerPage
-          )} // Total pages
-          page={currentPage} //allCoursesLoading Current page
-          onChange={handlePageChange} // Handle page change
-          shape="rounded"
-        />
-      </Stack>
+
+      {/* tournament list */}
+      {selectedMenu?.toLowerCase() == "tournamentlist" && (
+        <>
+          <LichessTournamentsList
+            allFilteredActiveLichessTournamentsList={
+              allFilteredActiveLichessTournamentsList
+            }
+            currentPage={currentPage}
+            lichessTournamentsPerPage={lichessTournamentsPerPage}
+            allLichessTournamentsLoading={allLichessTournamentsLoading}
+          />
+
+          <Stack spacing={2} className="mx-auto w-max mt-3">
+            <Pagination
+              count={Math.ceil(
+                filteredLichessTournamentCount / lichessTournamentsPerPage
+              )} // Total pages
+              page={currentPage} //allCoursesLoading Current page
+              onChange={handlePageChange} // Handle page change
+              shape="rounded"
+            />
+          </Stack>
+        </>
+      )}
+
+      {selectedMenu?.toLowerCase() == "leaderboard" && (
+        <>
+          <LichessLeaderboardComponent
+            allFilteredActiveLichessTournamentsList={
+              allFilteredActiveLichessTournamentsList
+            }
+            allLichessTournamentsLoading={allLichessTournamentsLoading}
+            selectedMonth={selectedMonth}
+            useAdvancedDate={useAdvancedDate}
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </>
+      )}
     </div>
   );
 };
