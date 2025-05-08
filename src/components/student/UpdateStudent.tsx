@@ -163,8 +163,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
       completedStatus: "",
       enrolledCourses: [],
       eventsPlayed: [],
-      litchesUsername: "",
-      litchesUrl: "",
+      lichessUsername: "",
+      lichessUrl: "",
       branchName: "",
       branchId: "",
       guardianInfo: { name: "", phone: "", email: "" },
@@ -304,8 +304,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
         projectId: studentRecord?.projectId || "",
         batches: activeBatches || [],
         enrolledCourses: activeEnrolledCourses || [],
-        litchesUsername: studentRecord?.litchesUsername || "",
-        litchesUrl: studentRecord?.litchesUrl || "",
+        lichessUsername: studentRecord?.lichessUsername || "",
+        lichessUrl: studentRecord?.lichessUrl || "",
       });
       setselectedAffiliatedTo(studentRecord?.affiliatedTo || "");
       setSelectedProject(studentRecord?.projectName || "");
@@ -761,7 +761,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
             {selectedAffiliatedTo.toLowerCase() == "hca" && (
               <>
                 <Controller
-                  name="litchesUsername"
+                  name="lichessUsername"
                   control={control}
                   rules={
                     {
@@ -773,17 +773,17 @@ const UpdateStudent = ({ studentRecord }: any) => {
                       <Input
                         {...field}
                         value={field.value || ""}
-                        label="Litches Username"
+                        label="Lichess Username"
                         type="text"
-                        error={errors.litchesUsername}
-                        helperText={errors.litchesUsername?.message}
+                        error={errors.lichessUsername}
+                        helperText={errors.lichessUsername?.message}
                       />
                     );
                   }}
                 />
 
                 <Controller
-                  name="litchesUrl"
+                  name="lichessUrl"
                   control={control}
                   rules={
                     {
@@ -795,10 +795,10 @@ const UpdateStudent = ({ studentRecord }: any) => {
                       <Input
                         {...field}
                         value={field.value || ""}
-                        label="Litches URL"
+                        label="Lichess URL"
                         type="text"
-                        error={errors.litchesUrl}
-                        helperText={errors.litchesUrl?.message}
+                        error={errors.lichessUrl}
+                        helperText={errors.lichessUrl?.message}
                       />
                     );
                   }}

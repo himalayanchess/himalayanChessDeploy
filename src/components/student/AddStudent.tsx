@@ -215,8 +215,8 @@ const AddStudent = () => {
       enrolledCourses: [],
       // add file in studentform in (onSubmit)
       eventsPlayed: [],
-      litchesUsername: "",
-      litchesUrl: "",
+      lichessUsername: "",
+      lichessUrl: "",
       guardianInfo: { name: "", phone: "", email: "" },
       emergencyContactName: "",
       emergencyContactNo: "",
@@ -490,8 +490,8 @@ const AddStudent = () => {
                     educationalInstitute: prevValues.educationalInstitute,
                     enrolledCourses: [],
                     batches: [],
-                    litchesUsername: prevValues?.litchesUsername,
-                    litchesUrl: prevValues?.litchesUrl,
+                    lichessUsername: prevValues?.lichessUsername,
+                    lichessUrl: prevValues?.lichessUrl,
                   };
                 } else {
                   return {
@@ -509,8 +509,8 @@ const AddStudent = () => {
                     educationalInstitute: "",
                     enrolledCourses: [],
                     batches: [],
-                    litchesUsername: "",
-                    litchesUrl: "",
+                    lichessUsername: "",
+                    lichessUrl: "",
                   };
                 }
               });
@@ -894,7 +894,7 @@ const AddStudent = () => {
             {selectedAffiliatedTo.toLowerCase() == "hca" && (
               <>
                 <Controller
-                  name="litchesUsername"
+                  name="lichessUsername"
                   control={control}
                   rules={
                     {
@@ -905,17 +905,17 @@ const AddStudent = () => {
                     return (
                       <Input
                         {...field}
-                        label="Litches Username"
+                        label="Lichess Username"
                         type="text"
-                        error={errors.litchesUsername}
-                        helperText={errors.litchesUsername?.message}
+                        error={errors.lichessUsername}
+                        helperText={errors.lichessUsername?.message}
                       />
                     );
                   }}
                 />
 
                 <Controller
-                  name="litchesUrl"
+                  name="lichessUrl"
                   control={control}
                   rules={
                     {
@@ -926,10 +926,10 @@ const AddStudent = () => {
                     return (
                       <Input
                         {...field}
-                        label="Litches URL"
+                        label="Lichess URL"
                         type="text"
-                        error={errors.litchesUrl}
-                        helperText={errors.litchesUrl?.message}
+                        error={errors.lichessUrl}
+                        helperText={errors.lichessUrl?.message}
                       />
                     );
                   }}

@@ -57,8 +57,8 @@ const HcaAffiliatedStudentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    litchesUsername: { type: String, default: "" },
-    litchesUrl: { type: String, default: "" },
+    lichessUsername: { type: String, default: "" },
+    lichessUrl: { type: String, default: "" },
     branchName: { type: String, default: "" },
     branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
 
