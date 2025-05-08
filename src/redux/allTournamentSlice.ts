@@ -19,11 +19,35 @@ export const fetchAllLichessTournaments = createAsyncThunk(
   }
 );
 
+// fetch all selected students lichess tournaments
+export const fetchAllSelectedStudentsLichessTournaments = createAsyncThunk(
+  "tournaments/fetchAllSelectedStudentsLichessTournaments",
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const { data: resData } = await axios.post(
+        "/api/tournaments/lichess/fetchAllSelectedStudentsLichessTournaments",
+        { studentId }
+      );
+      console.log("fetchAllSelectedStudentsLichessTournaments", resData);
+
+      return resData.allSelectedStudentsLichessTournaments;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState: any = {
+  // all lichess tournaments
   allLichessTournamentsList: [],
   allActiveLichessTournamentsList: [],
   allFilteredActiveLichessTournamentsList: [],
   allLichessTournamentsLoading: true,
+
+  // all selected students lichess tournaments
+  allSelectedStudentsLichessTournamentsList: [],
+  allActiveSelectedStudentsLichessTournamentsList: [],
+  allSelectedStudentsLichessTournamentsLoading: true,
 };
 
 const allTournamentSlice = createSlice({
@@ -75,7 +99,45 @@ const allTournamentSlice = createSlice({
           sortedLichessTournaments;
 
         state.allLichessTournamentsLoading = false;
-      });
+      })
+
+      // selected students lichess tournaments
+      // lichess tournaments
+      .addCase(fetchAllSelectedStudentsLichessTournaments.pending, (state) => {
+        state.allSelectedStudentsLichessTournamentsLoading = true;
+      })
+      .addCase(
+        fetchAllSelectedStudentsLichessTournaments.fulfilled,
+        (state, action) => {
+          console.log(
+            "after all selected students lichess tournaments",
+            action.payload
+          );
+
+          state.allSelectedStudentsLichessTournamentsList =
+            action.payload?.sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+
+          // Sorting lichess tournaments by createdAt (latest first)
+
+          const sortedSelectedStudentsLichessTournaments = action.payload
+            ?.filter((tournament: any) => tournament?.activeStatus)
+            ?.sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+
+          // Filtering active lichess tournaments after sorting
+          state.allActiveSelectedStudentsLichessTournamentsList =
+            sortedSelectedStudentsLichessTournaments;
+
+          state.allSelectedStudentsLichessTournamentsLoading = false;
+        }
+      );
   },
 });
 

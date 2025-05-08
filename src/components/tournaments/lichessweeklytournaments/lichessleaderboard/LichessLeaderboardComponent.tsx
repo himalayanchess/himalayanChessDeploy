@@ -3,6 +3,10 @@ import { Stack, Pagination, Button } from "@mui/material";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import DownloadIcon from "@mui/icons-material/Download";
 import { exportLichessLeaderboardToExcel } from "@/helpers/exportToExcel/exportLichessLeaderboardToExcel";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const LichessLeaderboardComponent: React.FC<any> = ({
   allFilteredActiveLichessTournamentsList,
@@ -12,6 +16,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
   startDate,
   endDate,
 }) => {
+  const session = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const lichessTournamentsPerPage = 7;
 
@@ -82,7 +87,13 @@ const LichessLeaderboardComponent: React.FC<any> = ({
     setCurrentPage(value);
   };
 
-  if (allLichessTournamentsLoading) return <p>Loading...</p>;
+  if (allLichessTournamentsLoading)
+    return (
+      <div className="bg-white rounded-md  flex-1 h-full flex flex-col items-center justify-center w-full px-14 py-7 ">
+        <CircularProgress />
+        <span className="mt-2">Loading record...</span>
+      </div>
+    );
 
   return (
     <div className=" flex-1 h-full mt-1 flex flex-col bg-white rounded-lg">
@@ -145,9 +156,14 @@ const LichessLeaderboardComponent: React.FC<any> = ({
                 <span className="py-3 text-center  text-sm  text-gray-600">
                   #{index + 1}
                 </span>
-                <span className="py-3 text-left col-span-2 text-sm  text-gray-600">
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/students/${
+                    student?.studentId
+                  }`}
+                  className="py-3 text-left col-span-2 text-sm  text-gray-600  hover:text-blue-500 hover:underline"
+                >
                   {student.studentName || "N/A"}
-                </span>
+                </Link>
                 <span className="py-3 text-left  text-sm  text-gray-600">
                   {student.branchName || "N/A"}
                 </span>

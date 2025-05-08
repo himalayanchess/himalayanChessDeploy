@@ -39,6 +39,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchAllStudentsTestHistory } from "@/redux/testHistorySlice";
 import { getAllSelectedStudentsPaymentRecords } from "@/redux/allListSlice";
+import { fetchAllSelectedStudentsLichessTournaments } from "@/redux/allTournamentSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -58,6 +59,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     allActiveStudentsActivityRecords,
     allStudentsActivityRecordsLoading,
   } = useSelector((state: any) => state.activityRecordReducer);
+
+  //tournament slices
+  const {
+    //selected students lichess tournaments
+    allActiveSelectedStudentsLichessTournamentsList,
+    allSelectedStudentsLichessTournamentsLoading,
+  } = useSelector((state: any) => state.allTournamentReducer);
 
   // use use selectro for students test history
   const { allActiveStudentsTestHistory, allStudentsTestHistoryLoading } =
@@ -158,7 +166,18 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
             />
           );
         case "events":
-          return <StudentEventInfo studentRecord={studentRecord} />;
+          return (
+            <StudentEventInfo
+              studentRecord={studentRecord}
+              // lichess
+              studentsLichessTournamentsList={
+                allActiveSelectedStudentsLichessTournamentsList
+              }
+              studentsLichessTournamentsLoading={
+                allSelectedStudentsLichessTournamentsLoading
+              }
+            />
+          );
         default:
           return <BasicStudentInfo studentRecord={studentRecord} />;
       }
@@ -222,6 +241,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
   useEffect(() => {
     if (studentRecord) {
       dispatch(getAllSelectedStudentsPaymentRecords(studentRecord?._id));
+      dispatch(fetchAllSelectedStudentsLichessTournaments(studentRecord?._id));
     }
   }, [studentRecord]);
 
@@ -309,7 +329,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
           </div>
 
           {/* divider */}
-          <Divider style={{ margin: ".8rem 0" }} />
+          <Divider style={{ margin: ".7rem 0" }} />
 
           <div className="flex-1 h-full flex  overflow-y-auto">
             {showComponent()}

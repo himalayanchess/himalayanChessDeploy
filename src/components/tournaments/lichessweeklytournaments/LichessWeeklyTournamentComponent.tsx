@@ -65,6 +65,10 @@ const LichessWeeklyTournamentComponent = () => {
     allActiveLichessTournamentsList,
     allFilteredActiveLichessTournamentsList,
     allLichessTournamentsLoading,
+
+    //selected students lichess tournaments
+    allActiveSelectedStudentsLichessTournamentsList,
+    allSelectedStudentsLichessTournamentsLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // const affilatedToOptions = ["All", "HCA", "School"];
@@ -174,10 +178,12 @@ const LichessWeeklyTournamentComponent = () => {
         );
     }
 
+    // Sorting with dayjs in Nepali timezone
     tempFilteredLichessTournamentsList =
       tempFilteredLichessTournamentsList?.sort(
         (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          dayjs.tz(b.date, "Asia/Kathmandu").valueOf() -
+          dayjs.tz(a.date, "Asia/Kathmandu").valueOf()
       );
 
     setfilteredLichessTournamentCount(

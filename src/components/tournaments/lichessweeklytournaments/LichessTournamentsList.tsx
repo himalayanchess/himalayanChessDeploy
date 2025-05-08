@@ -168,15 +168,18 @@ const LichessTournamentsList = ({
                   </span>
                   {/* tournament type */}
                   <span className=" text-sm text-gray-700 flex items-center">
-                    {lichessTournament?.tournamentType === "standard" ? (
+                    {lichessTournament?.tournamentType?.toLowerCase() ===
+                    "standard" ? (
                       <WindowOutlinedIcon sx={{ fontSize: "1.2rem" }} />
-                    ) : lichessTournament?.tournamentType === "rapid" ? (
+                    ) : lichessTournament?.tournamentType?.toLowerCase() ===
+                      "rapid" ? (
                       <WatchLaterOutlinedIcon sx={{ fontSize: "1.2rem" }} />
                     ) : (
                       <FlashOnOutlinedIcon sx={{ fontSize: "1.2rem" }} />
                     )}
-
-                    {lichessTournament?.tournamentType}
+                    <span className="ml-1">
+                      {lichessTournament?.tournamentType}
+                    </span>
                   </span>
                   {/* branch name */}
                   <span className=" col-span-1 text-sm text-gray-700">
