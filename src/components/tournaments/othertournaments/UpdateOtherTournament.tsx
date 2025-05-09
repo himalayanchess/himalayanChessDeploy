@@ -28,7 +28,7 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import Input from "@/components/Input";
 import Dropdown from "@/components/Dropdown";
-import { Clock, Medal, MedalIcon, Trophy, Users } from "lucide-react";
+import { Clock, Medal, MedalIcon, Trophy, User, Users } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
 
@@ -37,7 +37,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const AddLichessWeeklyTournaments = () => {
+const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   const router = useRouter();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -53,13 +53,21 @@ const AddLichessWeeklyTournaments = () => {
     (state: any) => state.allListReducer
   );
 
+  // prize options
+  const titlePositionMap: any = {
+    "Boys Winner": ["U11", "U13", "U15"],
+    "Girls Winner": ["13", "U13435", "U15465"],
+  };
+
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredStudentsListOptions, setfilteredStudentsListOptions] =
     useState([]);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [winnerToDelete, setWinnerToDelete] = useState<any>(null);
+  const [participantToDelete, setParticipantToDelete] = useState<any>(null);
+  const [customPrizeMode, setCustomPrizeMode] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -78,78 +86,93 @@ const AddLichessWeeklyTournaments = () => {
     defaultValues: {
       tournamentName: "",
       tournamentUrl: "",
-      date: "",
-      tag: "lichess",
-      time: "",
+      tag: "othertournaments",
+
+      startDate: "",
+      endDate: "",
       branchName: "",
       branchId: "",
+      tournamentType: "",
 
       initialTime: "",
       increment: "",
 
-      tournamentType: "",
       totalParticipants: "",
+      totalRounds: "",
 
-      lichessWeeklyWinners: [],
+      chiefArbiter: {
+        chiefArbiterName: "",
+        chiefArbiterPhone: "",
+        chiefArbiterEmail: "",
+      },
+
+      participants: [],
     },
   });
 
   const {
-    fields: winnerFields,
-    append: appendWinner,
-    remove: removeWinner,
-    replace: resetWinners,
+    fields: participantsFields,
+    append: appendParticipant,
+    remove: removeParticipant,
+    replace: resetParticipant,
   } = useFieldArray<any>({
     control,
-    name: "lichessWeeklyWinners",
+    name: "participants",
   });
 
-  const handleAddWinner = () => {
-    appendWinner({
+  const handleAddParticipant = () => {
+    appendParticipant({
       studentId: "",
       studentName: "",
-      lichessUsername: "",
-      lichessUrl: "",
-      // calculate medal points based on rank
-      // medalPoints: 0,
       rank: "",
-      lichessPoints: "",
       performanceUrl: "",
+      prize: {
+        title: "",
+        position: "",
+        otherTitleStatus: false,
+        otherTitle: "",
+      },
+      totalPoints: "",
     });
+    setCustomPrizeMode((prev) => [...prev, false]); // default is not custom
   };
 
-  // Watch the lichessWeeklyWinners field to detect changes
-  const lichessWeeklyWinners = watch("lichessWeeklyWinners");
+  // Watch the participants field to detect changes
+  const participants = watch("participants");
 
   // Function to check for duplicate student names
   const isDuplicateStudentName = (studentName: string, index: number) => {
-    // Check if any other winner has the same student name
+    // Check if any other participant has the same student name
     return (
-      lichessWeeklyWinners.filter(
-        (winner: any, idx: number) =>
-          winner.studentName === studentName && idx !== index
+      participants.filter(
+        (participant: any, idx: number) =>
+          participant.studentName === studentName && idx !== index
       ).length > 0
     );
   };
 
   // Function to check for duplicate ranks
   const isDuplicateRank = (rank: string, index: number) => {
-    // Check if any other winner has the same rank
+    // Check if any other participant has the same rank
     return (
-      lichessWeeklyWinners.filter(
-        (winner: any, idx: number) => winner.rank === rank && idx !== index
+      participants.filter(
+        (participant: any, idx: number) =>
+          participant.rank === rank && idx !== index
       ).length > 0
     );
   };
 
-  const handleDeleteWinner = (index: number) => {
-    setWinnerToDelete(index);
+  const handleDeleteParticipant = (index: number) => {
+    setParticipantToDelete(index);
     setConfirmDeleteOpen(true);
   };
 
-  const confirmDeleteWinner = () => {
-    if (winnerToDelete !== null) {
-      removeWinner(winnerToDelete);
+  const confirmDeleteParticipant = () => {
+    if (participantToDelete !== null) {
+      removeParticipant(participantToDelete);
+      setCustomPrizeMode((prev) =>
+        prev.filter((_, i) => i !== participantToDelete)
+      );
     }
     setConfirmDeleteOpen(false);
   };
@@ -157,21 +180,19 @@ const AddLichessWeeklyTournaments = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // console.log("add tournamentdata", data);
-
+      console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/lichess/addlichesstournament",
+        "/api/tournaments/othertournaments/addotherthournament",
         {
           ...data,
         }
       );
-
       if (response.statusCode === 200) {
         notify(response.msg, response.statusCode);
         handleConfirmModalClose();
         setTimeout(() => {
           router.push(
-            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/lichessweeklytournament`
+            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`
           );
         }, 50);
       } else {
@@ -213,17 +234,51 @@ const AddLichessWeeklyTournaments = () => {
               selectedBranch?.toLowerCase()
           );
     setfilteredStudentsListOptions(tempfilteredHcaStudents);
-
-    // Reset the winners field array
-    // replace this logic in update lichess tournament
-    resetWinners([]);
   }, [selectedBranch]);
+
+  // Load tournament data
+  useEffect(() => {
+    if (otherTournamentRecord) {
+      reset({
+        ...otherTournamentRecord,
+        startDate: otherTournamentRecord.startDate
+          ? dayjs(otherTournamentRecord.startDate)
+              .tz(timeZone)
+              .format("YYYY-MM-DD")
+          : "",
+        endDate: otherTournamentRecord.endDate
+          ? dayjs(otherTournamentRecord.endDate)
+              .tz(timeZone)
+              .format("YYYY-MM-DD")
+          : "",
+
+        participants: otherTournamentRecord?.participants?.filter(
+          (participant: any) => participant.activeStatus
+        ),
+      });
+
+      // clock time
+      setValue("initialTime", otherTournamentRecord?.clockTime?.initialTime);
+      setValue("increment", otherTournamentRecord?.clockTime?.increment);
+
+      setValue("branchName", otherTournamentRecord?.branchName);
+      setValue("branchId", otherTournamentRecord?.branchId);
+
+      setselectedBranch(otherTournamentRecord?.branchName);
+      setLoaded(true);
+    }
+  }, [otherTournamentRecord, reset]);
 
   // get initial data
   useEffect(() => {
     dispatch(getAllStudents());
     dispatch(getAllBranches());
   }, []);
+
+  if (!loaded)
+    return (
+      <div className="flex-1 flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md"></div>
+    );
 
   return (
     <div className="flex w-full h-full">
@@ -232,11 +287,11 @@ const AddLichessWeeklyTournaments = () => {
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Add Lichess Tournament</span>
+              <span className="ml-2">Update Other Tournament</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/lichessweeklytournament`}
+                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`}
               >
                 <Button color="inherit" sx={{ color: "gray" }}>
                   <HomeOutlinedIcon />
@@ -269,6 +324,7 @@ const AddLichessWeeklyTournaments = () => {
                   label="Tournament Name"
                   type="text"
                   value={field.value || ""}
+                  disabled
                   onChange={field.onChange}
                   required
                   error={errors.tournamentName}
@@ -302,71 +358,52 @@ const AddLichessWeeklyTournaments = () => {
               )}
             />
 
-            {/* date-time */}
+            {/* start-end-date */}
             <div className="date-time grid grid-cols-2 gap-4 items-end">
-              {/* date */}
-              <div>
-                <Controller
-                  name="date"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Date is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <Input
-                      label="Date"
-                      type="date"
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                      required
-                      error={errors.date}
-                      helperText={errors.date?.message}
-                    />
-                  )}
-                />
-              </div>
-              {/* time */}
-              <div>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <Controller
-                    name="time"
-                    control={control}
-                    rules={{
-                      required: "Start time is required",
-                    }}
-                    render={({ field }) => (
-                      <TimePicker
-                        label="Start Time"
-                        value={
-                          field.value || "" ? dayjs(field.value || "") : null
-                        }
-                        onChange={(newValue) => {
-                          field.onChange(
-                            newValue ? newValue.toISOString() : null
-                          );
-                        }}
-                        slotProps={{
-                          textField: {
-                            error: !!errors.time,
-                            helperText: errors.time?.message as string,
-                            size: "small", // Decreases input size
-                            sx: { fontSize: "0.8rem", width: "150px" }, // Adjust width & font size
-                          },
-                        }}
-                        sx={{
-                          "& .MuiInputBase-root": {
-                            fontSize: "0.8rem",
-                            height: "35px",
-                          },
-                        }}
-                      />
-                    )}
+              {/* start date */}
+              <Controller
+                name="startDate"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Start Date is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <Input
+                    label="Start Date"
+                    type="date"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    required
+                    error={errors.startDate}
+                    helperText={errors.startDate?.message}
                   />
-                </LocalizationProvider>
-              </div>
+                )}
+              />
+              {/* end date */}
+              <Controller
+                name="endDate"
+                control={control}
+                // rules={{
+                //   required: {
+                //     value: true,
+                //     message: "End Date is required",
+                //   },
+                // }}
+                render={({ field }) => (
+                  <Input
+                    label="End Date"
+                    type="date"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    // required
+                    error={errors.endDate}
+                    helperText={errors.endDate?.message}
+                  />
+                )}
+              />
             </div>
 
             {/* tournament type */}
@@ -383,6 +420,7 @@ const AddLichessWeeklyTournaments = () => {
                       (branch: any) => branch.branchName
                     )}
                     selected={field.value || ""}
+                    disabled
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList?.find(
@@ -480,11 +518,11 @@ const AddLichessWeeklyTournaments = () => {
               </div>
             </div>
 
-            {/* Participalnts information */}
+            {/* Participalnts and rounds information */}
             <div className="participants-information col-span-1 mt-4">
               <p className="font-bold text-gray-500 mb-1 flex items-center">
                 <Users size={18} />
-                <span className="ml-1">Participants Information</span>
+                <span className="ml-1">Participants & Rounds</span>
               </p>
               <div className="totalParticipants  grid grid-cols-2 gap-4">
                 {/* totalParticipants */}
@@ -511,22 +549,153 @@ const AddLichessWeeklyTournaments = () => {
                     )}
                   />
                 </div>
+
+                {/* totalRounds */}
+                <div>
+                  <Controller
+                    name="totalRounds"
+                    control={control}
+                    // rules={{
+                    //   required: {
+                    //     value: true,
+                    //     message: "Total participants is required",
+                    //   },
+                    // }}
+                    render={({ field }) => (
+                      <Input
+                        label="Total Rounds"
+                        type="number"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        // required
+                        error={errors.totalRounds}
+                        helperText={errors.totalRounds?.message}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* chief arbiter information */}
+            <div className="clock-information col-span-2 mt-1">
+              <p className="font-bold text-gray-500 mb-1 flex items-center">
+                <User size={18} />
+                <span className="ml-1">Chief Arbiter</span>
+              </p>
+              <div className="chief-arbiter-info grid grid-cols-4 gap-4">
+                {/* Chief Arbiter Name (Required) */}
+                <div>
+                  <Controller
+                    name="chiefArbiter.chiefArbiterName"
+                    control={control}
+                    rules={
+                      {
+                        //   required: {
+                        //     value: true,
+                        //     message: "Chief Arbiter name is required",
+                        //   },
+                      }
+                    }
+                    render={({ field }) => (
+                      <Input
+                        label="Chief Arbiter Name"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        // required
+                        error={
+                          !!(
+                            errors?.chiefArbiter &&
+                            (errors.chiefArbiter as any)?.chiefArbiterName
+                          )
+                        }
+                        helperText={
+                          (errors?.chiefArbiter as any)?.chiefArbiterName
+                            ?.message
+                        }
+                      />
+                    )}
+                  />
+                </div>
+
+                {/* Chief Arbiter Phone (Optional, but must be 10 digits if filled) */}
+                <div>
+                  <Controller
+                    name="chiefArbiter.chiefArbiterPhone"
+                    control={control}
+                    rules={{
+                      pattern: {
+                        value: /^\d{10}$/,
+                        message: "Phone must be a 10-digit number",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        label="Chief Arbiter Phone"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        error={
+                          !!(
+                            errors?.chiefArbiter &&
+                            (errors.chiefArbiter as any)?.chiefArbiterPhone
+                          )
+                        }
+                        helperText={
+                          (errors?.chiefArbiter as any)?.chiefArbiterPhone
+                            ?.message
+                        }
+                      />
+                    )}
+                  />
+                </div>
+
+                {/* Chief Arbiter Email (Optional, but must be valid if filled) */}
+                <div>
+                  <Controller
+                    name="chiefArbiter.chiefArbiterEmail"
+                    control={control}
+                    rules={{
+                      pattern: {
+                        value: /^\S+@\S+\.\S+$/,
+                        message: "Invalid email format",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        label="Chief Arbiter Email"
+                        type="email"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        error={
+                          !!(
+                            errors?.chiefArbiter &&
+                            (errors.chiefArbiter as any)?.chiefArbiterEmail
+                          )
+                        }
+                        helperText={
+                          (errors?.chiefArbiter as any)?.chiefArbiterEmail
+                            ?.message
+                        }
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* tournament winner */}
+          {/* tournament participant */}
           <div className="mb-3 flex flex-col gap-4">
             <p className="font-bold text-gray-500 mt-3 flex items-center">
               <MedalIcon size={17} />
-              <span className="ml-1">Tournament Winners</span>
+              <span className="ml-1">Tournament Participants</span>
             </p>
 
-            {winnerFields.length === 0 && (
-              <p className="text-gray-500 mt-2">No winners added yet</p>
+            {participantsFields.length === 0 && (
+              <p className="text-gray-500 mt-2">No participants added yet</p>
             )}
 
-            {winnerFields.map((field, index) => (
+            {participantsFields.map((field, index) => (
               <div
                 key={field.id}
                 className={`border p-3 rounded-lg bg-gray-50`}
@@ -535,11 +704,11 @@ const AddLichessWeeklyTournaments = () => {
                   <p className="font-bold text-gray-500 flex items-center">
                     <MedalIcon size={15} />
 
-                    <span className="ml-1">Winner #{index + 1}</span>
+                    <span className="ml-1">Participant #{index + 1}</span>
                   </p>
                   <IconButton
                     color="error"
-                    onClick={() => handleDeleteWinner(index)}
+                    onClick={() => handleDeleteParticipant(index)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -548,7 +717,7 @@ const AddLichessWeeklyTournaments = () => {
                 <div className="grid grid-cols-2 gap-4">
                   {/* studentName */}
                   <Controller
-                    name={`lichessWeeklyWinners.${index}.studentName`}
+                    name={`participants.${index}.studentName`}
                     control={control}
                     rules={{
                       required: "Student name is required",
@@ -574,30 +743,16 @@ const AddLichessWeeklyTournaments = () => {
                             );
 
                           setValue(
-                            `lichessWeeklyWinners.${index}.studentId`,
+                            `participants.${index}.studentId`,
                             selectedStudent?._id
-                          );
-                          setValue(
-                            `lichessWeeklyWinners.${index}.lichessUsername`,
-                            selectedStudent?.lichessUsername
-                          );
-                          setValue(
-                            `lichessWeeklyWinners.${index}.lichessUrl`,
-                            selectedStudent?.lichessUrl
-                          );
-                          // reset lichess winners performance url
-                          setValue(
-                            `lichessWeeklyWinners.${index}.performanceUrl`,
-                            ""
                           );
                         }}
                         error={
-                          !!(errors.lichessWeeklyWinners as any)?.[index]
-                            ?.studentName
+                          !!(errors.participants as any)?.[index]?.studentName
                         }
                         helperText={
-                          (errors.lichessWeeklyWinners as any)?.[index]
-                            ?.studentName?.message
+                          (errors.participants as any)?.[index]?.studentName
+                            ?.message
                         }
                         required
                         width="full"
@@ -608,7 +763,7 @@ const AddLichessWeeklyTournaments = () => {
                   <div className="rank-lichesspoints grid grid-cols-2 gap-4">
                     {/* rank */}
                     <Controller
-                      name={`lichessWeeklyWinners.${index}.rank`}
+                      name={`participants.${index}.rank`}
                       control={control}
                       rules={{
                         required: "Rank is required",
@@ -619,16 +774,15 @@ const AddLichessWeeklyTournaments = () => {
                       render={({ field }) => (
                         <Dropdown
                           label="Rank"
-                          options={[1, 2, 3]}
+                          options={[
+                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16, 17, 18, 19, 20,
+                          ]}
                           selected={field.value || ""}
                           onChange={field.onChange}
-                          error={
-                            !!(errors.lichessWeeklyWinners as any)?.[index]
-                              ?.rank
-                          }
+                          error={!!(errors.participants as any)?.[index]?.rank}
                           helperText={
-                            (errors.lichessWeeklyWinners as any)?.[index]?.rank
-                              ?.message
+                            (errors.participants as any)?.[index]?.rank?.message
                           }
                           required
                           width="full"
@@ -636,26 +790,25 @@ const AddLichessWeeklyTournaments = () => {
                       )}
                     />
 
-                    {/* lichess points */}
+                    {/* Total points */}
                     <Controller
-                      name={`lichessWeeklyWinners.${index}.lichessPoints`}
+                      name={`participants.${index}.totalPoints`}
                       control={control}
                       // rules={{
-                      //   required: "Lichess points is required",
+                      //   required: "Total points is required",
                       // }}
                       render={({ field }) => (
                         <Input
-                          label="Lichess Points"
+                          label="Total Points"
                           value={field.value || ""}
                           onChange={field.onChange}
                           type="number"
                           error={
-                            !!(errors.lichessWeeklyWinners as any)?.[index]
-                              ?.lichessPoints
+                            !!(errors.participants as any)?.[index]?.totalPoints
                           }
                           helperText={
-                            (errors.lichessWeeklyWinners as any)?.[index]
-                              ?.lichessPoints?.message
+                            (errors.participants as any)?.[index]?.totalPoints
+                              ?.message
                           }
                           // required
                           width="full"
@@ -664,93 +817,204 @@ const AddLichessWeeklyTournaments = () => {
                     />
                   </div>
 
-                  {/* lichessUsername */}
-                  <Controller
-                    name={`lichessWeeklyWinners.${index}.lichessUsername`}
-                    control={control}
-                    // rules={{ required: "Lichess Username is required" }}
-                    render={({ field }) => (
-                      <Input
-                        label="Lichess Username"
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        type="text"
-                        error={
-                          !!(errors.lichessWeeklyWinners as any)?.[index]
-                            ?.lichessUsername
-                        }
-                        helperText={
-                          (errors.lichessWeeklyWinners as any)?.[index]
-                            ?.lichessUsername?.message
-                        }
-                        // required
-                        width="full"
-                      />
-                    )}
-                  />
-
-                  {/* lichess url */}
-
-                  <Controller
-                    name={`lichessWeeklyWinners.${index}.lichessUrl`}
-                    control={control}
-                    // rules={{ required: "Lichess URL is required" }}
-                    render={({ field }) => (
-                      <Input
-                        label="Lichess URL"
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        type="text"
-                        error={
-                          !!(errors.lichessWeeklyWinners as any)?.[index]
-                            ?.lichessUrl
-                        }
-                        helperText={
-                          (errors.lichessWeeklyWinners as any)?.[index]
-                            ?.lichessUrl?.message
-                        }
-                        // required
-                        width="full"
-                      />
-                    )}
-                  />
+                  {/* participant prize */}
 
                   {/* performanceUrl */}
-                  <Controller
-                    name={`lichessWeeklyWinners.${index}.performanceUrl`}
-                    control={control}
-                    // rules={{ required: "Lichess URL is required" }}
-                    render={({ field }) => (
-                      <Input
-                        label="Performance URL"
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        type="text"
-                        error={
-                          !!(errors.lichessWeeklyWinners as any)?.[index]
-                            ?.performanceUrl
-                        }
-                        helperText={
-                          (errors.lichessWeeklyWinners as any)?.[index]
-                            ?.performanceUrl?.message
-                        }
-                        // required
-                        width="full"
+                  <div className="col-span-2">
+                    <Controller
+                      name={`participants.${index}.performanceUrl`}
+                      control={control}
+                      // rules={{ required: "Lichess URL is required" }}
+                      render={({ field }) => (
+                        <Input
+                          label="Performance URL"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          type="text"
+                          error={
+                            !!(errors.participants as any)?.[index]
+                              ?.performanceUrl
+                          }
+                          helperText={
+                            (errors.participants as any)?.[index]
+                              ?.performanceUrl?.message
+                          }
+                          // required
+                          width="full"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  {/* prize */}
+                  <div className="col-span-2 grid grid-cols-4 gap-4 items-start">
+                    {/* checkbox-title */}
+                    <div className="checkbox-title">
+                      {/* Prize Title */}
+                      <Controller
+                        name={`participants.${index}.prize.title`}
+                        control={control}
+                        rules={{
+                          required: {
+                            value: !watch(
+                              `participants.${index}.prize.otherTitleStatus`
+                            ),
+                            message: "Prize Title is required",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Dropdown
+                            label="Prize Title"
+                            options={Object.keys(titlePositionMap)}
+                            selected={field.value || ""}
+                            onChange={(val: any) => {
+                              field.onChange(val);
+                              setValue(
+                                `participants.${index}.prize.position`,
+                                ""
+                              ); // Reset position
+                            }}
+                            disabled={watch(
+                              `participants.${index}.prize.otherTitleStatus`
+                            )}
+                            required
+                            error={
+                              !!(errors.participants as any)?.[index]?.prize
+                                ?.title
+                            }
+                            helperText={
+                              (errors.participants as any)?.[index]?.prize
+                                ?.title?.message
+                            }
+                            width="full"
+                          />
+                        )}
                       />
+                      {/* Checkbox for Custom Prize (Other) */}
+                      <Controller
+                        name={`participants.${index}.prize.otherTitleStatus`}
+                        control={control}
+                        render={({ field }) => (
+                          <div className="flex items-center mt-2">
+                            <input
+                              type="checkbox"
+                              id={`otherTitleStatus-${index}`} // ✅ Make ID unique per participant
+                              checked={field.value || false}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                field.onChange(checked);
+
+                                // Reset prize fields
+                                setValue(
+                                  `participants.${index}.prize.title`,
+                                  ""
+                                );
+                                setValue(
+                                  `participants.${index}.prize.position`,
+                                  ""
+                                );
+                                setValue(
+                                  `participants.${index}.prize.otherTitle`,
+                                  ""
+                                );
+                              }}
+                            />
+                            <label
+                              htmlFor={`otherTitleStatus-${index}`} // ✅ Match the dynamic ID
+                              className="text-md ml-2 cursor-pointer text-gray-800"
+                            >
+                              Other title
+                            </label>
+                          </div>
+                        )}
+                      />
+                    </div>
+                    {/* Prize Position */}
+                    <Controller
+                      name={`participants.${index}.prize.position`}
+                      control={control}
+                      rules={{
+                        required: {
+                          value: !watch(
+                            `participants.${index}.prize.otherTitleStatus`
+                          ),
+                          message: "Prize position is required",
+                        },
+                      }}
+                      render={({ field }) => {
+                        const selectedTitle = watch(
+                          `participants.${index}.prize.title`
+                        );
+                        const positionOptions =
+                          titlePositionMap[selectedTitle] || [];
+
+                        return (
+                          <Dropdown
+                            label="Prize Position"
+                            options={positionOptions}
+                            selected={field.value || ""}
+                            onChange={field.onChange}
+                            disabled={watch(
+                              `participants.${index}.prize.otherTitleStatus`
+                            )}
+                            required
+                            error={
+                              !!(errors.participants as any)?.[index]?.prize
+                                ?.position
+                            }
+                            helperText={
+                              (errors.participants as any)?.[index]?.prize
+                                ?.position?.message
+                            }
+                            width="full"
+                          />
+                        );
+                      }}
+                    />
+
+                    {/* Custom Prize Title Input */}
+                    {watch(`participants.${index}.prize.otherTitleStatus`) ? (
+                      <Controller
+                        name={`participants.${index}.prize.otherTitle`}
+                        control={control}
+                        rules={{
+                          required: "Custom title is required in 'Other' mode",
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            label="Other Prize Title"
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            required
+                            error={
+                              !!(errors.participants as any)?.[index]?.prize
+                                ?.otherTitle
+                            }
+                            helperText={
+                              (errors.participants as any)?.[index]?.prize
+                                ?.otherTitle?.message
+                            }
+                            width="full"
+                          />
+                        )}
+                      />
+                    ) : (
+                      // Leave one column empty
+                      <div />
                     )}
-                  />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* add new winner field */}
+          {/* add new participant field */}
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
-            onClick={handleAddWinner}
+            onClick={handleAddParticipant}
           >
-            Add Winner
+            Add Participant
           </Button>
 
           {/* Confirm Delete Modal */}
@@ -763,7 +1027,7 @@ const AddLichessWeeklyTournaments = () => {
           >
             <Box className="w-[400px] py-7 text-center rounded-lg bg-white">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
-              <p>You want to delete this winner?</p>
+              <p>You want to delete this participant?</p>
               <div className="buttons mt-4 flex justify-center gap-5">
                 <Button
                   variant="outlined"
@@ -774,7 +1038,7 @@ const AddLichessWeeklyTournaments = () => {
                 <Button
                   variant="contained"
                   color="error"
-                  onClick={confirmDeleteWinner}
+                  onClick={confirmDeleteParticipant}
                 >
                   Delete
                 </Button>
@@ -850,4 +1114,4 @@ const AddLichessWeeklyTournaments = () => {
   );
 };
 
-export default AddLichessWeeklyTournaments;
+export default UpdateOtherTournament;

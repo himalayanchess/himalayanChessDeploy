@@ -101,10 +101,12 @@ const ViewAllAssignedClasses = ({
 
     console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
-
+    let affiliatedTo = "All";
     if (!isSuperOrGlobalAdmin) {
       branchName = user?.branchName;
+      affiliatedTo = "HCA";
     }
+    setselectedAffiliatedTo(affiliatedTo);
     setselectedBranch(branchName);
   }, [session?.data?.user]);
 
@@ -184,7 +186,7 @@ const ViewAllAssignedClasses = ({
               selected={selectedClassStatus}
               onChange={setselectedClassStatus}
               width="full"
-              disabled={!isSuperOrGlobalAdmin}
+              // disabled={!isSuperOrGlobalAdmin}
             />
             {/* count */}
             <span className="text-sm text-gray-600">{showingText}</span>

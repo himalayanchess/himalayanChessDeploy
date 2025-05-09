@@ -1,12 +1,13 @@
 "use client";
-import React from "react";
-import { useSession } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
-
+import AddUser from "@/components/user/AddUserPageBased";
+import AddCourse from "@/components/course/AddCourse";
 import Header from "@/components/Header";
-import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 import DashboardComponent from "@/components/dashboard/DashboardComponent";
+import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 const page = () => {
   const router = useRouter();
   const session = useSession();
@@ -17,13 +18,13 @@ const page = () => {
       <Sidebar
         menuItems={adminMenuItems}
         // role={session?.data?.user.role}
-        role="admin"
+        role="Admin"
         activeMenu="Dashboard"
       />
-      <main className="ml-[3rem] w-[96%]  min-h-[100dvh] ">
+      <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
         <DashboardComponent />
-      </main>
+      </div>
     </div>
   );
 };

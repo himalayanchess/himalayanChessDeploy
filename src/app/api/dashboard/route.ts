@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         "_id name dob role branchName branchId imageUrl"
       ),
       NonAffiliatedStudent.countDocuments({ activeStatus: true }),
-      User.find(overallFilter).select(
+      User.find({ ...overallFilter, isActive: true }).select(
         "_id name dob role branchName branchId imageUrl"
       ),
       Payment.countDocuments({ paymentStatus: "Pending", ...overallFilter }),

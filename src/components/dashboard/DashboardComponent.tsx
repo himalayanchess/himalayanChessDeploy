@@ -2,12 +2,15 @@ import {
   AlignEndHorizontal,
   ArrowLeft,
   ArrowRight,
+  Book,
   BookOpenCheck,
   Cake,
   CalendarDays,
   CaptionsOff,
   ChartBarBig,
+  CircleFadingArrowUp,
   CircleUser,
+  Component,
   Crown,
   DollarSign,
   MapPinHouse,
@@ -61,6 +64,10 @@ const barColors: any = {
 
 const DashboardComponent = () => {
   const session = useSession();
+  const isSuperOrGlobalAdmin =
+    session?.data?.user?.role?.toLowerCase() === "superadmin" ||
+    session?.data?.user?.isGlobalAdmin;
+
   const today = dayjs().tz(timeZone);
   // state vars
   const [currentMonth, setCurrentMonth] = useState(today.startOf("month"));
@@ -81,10 +88,12 @@ const DashboardComponent = () => {
     // not used
     paidPayments: 0,
     affiliatedSchools: 0,
+    totalBatches: 0,
+    totalCompletedBatches: 0,
     totalCourses: 0,
     totalBranches: 0,
     pendingLeaveRequests: 0,
-    // not used
+    // except for superadmin
     totalStudyMaterials: 0,
   });
 
@@ -176,6 +185,12 @@ const DashboardComponent = () => {
           partialPayments: resData?.partialPayments,
           paidPayments: resData?.paidPayments,
           affiliatedSchools: resData?.affiliatedSchools,
+          totalBatches: resData?.activeBranchBatchList?.length,
+          totalCompletedBatches: resData?.activeBranchBatchList?.filter(
+            (batch: any) =>
+              batch?.completedStatus?.toLowerCase() == "completed" ||
+              batch?.batchEndDate
+          )?.length,
           totalCourses: resData?.totalCourses,
           totalBranches: resData?.totalBranches,
           pendingLeaveRequests: resData?.pendingLeaveRequests,
@@ -588,43 +603,6 @@ const DashboardComponent = () => {
               </div>
             </div>
 
-            {/* Students */}
-            <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
-              <div className="topic-button flex justify-between">
-                {/* topic */}
-                <p className="topic text-sm font-bold text-gray-500 flex items-center">
-                  <User size={18} />
-                  <span className="ml-1">Students</span>
-                </p>
-                {/* button */}
-                <Link
-                  href={`/${session?.data?.user?.role?.toLowerCase()}/students`}
-                >
-                  <Button className="flex items-center ">
-                    <span className="mr-1">View all</span>
-                    <ArrowRight size={15} />
-                  </Button>
-                </Link>
-              </div>
-              {/* content */}
-              <div className="content grid grid-cols-2 flex-1 place-items-center">
-                {/* count */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.hcaAffiliatedStudents || 0}
-                  </p>
-                  <p className="text-sm text-gray-500">HCA Affiliated</p>
-                </div>
-                {/* classes taken */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.schoolStudents || 0}
-                  </p>
-                  <p className="text-sm text-gray-500">School Affiliated</p>
-                </div>
-              </div>
-            </div>
-
             {/* Users */}
             <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
               <div className="topic-button flex justify-between">
@@ -664,17 +642,17 @@ const DashboardComponent = () => {
               </div>
             </div>
 
-            {/* payment */}
+            {/* Students */}
             <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
               <div className="topic-button flex justify-between">
                 {/* topic */}
                 <p className="topic text-sm font-bold text-gray-500 flex items-center">
-                  <DollarSign size={18} />
-                  <span className="ml-1">Payment</span>
+                  <User size={18} />
+                  <span className="ml-1">Students</span>
                 </p>
                 {/* button */}
                 <Link
-                  href={`/${session?.data?.user?.role?.toLowerCase()}/payments`}
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/students`}
                 >
                   <Button className="flex items-center ">
                     <span className="mr-1">View all</span>
@@ -683,115 +661,319 @@ const DashboardComponent = () => {
                 </Link>
               </div>
               {/* content */}
-              <div className="content grid grid-cols-2 flex-1 place-items-center">
+              <div
+                className={`content grid ${
+                  isSuperOrGlobalAdmin ? "grid-cols-2" : "grid-cols-1"
+                } flex-1 place-items-center`}
+              >
                 {/* count */}
                 <div className="flex flex-col items-center">
                   <p className="count text-3xl font-bold text-gray-500">
-                    {countData.pendingPayments || 0}
+                    {countData.hcaAffiliatedStudents || 0}
                   </p>
-                  <p className="text-sm text-gray-500">Pending</p>
+                  <p className="text-sm text-gray-500">
+                    {isSuperOrGlobalAdmin
+                      ? "HCA Affiliated"
+                      : `All ${session?.data?.user?.branchName} Students`}
+                  </p>
                 </div>
                 {/* classes taken */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.partialPayments || 0}
-                  </p>
-                  <p className="text-sm text-gray-500">Partial</p>
-                </div>
+                {(session?.data?.user?.role?.toLowerCase() == "superadmin" ||
+                  session?.data?.user?.isGlobalAdmin) && (
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.schoolStudents || 0}
+                    </p>
+                    <p className="text-sm text-gray-500">School Affiliated</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* school and courses */}
-            <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
-              <div className="topic-button flex justify-start">
-                {/* topic */}
-                <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
-                  <School size={18} />
-                  <span className="ml-1">Schools & Courses</span>
-                </p>
-                {/* button */}
-                {/* <Button className="flex items-center ">
-                  <span className="mr-1">View all</span>
-                  <ArrowRight size={15} />
-                </Button> */}
-              </div>
-              {/* content */}
-              <div className="content grid grid-cols-2 flex-1 place-items-center">
-                {/* count */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.affiliatedSchools || 0}
+            {/* payment */}
+            {session?.data?.user?.role?.toLowerCase() == "superadmin" && (
+              <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                <div className="topic-button flex justify-between">
+                  {/* topic */}
+                  <p className="topic text-sm font-bold text-gray-500 flex items-center">
+                    <DollarSign size={18} />
+                    <span className="ml-1">Payment</span>
                   </p>
+                  {/* button */}
                   <Link
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/payments`}
                   >
-                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
-                      Affiliated Schools
-                    </p>
+                    <Button className="flex items-center ">
+                      <span className="mr-1">View all</span>
+                      <ArrowRight size={15} />
+                    </Button>
                   </Link>
                 </div>
-                {/* classes taken */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.totalCourses || 0}
-                  </p>
-                  <Link
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/courses`}
-                  >
-                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
-                      Courses
+                {/* content */}
+                <div className="content grid grid-cols-2 flex-1 place-items-center">
+                  {/* count */}
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.pendingPayments || 0}
                     </p>
-                  </Link>
+                    <p className="text-sm text-gray-500">Pending</p>
+                  </div>
+                  {/* classes taken */}
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.partialPayments || 0}
+                    </p>
+                    <p className="text-sm text-gray-500">Partial</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Branches and Study Materials */}
-            <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
-              <div className="topic-button flex justify-start">
-                {/* topic */}
-                <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
-                  <MapPinHouse size={18} />
-                  <span className="ml-1">
-                    Branches & Pending Leave requests
-                  </span>
-                </p>
-                {/* button */}
-                {/* <Button className="flex items-center ">
+            {/* school and courses for superadmin and globaladmin*/}
+            {(session?.data?.user?.role?.toLowerCase() == "superadmin" ||
+              session?.data?.user?.isGlobalAdmin) && (
+              <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                <div className="topic-button flex justify-start">
+                  {/* topic */}
+                  <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
+                    <School size={18} />
+                    <span className="ml-1">Schools & Courses</span>
+                  </p>
+                  {/* button */}
+                  {/* <Button className="flex items-center ">
                   <span className="mr-1">View all</span>
                   <ArrowRight size={15} />
                 </Button> */}
-              </div>
-              {/* content */}
-              <div className="content grid grid-cols-2 flex-1 place-items-center">
-                {/* count */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.totalBranches || 0}
-                  </p>
-                  <Link
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/branches`}
-                  >
-                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
-                      Branches
-                    </p>
-                  </Link>
                 </div>
-                {/* classes taken */}
-                <div className="flex flex-col items-center">
-                  <p className="count text-3xl font-bold text-gray-500">
-                    {countData.pendingLeaveRequests || 0}
-                  </p>
-                  <Link
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/leaveapproval`}
-                  >
-                    <p className="text-sm text-gray-500 underline hover:text-blue-500">
-                      Pending requests
+                {/* content */}
+                <div className="content grid grid-cols-2 flex-1 place-items-center">
+                  {/* count */}
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.affiliatedSchools || 0}
                     </p>
-                  </Link>
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/projects`}
+                    >
+                      <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                        Affiliated Schools
+                      </p>
+                    </Link>
+                  </div>
+                  {/* classes taken */}
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.totalCourses || 0}
+                    </p>
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/courses`}
+                    >
+                      <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                        Courses
+                      </p>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* instead batches and courses for branch admin */}
+            {/* separated into each batches and courses */}
+            {/* batches */}
+            {session?.data?.user?.role?.toLowerCase() == "admin" &&
+              !session?.data?.user?.isGlobalAdmin && (
+                <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                  <div className="topic-button flex justify-between">
+                    {/* topic */}
+                    <p className="topic text-sm font-bold text-gray-500 flex items-center">
+                      <Component size={18} />
+                      <span className="ml-1">Batches</span>
+                    </p>
+                    {/* button */}
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/batches`}
+                    >
+                      <Button className="flex items-center ">
+                        <span className="mr-1">View all</span>
+                        <ArrowRight size={15} />
+                      </Button>
+                    </Link>
+                  </div>
+                  {/* content */}
+                  <div className="content grid grid-cols-2 flex-1 place-items-center">
+                    {/* batches */}
+                    <div className="flex flex-col items-center">
+                      <p className="count text-3xl font-bold text-gray-500">
+                        {countData.totalBatches || 0}
+                      </p>
+
+                      <p className="text-sm text-gray-500 ">Total Batches</p>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <p className="count text-3xl font-bold text-gray-500">
+                        {countData.totalCompletedBatches || 0}
+                      </p>
+
+                      <p className="text-sm text-gray-500 ">
+                        Completed Batches
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            {/* courses */}
+            {session?.data?.user?.role?.toLowerCase() == "admin" &&
+              !session?.data?.user?.isGlobalAdmin && (
+                <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                  <div className="topic-button flex justify-start">
+                    {/* topic */}
+                    <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
+                      <Book size={18} />
+                      <span className="ml-1">Courses</span>
+                    </p>
+                    {/* button */}
+                    {/* <Button className="flex items-center ">
+                  <span className="mr-1">View all</span>
+                  <ArrowRight size={15} />
+                </Button> */}
+                  </div>
+                  {/* content */}
+                  <div className="content grid grid-cols-1 flex-1 place-items-center">
+                    {/* classes taken */}
+                    <div className="flex flex-col items-center">
+                      <p className="count text-3xl font-bold text-gray-500">
+                        {countData.totalCourses || 0}
+                      </p>
+                      <Link
+                        href={`/${session?.data?.user?.role?.toLowerCase()}/courses`}
+                      >
+                        <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                          Courses
+                        </p>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {/* Branches and Leave requests for super and global admin*/}
+            {(session?.data?.user?.role?.toLowerCase() == "superadmin" ||
+              session?.data?.user?.isGlobalAdmin) && (
+              <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                <div className="topic-button flex justify-start">
+                  {/* topic */}
+                  <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
+                    <MapPinHouse size={18} />
+                    <span className="ml-1">
+                      Branches & Pending Leave requests
+                    </span>
+                  </p>
+                  {/* button */}
+                  {/* <Button className="flex items-center ">
+                  <span className="mr-1">View all</span>
+                  <ArrowRight size={15} />
+                </Button> */}
+                </div>
+                {/* content */}
+                <div className="content grid grid-cols-2 flex-1 place-items-center">
+                  {/* count */}
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.totalBranches || 0}
+                    </p>
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/branches`}
+                    >
+                      <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                        Branches
+                      </p>
+                    </Link>
+                  </div>
+                  {/* classes taken */}
+                  <div className="flex flex-col items-center">
+                    <p className="count text-3xl font-bold text-gray-500">
+                      {countData.pendingLeaveRequests || 0}
+                    </p>
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/leaveapproval`}
+                    >
+                      <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                        Pending requests
+                      </p>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* no branch for branch admins */}
+            {session?.data?.user?.role?.toLowerCase() == "admin" &&
+              !session?.data?.user?.isGlobalAdmin && (
+                <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                  <div className="topic-button flex justify-start">
+                    {/* topic */}
+                    <p className="topic text-sm font-bold text-gray-500 flex items-center py-2">
+                      <CircleFadingArrowUp size={18} />
+                      <span className="ml-1">Pending Leave requests</span>
+                    </p>
+                    {/* button */}
+                    {/* <Button className="flex items-center ">
+                  <span className="mr-1">View all</span>
+                  <ArrowRight size={15} />
+                </Button> */}
+                  </div>
+                  {/* content */}
+                  <div className="content grid grid-cols-1 flex-1 place-items-center">
+                    {/* classes taken */}
+                    <div className="flex flex-col items-center">
+                      <p className="count text-3xl font-bold text-gray-500">
+                        {countData.pendingLeaveRequests || 0}
+                      </p>
+                      <Link
+                        href={`/${session?.data?.user?.role?.toLowerCase()}/leaveapproval`}
+                      >
+                        <p className="text-sm text-gray-500 underline hover:text-blue-500">
+                          Pending requests
+                        </p>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {/* study materials for global admin instead of payment */}
+            {session?.data?.user?.role?.toLowerCase() == "admin" &&
+              session?.data?.user?.isGlobalAdmin && (
+                <div className="detailcell bg-white px-3 py-2 rounded-lg shadow-md flex flex-col justify-between">
+                  <div className="topic-button flex justify-between">
+                    {/* topic */}
+                    <p className="topic text-sm font-bold text-gray-500 flex items-center">
+                      <Book size={18} />
+                      <span className="ml-1">Study Materials</span>
+                    </p>
+                    {/* button */}
+                    <Link
+                      href={`/${session?.data?.user?.role?.toLowerCase()}/studymaterials`}
+                    >
+                      <Button className="flex items-center ">
+                        <span className="mr-1">View all</span>
+                        <ArrowRight size={15} />
+                      </Button>
+                    </Link>
+                  </div>
+                  {/* content */}
+                  <div className="content grid grid-cols-2 flex-1 place-items-center">
+                    {/* total study materials */}
+                    <div className="flex flex-col items-center">
+                      <p className="count text-3xl font-bold text-gray-500">
+                        {countData.totalStudyMaterials || 0}
+                      </p>
+                      <p className="text-sm text-gray-500">Study Materials</p>
+                    </div>
+                  </div>
+                </div>
+              )}
           </div>
         </div>
 

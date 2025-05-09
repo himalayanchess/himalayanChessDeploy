@@ -510,19 +510,19 @@ const UpdateLichessWeeklyTournament = ({ lichessTournamentRecord }: any) => {
                   <Controller
                     name="totalParticipants"
                     control={control}
-                    rules={{
-                      required: {
-                        value: true,
-                        message: "Total participants is required",
-                      },
-                    }}
+                    // rules={{
+                    //   required: {
+                    //     value: true,
+                    //     message: "Total participants is required",
+                    //   },
+                    // }}
                     render={({ field }) => (
                       <Input
                         label="Total Participants"
                         type="number"
                         value={field.value || ""}
                         onChange={field.onChange}
-                        required
+                        // required
                         error={errors.totalParticipants}
                         helperText={errors.totalParticipants?.message}
                       />

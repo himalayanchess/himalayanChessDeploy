@@ -21,6 +21,12 @@ const TournamentsComponent = () => {
       >
         lichessweeklytournament
       </Link>
+      <Link
+        className="underline"
+        href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`}
+      >
+        other tournaments
+      </Link>
       TournamentsComponent
     </div>
   );
