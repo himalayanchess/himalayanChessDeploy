@@ -32,15 +32,14 @@ import Link from "next/link";
 
 import SearchInput from "@/components/SearchInput";
 import {
-  fetchAllLichessTournaments,
-  filterLichessTournamentList,
+  fetchAllOtherTournaments,
+  filterOtherTournamentList,
 } from "@/redux/allTournamentSlice";
-import { exportLichessTournamentListToExcel } from "@/helpers/exportToExcel/exportLichessTournamentListToExcel";
+import OtherTournamentsList from "./OtherTournamentsList";
+import { exportOtherTournamentListToExcel } from "@/helpers/exportToExcel/exportOtherTournamentListToExcel";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import LichessTournamentsList from "../lichessweeklytournaments/LichessTournamentsList";
-import LichessLeaderboardComponent from "../lichessweeklytournaments/lichessleaderboard/LichessLeaderboardComponent";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -62,13 +61,9 @@ const OtherTournamentsComponent = () => {
   );
 
   const {
-    allActiveLichessTournamentsList,
-    allFilteredActiveLichessTournamentsList,
-    allLichessTournamentsLoading,
-
-    //selected students lichess tournaments
-    allActiveSelectedStudentsLichessTournamentsList,
-    allSelectedStudentsLichessTournamentsLoading,
+    allActiveOtherTournamentsList,
+    allFilteredActiveOtherTournamentsList,
+    allOtherTournamentsLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // const affilatedToOptions = ["All", "HCA", "School"];
@@ -85,10 +80,10 @@ const OtherTournamentsComponent = () => {
   const [selectedMenu, setselectedMenu] = useState("tournamentlist");
   const [searchText, setsearchText] = useState("");
   const [selectedBranch, setselectedBranch] = useState("");
-  const [filteredLichessTournamentCount, setfilteredLichessTournamentCount] =
+  const [filteredOtherTournamentCount, setfilteredOtherTournamentCount] =
     useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
-  const [lichessTournamentsPerPage] = useState(7);
+  const [otherTournamentsPerPage] = useState(7);
   const [selectedMonth, setselectedMonth] = useState(defaultMonth);
   const [useAdvancedDate, setUseAdvancedDate] = useState(false);
   const [startDate, setStartDate] = useState(defaultStartDate);
@@ -99,16 +94,16 @@ const OtherTournamentsComponent = () => {
   };
 
   // Calculate showing text
-  const startItem = (currentPage - 1) * lichessTournamentsPerPage + 1;
+  const startItem = (currentPage - 1) * otherTournamentsPerPage + 1;
   const endItem = Math.min(
-    currentPage * lichessTournamentsPerPage,
-    filteredLichessTournamentCount
+    currentPage * otherTournamentsPerPage,
+    filteredOtherTournamentCount
   );
-  const showingText = `Showing ${startItem}-${endItem} of ${filteredLichessTournamentCount}`;
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredOtherTournamentCount}`;
 
   //export to excel
   const exportToExcel = () => {
-    exportLichessTournamentListToExcel(allFilteredActiveLichessTournamentsList);
+    exportOtherTournamentListToExcel(allFilteredActiveOtherTournamentsList);
   };
 
   // Reset current page to 1 and search text when selectedStatus changes
@@ -134,14 +129,14 @@ const OtherTournamentsComponent = () => {
   // filter
   useEffect(() => {
     // filter litchtes tournaments
-    let tempFilteredLichessTournamentsList =
-      allActiveLichessTournamentsList?.slice();
+    let tempFilteredOtherTournamentsList =
+      allActiveOtherTournamentsList?.slice();
 
     // filter by branch
-    tempFilteredLichessTournamentsList =
+    tempFilteredOtherTournamentsList =
       selectedBranch?.toLowerCase() == "all"
-        ? tempFilteredLichessTournamentsList
-        : tempFilteredLichessTournamentsList?.filter(
+        ? tempFilteredOtherTournamentsList
+        : tempFilteredOtherTournamentsList?.filter(
             (tournament: any) =>
               tournament.branchName.toLowerCase() ==
               selectedBranch?.toLowerCase()
@@ -149,8 +144,8 @@ const OtherTournamentsComponent = () => {
 
     // Date Filtering
     if (useAdvancedDate) {
-      tempFilteredLichessTournamentsList =
-        tempFilteredLichessTournamentsList.filter((tournament: any) => {
+      tempFilteredOtherTournamentsList =
+        tempFilteredOtherTournamentsList.filter((tournament: any) => {
           const tournamentDate = dayjs(tournament.date)
             .tz(timeZone)
             .format("YYYY-MM-DD");
@@ -158,8 +153,8 @@ const OtherTournamentsComponent = () => {
           return tournamentDate >= startDate && tournamentDate <= endDate;
         });
     } else {
-      tempFilteredLichessTournamentsList =
-        tempFilteredLichessTournamentsList.filter((tournament: any) => {
+      tempFilteredOtherTournamentsList =
+        tempFilteredOtherTournamentsList.filter((tournament: any) => {
           const tournamentMonth = dayjs(tournament.utcDate)
             .tz(timeZone)
             .format("YYYY-MM");
@@ -170,8 +165,8 @@ const OtherTournamentsComponent = () => {
 
     // search text
     if (searchText.trim() !== "") {
-      tempFilteredLichessTournamentsList =
-        tempFilteredLichessTournamentsList.filter((tournament: any) =>
+      tempFilteredOtherTournamentsList =
+        tempFilteredOtherTournamentsList.filter((tournament: any) =>
           tournament.tournamentName
             .toLowerCase()
             .includes(searchText.toLowerCase())
@@ -179,20 +174,17 @@ const OtherTournamentsComponent = () => {
     }
 
     // Sorting with dayjs in Nepali timezone
-    tempFilteredLichessTournamentsList =
-      tempFilteredLichessTournamentsList?.sort(
-        (a: any, b: any) =>
-          dayjs.tz(b.date, "Asia/Kathmandu").valueOf() -
-          dayjs.tz(a.date, "Asia/Kathmandu").valueOf()
-      );
-
-    setfilteredLichessTournamentCount(
-      tempFilteredLichessTournamentsList?.length
+    tempFilteredOtherTournamentsList = tempFilteredOtherTournamentsList?.sort(
+      (a: any, b: any) =>
+        dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
+        dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
     );
+
+    setfilteredOtherTournamentCount(tempFilteredOtherTournamentsList?.length);
     setCurrentPage(1);
-    dispatch(filterLichessTournamentList(tempFilteredLichessTournamentsList));
+    dispatch(filterOtherTournamentList(tempFilteredOtherTournamentsList));
   }, [
-    allActiveLichessTournamentsList,
+    allActiveOtherTournamentsList,
     selectedBranch,
     searchText,
     useAdvancedDate,
@@ -221,7 +213,7 @@ const OtherTournamentsComponent = () => {
 
   // intial data fetch
   useEffect(() => {
-    dispatch(fetchAllLichessTournaments());
+    dispatch(fetchAllOtherTournaments());
 
     dispatch(getAllBranches());
   }, []);
@@ -244,10 +236,10 @@ const OtherTournamentsComponent = () => {
             onClick={exportToExcel}
             variant="contained"
             color="success"
-            disabled={allFilteredActiveLichessTournamentsList?.length === 0}
+            disabled={allFilteredActiveOtherTournamentsList?.length === 0}
             startIcon={<DownloadIcon />}
           >
-            Export to Excel (change for this tourney)
+            Export to Excel
           </Button>
         </div>
       </div>
@@ -357,19 +349,19 @@ const OtherTournamentsComponent = () => {
         )}
       </div>
 
-      <LichessTournamentsList
-        allFilteredActiveLichessTournamentsList={
-          allFilteredActiveLichessTournamentsList
+      <OtherTournamentsList
+        allFilteredActiveOtherTournamentsList={
+          allFilteredActiveOtherTournamentsList
         }
         currentPage={currentPage}
-        lichessTournamentsPerPage={lichessTournamentsPerPage}
-        allLichessTournamentsLoading={allLichessTournamentsLoading}
+        otherTournamentsPerPage={otherTournamentsPerPage}
+        allOtherTournamentsLoading={allOtherTournamentsLoading}
       />
 
       <Stack spacing={2} className="mx-auto w-max mt-3">
         <Pagination
           count={Math.ceil(
-            filteredLichessTournamentCount / lichessTournamentsPerPage
+            filteredOtherTournamentCount / otherTournamentsPerPage
           )} // Total pages
           page={currentPage} //allCoursesLoading Current page
           onChange={handlePageChange} // Handle page change

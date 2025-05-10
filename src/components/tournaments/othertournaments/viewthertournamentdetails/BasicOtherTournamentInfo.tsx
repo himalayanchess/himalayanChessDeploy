@@ -3,13 +3,17 @@ import {
   CircleUser,
   Clock,
   Earth,
+  GitFork,
   LayoutGrid,
   Mail,
   MapPin,
   MapPinHouse,
   Phone,
+  Replace,
+  SquareArrowOutUpRight,
   SquareCode,
   Star,
+  User,
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -27,48 +31,48 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
-const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
+const BasicOtherTournamentInfo = ({ otherTournamentRecord }: any) => {
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
     (session?.data?.user?.role?.toLowerCase() === "admin" &&
       session?.data?.user?.isGlobalAdmin);
   const formatDate = (date: string) => {
-    return dayjs(date).tz(timeZone).format("MMMM D, YYYY, dddd");
+    return dayjs(date).tz(timeZone).format("MMMM D, YYYY, ddd");
   };
   return (
     <div className=" grid grid-cols-2 auto-rows-max w-full gap-4">
       <div className="bg-gray-50 rounded-xl  p-4 ">
         <div className="">
-          <p className="text-sm text-gray-500">Lichess Tournament Name</p>
+          <p className="text-sm text-gray-500">Other Tournament Name</p>
           <div className="flex items-center">
             {/* <School className="text-gray-500" /> */}
             <p className="font-bold text-2xl ml-1 ">
-              {lichessTournamentRecord?.tournamentName}
+              {otherTournamentRecord?.tournamentName}
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 mt-2 gap-2">
           <div>
-            <p className="text-sm text-gray-500">Held Time</p>
+            <p className="text-sm text-gray-500">Start Date</p>
             <p className="font-medium text-md flex items-center">
-              <Clock className="text-gray-500" />
+              <EventOutlinedIcon className="text-gray-500" />
               <span className="ml-1">
-                {lichessTournamentRecord?.time
-                  ? dayjs(lichessTournamentRecord.time)
-                      .tz("Asia/Kathmandu")
-                      .format("h:mm A")
+                {otherTournamentRecord?.startDate
+                  ? formatDate(otherTournamentRecord.startDate)
                   : "N/A"}
               </span>
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Date</p>
+            <p className="text-sm text-gray-500">End Date</p>
             <p className="font-medium text-md flex items-center">
               <EventOutlinedIcon className="text-gray-500" />
               <span className="ml-1">
-                {formatDate(lichessTournamentRecord?.date)}
+                {otherTournamentRecord?.endDate
+                  ? formatDate(otherTournamentRecord.endDate)
+                  : "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -82,20 +86,20 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
             <p className="text-sm text-gray-500">BranchName</p>
             <p className="font-medium text-md flex items-center">
               <MapPinHouse className="text-gray-500" />
-              {lichessTournamentRecord?.branchName &&
-              lichessTournamentRecord?.branchId ? (
+              {otherTournamentRecord?.branchName &&
+              otherTournamentRecord?.branchId ? (
                 isSuperOrGlobalAdmin ? (
                   <Link
                     href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
-                      lichessTournamentRecord.branchId
+                      otherTournamentRecord.branchId
                     }`}
                     className="ml-1 underline hover:text-blue-500"
                   >
-                    {lichessTournamentRecord.branchName}
+                    {otherTournamentRecord.branchName}
                   </Link>
                 ) : (
                   <span className="ml-1">
-                    {lichessTournamentRecord.branchName}
+                    {otherTournamentRecord.branchName}
                   </span>
                 )
               ) : (
@@ -106,37 +110,85 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
           <div className="flex justify-end items-center">
             <span
               className={` px-3 py-1 text-md font-semibold rounded-full flex items-center ${
-                lichessTournamentRecord?.tag
+                otherTournamentRecord?.tag
                   ? "bg-green-100 text-green-800" // Light green background with dark green text
                   : "bg-gray-200 text-gray-800" // Light gray background with dark gray text
               }`}
             >
               <span className="w-2.5 h-2.5 rounded-full bg-green-500 mr-2" />
-              {lichessTournamentRecord?.tag || "N/A"}
+              {otherTournamentRecord?.tag?.toLowerCase() == "othertournaments"
+                ? "Other Tournament"
+                : "N/A"}
             </span>
           </div>
           {/* week */}
           <div className="">
-            <p className="text-sm text-gray-500">Week Number</p>
-            <p className="text-gray-500 text-md flex items-center text-lg font-bold">
+            <p className="text-sm text-gray-500">Tournament URL</p>
+            <p className="text-gray-500 text-md flex items-center text-md font-medium">
+              {otherTournamentRecord?.tournamenturl ? (
+                <div className="flex items-center">
+                  <SquareArrowOutUpRight size={18} />
+                  <Link
+                    href={otherTournamentRecord.tournamenturl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 underline text-blue-600 hover:text-blue-800"
+                  >
+                    View Link
+                  </Link>
+                </div>
+              ) : (
+                <span className="ml-1">N/A</span>
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Chief Arbiter info */}
+      <div className="bg-gray-50 rounded-xl  col-span-2 p-4 ">
+        <h1 className="text-sm font-bold text-gray-500">
+          Chief Arbiter Information
+        </h1>
+        <div className="grid grid-cols-3 mt-2 gap-2">
+          {/* chief arbiter name */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">Chief Arbiter Name</p>
+            <p className="font-bold text-gray-500 text-md flex items-center">
+              <User className="text-gray-500" />
               <span className="ml-1">
-                #{lichessTournamentRecord?.weekNo || "N/A"}{" "}
+                {otherTournamentRecord?.chiefArbiter?.chiefArbiterName || "N/A"}{" "}
               </span>
             </p>
           </div>
-          {/* week */}
-          <div className="">
-            <p className="text-sm text-gray-500">Year</p>
-            <p className="text-gray-500 text-md flex items-center text-lg font-bold">
+
+          {/* chief arbiter phone */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">Chief Arbiter Phone</p>
+            <p className="font-bold text-gray-500 text-md flex items-center">
+              <Phone className="text-gray-500" />
               <span className="ml-1">
-                {lichessTournamentRecord?.year || "N/A"}{" "}
+                {otherTournamentRecord?.chiefArbiter?.chiefArbiterPhone ||
+                  "N/A"}{" "}
+              </span>
+            </p>
+          </div>
+
+          {/* chief arbiter email */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">Chief Arbiter Email</p>
+            <p className="font-bold text-gray-500 text-md flex items-center">
+              <Mail className="text-gray-500" />
+              <span className="ml-1">
+                {otherTournamentRecord?.chiefArbiter?.chiefArbiterEmail ||
+                  "N/A"}{" "}
               </span>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Duration status info */}
+      {/* Tournament info */}
       <div className="bg-gray-50 rounded-xl  col-span-2 p-4 ">
         <h1 className="text-sm font-bold text-gray-500">
           Tournament Information
@@ -147,7 +199,7 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center">
               <LayoutGrid className="text-gray-500" />
               <span className="ml-1">
-                {lichessTournamentRecord?.tournamentType || "N/A"}{" "}
+                {otherTournamentRecord?.tournamentType || "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -157,8 +209,8 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
               <Clock className="text-gray-500" />
               <span className="ml-1">
                 <span>
-                  {lichessTournamentRecord?.clockTime?.initialTime
-                    ? `${lichessTournamentRecord.clockTime.initialTime} mins`
+                  {otherTournamentRecord?.clockTime?.initialTime
+                    ? `${otherTournamentRecord.clockTime.initialTime} mins`
                     : "N/A"}
                 </span>{" "}
               </span>
@@ -170,8 +222,8 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
               <AlarmClockPlus className="text-gray-500" />
               <span className="ml-1">
                 <span>
-                  {lichessTournamentRecord?.clockTime?.increment
-                    ? `${lichessTournamentRecord.clockTime.increment} sec`
+                  {otherTournamentRecord?.clockTime?.increment
+                    ? `${otherTournamentRecord.clockTime.increment} sec`
                     : "N/A"}
                 </span>
               </span>
@@ -183,7 +235,18 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center text-lg ">
               <Users className="text-gray-500" />
               <span className="ml-1">
-                {lichessTournamentRecord?.totalParticipants || 0}
+                {otherTournamentRecord?.totalParticipants || 0}
+              </span>
+            </p>
+          </div>
+
+          {/* total rounds */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">Total Rounds</p>
+            <p className="font-bold text-gray-500 text-md flex items-center text-lg ">
+              <GitFork className="text-gray-500" />
+              <span className="ml-1">
+                {otherTournamentRecord?.totalRounds || 0}
               </span>
             </p>
           </div>
@@ -193,4 +256,4 @@ const BasicLichessTournamentInfo = ({ lichessTournamentRecord }: any) => {
   );
 };
 
-export default BasicLichessTournamentInfo;
+export default BasicOtherTournamentInfo;

@@ -39,7 +39,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchAllStudentsTestHistory } from "@/redux/testHistorySlice";
 import { getAllSelectedStudentsPaymentRecords } from "@/redux/allListSlice";
-import { fetchAllSelectedStudentsLichessTournaments } from "@/redux/allTournamentSlice";
+import { fetchAllSelectedStudentsLichessTournaments, fetchAllSelectedStudentsOtherTournaments } from "@/redux/allTournamentSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -65,6 +65,10 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     //selected students lichess tournaments
     allActiveSelectedStudentsLichessTournamentsList,
     allSelectedStudentsLichessTournamentsLoading,
+
+    //selected students lichess tournaments
+    allActiveSelectedStudentsOtherTournamentsList,
+    allSelectedStudentsOtherTournamentsLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // use use selectro for students test history
@@ -169,12 +173,19 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
           return (
             <StudentEventInfo
               studentRecord={studentRecord}
-              // lichess
+              // students lichess tournaments
               studentsLichessTournamentsList={
                 allActiveSelectedStudentsLichessTournamentsList
               }
               studentsLichessTournamentsLoading={
                 allSelectedStudentsLichessTournamentsLoading
+              }
+              // students others tournaments
+              studentsOtherTournamentsList={
+                allActiveSelectedStudentsOtherTournamentsList
+              }
+              studentsOtherTournamentsLoading={
+                allSelectedStudentsOtherTournamentsLoading
               }
             />
           );
@@ -242,6 +253,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     if (studentRecord) {
       dispatch(getAllSelectedStudentsPaymentRecords(studentRecord?._id));
       dispatch(fetchAllSelectedStudentsLichessTournaments(studentRecord?._id));
+      dispatch(fetchAllSelectedStudentsOtherTournaments(studentRecord?._id));
     }
   }, [studentRecord]);
 

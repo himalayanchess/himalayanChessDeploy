@@ -2,12 +2,17 @@ import { Button } from "@mui/material";
 import { Laptop, Trophy } from "lucide-react";
 import React, { useState } from "react";
 import StudentsLichessTournamentsList from "./studentstournaments/StudentsLichessTournamentsList";
+import StudentsOtherTournamentsList from "./studentstournaments/StudentsOtherTournamentsList";
 
 const StudentEventInfo = ({
   studentRecord,
   // students lichess tournaments list
   studentsLichessTournamentsList,
   studentsLichessTournamentsLoading,
+
+  // students lichess tournaments list
+  studentsOtherTournamentsList,
+  studentsOtherTournamentsLoading,
 }: any) => {
   const [selectedMenu, setSelectedMenu] = useState("lichess");
 
@@ -17,9 +22,10 @@ const StudentEventInfo = ({
 
   const menuItems = [
     { label: "Lichess", value: "lichess", icon: <Laptop /> },
+    { label: "Other Tournaments", value: "othertournaments", icon: <Laptop /> },
     {
-      label: "Others",
-      value: "others",
+      label: "Extra",
+      value: "extra",
       icon: <Trophy />,
     },
   ];
@@ -27,7 +33,7 @@ const StudentEventInfo = ({
   // show dynamic compnent
   const showComponent = () => {
     switch (selectedMenu) {
-      case "basic":
+      case "lichess":
         return (
           <StudentsLichessTournamentsList
             studentId={studentRecord?._id}
@@ -36,7 +42,16 @@ const StudentEventInfo = ({
             loading={studentsLichessTournamentsLoading}
           />
         );
-      case "others":
+      case "othertournaments":
+        return (
+          <StudentsOtherTournamentsList
+            studentId={studentRecord?._id}
+            studentName={studentRecord?.name}
+            tournamentList={studentsOtherTournamentsList}
+            loading={studentsOtherTournamentsLoading}
+          />
+        );
+      case "extra":
         return (
           <StudentsLichessTournamentsList
             studentId={studentRecord?._id}

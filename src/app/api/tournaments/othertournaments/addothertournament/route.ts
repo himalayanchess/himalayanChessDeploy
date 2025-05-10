@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      msg: "New Other Tournament created successfully",
+      msg: "Tournament created successfully",
       statusCode: 200,
       tournament: newTournament,
     });

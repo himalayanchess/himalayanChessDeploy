@@ -197,7 +197,7 @@ const AddLichessWeeklyTournaments = () => {
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
       setValue("branchId", user?.branchId);
-      branchName = session?.data?.user?.branchName;
+      branchName = user?.branchName;
     }
     setselectedBranch(branchName);
   }, [session?.data?.user]);
@@ -217,7 +217,7 @@ const AddLichessWeeklyTournaments = () => {
     // Reset the winners field array
     // replace this logic in update lichess tournament
     resetWinners([]);
-  }, [selectedBranch]);
+  }, [selectedBranch, allActiveHcaStudentsList]);
 
   // get initial data
   useEffect(() => {
@@ -383,6 +383,7 @@ const AddLichessWeeklyTournaments = () => {
                       (branch: any) => branch.branchName
                     )}
                     selected={field.value || ""}
+                    disabled={!isSuperOrGlobalAdmin}
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList?.find(

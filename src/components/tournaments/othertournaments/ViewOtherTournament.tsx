@@ -29,16 +29,16 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import BasicLichessTournamentInfo from "./viewlichesstournamentdetails/BasicLichessTournamentInfo";
-import LichessTournamentWinners from "./viewlichesstournamentdetails/LichessTournamentWinners";
+import BasicOtherTournamentInfo from "./viewthertournamentdetails/BasicOtherTournamentInfo";
+import OtherTournamentWinners from "./viewthertournamentdetails/OtherTournamentWinners";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
-  // console.log(lichessTournamentRecord);
+const ViewOtherTournament = ({ otherTournamentRecord }: any) => {
+  // console.log(otherTournamentRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -63,27 +63,27 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
   ];
 
   const showComponent = () => {
-    if (lichessTournamentRecord) {
+    if (otherTournamentRecord) {
       console.log("show comp", selectedMenu);
 
       switch (selectedMenu) {
         case "basic":
           return (
-            <BasicLichessTournamentInfo
-              lichessTournamentRecord={lichessTournamentRecord}
+            <BasicOtherTournamentInfo
+              otherTournamentRecord={otherTournamentRecord}
             />
           );
         case "winners":
           return (
-            <LichessTournamentWinners
-              lichessTournamentRecord={lichessTournamentRecord}
-              winnersList={lichessTournamentRecord?.lichessWeeklyWinners}
+            <OtherTournamentWinners
+              otherTournamentRecord={otherTournamentRecord}
+              participants={otherTournamentRecord?.participants}
             />
           );
         default:
           return (
-            <BasicLichessTournamentInfo
-              lichessTournamentRecord={lichessTournamentRecord}
+            <BasicOtherTournamentInfo
+              otherTournamentRecord={otherTournamentRecord}
             />
           );
       }
@@ -91,10 +91,10 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
   };
 
   useEffect(() => {
-    if (lichessTournamentRecord) {
+    if (otherTournamentRecord) {
       setLoaded(true);
     }
-  }, [lichessTournamentRecord]);
+  }, [otherTournamentRecord]);
 
   if (!loaded)
     return (
@@ -107,11 +107,11 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
         <div className="title-name flex flex-col">
           <h1 className="text-2xl font-bold flex items-center">
             <Trophy />
-            <span className="ml-2 mr-3">Lichess Tournament Detail</span>
+            <span className="ml-2 mr-3">Other Tournament Detail</span>
             {/* {session?.data?.user?.role?.toLowerCase() == "superadmin" && ( */}
             <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/lichessweeklytournament/updatelichessweeklytournament/${
-                lichessTournamentRecord?._id
+              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/otherweeklytournament/updateotherweeklytournament/${
+                otherTournamentRecord?._id
               }`}
               className="mr-3"
             >
@@ -123,13 +123,13 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
             {/* )} */}
           </h1>
 
-          <span>of {lichessTournamentRecord?.tournamentName}</span>
+          <span>of {otherTournamentRecord?.tournamentName}</span>
         </div>
 
         <div className="buttons flex gap-4">
           {/* home button */}
           <Link
-            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/lichessweeklytournament`}
+            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/otherweeklytournament`}
           >
             <Button
               className="homebutton"
@@ -169,4 +169,4 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
   );
 };
 
-export default ViewLichessTournament;
+export default ViewOtherTournament;

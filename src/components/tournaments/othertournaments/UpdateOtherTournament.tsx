@@ -182,7 +182,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/othertournaments/addotherthournament",
+        "/api/tournaments/othertournaments/updateothertournament",
         {
           ...data,
         }
@@ -207,21 +207,21 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   };
 
   // branch access
-  useEffect(() => {
-    const user = session?.data?.user;
-    const isSuperOrGlobalAdmin =
-      user?.role?.toLowerCase() === "superadmin" ||
-      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+  // useEffect(() => {
+  //   const user = session?.data?.user;
+  //   const isSuperOrGlobalAdmin =
+  //     user?.role?.toLowerCase() === "superadmin" ||
+  //     (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
-    let branchName = "";
-    if (!isSuperOrGlobalAdmin) {
-      setValue("branchName", user?.branchName);
-      setValue("branchId", user?.branchId);
-      branchName = session?.data?.user?.branchName;
-    }
-    setselectedBranch(branchName);
-  }, [session?.data?.user]);
+  //   // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+  //   let branchName = "";
+  //   if (!isSuperOrGlobalAdmin) {
+  //     setValue("branchName", user?.branchName);
+  //     setValue("branchId", user?.branchId);
+  //     branchName = session?.data?.user?.branchName;
+  //   }
+  //   setselectedBranch(branchName);
+  // }, [session?.data?.user]);
 
   // also filter students if branchchanges
   useEffect(() => {

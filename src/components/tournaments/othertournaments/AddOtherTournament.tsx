@@ -181,7 +181,7 @@ const AddOtherTournament = () => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/othertournaments/addotherthournament",
+        "/api/tournaments/othertournaments/addothertournament",
         {
           ...data,
         }
@@ -217,7 +217,7 @@ const AddOtherTournament = () => {
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
       setValue("branchId", user?.branchId);
-      branchName = session?.data?.user?.branchName;
+      branchName = user?.branchName;
     }
     setselectedBranch(branchName);
   }, [session?.data?.user]);
@@ -237,7 +237,7 @@ const AddOtherTournament = () => {
     // Reset the participants field array
     // replace this logic in update lichess tournament
     resetParticipant([]);
-  }, [selectedBranch]);
+  }, [selectedBranch, allActiveHcaStudentsList]);
 
   // get initial data
   useEffect(() => {
@@ -384,6 +384,7 @@ const AddOtherTournament = () => {
                       (branch: any) => branch.branchName
                     )}
                     selected={field.value || ""}
+                    disabled={!isSuperOrGlobalAdmin}
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList?.find(

@@ -63,9 +63,6 @@ const OtherTournamentSchema = new mongoose.Schema(
 
     chiefArbiter: { type: ChiefArbiterSchema },
 
-    weekNo: { type: Number },
-    year: { type: Number },
-
     participants: { type: [ParticipantsSchema], default: [] },
     activeStatus: { type: Boolean, default: true },
   },
