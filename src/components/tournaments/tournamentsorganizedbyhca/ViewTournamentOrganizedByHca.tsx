@@ -29,15 +29,15 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import BasicOtherTournamentInfo from "./viewthertournamentdetails/BasicOtherTournamentInfo";
-import OtherTournamentWinners from "./viewthertournamentdetails/OtherTournamentWinners";
+import BasicOtherTournamentInfo from "../othertournaments/viewthertournamentdetails/BasicOtherTournamentInfo";
+import OtherTournamentWinners from "../othertournaments/viewthertournamentdetails/OtherTournamentWinners";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ViewOtherTournament = ({ otherTournamentRecord }: any) => {
+const ViewTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
   // console.log(otherTournamentRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -110,7 +110,7 @@ const ViewOtherTournament = ({ otherTournamentRecord }: any) => {
             <span className="ml-2 mr-3">Other Tournament Detail</span>
             {/* {session?.data?.user?.role?.toLowerCase() == "superadmin" && ( */}
             <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments/updateothertournament/${
+              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/otherweeklytournament/updateotherweeklytournament/${
                 otherTournamentRecord?._id
               }`}
               className="mr-3"
@@ -129,7 +129,7 @@ const ViewOtherTournament = ({ otherTournamentRecord }: any) => {
         <div className="buttons flex gap-4">
           {/* home button */}
           <Link
-            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`}
+            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/otherweeklytournament`}
           >
             <Button
               className="homebutton"
@@ -169,4 +169,4 @@ const ViewOtherTournament = ({ otherTournamentRecord }: any) => {
   );
 };
 
-export default ViewOtherTournament;
+export default ViewTournamentOrganizedByHca;

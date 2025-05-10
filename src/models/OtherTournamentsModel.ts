@@ -63,6 +63,10 @@ const OtherTournamentSchema = new mongoose.Schema(
 
     chiefArbiter: { type: ChiefArbiterSchema },
 
+    isRated: { type: Boolean, default: false },
+    fideUrl: { type: String, default: "" },
+    chessResultsUrl: { type: String, default: "" },
+
     participants: { type: [ParticipantsSchema], default: [] },
     activeStatus: { type: Boolean, default: true },
   },

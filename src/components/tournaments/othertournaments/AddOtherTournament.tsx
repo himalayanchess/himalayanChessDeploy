@@ -8,6 +8,8 @@ import {
   IconButton,
   TextField,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -28,7 +30,15 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import Input from "@/components/Input";
 import Dropdown from "@/components/Dropdown";
-import { Clock, Medal, MedalIcon, Trophy, User, Users } from "lucide-react";
+import {
+  Clock,
+  Medal,
+  MedalIcon,
+  Star,
+  Trophy,
+  User,
+  Users,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
 
@@ -67,6 +77,7 @@ const AddOtherTournament = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [participantToDelete, setParticipantToDelete] = useState<any>(null);
   const [customPrizeMode, setCustomPrizeMode] = useState<any[]>([]);
+  const [isRated, setIsRated] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -104,6 +115,10 @@ const AddOtherTournament = () => {
         chiefArbiterPhone: "",
         chiefArbiterEmail: "",
       },
+
+      isRated: false,
+      fideUrl: "",
+      chessResultsUrl: "",
 
       participants: [],
     },
@@ -602,6 +617,7 @@ const AddOtherTournament = () => {
                     render={({ field }) => (
                       <Input
                         label="Chief Arbiter Phone"
+                        type="number"
                         value={field.value || ""}
                         onChange={field.onChange}
                         error={
@@ -651,6 +667,76 @@ const AddOtherTournament = () => {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* is rated */}
+          <div className="mb-3 flex flex-col gap-0">
+            <p className="font-bold text-gray-500 mt-3 flex items-center">
+              <Star size={17} />
+              <span className="ml-1">Rated Information</span>
+            </p>
+            <Controller
+              name="isRated"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  label="This is rated tournament"
+                  control={
+                    <Checkbox
+                      checked={isRated}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setIsRated(checked); // Update local state
+                        field.onChange(checked); // Update react-hook-form state
+
+                        // Reset only on user toggle
+                        setValue("fideUrl", "");
+                        setValue("chessResultsUrl", "");
+                      }}
+                    />
+                  }
+                />
+              )}
+            />
+
+            {/* rated url fields */}
+            <div className="rated-url-fields grid grid-cols-4 gap-4">
+              {isRated && (
+                <Controller
+                  name="fideUrl"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      label="Fide URL"
+                      type="text"
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      required
+                      width="full"
+                      error={errors.fideUrl}
+                      helperText={errors.fideUrl?.message}
+                    />
+                  )}
+                />
+              )}
+
+              <Controller
+                name="chessResultsUrl"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Chess Results URL"
+                    type="text"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    required
+                    width="full"
+                    error={errors.chessResultsUrl}
+                    helperText={errors.chessResultsUrl?.message}
+                  />
+                )}
+              />
             </div>
           </div>
 

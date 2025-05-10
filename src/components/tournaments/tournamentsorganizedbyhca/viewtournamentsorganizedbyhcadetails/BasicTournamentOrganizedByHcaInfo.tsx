@@ -31,7 +31,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
-const BasicOtherTournamentInfo = ({ otherTournamentRecord }: any) => {
+const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -140,67 +140,6 @@ const BasicOtherTournamentInfo = ({ otherTournamentRecord }: any) => {
               ) : (
                 <span className="ml-1">N/A</span>
               )}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Rated info */}
-      <div className="bg-gray-50 rounded-xl  col-span-2 p-4 ">
-        <h1 className="text-sm font-bold text-gray-500">Rated Information</h1>
-        <div className="grid grid-cols-3 mt-2 gap-2">
-          {/* is rated */}
-          <div className="col-span-1">
-            <p className="text-sm text-gray-500">Is it rated tournament?</p>
-            <p className="font-bold text-gray-500 text-md flex items-center">
-              <Star className="text-gray-500" />
-              <span className="ml-1">
-                {otherTournamentRecord?.isRated ? "Yes" : "No"}
-              </span>
-            </p>
-          </div>
-
-          {/* fide url */}
-          <div className="col-span-1">
-            <p className="text-sm text-gray-500">FIDE URL</p>
-            <p className="font-medium text-gray-500 text-md flex items-center">
-              <span className="ml-1">
-                {otherTournamentRecord?.fideUrl ? (
-                  <Link
-                    href={otherTournamentRecord.fideUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className=" underline flex items-center hover:text-blue-500"
-                  >
-                    <SquareArrowOutUpRight size={17} />
-                    <span className="ml-1">View Link</span>
-                  </Link>
-                ) : (
-                  "N/A"
-                )}
-              </span>
-            </p>
-          </div>
-
-          {/* chess results url */}
-          <div className="col-span-1">
-            <p className="text-sm text-gray-500">Chess Results URL</p>
-            <p className="font-medium text-gray-500 text-md flex items-center">
-              <span className="ml-1">
-                {otherTournamentRecord?.chessResultsUrl ? (
-                  <Link
-                    href={otherTournamentRecord.chessResultsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className=" underline flex items-center hover:text-blue-500"
-                  >
-                    <SquareArrowOutUpRight size={17} />
-                    <span className="ml-1">View Link</span>
-                  </Link>
-                ) : (
-                  "N/A"
-                )}
-              </span>
             </p>
           </div>
         </div>
@@ -317,4 +256,4 @@ const BasicOtherTournamentInfo = ({ otherTournamentRecord }: any) => {
   );
 };
 
-export default BasicOtherTournamentInfo;
+export default BasicTournamentOrganizedByHcaInfo;

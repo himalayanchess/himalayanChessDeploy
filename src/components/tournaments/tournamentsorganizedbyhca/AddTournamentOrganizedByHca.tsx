@@ -8,8 +8,6 @@ import {
   IconButton,
   TextField,
   MenuItem,
-  FormControlLabel,
-  Checkbox,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -30,15 +28,7 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import Input from "@/components/Input";
 import Dropdown from "@/components/Dropdown";
-import {
-  Clock,
-  Medal,
-  MedalIcon,
-  Star,
-  Trophy,
-  User,
-  Users,
-} from "lucide-react";
+import { Clock, Medal, MedalIcon, Trophy, User, Users } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
 
@@ -47,7 +37,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
+const AddTournamentOrganizedByHca = () => {
   const router = useRouter();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -77,8 +67,6 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [participantToDelete, setParticipantToDelete] = useState<any>(null);
   const [customPrizeMode, setCustomPrizeMode] = useState<any[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [isRated, setIsRated] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -116,10 +104,6 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
         chiefArbiterPhone: "",
         chiefArbiterEmail: "",
       },
-
-      isRated: false,
-      fideUrl: "",
-      chessResultsUrl: "",
 
       participants: [],
     },
@@ -197,7 +181,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/othertournaments/updateothertournament",
+        "/api/tournaments/othertournaments/addothertournament",
         {
           ...data,
         }
@@ -222,21 +206,21 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   };
 
   // branch access
-  // useEffect(() => {
-  //   const user = session?.data?.user;
-  //   const isSuperOrGlobalAdmin =
-  //     user?.role?.toLowerCase() === "superadmin" ||
-  //     (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+  useEffect(() => {
+    const user = session?.data?.user;
+    const isSuperOrGlobalAdmin =
+      user?.role?.toLowerCase() === "superadmin" ||
+      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-  //   // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
-  //   let branchName = "";
-  //   if (!isSuperOrGlobalAdmin) {
-  //     setValue("branchName", user?.branchName);
-  //     setValue("branchId", user?.branchId);
-  //     branchName = session?.data?.user?.branchName;
-  //   }
-  //   setselectedBranch(branchName);
-  // }, [session?.data?.user]);
+    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+    let branchName = "";
+    if (!isSuperOrGlobalAdmin) {
+      setValue("branchName", user?.branchName);
+      setValue("branchId", user?.branchId);
+      branchName = user?.branchName;
+    }
+    setselectedBranch(branchName);
+  }, [session?.data?.user]);
 
   // also filter students if branchchanges
   useEffect(() => {
@@ -249,53 +233,17 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
               selectedBranch?.toLowerCase()
           );
     setfilteredStudentsListOptions(tempfilteredHcaStudents);
-  }, [selectedBranch]);
 
-  // Load tournament data
-  useEffect(() => {
-    if (otherTournamentRecord) {
-      reset({
-        ...otherTournamentRecord,
-        startDate: otherTournamentRecord.startDate
-          ? dayjs(otherTournamentRecord.startDate)
-              .tz(timeZone)
-              .format("YYYY-MM-DD")
-          : "",
-        endDate: otherTournamentRecord.endDate
-          ? dayjs(otherTournamentRecord.endDate)
-              .tz(timeZone)
-              .format("YYYY-MM-DD")
-          : "",
-
-        participants: otherTournamentRecord?.participants?.filter(
-          (participant: any) => participant.activeStatus
-        ),
-      });
-
-      setIsRated(otherTournamentRecord?.isRated);
-
-      // clock time
-      setValue("initialTime", otherTournamentRecord?.clockTime?.initialTime);
-      setValue("increment", otherTournamentRecord?.clockTime?.increment);
-
-      setValue("branchName", otherTournamentRecord?.branchName);
-      setValue("branchId", otherTournamentRecord?.branchId);
-
-      setselectedBranch(otherTournamentRecord?.branchName);
-      setLoaded(true);
-    }
-  }, [otherTournamentRecord, reset]);
+    // Reset the participants field array
+    // replace this logic in update lichess tournament
+    resetParticipant([]);
+  }, [selectedBranch, allActiveHcaStudentsList]);
 
   // get initial data
   useEffect(() => {
     dispatch(getAllStudents());
     dispatch(getAllBranches());
   }, []);
-
-  if (!loaded)
-    return (
-      <div className="flex-1 flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md"></div>
-    );
 
   return (
     <div className="flex w-full h-full">
@@ -304,7 +252,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Update Other Tournament</span>
+              <span className="ml-2">Add Other Tournament</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
@@ -347,7 +295,6 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
                   label="Tournament Name"
                   type="text"
                   value={field.value || ""}
-                  disabled
                   onChange={field.onChange}
                   required
                   error={errors.tournamentName}
@@ -443,7 +390,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
                       (branch: any) => branch.branchName
                     )}
                     selected={field.value || ""}
-                    disabled
+                    disabled={!isSuperOrGlobalAdmin}
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList?.find(
@@ -704,76 +651,6 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
                   />
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* is rated */}
-          <div className="mb-3 flex flex-col gap-0">
-            <p className="font-bold text-gray-500 mt-3 flex items-center">
-              <Star size={17} />
-              <span className="ml-1">Rated Information</span>
-            </p>
-            <Controller
-              name="isRated"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  label="This is rated tournament"
-                  control={
-                    <Checkbox
-                      checked={isRated}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setIsRated(checked); // Update local state
-                        field.onChange(checked); // Update react-hook-form state
-
-                        // Reset only on user toggle
-                        setValue("fideUrl", "");
-                        setValue("chessResultsUrl", "");
-                      }}
-                    />
-                  }
-                />
-              )}
-            />
-
-            {/* rated url fields */}
-            <div className="rated-url-fields grid grid-cols-4 gap-4">
-              {isRated && (
-                <Controller
-                  name="fideUrl"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      label="Fide URL"
-                      type="text"
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                      required
-                      width="full"
-                      error={errors.fideUrl}
-                      helperText={errors.fideUrl?.message}
-                    />
-                  )}
-                />
-              )}
-
-              <Controller
-                name="chessResultsUrl"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    label="Chess Results URL"
-                    type="text"
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                    required
-                    width="full"
-                    error={errors.chessResultsUrl}
-                    helperText={errors.chessResultsUrl?.message}
-                  />
-                )}
-              />
             </div>
           </div>
 
@@ -1207,4 +1084,4 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   );
 };
 
-export default UpdateOtherTournament;
+export default AddTournamentOrganizedByHca;
