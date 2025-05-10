@@ -104,7 +104,7 @@ const OtherTournamentparticipants = ({
                     </span>
 
                     {/* performance url */}
-                    {participant?.performanceUrl ? (
+                    {participant?.performanceUrl  ? (
                       <Link
                         target="_blank"
                         title="View"

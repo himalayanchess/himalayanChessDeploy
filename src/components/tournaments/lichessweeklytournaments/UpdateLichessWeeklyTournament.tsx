@@ -275,6 +275,12 @@ const UpdateLichessWeeklyTournament = ({ lichessTournamentRecord }: any) => {
 
         <form
           className="form-fields h-fit overflow-y-auto "
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleConfirmModalOpen(); // Open modal instead of submitting form
+            }
+          }}
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid grid-cols-2 gap-5 items-end">
