@@ -32,21 +32,21 @@ import Link from "next/link";
 
 import SearchInput from "@/components/SearchInput";
 import {
-  fetchAllOtherTournaments,
-  filterOtherTournamentList,
+  fetchAllTournamentsOrganizedByHca,
+  filterTournamentOrganizedByHcaList,
 } from "@/redux/allTournamentSlice";
-import { exportOtherTournamentListToExcel } from "@/helpers/exportToExcel/exportOtherTournamentListToExcel";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import OtherTournamentsList from "../othertournaments/OtherTournamentsList";
+import TournamentsOrganizedByHcaList from "./TournamentsOrganizedByHcaList";
+import { exportTournamentsOrganizedByHcaListToExcel } from "@/helpers/exportToExcel/exportTournamentsOrganizedByHcaListToExcel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const OtherTournamentsComponent = () => {
+const TournamentsOrganizedByHcaComponent = () => {
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -61,9 +61,9 @@ const OtherTournamentsComponent = () => {
   );
 
   const {
-    allActiveOtherTournamentsList,
-    allFilteredActiveOtherTournamentsList,
-    allOtherTournamentsLoading,
+    allActiveTournamentsOrganizedByHcaList,
+    allFilteredActiveTournamentsOrganizedByHcaList,
+    allTournamentsOrganizedByHcaLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // const affilatedToOptions = ["All", "HCA", "School"];
@@ -80,10 +80,12 @@ const OtherTournamentsComponent = () => {
   const [selectedMenu, setselectedMenu] = useState("tournamentlist");
   const [searchText, setsearchText] = useState("");
   const [selectedBranch, setselectedBranch] = useState("");
-  const [filteredOtherTournamentCount, setfilteredOtherTournamentCount] =
-    useState(0);
+  const [
+    filteredTournamentOrganizedByHcaCount,
+    setfilteredTournamentOrganizedByHcaCount,
+  ] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Current page number
-  const [otherTournamentsPerPage] = useState(7);
+  const [tournamentOrganizedByHcaPerPage] = useState(7);
   const [selectedMonth, setselectedMonth] = useState(defaultMonth);
   const [useAdvancedDate, setUseAdvancedDate] = useState(false);
   const [startDate, setStartDate] = useState(defaultStartDate);
@@ -94,16 +96,18 @@ const OtherTournamentsComponent = () => {
   };
 
   // Calculate showing text
-  const startItem = (currentPage - 1) * otherTournamentsPerPage + 1;
+  const startItem = (currentPage - 1) * tournamentOrganizedByHcaPerPage + 1;
   const endItem = Math.min(
-    currentPage * otherTournamentsPerPage,
-    filteredOtherTournamentCount
+    currentPage * tournamentOrganizedByHcaPerPage,
+    filteredTournamentOrganizedByHcaCount
   );
-  const showingText = `Showing ${startItem}-${endItem} of ${filteredOtherTournamentCount}`;
+  const showingText = `Showing ${startItem}-${endItem} of ${filteredTournamentOrganizedByHcaCount}`;
 
   //export to excel
   const exportToExcel = () => {
-    exportOtherTournamentListToExcel(allFilteredActiveOtherTournamentsList);
+    exportTournamentsOrganizedByHcaListToExcel(
+      allFilteredActiveTournamentsOrganizedByHcaList
+    );
   };
 
   // Reset current page to 1 and search text when selectedStatus changes
@@ -129,14 +133,14 @@ const OtherTournamentsComponent = () => {
   // filter
   useEffect(() => {
     // filter litchtes tournaments
-    let tempFilteredOtherTournamentsList =
-      allActiveOtherTournamentsList?.slice();
+    let tempFilteredTournamentorganizedbyhcasList =
+      allActiveTournamentsOrganizedByHcaList?.slice();
 
     // filter by branch
-    tempFilteredOtherTournamentsList =
+    tempFilteredTournamentorganizedbyhcasList =
       selectedBranch?.toLowerCase() == "all"
-        ? tempFilteredOtherTournamentsList
-        : tempFilteredOtherTournamentsList?.filter(
+        ? tempFilteredTournamentorganizedbyhcasList
+        : tempFilteredTournamentorganizedbyhcasList?.filter(
             (tournament: any) =>
               tournament.branchName.toLowerCase() ==
               selectedBranch?.toLowerCase()
@@ -144,8 +148,8 @@ const OtherTournamentsComponent = () => {
 
     // Date Filtering
     if (useAdvancedDate) {
-      tempFilteredOtherTournamentsList =
-        tempFilteredOtherTournamentsList.filter((tournament: any) => {
+      tempFilteredTournamentorganizedbyhcasList =
+        tempFilteredTournamentorganizedbyhcasList.filter((tournament: any) => {
           const tournamentDate = dayjs(tournament.date)
             .tz(timeZone)
             .format("YYYY-MM-DD");
@@ -153,8 +157,8 @@ const OtherTournamentsComponent = () => {
           return tournamentDate >= startDate && tournamentDate <= endDate;
         });
     } else {
-      tempFilteredOtherTournamentsList =
-        tempFilteredOtherTournamentsList.filter((tournament: any) => {
+      tempFilteredTournamentorganizedbyhcasList =
+        tempFilteredTournamentorganizedbyhcasList.filter((tournament: any) => {
           const tournamentMonth = dayjs(tournament.utcDate)
             .tz(timeZone)
             .format("YYYY-MM");
@@ -165,8 +169,8 @@ const OtherTournamentsComponent = () => {
 
     // search text
     if (searchText.trim() !== "") {
-      tempFilteredOtherTournamentsList =
-        tempFilteredOtherTournamentsList.filter((tournament: any) =>
+      tempFilteredTournamentorganizedbyhcasList =
+        tempFilteredTournamentorganizedbyhcasList.filter((tournament: any) =>
           tournament.tournamentName
             .toLowerCase()
             .includes(searchText.toLowerCase())
@@ -174,17 +178,24 @@ const OtherTournamentsComponent = () => {
     }
 
     // Sorting with dayjs in Nepali timezone
-    tempFilteredOtherTournamentsList = tempFilteredOtherTournamentsList?.sort(
-      (a: any, b: any) =>
-        dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
-        dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
-    );
+    tempFilteredTournamentorganizedbyhcasList =
+      tempFilteredTournamentorganizedbyhcasList?.sort(
+        (a: any, b: any) =>
+          dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
+          dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
+      );
 
-    setfilteredOtherTournamentCount(tempFilteredOtherTournamentsList?.length);
+    setfilteredTournamentOrganizedByHcaCount(
+      tempFilteredTournamentorganizedbyhcasList?.length
+    );
     setCurrentPage(1);
-    dispatch(filterOtherTournamentList(tempFilteredOtherTournamentsList));
+    dispatch(
+      filterTournamentOrganizedByHcaList(
+        tempFilteredTournamentorganizedbyhcasList
+      )
+    );
   }, [
-    allActiveOtherTournamentsList,
+    allActiveTournamentsOrganizedByHcaList,
     selectedBranch,
     searchText,
     useAdvancedDate,
@@ -213,7 +224,7 @@ const OtherTournamentsComponent = () => {
 
   // intial data fetch
   useEffect(() => {
-    dispatch(fetchAllOtherTournaments());
+    dispatch(fetchAllTournamentsOrganizedByHca());
 
     dispatch(getAllBranches());
   }, []);
@@ -225,7 +236,7 @@ const OtherTournamentsComponent = () => {
 
           <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
             <Trophy />
-            <span className="ml-1">Other tournaments </span>
+            <span className="ml-1">Tournaments Organized by HCA </span>
           </h2>
         </div>
 
@@ -236,7 +247,9 @@ const OtherTournamentsComponent = () => {
             onClick={exportToExcel}
             variant="contained"
             color="success"
-            disabled={allFilteredActiveOtherTournamentsList?.length === 0}
+            disabled={
+              allFilteredActiveTournamentsOrganizedByHcaList?.length === 0
+            }
             startIcon={<DownloadIcon />}
           >
             Export to Excel
@@ -305,7 +318,7 @@ const OtherTournamentsComponent = () => {
           {/* add batch button */}
           {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
             <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments/addothertournament`}
+              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/addtournamentsorganizedbyhca`}
             >
               <Button variant="contained" size="small">
                 <AddIcon />
@@ -349,19 +362,22 @@ const OtherTournamentsComponent = () => {
         )}
       </div>
 
-      <OtherTournamentsList 
-        allFilteredActiveOtherTournamentsList={
-          allFilteredActiveOtherTournamentsList
+      <TournamentsOrganizedByHcaList
+        allFilteredActiveTournamentsOrganizedByHcaList={
+          allFilteredActiveTournamentsOrganizedByHcaList
         }
         currentPage={currentPage}
-        otherTournamentsPerPage={otherTournamentsPerPage}
-        allOtherTournamentsLoading={allOtherTournamentsLoading}
+        tournamentOrganizedByHcaPerPage={tournamentOrganizedByHcaPerPage}
+        allTournamentsOrganizedByHcaLoading={
+          allTournamentsOrganizedByHcaLoading
+        }
       />
 
       <Stack spacing={2} className="mx-auto w-max mt-3">
         <Pagination
           count={Math.ceil(
-            filteredOtherTournamentCount / otherTournamentsPerPage
+            filteredTournamentOrganizedByHcaCount /
+              tournamentOrganizedByHcaPerPage
           )} // Total pages
           page={currentPage} //allCoursesLoading Current page
           onChange={handlePageChange} // Handle page change
@@ -372,4 +388,4 @@ const OtherTournamentsComponent = () => {
   );
 };
 
-export default OtherTournamentsComponent;
+export default TournamentsOrganizedByHcaComponent;

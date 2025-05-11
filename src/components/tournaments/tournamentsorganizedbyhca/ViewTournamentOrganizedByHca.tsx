@@ -31,14 +31,18 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import BasicOtherTournamentInfo from "../othertournaments/viewthertournamentdetails/BasicOtherTournamentInfo";
 import OtherTournamentWinners from "../othertournaments/viewthertournamentdetails/OtherTournamentWinners";
+import BasicTournamentOrganizedByHcaInfo from "./viewtournamentsorganizedbyhcadetails/BasicTournamentOrganizedByHcaInfo";
+import TournamentOrganizedByHcaWinners from "./viewtournamentsorganizedbyhcadetails/TournamentOrganizedByHcaWinners";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ViewTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
-  // console.log(otherTournamentRecord);
+const ViewTournamentOrganizedByHca = ({
+  tournamentOrganizedByHcaRecord,
+}: any) => {
+  // console.log(tournamentOrganizedByHcaRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -63,27 +67,27 @@ const ViewTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
   ];
 
   const showComponent = () => {
-    if (otherTournamentRecord) {
+    if (tournamentOrganizedByHcaRecord) {
       console.log("show comp", selectedMenu);
 
       switch (selectedMenu) {
         case "basic":
           return (
-            <BasicOtherTournamentInfo
-              otherTournamentRecord={otherTournamentRecord}
+            <BasicTournamentOrganizedByHcaInfo
+              tournamentOrganizedByHcaRecord={tournamentOrganizedByHcaRecord}
             />
           );
         case "winners":
           return (
-            <OtherTournamentWinners
-              otherTournamentRecord={otherTournamentRecord}
-              participants={otherTournamentRecord?.participants}
+            <TournamentOrganizedByHcaWinners
+              tournamentOrganizedByHcaRecord={tournamentOrganizedByHcaRecord}
+              participants={tournamentOrganizedByHcaRecord?.participants}
             />
           );
         default:
           return (
-            <BasicOtherTournamentInfo
-              otherTournamentRecord={otherTournamentRecord}
+            <BasicTournamentOrganizedByHcaInfo
+              tournamentOrganizedByHcaRecord={tournamentOrganizedByHcaRecord}
             />
           );
       }
@@ -91,10 +95,10 @@ const ViewTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
   };
 
   useEffect(() => {
-    if (otherTournamentRecord) {
+    if (tournamentOrganizedByHcaRecord) {
       setLoaded(true);
     }
-  }, [otherTournamentRecord]);
+  }, [tournamentOrganizedByHcaRecord]);
 
   if (!loaded)
     return (
@@ -110,8 +114,8 @@ const ViewTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
             <span className="ml-2 mr-3">Other Tournament Detail</span>
             {/* {session?.data?.user?.role?.toLowerCase() == "superadmin" && ( */}
             <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/otherweeklytournament/updateotherweeklytournament/${
-                otherTournamentRecord?._id
+              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/updatetournamentsorganizedbyhca/${
+                tournamentOrganizedByHcaRecord?._id
               }`}
               className="mr-3"
             >
@@ -123,13 +127,13 @@ const ViewTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
             {/* )} */}
           </h1>
 
-          <span>of {otherTournamentRecord?.tournamentName}</span>
+          <span>of {tournamentOrganizedByHcaRecord?.tournamentName}</span>
         </div>
 
         <div className="buttons flex gap-4">
           {/* home button */}
           <Link
-            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/otherweeklytournament`}
+            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`}
           >
             <Button
               className="homebutton"

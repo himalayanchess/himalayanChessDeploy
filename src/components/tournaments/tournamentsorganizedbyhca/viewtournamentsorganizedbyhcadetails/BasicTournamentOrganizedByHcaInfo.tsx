@@ -31,7 +31,9 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
-const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
+const BasicTournamentOrganizedByHcaInfo = ({
+  tournamentOrganizedByHcaRecord,
+}: any) => {
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -48,7 +50,7 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
           <div className="flex items-center">
             {/* <School className="text-gray-500" /> */}
             <p className="font-bold text-2xl ml-1 ">
-              {otherTournamentRecord?.tournamentName}
+              {tournamentOrganizedByHcaRecord?.tournamentName}
             </p>
           </div>
         </div>
@@ -59,8 +61,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-medium text-md flex items-center">
               <EventOutlinedIcon className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.startDate
-                  ? formatDate(otherTournamentRecord.startDate)
+                {tournamentOrganizedByHcaRecord?.startDate
+                  ? formatDate(tournamentOrganizedByHcaRecord.startDate)
                   : "N/A"}
               </span>
             </p>
@@ -70,8 +72,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-medium text-md flex items-center">
               <EventOutlinedIcon className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.endDate
-                  ? formatDate(otherTournamentRecord.endDate)
+                {tournamentOrganizedByHcaRecord?.endDate
+                  ? formatDate(tournamentOrganizedByHcaRecord.endDate)
                   : "N/A"}{" "}
               </span>
             </p>
@@ -86,20 +88,20 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="text-sm text-gray-500">BranchName</p>
             <p className="font-medium text-md flex items-center">
               <MapPinHouse className="text-gray-500" />
-              {otherTournamentRecord?.branchName &&
-              otherTournamentRecord?.branchId ? (
+              {tournamentOrganizedByHcaRecord?.branchName &&
+              tournamentOrganizedByHcaRecord?.branchId ? (
                 isSuperOrGlobalAdmin ? (
                   <Link
                     href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
-                      otherTournamentRecord.branchId
+                      tournamentOrganizedByHcaRecord.branchId
                     }`}
                     className="ml-1 underline hover:text-blue-500"
                   >
-                    {otherTournamentRecord.branchName}
+                    {tournamentOrganizedByHcaRecord.branchName}
                   </Link>
                 ) : (
                   <span className="ml-1">
-                    {otherTournamentRecord.branchName}
+                    {tournamentOrganizedByHcaRecord.branchName}
                   </span>
                 )
               ) : (
@@ -110,13 +112,14 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
           <div className="flex justify-end items-center">
             <span
               className={` px-3 py-1 text-md font-semibold rounded-full flex items-center ${
-                otherTournamentRecord?.tag
+                tournamentOrganizedByHcaRecord?.tag
                   ? "bg-green-100 text-green-800" // Light green background with dark green text
                   : "bg-gray-200 text-gray-800" // Light gray background with dark gray text
               }`}
             >
               <span className="w-2.5 h-2.5 rounded-full bg-green-500 mr-2" />
-              {otherTournamentRecord?.tag?.toLowerCase() == "othertournaments"
+              {tournamentOrganizedByHcaRecord?.tag?.toLowerCase() ==
+              "othertournaments"
                 ? "Other Tournament"
                 : "N/A"}
             </span>
@@ -125,11 +128,11 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
           <div className="">
             <p className="text-sm text-gray-500">Tournament URL</p>
             <p className="text-gray-500 text-md flex items-center text-md font-medium">
-              {otherTournamentRecord?.tournamenturl ? (
+              {tournamentOrganizedByHcaRecord?.tournamenturl ? (
                 <div className="flex items-center">
                   <SquareArrowOutUpRight size={18} />
                   <Link
-                    href={otherTournamentRecord.tournamenturl}
+                    href={tournamentOrganizedByHcaRecord.tournamenturl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 underline text-blue-600 hover:text-blue-800"
@@ -140,6 +143,67 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
               ) : (
                 <span className="ml-1">N/A</span>
               )}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Rated info */}
+      <div className="bg-gray-50 rounded-xl  col-span-2 p-4 ">
+        <h1 className="text-sm font-bold text-gray-500">Rated Information</h1>
+        <div className="grid grid-cols-3 mt-2 gap-2">
+          {/* is rated */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">Is it rated tournament?</p>
+            <p className="font-bold text-gray-500 text-md flex items-center">
+              <Star className="text-gray-500" />
+              <span className="ml-1">
+                {tournamentOrganizedByHcaRecord?.isRated ? "Yes" : "No"}
+              </span>
+            </p>
+          </div>
+
+          {/* fide url */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">FIDE URL</p>
+            <p className="font-medium text-gray-500 text-md flex items-center">
+              <span className="ml-1">
+                {tournamentOrganizedByHcaRecord?.fideUrl ? (
+                  <Link
+                    href={tournamentOrganizedByHcaRecord.fideUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=" underline flex items-center hover:text-blue-500"
+                  >
+                    <SquareArrowOutUpRight size={17} />
+                    <span className="ml-1">View Link</span>
+                  </Link>
+                ) : (
+                  "N/A"
+                )}
+              </span>
+            </p>
+          </div>
+
+          {/* chess results url */}
+          <div className="col-span-1">
+            <p className="text-sm text-gray-500">Chess Results URL</p>
+            <p className="font-medium text-gray-500 text-md flex items-center">
+              <span className="ml-1">
+                {tournamentOrganizedByHcaRecord?.chessResultsUrl ? (
+                  <Link
+                    href={tournamentOrganizedByHcaRecord.chessResultsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=" underline flex items-center hover:text-blue-500"
+                  >
+                    <SquareArrowOutUpRight size={17} />
+                    <span className="ml-1">View Link</span>
+                  </Link>
+                ) : (
+                  "N/A"
+                )}
+              </span>
             </p>
           </div>
         </div>
@@ -157,7 +221,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center">
               <User className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.chiefArbiter?.chiefArbiterName || "N/A"}{" "}
+                {tournamentOrganizedByHcaRecord?.chiefArbiter
+                  ?.chiefArbiterName || "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -168,8 +233,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center">
               <Phone className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.chiefArbiter?.chiefArbiterPhone ||
-                  "N/A"}{" "}
+                {tournamentOrganizedByHcaRecord?.chiefArbiter
+                  ?.chiefArbiterPhone || "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -180,8 +245,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center">
               <Mail className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.chiefArbiter?.chiefArbiterEmail ||
-                  "N/A"}{" "}
+                {tournamentOrganizedByHcaRecord?.chiefArbiter
+                  ?.chiefArbiterEmail || "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -199,7 +264,7 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center">
               <LayoutGrid className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.tournamentType || "N/A"}{" "}
+                {tournamentOrganizedByHcaRecord?.tournamentType || "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -209,8 +274,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
               <Clock className="text-gray-500" />
               <span className="ml-1">
                 <span>
-                  {otherTournamentRecord?.clockTime?.initialTime
-                    ? `${otherTournamentRecord.clockTime.initialTime} mins`
+                  {tournamentOrganizedByHcaRecord?.clockTime?.initialTime
+                    ? `${tournamentOrganizedByHcaRecord.clockTime.initialTime} mins`
                     : "N/A"}
                 </span>{" "}
               </span>
@@ -222,8 +287,8 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
               <AlarmClockPlus className="text-gray-500" />
               <span className="ml-1">
                 <span>
-                  {otherTournamentRecord?.clockTime?.increment
-                    ? `${otherTournamentRecord.clockTime.increment} sec`
+                  {tournamentOrganizedByHcaRecord?.clockTime?.increment
+                    ? `${tournamentOrganizedByHcaRecord.clockTime.increment} sec`
                     : "N/A"}
                 </span>
               </span>
@@ -235,7 +300,7 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center text-lg ">
               <Users className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.totalParticipants || 0}
+                {tournamentOrganizedByHcaRecord?.totalParticipants || 0}
               </span>
             </p>
           </div>
@@ -246,7 +311,7 @@ const BasicTournamentOrganizedByHcaInfo = ({ otherTournamentRecord }: any) => {
             <p className="font-bold text-gray-500 text-md flex items-center text-lg ">
               <GitFork className="text-gray-500" />
               <span className="ml-1">
-                {otherTournamentRecord?.totalRounds || 0}
+                {tournamentOrganizedByHcaRecord?.totalRounds || 0}
               </span>
             </p>
           </div>

@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { getFinalParticipants } from "@/helpers/tournaments/getFinalParticipants";
+import TournamentsOrganizedByHca from "@/models/TournamentsOrganizedByHcaModel";
 
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
     const timeZone = "Asia/Kathmandu";
 
     const reqBody = await request.json();
-    console.log("Updating Other Tournament:", reqBody);
+    // console.log("Updating Other Tournament:", reqBody);
 
     const {
       _id,
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
       participants = [],
     } = reqBody;
 
-    const existingTournament = await OtherTournament.findById(_id);
+    const existingTournament = await TournamentsOrganizedByHca.findById(_id);
 
     if (!existingTournament) {
       return NextResponse.json({
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const existingSameName = await OtherTournament.findOne({
+    const existingSameName = await TournamentsOrganizedByHca.findOne({
       _id: { $ne: _id }, // Exclude the current tournament
       tournamentName: { $regex: new RegExp(`^${tournamentName}$`, "i") }, // Case-insensitive match
       activeStatus: true,
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
       increment,
     };
 
-    const updatedTournament = await OtherTournament.findByIdAndUpdate(
+    const updatedTournament = await TournamentsOrganizedByHca.findByIdAndUpdate(
       _id,
       {
         ...reqBody,

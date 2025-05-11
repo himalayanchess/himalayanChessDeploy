@@ -8,6 +8,8 @@ import {
   IconButton,
   TextField,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -28,7 +30,15 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import Input from "@/components/Input";
 import Dropdown from "@/components/Dropdown";
-import { Clock, Medal, MedalIcon, Trophy, User, Users } from "lucide-react";
+import {
+  Clock,
+  Medal,
+  MedalIcon,
+  Star,
+  Trophy,
+  User,
+  Users,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
 
@@ -67,6 +77,7 @@ const AddTournamentOrganizedByHca = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [participantToDelete, setParticipantToDelete] = useState<any>(null);
   const [customPrizeMode, setCustomPrizeMode] = useState<any[]>([]);
+  const [isRated, setIsRated] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -85,7 +96,7 @@ const AddTournamentOrganizedByHca = () => {
     defaultValues: {
       tournamentName: "",
       tournamentUrl: "",
-      tag: "othertournaments",
+      tag: "tournamentsorganizedbyhca",
 
       startDate: "",
       endDate: "",
@@ -104,6 +115,10 @@ const AddTournamentOrganizedByHca = () => {
         chiefArbiterPhone: "",
         chiefArbiterEmail: "",
       },
+
+      isRated: false,
+      fideUrl: "",
+      chessResultsUrl: "",
 
       participants: [],
     },
@@ -181,7 +196,7 @@ const AddTournamentOrganizedByHca = () => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/othertournaments/addothertournament",
+        "/api/tournaments/tournamentsorganizedbyhca/addtournamentorganizedbyhca",
         {
           ...data,
         }
@@ -191,7 +206,7 @@ const AddTournamentOrganizedByHca = () => {
         handleConfirmModalClose();
         setTimeout(() => {
           router.push(
-            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`
+            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`
           );
         }, 50);
       } else {
@@ -252,11 +267,11 @@ const AddTournamentOrganizedByHca = () => {
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Add Other Tournament</span>
+              <span className="ml-2">Add Tournament Organized By HCA</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`}
+                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`}
               >
                 <Button color="inherit" sx={{ color: "gray" }}>
                   <HomeOutlinedIcon />
@@ -602,6 +617,7 @@ const AddTournamentOrganizedByHca = () => {
                     render={({ field }) => (
                       <Input
                         label="Chief Arbiter Phone"
+                        type="number"
                         value={field.value || ""}
                         onChange={field.onChange}
                         error={
@@ -651,6 +667,78 @@ const AddTournamentOrganizedByHca = () => {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* is rated */}
+          <div className="mb-3 flex flex-col gap-0">
+            <p className="font-bold text-gray-500 mt-3 flex items-center">
+              <Star size={17} />
+              <span className="ml-1">Rated Information</span>
+            </p>
+            <div className="israted w-max">
+              <Controller
+                name="isRated"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    label="This is rated tournament"
+                    control={
+                      <Checkbox
+                        checked={isRated}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setIsRated(checked); // Update local state
+                          field.onChange(checked); // Update react-hook-form state
+
+                          // Reset only on user toggle
+                          setValue("fideUrl", "");
+                          setValue("chessResultsUrl", "");
+                        }}
+                      />
+                    }
+                  />
+                )}
+              />
+            </div>
+
+            {/* rated url fields */}
+            <div className="rated-url-fields grid grid-cols-4 gap-4">
+              {isRated && (
+                <Controller
+                  name="fideUrl"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      label="Fide URL"
+                      type="text"
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      required
+                      width="full"
+                      error={errors.fideUrl}
+                      helperText={errors.fideUrl?.message}
+                    />
+                  )}
+                />
+              )}
+
+              <Controller
+                name="chessResultsUrl"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Chess Results URL"
+                    type="text"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    required
+                    width="full"
+                    error={errors.chessResultsUrl}
+                    helperText={errors.chessResultsUrl?.message}
+                  />
+                )}
+              />
             </div>
           </div>
 
@@ -1042,7 +1130,7 @@ const AddTournamentOrganizedByHca = () => {
             <Box className="w-[400px] h-max p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
               <p className="mb-6 text-gray-600">
-                You want to add this new tournament?
+                You want to add this tournament?
               </p>
               <div className="buttons flex gap-5">
                 <Button

@@ -39,7 +39,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchAllStudentsTestHistory } from "@/redux/testHistorySlice";
 import { getAllSelectedStudentsPaymentRecords } from "@/redux/allListSlice";
-import { fetchAllSelectedStudentsLichessTournaments, fetchAllSelectedStudentsOtherTournaments } from "@/redux/allTournamentSlice";
+import {
+  fetchAllSelectedStudentsLichessTournaments,
+  fetchAllSelectedStudentsOtherTournaments,
+  fetchAllSelectedStudentsTournamentsOrganizedByHca,
+} from "@/redux/allTournamentSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -66,9 +70,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     allActiveSelectedStudentsLichessTournamentsList,
     allSelectedStudentsLichessTournamentsLoading,
 
-    //selected students lichess tournaments
+    //selected students other tournaments
     allActiveSelectedStudentsOtherTournamentsList,
     allSelectedStudentsOtherTournamentsLoading,
+
+    //selected students tournaments organized by hca
+    allActiveSelectedStudentsTournamentsOrganizedByHcaList,
+    allSelectedStudentsTournamentsOrganizedByHcaLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // use use selectro for students test history
@@ -187,6 +195,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
               studentsOtherTournamentsLoading={
                 allSelectedStudentsOtherTournamentsLoading
               }
+              // students  tournaments organized by hca
+              studentsTournamentsOrganizedByHcaList={
+                allActiveSelectedStudentsTournamentsOrganizedByHcaList
+              }
+              studentsTournamentsOrganizedByHcaLoading={
+                allSelectedStudentsTournamentsOrganizedByHcaLoading
+              }
             />
           );
         default:
@@ -254,6 +269,9 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       dispatch(getAllSelectedStudentsPaymentRecords(studentRecord?._id));
       dispatch(fetchAllSelectedStudentsLichessTournaments(studentRecord?._id));
       dispatch(fetchAllSelectedStudentsOtherTournaments(studentRecord?._id));
+      dispatch(
+        fetchAllSelectedStudentsTournamentsOrganizedByHca(studentRecord?._id)
+      );
     }
   }, [studentRecord]);
 

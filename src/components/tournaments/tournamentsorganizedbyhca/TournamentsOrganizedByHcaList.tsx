@@ -14,7 +14,7 @@ import Link from "next/link";
 import { notify } from "@/helpers/notify";
 import { useDispatch } from "react-redux";
 import { useSession } from "next-auth/react";
-import { deleteOtherTournament } from "@/redux/allTournamentSlice";
+import { deleteTournamentOrganizedByHca } from "@/redux/allTournamentSlice";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -25,55 +25,50 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const TournamentsOrganizedByHcaList = ({
-  allFilteredActiveOtherTournamentsList,
+  allFilteredActiveTournamentsOrganizedByHcaList,
   currentPage,
-  otherTournamentsPerPage,
-  allOtherTournamentsLoading,
+  tournamentOrganizedByHcaPerPage,
+  allTournamentsOrganizedByHcaLoading,
   role,
 }: any) => {
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside otherTournamentlist", allFilteredActiveOtherTournamentsList);
+  // console.log("inside tournamentlist", allFilteredActiveTournamentsOrganizedByHcaList);
 
   const [loaded, setloaded] = useState(false);
-  const [selectedOtherTournamentId, setSelectedOtherTournamentId] =
-    useState(null);
-  const [selectedOtherTournamentName, setSelectedOtherTournamentName] =
-    useState("");
+  const [selectedTournamentId, setSelectedTournamentId] = useState(null);
+  const [selectedTournamentName, setSelectedTournamentName] = useState("");
   // Delete Modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  function handleDeleteModalOpen(
-    otherTournamentId: any,
-    otherTournamentName: any
-  ) {
-    setSelectedOtherTournamentId(otherTournamentId);
-    setSelectedOtherTournamentName(otherTournamentName);
+  function handleDeleteModalOpen(tournamentId: any, tournamentName: any) {
+    setSelectedTournamentId(tournamentId);
+    setSelectedTournamentName(tournamentName);
     setDeleteModalOpen(true);
   }
   function handleDeleteModalClose() {
     setDeleteModalOpen(false);
   }
-  // handleOtherTournamentDelete
-  async function handleOtherTournamentDelete(id: any) {
+  // handleTournamentDelete
+  async function handleTournamentDelete(id: any) {
     try {
       const { data: resData } = await axios.post(
-        "/api/tournaments/othertournaments/deleteOtherTournament",
+        "/api/tournaments/tournamentsorganizedbyhca/deleteTournamentOrganizedByHca",
         {
-          otherTournamentId: id,
+          tournamentId: id,
         }
       );
       if (resData.statusCode == 200) {
         notify(resData.msg, resData.statusCode);
-        dispatch(deleteOtherTournament(id));
+        dispatch(deleteTournamentOrganizedByHca(id));
         handleDeleteModalClose();
         return;
       }
       notify(resData.msg, resData.statusCode);
       return;
     } catch (error) {
-      console.log("error in handleOtherTournamentDelete", error);
+      console.log("error in handleTournamentDelete", error);
     }
   }
 
@@ -111,91 +106,87 @@ const TournamentsOrganizedByHcaList = ({
         </span>
       </div>
       {/* loading */}
-      {allOtherTournamentsLoading && (
+      {allTournamentsOrganizedByHcaLoading && (
         <div className="w-full text-center my-6">
           <CircularProgress sx={{ color: "gray" }} />
           <p className="text-gray-500">Getting tournaments</p>
         </div>
       )}
-      {/* No otherTournament Found */}
-      {allFilteredActiveOtherTournamentsList?.length === 0 &&
-        !allOtherTournamentsLoading && (
+      {/* No tournament org by hca Found */}
+      {allFilteredActiveTournamentsOrganizedByHcaList?.length === 0 &&
+        !allTournamentsOrganizedByHcaLoading && (
           <div className="flex items-center text-gray-500 w-max mx-auto my-3">
             <SearchOffIcon className="mr-1" sx={{ fontSize: "1.5rem" }} />
             <p className="text-md">No tournaments found</p>
           </div>
         )}
-      {/* otherTournament List */}
-      {!allOtherTournamentsLoading && (
+      {/* tournament org by hca List */}
+      {!allTournamentsOrganizedByHcaLoading && (
         <div className="table-contents overflow-y-auto h-full  flex-1 grid grid-cols-1 grid-rows-7">
-          {allFilteredActiveOtherTournamentsList
+          {allFilteredActiveTournamentsOrganizedByHcaList
             ?.slice(
-              (currentPage - 1) * otherTournamentsPerPage,
-              currentPage * otherTournamentsPerPage
+              (currentPage - 1) * tournamentOrganizedByHcaPerPage,
+              currentPage * tournamentOrganizedByHcaPerPage
             )
-            .map((otherTournament: any, index: any) => {
+            .map((tournament: any, index: any) => {
               const serialNumber =
-                (currentPage - 1) * otherTournamentsPerPage + index + 1;
+                (currentPage - 1) * tournamentOrganizedByHcaPerPage + index + 1;
               return (
                 <div
-                  key={otherTournament?._id}
+                  key={tournament?._id}
                   className="grid grid-cols-[50px,repeat(7,1fr)] gap-1 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
                   </span>
-                  {/* otherTournamentname */}
+                  {/* tournamentname */}
                   <Link
                     title="View"
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments/${
-                      otherTournament?._id
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/${
+                      tournament?._id
                     }`}
                     className="text-left text-sm col-span-2 font-medium text-gray-600 hover:underline hover:text-blue-500"
                   >
-                    {otherTournament?.tournamentName}
+                    {tournament?.tournamentName}
                   </Link>
                   {/* date */}
                   <span className="  text-sm text-gray-700">
-                    {otherTournament?.startDate
-                      ? dayjs(otherTournament?.startDate)
+                    {tournament?.startDate
+                      ? dayjs(tournament?.startDate)
                           .tz(timeZone)
                           .format("MMMM D, YYYY")
                       : "N/A"}
                   </span>
                   {/* week no */}
                   <span className=" text-sm text-gray-700">
-                    {otherTournament?.totalRounds
-                      ? `${otherTournament?.totalRounds}`
+                    {tournament?.totalRounds
+                      ? `${tournament?.totalRounds}`
                       : "N/A"}
                   </span>
                   {/* tournament type */}
                   <span className=" text-sm text-gray-700 flex items-center">
-                    {otherTournament?.tournamentType?.toLowerCase() ===
+                    {tournament?.tournamentType?.toLowerCase() ===
                     "standard" ? (
                       <WindowOutlinedIcon sx={{ fontSize: "1.2rem" }} />
-                    ) : otherTournament?.tournamentType?.toLowerCase() ===
+                    ) : tournament?.tournamentType?.toLowerCase() ===
                       "rapid" ? (
                       <WatchLaterOutlinedIcon sx={{ fontSize: "1.2rem" }} />
                     ) : (
                       <FlashOnOutlinedIcon sx={{ fontSize: "1.2rem" }} />
                     )}
-                    <span className="ml-1">
-                      {otherTournament?.tournamentType}
-                    </span>
+                    <span className="ml-1">{tournament?.tournamentType}</span>
                   </span>
                   {/* branch name */}
                   <span className=" col-span-1 text-sm text-gray-700">
-                    {otherTournament.branchName
-                      ? otherTournament.branchName
-                      : "N/A"}
+                    {tournament.branchName ? tournament.branchName : "N/A"}
                   </span>
                   {role?.toLowerCase() != "trainer" ? (
                     <div className=" text-sm text-gray-500">
                       <>
                         {/* edit */}
                         <Link
-                          href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments/updateothertournament/${
-                            otherTournament?._id
+                          href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/updatetournamentsorganizedbyhca/${
+                            tournament?._id
                           }`}
                           title="Edit"
                           className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
@@ -204,14 +195,14 @@ const TournamentsOrganizedByHcaList = ({
                         </Link>
 
                         {/* delete modal */}
-                        {otherTournament?.activeStatus == true && (
+                        {tournament?.activeStatus == true && (
                           <button
                             title="Delete"
                             className="delete p-1 ml-3 transition-all ease duration-200 rounded-full hover:bg-gray-500 hover:text-white"
                             onClick={() =>
                               handleDeleteModalOpen(
-                                otherTournament._id,
-                                otherTournament.tournamentName
+                                tournament._id,
+                                tournament.tournamentName
                               )
                             }
                           >
@@ -240,7 +231,7 @@ const TournamentsOrganizedByHcaList = ({
                             </p>
                             <span className="text-center mt-2">
                               <span className="font-bold text-xl">
-                                {selectedOtherTournamentName}
+                                {selectedTournamentName}
                               </span>
                               <br />
                               will be deleted permanently.
@@ -264,9 +255,7 @@ const TournamentsOrganizedByHcaList = ({
                                   paddingInline: "2rem",
                                 }}
                                 onClick={() =>
-                                  handleOtherTournamentDelete(
-                                    selectedOtherTournamentId
-                                  )
+                                  handleTournamentDelete(selectedTournamentId)
                                 }
                               >
                                 Delete

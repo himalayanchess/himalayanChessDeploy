@@ -8,6 +8,8 @@ import {
   IconButton,
   TextField,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -28,7 +30,15 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import Input from "@/components/Input";
 import Dropdown from "@/components/Dropdown";
-import { Clock, Medal, MedalIcon, Trophy, User, Users } from "lucide-react";
+import {
+  Clock,
+  Medal,
+  MedalIcon,
+  Star,
+  Trophy,
+  User,
+  Users,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
 
@@ -37,7 +47,9 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
+const UpdateTournamentOrganizedByHca = ({
+  tournamentOrganizedByHcaRecord,
+}: any) => {
   const router = useRouter();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -68,6 +80,7 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
   const [participantToDelete, setParticipantToDelete] = useState<any>(null);
   const [customPrizeMode, setCustomPrizeMode] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [isRated, setIsRated] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
   const handleConfirmModalClose = () => setConfirmModalOpen(false);
@@ -105,6 +118,10 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
         chiefArbiterPhone: "",
         chiefArbiterEmail: "",
       },
+
+      isRated: false,
+      fideUrl: "",
+      chessResultsUrl: "",
 
       participants: [],
     },
@@ -182,7 +199,7 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/othertournaments/updateothertournament",
+        "/api/tournaments/tournamentsorganizedbyhca/updatetournamentorganizedbyhca",
         {
           ...data,
         }
@@ -192,7 +209,7 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
         handleConfirmModalClose();
         setTimeout(() => {
           router.push(
-            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`
+            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`
           );
         }, 50);
       } else {
@@ -238,36 +255,44 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
 
   // Load tournament data
   useEffect(() => {
-    if (otherTournamentRecord) {
+    if (tournamentOrganizedByHcaRecord) {
       reset({
-        ...otherTournamentRecord,
-        startDate: otherTournamentRecord.startDate
-          ? dayjs(otherTournamentRecord.startDate)
+        ...tournamentOrganizedByHcaRecord,
+        startDate: tournamentOrganizedByHcaRecord.startDate
+          ? dayjs(tournamentOrganizedByHcaRecord.startDate)
               .tz(timeZone)
               .format("YYYY-MM-DD")
           : "",
-        endDate: otherTournamentRecord.endDate
-          ? dayjs(otherTournamentRecord.endDate)
+        endDate: tournamentOrganizedByHcaRecord.endDate
+          ? dayjs(tournamentOrganizedByHcaRecord.endDate)
               .tz(timeZone)
               .format("YYYY-MM-DD")
           : "",
 
-        participants: otherTournamentRecord?.participants?.filter(
+        participants: tournamentOrganizedByHcaRecord?.participants?.filter(
           (participant: any) => participant.activeStatus
         ),
       });
 
+      setIsRated(tournamentOrganizedByHcaRecord?.isRated);
+
       // clock time
-      setValue("initialTime", otherTournamentRecord?.clockTime?.initialTime);
-      setValue("increment", otherTournamentRecord?.clockTime?.increment);
+      setValue(
+        "initialTime",
+        tournamentOrganizedByHcaRecord?.clockTime?.initialTime
+      );
+      setValue(
+        "increment",
+        tournamentOrganizedByHcaRecord?.clockTime?.increment
+      );
 
-      setValue("branchName", otherTournamentRecord?.branchName);
-      setValue("branchId", otherTournamentRecord?.branchId);
+      setValue("branchName", tournamentOrganizedByHcaRecord?.branchName);
+      setValue("branchId", tournamentOrganizedByHcaRecord?.branchId);
 
-      setselectedBranch(otherTournamentRecord?.branchName);
+      setselectedBranch(tournamentOrganizedByHcaRecord?.branchName);
       setLoaded(true);
     }
-  }, [otherTournamentRecord, reset]);
+  }, [tournamentOrganizedByHcaRecord, reset]);
 
   // get initial data
   useEffect(() => {
@@ -690,6 +715,77 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
             </div>
           </div>
 
+          {/* is rated */}
+          <div className="mb-3 flex flex-col gap-0">
+            <p className="font-bold text-gray-500 mt-3 flex items-center">
+              <Star size={17} />
+              <span className="ml-1">Rated Information</span>
+            </p>
+            <div className="israted w-max">
+              <Controller
+                name="isRated"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    label="This is rated tournament"
+                    control={
+                      <Checkbox
+                        checked={isRated}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setIsRated(checked); // Update local state
+                          field.onChange(checked); // Update react-hook-form state
+
+                          // Reset only on user toggle
+                          setValue("fideUrl", "");
+                          setValue("chessResultsUrl", "");
+                        }}
+                      />
+                    }
+                  />
+                )}
+              />
+            </div>
+            {/* rated url fields */}
+            <div className="rated-url-fields grid grid-cols-4 gap-4">
+              {isRated && (
+                <Controller
+                  name="fideUrl"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      label="Fide URL"
+                      type="text"
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      required
+                      width="full"
+                      error={errors.fideUrl}
+                      helperText={errors.fideUrl?.message}
+                    />
+                  )}
+                />
+              )}
+
+              <Controller
+                name="chessResultsUrl"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Chess Results URL"
+                    type="text"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    required
+                    width="full"
+                    error={errors.chessResultsUrl}
+                    helperText={errors.chessResultsUrl?.message}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
           {/* tournament participant */}
           <div className="mb-3 flex flex-col gap-4">
             <p className="font-bold text-gray-500 mt-3 flex items-center">
@@ -1060,7 +1156,7 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
               onClick={handleConfirmModalOpen}
               disabled={loading}
             >
-              Add Tournament
+              Update Tournament
             </Button>
           </Box>
 
@@ -1078,7 +1174,7 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
             <Box className="w-[400px] h-max p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
               <p className="mb-6 text-gray-600">
-                You want to add this new tournament?
+                You want to update this tournament?
               </p>
               <div className="buttons flex gap-5">
                 <Button
@@ -1095,7 +1191,7 @@ const UpdateTournamentOrganizedByHca = ({ otherTournamentRecord }: any) => {
                     loadingPosition="start"
                     variant="contained"
                   >
-                    <span>Adding tournament</span>
+                    <span>Updating tournament</span>
                   </LoadingButton>
                 ) : (
                   <Button

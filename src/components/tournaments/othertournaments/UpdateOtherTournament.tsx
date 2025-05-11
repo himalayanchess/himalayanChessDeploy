@@ -713,30 +713,31 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
               <Star size={17} />
               <span className="ml-1">Rated Information</span>
             </p>
-            <Controller
-              name="isRated"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  label="This is rated tournament"
-                  control={
-                    <Checkbox
-                      checked={isRated}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setIsRated(checked); // Update local state
-                        field.onChange(checked); // Update react-hook-form state
+            <div className="israted w-max">
+              <Controller
+                name="isRated"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    label="This is rated tournament"
+                    control={
+                      <Checkbox
+                        checked={isRated}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setIsRated(checked); // Update local state
+                          field.onChange(checked); // Update react-hook-form state
 
-                        // Reset only on user toggle
-                        setValue("fideUrl", "");
-                        setValue("chessResultsUrl", "");
-                      }}
-                    />
-                  }
-                />
-              )}
-            />
-
+                          // Reset only on user toggle
+                          setValue("fideUrl", "");
+                          setValue("chessResultsUrl", "");
+                        }}
+                      />
+                    }
+                  />
+                )}
+              />
+            </div>
             {/* rated url fields */}
             <div className="rated-url-fields grid grid-cols-4 gap-4">
               {isRated && (
@@ -1147,7 +1148,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
               onClick={handleConfirmModalOpen}
               disabled={loading}
             >
-              Add Tournament
+              Update Tournament
             </Button>
           </Box>
 
@@ -1165,7 +1166,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
             <Box className="w-[400px] h-max p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
               <p className="mb-6 text-gray-600">
-                You want to add this new tournament?
+                You want to update this tournament?
               </p>
               <div className="buttons flex gap-5">
                 <Button
@@ -1182,7 +1183,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
                     loadingPosition="start"
                     variant="contained"
                   >
-                    <span>Adding tournament</span>
+                    <span>Updating tournament</span>
                   </LoadingButton>
                 ) : (
                   <Button

@@ -3,6 +3,7 @@ import { Laptop, Trophy } from "lucide-react";
 import React, { useState } from "react";
 import StudentsLichessTournamentsList from "./studentstournaments/StudentsLichessTournamentsList";
 import StudentsOtherTournamentsList from "./studentstournaments/StudentsOtherTournamentsList";
+import StudentsTournamentsOrganizedByHcaList from "./studentstournaments/StudentsTournamentsOrganizedByHcaList";
 
 const StudentEventInfo = ({
   studentRecord,
@@ -13,6 +14,10 @@ const StudentEventInfo = ({
   // students lichess tournaments list
   studentsOtherTournamentsList,
   studentsOtherTournamentsLoading,
+
+  // students tournaments organized by hca
+  studentsTournamentsOrganizedByHcaList,
+  studentsTournamentsOrganizedByHcaLoading,
 }: any) => {
   const [selectedMenu, setSelectedMenu] = useState("lichess");
 
@@ -23,6 +28,11 @@ const StudentEventInfo = ({
   const menuItems = [
     { label: "Lichess", value: "lichess", icon: <Laptop /> },
     { label: "Other Tournaments", value: "othertournaments", icon: <Laptop /> },
+    {
+      label: "Organized by HCA",
+      value: "tournamentsorganizedbyhca",
+      icon: <Laptop />,
+    },
     {
       label: "Extra",
       value: "extra",
@@ -49,6 +59,15 @@ const StudentEventInfo = ({
             studentName={studentRecord?.name}
             tournamentList={studentsOtherTournamentsList}
             loading={studentsOtherTournamentsLoading}
+          />
+        );
+      case "tournamentsorganizedbyhca":
+        return (
+          <StudentsTournamentsOrganizedByHcaList
+            studentId={studentRecord?._id}
+            studentName={studentRecord?.name}
+            tournamentList={studentsTournamentsOrganizedByHcaList}
+            loading={studentsTournamentsOrganizedByHcaLoading}
           />
         );
       case "extra":

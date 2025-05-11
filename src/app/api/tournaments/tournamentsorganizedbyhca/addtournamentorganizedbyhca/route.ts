@@ -8,6 +8,7 @@ import timezone from "dayjs/plugin/timezone";
 import isoWeek from "dayjs/plugin/isoWeek";
 import weekday from "dayjs/plugin/weekday";
 import OtherTournament from "@/models/OtherTournamentsModel";
+import TournamentsOrganizedByHca from "@/models/TournamentsOrganizedByHcaModel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     } = reqBody;
 
     // Case-insensitive check for duplicate tournament
-    const existing = await OtherTournament.findOne({
+    const existing = await TournamentsOrganizedByHca.findOne({
       tournamentName: { $regex: new RegExp(`^${tournamentName}$`, "i") },
       branchName,
       activeStatus: true,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
       increment, // increment time in seconds
     };
 
-    const newTournament = await OtherTournament.create({
+    const newTournament = await TournamentsOrganizedByHca.create({
       ...reqBody,
       clockTime,
       startDate: isoStartDate,

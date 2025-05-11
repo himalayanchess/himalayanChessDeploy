@@ -8,7 +8,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-export function exportStudentsOtherTournamentsToExcel(
+export function exportStudentsTournamentsOrganizedByHcaToExcel(
   tournaments: any[],
   studentId: string,
   studentName: string
@@ -70,7 +70,7 @@ export function exportStudentsOtherTournamentsToExcel(
 
   XLSX.writeFile(
     wb,
-    `OtherTournaments_${studentName}_${dayjs()
+    `Tournaments_Org_by_HCA_${studentName}_${dayjs()
       .tz(timeZone)
       .format("YYYY-MM-DD")}.xlsx`
   );

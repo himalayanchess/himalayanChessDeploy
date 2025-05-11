@@ -14,7 +14,7 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const TournamentOrganizedByHcaWinners = ({
-  otherTournamentRecord,
+  tournamentOrganizedByHcaRecord,
   participants,
 }: any) => {
   const session = useSession();

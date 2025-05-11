@@ -81,6 +81,46 @@ export const fetchAllSelectedStudentsOtherTournaments = createAsyncThunk(
   }
 );
 
+// all tournaments organized by hca
+export const fetchAllTournamentsOrganizedByHca = createAsyncThunk(
+  "tournaments/fetchAllTournamentsOrganizedByHca",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        "/api/tournaments/tournamentsorganizedbyhca/fetchAllTournamentsOrganizedByHca"
+      );
+      const resData = await response.json();
+      // console.log("das fjhakdf hlhsf", resData);
+
+      return resData.allTournamentsOrganizedByHca;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// fetch all selected students  tournaments organized by hca
+export const fetchAllSelectedStudentsTournamentsOrganizedByHca =
+  createAsyncThunk(
+    "tournaments/fetchAllSelectedStudentsTournamentsOrganizedByHca",
+    async (studentId, { rejectWithValue }) => {
+      try {
+        const { data: resData } = await axios.post(
+          "/api/tournaments/tournamentsorganizedbyhca/fetchAllSelectedStudentsTournamentsOrganizedByHca",
+          { studentId }
+        );
+        console.log(
+          "fetchAllSelectedStudentsTournamentsOrganizedByHca",
+          resData
+        );
+
+        return resData.allSelectedStudentsTournamentsOrganizedByHca;
+      } catch (error: any) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+
 const initialState: any = {
   // all lichess tournaments
   allLichessTournamentsList: [],
@@ -103,6 +143,17 @@ const initialState: any = {
   allSelectedStudentsOtherTournamentsList: [],
   allActiveSelectedStudentsOtherTournamentsList: [],
   allSelectedStudentsOtherTournamentsLoading: true,
+
+  // all tournaments organized by hca
+  allTournamentsOrganizedByHcaList: [],
+  allActiveTournamentsOrganizedByHcaList: [],
+  allFilteredActiveTournamentsOrganizedByHcaList: [],
+  allTournamentsOrganizedByHcaLoading: true,
+
+  // all selected students tournaments organized by hca
+  allSelectedStudentsTournamentsOrganizedByHcaList: [],
+  allActiveSelectedStudentsTournamentsOrganizedByHcaList: [],
+  allSelectedStudentsTournamentsOrganizedByHcaLoading: true,
 };
 
 const allTournamentSlice = createSlice({
@@ -138,6 +189,22 @@ const allTournamentSlice = createSlice({
           (tournament: any) => tournament?._id != tournamentId
         );
       state.allActiveOtherTournamentsList = tempAllActiveOtherTournamentList;
+    },
+
+    // update allFilteredActiveTournamentsOrganizedByHcaList state
+    filterTournamentOrganizedByHcaList: (state, action) => {
+      state.allFilteredActiveTournamentsOrganizedByHcaList = action.payload;
+    },
+    // delete other tournament
+    deleteTournamentOrganizedByHca: (state, action) => {
+      const tournamentId = action.payload;
+
+      let tempAllActiveTournamentOrganizedByHcaList =
+        state.allActiveTournamentsOrganizedByHcaList?.filter(
+          (tournament: any) => tournament?._id != tournamentId
+        );
+      state.allActiveTournamentsOrganizedByHcaList =
+        tempAllActiveTournamentOrganizedByHcaList;
     },
   },
   extraReducers: (builder) => {
@@ -276,6 +343,79 @@ const allTournamentSlice = createSlice({
 
           state.allSelectedStudentsOtherTournamentsLoading = false;
         }
+      )
+
+      // tournaments organized by hca
+      .addCase(fetchAllTournamentsOrganizedByHca.pending, (state) => {
+        state.allTournamentsOrganizedByHcaLoading = true;
+      })
+      .addCase(fetchAllTournamentsOrganizedByHca.fulfilled, (state, action) => {
+        console.log("after all tournaments organized by hca", action.payload);
+
+        state.allTournamentsOrganizedByHcaList = action.payload?.sort(
+          (a: any, b: any) =>
+            dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
+            dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
+        );
+
+        // Sorting  tournaments organized by hca by start date (latest first)
+
+        const sortedTournamentsOrganizedByHca = action.payload
+          ?.filter((tournament: any) => tournament?.activeStatus)
+          ?.sort(
+            (a: any, b: any) =>
+              dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
+              dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
+          );
+
+        // Filtering active  tournaments organized by hca after sorting
+        state.allActiveTournamentsOrganizedByHcaList =
+          sortedTournamentsOrganizedByHca;
+        state.allFilteredActiveTournamentsOrganizedByHcaList =
+          sortedTournamentsOrganizedByHca;
+
+        state.allTournamentsOrganizedByHcaLoading = false;
+      })
+
+      // selected students tournaments organized by hca
+      // tournaments organized by hca
+      .addCase(
+        fetchAllSelectedStudentsTournamentsOrganizedByHca.pending,
+        (state) => {
+          state.allSelectedStudentsTournamentsOrganizedByHcaLoading = true;
+        }
+      )
+      .addCase(
+        fetchAllSelectedStudentsTournamentsOrganizedByHca.fulfilled,
+        (state, action) => {
+          console.log(
+            "after all selected students tournaments org by hca",
+            action.payload
+          );
+
+          state.allSelectedStudentsTournamentsOrganizedByHcaList =
+            action.payload?.sort(
+              (a: any, b: any) =>
+                dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
+                dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
+            );
+
+          // Sorting other tournaments organized by hca by startdate (latest first)
+
+          const sortedSelectedStudentsTournamentsOrganizedByHca = action.payload
+            ?.filter((tournament: any) => tournament?.activeStatus)
+            ?.sort(
+              (a: any, b: any) =>
+                dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
+                dayjs.tz(a.startDate, "Asia/Kathmandu").valueOf()
+            );
+
+          // Filtering active  tournaments organized by hca after sorting
+          state.allActiveSelectedStudentsTournamentsOrganizedByHcaList =
+            sortedSelectedStudentsTournamentsOrganizedByHca;
+
+          state.allSelectedStudentsTournamentsOrganizedByHcaLoading = false;
+        }
       );
   },
 });
@@ -285,5 +425,7 @@ export const {
   deleteLichessTournament,
   filterOtherTournamentList,
   deleteOtherTournament,
+  filterTournamentOrganizedByHcaList,
+  deleteTournamentOrganizedByHca,
 } = allTournamentSlice.actions;
 export default allTournamentSlice.reducer;
