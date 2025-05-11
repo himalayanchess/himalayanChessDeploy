@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
       tournamentName,
       tournamentUrl,
       tag,
-      startDate,
-      endDate,
+      startDate = "",
+      endDate = "",
       branchName,
       branchId,
       tournamentType,
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
       participants
     );
 
-    const isoStartDate = dayjs(startDate).utc().toDate();
-    const isoEndDate = dayjs(endDate).utc().toDate();
+    const isoStartDate = startDate ? dayjs(startDate).utc().toDate() : "";
+    const isoEndDate = endDate ? dayjs(endDate).utc().toDate() : "";
 
     const clockTime = {
       initialTime,

@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
       tournamentUrl,
       tag,
 
-      startDate, // from input[type=date], like "2025-04-14"
-      endDate, // from input[type=date], like "2025-04-14"
+      startDate = "", // from input[type=date], like "2025-04-14"
+      endDate = "", // from input[type=date], like "2025-04-14"
       branchName,
       branchId,
       tournamentType,
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const isoStartDate = dayjs(startDate).utc().toDate(); // UTC for ISO
-    const isoEndDate = dayjs(endDate).utc().toDate(); // UTC for ISO
+    const isoStartDate = startDate ? dayjs(startDate).utc().toDate() : "";
+    const isoEndDate = endDate ? dayjs(endDate).utc().toDate() : "";
 
     const clockTime = {
       initialTime, // initial time in minutes
