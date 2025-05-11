@@ -7,8 +7,7 @@ import timezone from "dayjs/plugin/timezone";
 
 import isoWeek from "dayjs/plugin/isoWeek";
 import weekday from "dayjs/plugin/weekday";
-import OtherTournament from "@/models/OtherTournamentsModel";
-import TournamentsOrganizedByHca from "@/models/TournamentsOrganizedByHcaModel";
+import TournamentsHcaHelpIn from "@/models/TournamentsHcaHelpInModel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
     await dbconnect();
 
     const reqBody = await request.json();
-    // console.log("adding tournamtent org by hca", reqBody);
+    // console.log("adding  tournament hca help in", reqBody);
 
     const {
       tournamentName,
@@ -52,7 +51,7 @@ export async function POST(request: NextRequest) {
     } = reqBody;
 
     // Case-insensitive check for duplicate tournament
-    const existing = await TournamentsOrganizedByHca.findOne({
+    const existing = await TournamentsHcaHelpIn.findOne({
       tournamentName: { $regex: new RegExp(`^${tournamentName}$`, "i") },
       branchName,
       activeStatus: true,
@@ -73,7 +72,7 @@ export async function POST(request: NextRequest) {
       increment, // increment time in seconds
     };
 
-    const newTournament = await TournamentsOrganizedByHca.create({
+    const newTournament = await TournamentsHcaHelpIn.create({
       ...reqBody,
       clockTime,
       startDate: isoStartDate,
@@ -86,9 +85,9 @@ export async function POST(request: NextRequest) {
       tournament: newTournament,
     });
   } catch (err) {
-    console.error("Error creating new other tournament:", err);
+    console.error("Error creating new help in tournament:", err);
     return NextResponse.json({
-      msg: "Failed to create new other tournament",
+      msg: "Failed to create new help in tournament",
       statusCode: 204,
       error: err,
     });

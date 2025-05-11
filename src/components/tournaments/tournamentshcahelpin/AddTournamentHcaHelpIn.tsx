@@ -47,7 +47,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const AddTournamentOrganizedByHca = () => {
+const AddTournamentHcaHelpIn = () => {
   const router = useRouter();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -96,7 +96,7 @@ const AddTournamentOrganizedByHca = () => {
     defaultValues: {
       tournamentName: "",
       tournamentUrl: "",
-      tag: "tournamentsorganizedbyhca",
+      tag: "tournamentshcahelpin",
 
       startDate: "",
       endDate: "",
@@ -197,7 +197,7 @@ const AddTournamentOrganizedByHca = () => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/tournamentsorganizedbyhca/addtournamentorganizedbyhca",
+        "/api/tournaments/tournamentshcahelpin/addtournamenthcahelpin",
         {
           ...data,
         }
@@ -207,7 +207,7 @@ const AddTournamentOrganizedByHca = () => {
         handleConfirmModalClose();
         setTimeout(() => {
           router.push(
-            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`
+            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin`
           );
         }, 50);
       } else {
@@ -268,11 +268,11 @@ const AddTournamentOrganizedByHca = () => {
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Add Tournament Organized By HCA</span>
+              <span className="ml-2">Add Tournament HCA Helps In</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`}
+                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin`}
               >
                 <Button color="inherit" sx={{ color: "gray" }}>
                   <HomeOutlinedIcon />
@@ -1173,4 +1173,4 @@ const AddTournamentOrganizedByHca = () => {
   );
 };
 
-export default AddTournamentOrganizedByHca;
+export default AddTournamentHcaHelpIn;

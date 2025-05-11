@@ -188,8 +188,9 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
       setCustomPrizeMode((prev) =>
         prev.filter((_, i) => i !== participantToDelete)
       );
+      notify("Participant Deleted", 200);
+      setConfirmDeleteOpen(false);
     }
-    setConfirmDeleteOpen(false);
   };
 
   const onSubmit = async (data: any) => {

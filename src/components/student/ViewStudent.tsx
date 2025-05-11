@@ -42,6 +42,7 @@ import { getAllSelectedStudentsPaymentRecords } from "@/redux/allListSlice";
 import {
   fetchAllSelectedStudentsLichessTournaments,
   fetchAllSelectedStudentsOtherTournaments,
+  fetchAllSelectedStudentsTournamentsHcaHelpIn,
   fetchAllSelectedStudentsTournamentsOrganizedByHca,
 } from "@/redux/allTournamentSlice";
 
@@ -77,6 +78,10 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     //selected students tournaments organized by hca
     allActiveSelectedStudentsTournamentsOrganizedByHcaList,
     allSelectedStudentsTournamentsOrganizedByHcaLoading,
+
+    //selected students tournaments hca help in
+    allActiveSelectedStudentsTournamentsHcaHelpInList,
+    allSelectedStudentsTournamentsHcaHelpInLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // use use selectro for students test history
@@ -202,6 +207,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
               studentsTournamentsOrganizedByHcaLoading={
                 allSelectedStudentsTournamentsOrganizedByHcaLoading
               }
+              // students  tournaments hca help in
+              studentsTournamentsHcaHelpInList={
+                allActiveSelectedStudentsTournamentsHcaHelpInList
+              }
+              studentsTournamentsHcaHelpInLoading={
+                allSelectedStudentsTournamentsHcaHelpInLoading
+              }
             />
           );
         default:
@@ -271,6 +283,9 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       dispatch(fetchAllSelectedStudentsOtherTournaments(studentRecord?._id));
       dispatch(
         fetchAllSelectedStudentsTournamentsOrganizedByHca(studentRecord?._id)
+      );
+      dispatch(
+        fetchAllSelectedStudentsTournamentsHcaHelpIn(studentRecord?._id)
       );
     }
   }, [studentRecord]);

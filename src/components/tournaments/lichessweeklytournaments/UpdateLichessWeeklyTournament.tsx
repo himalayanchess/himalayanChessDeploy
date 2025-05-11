@@ -145,6 +145,7 @@ const UpdateLichessWeeklyTournament = ({ lichessTournamentRecord }: any) => {
   const confirmDeleteWinner = () => {
     if (winnerToDelete !== null) {
       removeWinner(winnerToDelete);
+      notify("Winner Deleted", 200);
     }
     setConfirmDeleteOpen(false);
   };

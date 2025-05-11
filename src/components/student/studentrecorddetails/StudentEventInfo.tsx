@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import StudentsLichessTournamentsList from "./studentstournaments/StudentsLichessTournamentsList";
 import StudentsOtherTournamentsList from "./studentstournaments/StudentsOtherTournamentsList";
 import StudentsTournamentsOrganizedByHcaList from "./studentstournaments/StudentsTournamentsOrganizedByHcaList";
+import StudentsTournamentsHcaHelpInList from "./studentstournaments/StudentsTournamentsHcaHelpInList";
 
 const StudentEventInfo = ({
   studentRecord,
@@ -18,6 +19,10 @@ const StudentEventInfo = ({
   // students tournaments organized by hca
   studentsTournamentsOrganizedByHcaList,
   studentsTournamentsOrganizedByHcaLoading,
+
+  // students tournaments hca help in
+  studentsTournamentsHcaHelpInList,
+  studentsTournamentsHcaHelpInLoading,
 }: any) => {
   const [selectedMenu, setSelectedMenu] = useState("lichess");
 
@@ -27,11 +32,16 @@ const StudentEventInfo = ({
 
   const menuItems = [
     { label: "Lichess", value: "lichess", icon: <Laptop /> },
-    { label: "Other Tournaments", value: "othertournaments", icon: <Laptop /> },
+    { label: "Other Tournaments", value: "othertournaments", icon: <Trophy /> },
     {
       label: "Organized by HCA",
       value: "tournamentsorganizedbyhca",
-      icon: <Laptop />,
+      icon: <Trophy />,
+    },
+    {
+      label: "HCA Help In",
+      value: "tournamentshcahelpin",
+      icon: <Trophy />,
     },
     {
       label: "Extra",
@@ -68,6 +78,15 @@ const StudentEventInfo = ({
             studentName={studentRecord?.name}
             tournamentList={studentsTournamentsOrganizedByHcaList}
             loading={studentsTournamentsOrganizedByHcaLoading}
+          />
+        );
+      case "tournamentshcahelpin":
+        return (
+          <StudentsTournamentsHcaHelpInList
+            studentId={studentRecord?._id}
+            studentName={studentRecord?.name}
+            tournamentList={studentsTournamentsHcaHelpInList}
+            loading={studentsTournamentsHcaHelpInLoading}
           />
         );
       case "extra":

@@ -14,27 +14,27 @@ import Link from "next/link";
 import { notify } from "@/helpers/notify";
 import { useDispatch } from "react-redux";
 import { useSession } from "next-auth/react";
-import { deleteTournamentOrganizedByHca } from "@/redux/allTournamentSlice";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import { deleteTournamentHcaHelpIn } from "@/redux/allTournamentSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const TournamentsOrganizedByHcaList = ({
-  allFilteredActiveTournamentsOrganizedByHcaList,
+const TournamentsHcaHelpInList = ({
+  allFilteredActiveTournamentsHcaHelpInList,
   currentPage,
-  tournamentOrganizedByHcaPerPage,
-  allTournamentsOrganizedByHcaLoading,
+  tournamentHcaHelpInPerPage,
+  allTournamentsHcaHelpInLoading,
   role,
 }: any) => {
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside tournamentlist", allFilteredActiveTournamentsOrganizedByHcaList);
+  // console.log("inside tournamentlist", allFilteredActiveTournamentsHcaHelpInList);
 
   const [loaded, setloaded] = useState(false);
   const [selectedTournamentId, setSelectedTournamentId] = useState(null);
@@ -54,14 +54,14 @@ const TournamentsOrganizedByHcaList = ({
   async function handleTournamentDelete(id: any) {
     try {
       const { data: resData } = await axios.post(
-        "/api/tournaments/tournamentsorganizedbyhca/deleteTournamentOrganizedByHca",
+        "/api/tournaments/tournamentshcahelpin/deletetournamenthcahelpin",
         {
           tournamentId: id,
         }
       );
       if (resData.statusCode == 200) {
         notify(resData.msg, resData.statusCode);
-        dispatch(deleteTournamentOrganizedByHca(id));
+        dispatch(deleteTournamentHcaHelpIn(id));
         handleDeleteModalClose();
         return;
       }
@@ -106,31 +106,31 @@ const TournamentsOrganizedByHcaList = ({
         </span>
       </div>
       {/* loading */}
-      {allTournamentsOrganizedByHcaLoading && (
+      {allTournamentsHcaHelpInLoading && (
         <div className="w-full text-center my-6">
           <CircularProgress sx={{ color: "gray" }} />
           <p className="text-gray-500">Getting tournaments</p>
         </div>
       )}
       {/* No tournament org by hca Found */}
-      {allFilteredActiveTournamentsOrganizedByHcaList?.length === 0 &&
-        !allTournamentsOrganizedByHcaLoading && (
+      {allFilteredActiveTournamentsHcaHelpInList?.length === 0 &&
+        !allTournamentsHcaHelpInLoading && (
           <div className="flex items-center text-gray-500 w-max mx-auto my-3">
             <SearchOffIcon className="mr-1" sx={{ fontSize: "1.5rem" }} />
             <p className="text-md">No tournaments found</p>
           </div>
         )}
       {/* tournament org by hca List */}
-      {!allTournamentsOrganizedByHcaLoading && (
+      {!allTournamentsHcaHelpInLoading && (
         <div className="table-contents overflow-y-auto h-full  flex-1 grid grid-cols-1 grid-rows-7">
-          {allFilteredActiveTournamentsOrganizedByHcaList
+          {allFilteredActiveTournamentsHcaHelpInList
             ?.slice(
-              (currentPage - 1) * tournamentOrganizedByHcaPerPage,
-              currentPage * tournamentOrganizedByHcaPerPage
+              (currentPage - 1) * tournamentHcaHelpInPerPage,
+              currentPage * tournamentHcaHelpInPerPage
             )
             .map((tournament: any, index: any) => {
               const serialNumber =
-                (currentPage - 1) * tournamentOrganizedByHcaPerPage + index + 1;
+                (currentPage - 1) * tournamentHcaHelpInPerPage + index + 1;
               return (
                 <div
                   key={tournament?._id}
@@ -142,7 +142,7 @@ const TournamentsOrganizedByHcaList = ({
                   {/* tournamentname */}
                   <Link
                     title="View"
-                    href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/${
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin/${
                       tournament?._id
                     }`}
                     className="text-left text-sm col-span-2 font-medium text-gray-600 hover:underline hover:text-blue-500"
@@ -185,7 +185,7 @@ const TournamentsOrganizedByHcaList = ({
                       <>
                         {/* edit */}
                         <Link
-                          href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/updatetournamentsorganizedbyhca/${
+                          href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin/updatetournamentshcahelpin/${
                             tournament?._id
                           }`}
                           title="Edit"
@@ -285,4 +285,4 @@ const TournamentsOrganizedByHcaList = ({
   );
 };
 
-export default TournamentsOrganizedByHcaList;
+export default TournamentsHcaHelpInList;

@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
     const existingSameName = await TournamentsOrganizedByHca.findOne({
       _id: { $ne: _id }, // Exclude the current tournament
       tournamentName: { $regex: new RegExp(`^${tournamentName}$`, "i") }, // Case-insensitive match
+      branchName,
       activeStatus: true,
     });
 

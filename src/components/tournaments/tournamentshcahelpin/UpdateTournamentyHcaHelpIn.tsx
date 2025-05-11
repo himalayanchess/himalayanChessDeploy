@@ -47,7 +47,7 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const AddTournamentOrganizedByHca = () => {
+const UpdateTournamentyHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
   const router = useRouter();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -77,6 +77,7 @@ const AddTournamentOrganizedByHca = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [participantToDelete, setParticipantToDelete] = useState<any>(null);
   const [customPrizeMode, setCustomPrizeMode] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [isRated, setIsRated] = useState(false);
 
   const handleConfirmModalOpen = () => setConfirmModalOpen(true);
@@ -96,7 +97,7 @@ const AddTournamentOrganizedByHca = () => {
     defaultValues: {
       tournamentName: "",
       tournamentUrl: "",
-      tag: "tournamentsorganizedbyhca",
+      tag: "othertournaments",
 
       startDate: "",
       endDate: "",
@@ -197,7 +198,7 @@ const AddTournamentOrganizedByHca = () => {
     try {
       console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
-        "/api/tournaments/tournamentsorganizedbyhca/addtournamentorganizedbyhca",
+        "/api/tournaments/tournamentshcahelpin/updatetournamenthcahelpin",
         {
           ...data,
         }
@@ -207,36 +208,36 @@ const AddTournamentOrganizedByHca = () => {
         handleConfirmModalClose();
         setTimeout(() => {
           router.push(
-            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`
+            `/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin`
           );
         }, 50);
       } else {
         notify(response.msg, response.statusCode);
       }
     } catch (error) {
-      console.error("Error submitting lichess  tournament:", error);
-      notify("Failed to submit lichess tournament", 500);
+      console.error("Error submitting tournament hca help in:", error);
+      notify("Failed to submit tournament hca help in", 500);
     } finally {
       setLoading(false);
     }
   };
 
   // branch access
-  useEffect(() => {
-    const user = session?.data?.user;
-    const isSuperOrGlobalAdmin =
-      user?.role?.toLowerCase() === "superadmin" ||
-      (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
+  // useEffect(() => {
+  //   const user = session?.data?.user;
+  //   const isSuperOrGlobalAdmin =
+  //     user?.role?.toLowerCase() === "superadmin" ||
+  //     (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
-    let branchName = "";
-    if (!isSuperOrGlobalAdmin) {
-      setValue("branchName", user?.branchName);
-      setValue("branchId", user?.branchId);
-      branchName = user?.branchName;
-    }
-    setselectedBranch(branchName);
-  }, [session?.data?.user]);
+  //   // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
+  //   let branchName = "";
+  //   if (!isSuperOrGlobalAdmin) {
+  //     setValue("branchName", user?.branchName);
+  //     setValue("branchId", user?.branchId);
+  //     branchName = session?.data?.user?.branchName;
+  //   }
+  //   setselectedBranch(branchName);
+  // }, [session?.data?.user]);
 
   // also filter students if branchchanges
   useEffect(() => {
@@ -249,17 +250,56 @@ const AddTournamentOrganizedByHca = () => {
               selectedBranch?.toLowerCase()
           );
     setfilteredStudentsListOptions(tempfilteredHcaStudents);
+  }, [selectedBranch]);
 
-    // Reset the participants field array
-    // replace this logic in update lichess tournament
-    resetParticipant([]);
-  }, [selectedBranch, allActiveHcaStudentsList]);
+  // Load tournament data
+  useEffect(() => {
+    if (tournamentHcaHelpInRecord) {
+      reset({
+        ...tournamentHcaHelpInRecord,
+        startDate: tournamentHcaHelpInRecord.startDate
+          ? dayjs(tournamentHcaHelpInRecord.startDate)
+              .tz(timeZone)
+              .format("YYYY-MM-DD")
+          : "",
+        endDate: tournamentHcaHelpInRecord.endDate
+          ? dayjs(tournamentHcaHelpInRecord.endDate)
+              .tz(timeZone)
+              .format("YYYY-MM-DD")
+          : "",
+
+        participants: tournamentHcaHelpInRecord?.participants?.filter(
+          (participant: any) => participant.activeStatus
+        ),
+      });
+
+      setIsRated(tournamentHcaHelpInRecord?.isRated);
+
+      // clock time
+      setValue(
+        "initialTime",
+        tournamentHcaHelpInRecord?.clockTime?.initialTime
+      );
+      setValue("increment", tournamentHcaHelpInRecord?.clockTime?.increment);
+
+      setValue("branchName", tournamentHcaHelpInRecord?.branchName);
+      setValue("branchId", tournamentHcaHelpInRecord?.branchId);
+
+      setselectedBranch(tournamentHcaHelpInRecord?.branchName);
+      setLoaded(true);
+    }
+  }, [tournamentHcaHelpInRecord, reset]);
 
   // get initial data
   useEffect(() => {
     dispatch(getAllStudents());
     dispatch(getAllBranches());
   }, []);
+
+  if (!loaded)
+    return (
+      <div className="flex-1 flex w-full flex-col h-full overflow-hidden bg-white px-10 py-5 rounded-md shadow-md"></div>
+    );
 
   return (
     <div className="flex w-full h-full">
@@ -268,11 +308,11 @@ const AddTournamentOrganizedByHca = () => {
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Add Tournament Organized By HCA</span>
+              <span className="ml-2">Update Tournament HCA Help In</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`}
+                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin`}
               >
                 <Button color="inherit" sx={{ color: "gray" }}>
                   <HomeOutlinedIcon />
@@ -311,6 +351,7 @@ const AddTournamentOrganizedByHca = () => {
                   label="Tournament Name"
                   type="text"
                   value={field.value || ""}
+                  disabled
                   onChange={field.onChange}
                   required
                   error={errors.tournamentName}
@@ -406,7 +447,7 @@ const AddTournamentOrganizedByHca = () => {
                       (branch: any) => branch.branchName
                     )}
                     selected={field.value || ""}
-                    disabled={!isSuperOrGlobalAdmin}
+                    disabled
                     onChange={(value: any) => {
                       field.onChange(value);
                       const selectedBranch: any = allActiveBranchesList?.find(
@@ -618,7 +659,6 @@ const AddTournamentOrganizedByHca = () => {
                     render={({ field }) => (
                       <Input
                         label="Chief Arbiter Phone"
-                        type="number"
                         value={field.value || ""}
                         onChange={field.onChange}
                         error={
@@ -702,7 +742,6 @@ const AddTournamentOrganizedByHca = () => {
                 )}
               />
             </div>
-
             {/* rated url fields */}
             <div className="rated-url-fields grid grid-cols-4 gap-4">
               {isRated && (
@@ -1113,7 +1152,7 @@ const AddTournamentOrganizedByHca = () => {
               onClick={handleConfirmModalOpen}
               disabled={loading}
             >
-              Add Tournament
+              Update Tournament
             </Button>
           </Box>
 
@@ -1131,7 +1170,7 @@ const AddTournamentOrganizedByHca = () => {
             <Box className="w-[400px] h-max p-6 flex flex-col items-center bg-white rounded-xl shadow-lg">
               <p className="font-semibold mb-4 text-2xl">Are you sure?</p>
               <p className="mb-6 text-gray-600">
-                You want to add this tournament?
+                You want to update this tournament?
               </p>
               <div className="buttons flex gap-5">
                 <Button
@@ -1148,7 +1187,7 @@ const AddTournamentOrganizedByHca = () => {
                     loadingPosition="start"
                     variant="contained"
                   >
-                    <span>Adding tournament</span>
+                    <span>Updating tournament</span>
                   </LoadingButton>
                 ) : (
                   <Button
@@ -1173,4 +1212,4 @@ const AddTournamentOrganizedByHca = () => {
   );
 };
 
-export default AddTournamentOrganizedByHca;
+export default UpdateTournamentyHcaHelpIn;

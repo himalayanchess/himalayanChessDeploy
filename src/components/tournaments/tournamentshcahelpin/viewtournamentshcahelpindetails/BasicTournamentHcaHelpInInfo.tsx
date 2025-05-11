@@ -31,9 +31,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
-const BasicTournamentOrganizedByHcaInfo = ({
-  tournamentOrganizedByHcaRecord,
-}: any) => {
+const BasicTournamentHcaHelpInInfo = ({ tournamentHcaHelpInRecord }: any) => {
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -50,7 +48,7 @@ const BasicTournamentOrganizedByHcaInfo = ({
           <div className="flex items-center">
             {/* <School className="text-gray-500" /> */}
             <p className="font-bold text-2xl ml-1 ">
-              {tournamentOrganizedByHcaRecord?.tournamentName}
+              {tournamentHcaHelpInRecord?.tournamentName}
             </p>
           </div>
         </div>
@@ -61,8 +59,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-medium text-md flex items-center">
               <EventOutlinedIcon className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.startDate
-                  ? formatDate(tournamentOrganizedByHcaRecord.startDate)
+                {tournamentHcaHelpInRecord?.startDate
+                  ? formatDate(tournamentHcaHelpInRecord.startDate)
                   : "N/A"}
               </span>
             </p>
@@ -72,8 +70,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-medium text-md flex items-center">
               <EventOutlinedIcon className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.endDate
-                  ? formatDate(tournamentOrganizedByHcaRecord.endDate)
+                {tournamentHcaHelpInRecord?.endDate
+                  ? formatDate(tournamentHcaHelpInRecord.endDate)
                   : "N/A"}{" "}
               </span>
             </p>
@@ -88,20 +86,20 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="text-sm text-gray-500">BranchName</p>
             <p className="font-medium text-md flex items-center">
               <MapPinHouse className="text-gray-500" />
-              {tournamentOrganizedByHcaRecord?.branchName &&
-              tournamentOrganizedByHcaRecord?.branchId ? (
+              {tournamentHcaHelpInRecord?.branchName &&
+              tournamentHcaHelpInRecord?.branchId ? (
                 isSuperOrGlobalAdmin ? (
                   <Link
                     href={`/${session?.data?.user?.role?.toLowerCase()}/branches/${
-                      tournamentOrganizedByHcaRecord.branchId
+                      tournamentHcaHelpInRecord.branchId
                     }`}
                     className="ml-1 underline hover:text-blue-500"
                   >
-                    {tournamentOrganizedByHcaRecord.branchName}
+                    {tournamentHcaHelpInRecord.branchName}
                   </Link>
                 ) : (
                   <span className="ml-1">
-                    {tournamentOrganizedByHcaRecord.branchName}
+                    {tournamentHcaHelpInRecord.branchName}
                   </span>
                 )
               ) : (
@@ -112,15 +110,15 @@ const BasicTournamentOrganizedByHcaInfo = ({
           <div className="flex justify-end items-center">
             <span
               className={` px-3 py-1 text-md font-semibold rounded-full flex items-center ${
-                tournamentOrganizedByHcaRecord?.tag
+                tournamentHcaHelpInRecord?.tag
                   ? "bg-green-100 text-green-800" // Light green background with dark green text
                   : "bg-gray-200 text-gray-800" // Light gray background with dark gray text
               }`}
             >
               <span className="w-2.5 h-2.5 rounded-full bg-green-500 mr-2" />
-              {tournamentOrganizedByHcaRecord?.tag?.toLowerCase() ==
-              "tournamentsorganizedbyhca"
-                ? "Organized by HCA"
+              {tournamentHcaHelpInRecord?.tag?.toLowerCase() ==
+              "tournamentshcahelpin"
+                ? "HCA Help In"
                 : "N/A"}
             </span>
           </div>
@@ -128,11 +126,11 @@ const BasicTournamentOrganizedByHcaInfo = ({
           <div className="">
             <p className="text-sm text-gray-500">Tournament URL</p>
             <p className="text-gray-500 text-md flex items-center text-md font-medium">
-              {tournamentOrganizedByHcaRecord?.tournamenturl ? (
+              {tournamentHcaHelpInRecord?.tournamenturl ? (
                 <div className="flex items-center">
                   <SquareArrowOutUpRight size={18} />
                   <Link
-                    href={tournamentOrganizedByHcaRecord.tournamenturl}
+                    href={tournamentHcaHelpInRecord.tournamenturl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 underline text-blue-600 hover:text-blue-800"
@@ -158,7 +156,7 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center">
               <Star className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.isRated ? "Yes" : "No"}
+                {tournamentHcaHelpInRecord?.isRated ? "Yes" : "No"}
               </span>
             </p>
           </div>
@@ -168,9 +166,9 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="text-sm text-gray-500">FIDE URL</p>
             <p className="font-medium text-gray-500 text-md flex items-center">
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.fideUrl ? (
+                {tournamentHcaHelpInRecord?.fideUrl ? (
                   <Link
-                    href={tournamentOrganizedByHcaRecord.fideUrl}
+                    href={tournamentHcaHelpInRecord.fideUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className=" underline flex items-center hover:text-blue-500"
@@ -190,9 +188,9 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="text-sm text-gray-500">Chess Results URL</p>
             <p className="font-medium text-gray-500 text-md flex items-center">
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.chessResultsUrl ? (
+                {tournamentHcaHelpInRecord?.chessResultsUrl ? (
                   <Link
-                    href={tournamentOrganizedByHcaRecord.chessResultsUrl}
+                    href={tournamentHcaHelpInRecord.chessResultsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className=" underline flex items-center hover:text-blue-500"
@@ -221,8 +219,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center">
               <User className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.chiefArbiter
-                  ?.chiefArbiterName || "N/A"}{" "}
+                {tournamentHcaHelpInRecord?.chiefArbiter?.chiefArbiterName ||
+                  "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -233,8 +231,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center">
               <Phone className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.chiefArbiter
-                  ?.chiefArbiterPhone || "N/A"}{" "}
+                {tournamentHcaHelpInRecord?.chiefArbiter?.chiefArbiterPhone ||
+                  "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -245,8 +243,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center">
               <Mail className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.chiefArbiter
-                  ?.chiefArbiterEmail || "N/A"}{" "}
+                {tournamentHcaHelpInRecord?.chiefArbiter?.chiefArbiterEmail ||
+                  "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -264,7 +262,7 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center">
               <LayoutGrid className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.tournamentType || "N/A"}{" "}
+                {tournamentHcaHelpInRecord?.tournamentType || "N/A"}{" "}
               </span>
             </p>
           </div>
@@ -274,8 +272,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
               <Clock className="text-gray-500" />
               <span className="ml-1">
                 <span>
-                  {tournamentOrganizedByHcaRecord?.clockTime?.initialTime
-                    ? `${tournamentOrganizedByHcaRecord.clockTime.initialTime} mins`
+                  {tournamentHcaHelpInRecord?.clockTime?.initialTime
+                    ? `${tournamentHcaHelpInRecord.clockTime.initialTime} mins`
                     : "N/A"}
                 </span>{" "}
               </span>
@@ -287,8 +285,8 @@ const BasicTournamentOrganizedByHcaInfo = ({
               <AlarmClockPlus className="text-gray-500" />
               <span className="ml-1">
                 <span>
-                  {tournamentOrganizedByHcaRecord?.clockTime?.increment
-                    ? `${tournamentOrganizedByHcaRecord.clockTime.increment} sec`
+                  {tournamentHcaHelpInRecord?.clockTime?.increment
+                    ? `${tournamentHcaHelpInRecord.clockTime.increment} sec`
                     : "N/A"}
                 </span>
               </span>
@@ -300,7 +298,7 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center text-lg ">
               <Users className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.totalParticipants || 0}
+                {tournamentHcaHelpInRecord?.totalParticipants || 0}
               </span>
             </p>
           </div>
@@ -311,7 +309,7 @@ const BasicTournamentOrganizedByHcaInfo = ({
             <p className="font-bold text-gray-500 text-md flex items-center text-lg ">
               <GitFork className="text-gray-500" />
               <span className="ml-1">
-                {tournamentOrganizedByHcaRecord?.totalRounds || 0}
+                {tournamentHcaHelpInRecord?.totalRounds || 0}
               </span>
             </p>
           </div>
@@ -321,4 +319,4 @@ const BasicTournamentOrganizedByHcaInfo = ({
   );
 };
 
-export default BasicTournamentOrganizedByHcaInfo;
+export default BasicTournamentHcaHelpInInfo;

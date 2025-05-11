@@ -31,18 +31,16 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import BasicOtherTournamentInfo from "../othertournaments/viewthertournamentdetails/BasicOtherTournamentInfo";
 import OtherTournamentWinners from "../othertournaments/viewthertournamentdetails/OtherTournamentWinners";
-import BasicTournamentOrganizedByHcaInfo from "./viewtournamentsorganizedbyhcadetails/BasicTournamentOrganizedByHcaInfo";
-import TournamentOrganizedByHcaWinners from "./viewtournamentsorganizedbyhcadetails/TournamentOrganizedByHcaWinners";
+import BasicTournamentHcaHelpInInfo from "./viewtournamentshcahelpindetails/BasicTournamentHcaHelpInInfo";
+import TournamentHcaHelpInWinners from "./viewtournamentshcahelpindetails/TournamentHcaHelpInWinners";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-const ViewTournamentOrganizedByHca = ({
-  tournamentOrganizedByHcaRecord,
-}: any) => {
-  // console.log(tournamentOrganizedByHcaRecord);
+const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
+  // console.log(tournamentHcaHelpInRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -67,27 +65,27 @@ const ViewTournamentOrganizedByHca = ({
   ];
 
   const showComponent = () => {
-    if (tournamentOrganizedByHcaRecord) {
+    if (tournamentHcaHelpInRecord) {
       console.log("show comp", selectedMenu);
 
       switch (selectedMenu) {
         case "basic":
           return (
-            <BasicTournamentOrganizedByHcaInfo
-              tournamentOrganizedByHcaRecord={tournamentOrganizedByHcaRecord}
+            <BasicTournamentHcaHelpInInfo
+              tournamentHcaHelpInRecord={tournamentHcaHelpInRecord}
             />
           );
         case "winners":
           return (
-            <TournamentOrganizedByHcaWinners
-              tournamentOrganizedByHcaRecord={tournamentOrganizedByHcaRecord}
-              participants={tournamentOrganizedByHcaRecord?.participants}
+            <TournamentHcaHelpInWinners
+              tournamentHcaHelpInRecord={tournamentHcaHelpInRecord}
+              participants={tournamentHcaHelpInRecord?.participants}
             />
           );
         default:
           return (
-            <BasicTournamentOrganizedByHcaInfo
-              tournamentOrganizedByHcaRecord={tournamentOrganizedByHcaRecord}
+            <BasicTournamentHcaHelpInInfo
+              tournamentHcaHelpInRecord={tournamentHcaHelpInRecord}
             />
           );
       }
@@ -95,10 +93,10 @@ const ViewTournamentOrganizedByHca = ({
   };
 
   useEffect(() => {
-    if (tournamentOrganizedByHcaRecord) {
+    if (tournamentHcaHelpInRecord) {
       setLoaded(true);
     }
-  }, [tournamentOrganizedByHcaRecord]);
+  }, [tournamentHcaHelpInRecord]);
 
   if (!loaded)
     return (
@@ -116,8 +114,8 @@ const ViewTournamentOrganizedByHca = ({
             </span>
             {/* {session?.data?.user?.role?.toLowerCase() == "superadmin" && ( */}
             <Link
-              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca/updatetournamentsorganizedbyhca/${
-                tournamentOrganizedByHcaRecord?._id
+              href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin/updatetournamentshcahelpin/${
+                tournamentHcaHelpInRecord?._id
               }`}
               className="mr-3"
             >
@@ -129,7 +127,7 @@ const ViewTournamentOrganizedByHca = ({
             {/* )} */}
           </h1>
 
-          <span>of {tournamentOrganizedByHcaRecord?.tournamentName}</span>
+          <span>of {tournamentHcaHelpInRecord?.tournamentName}</span>
         </div>
 
         <div className="buttons flex gap-4">
@@ -175,4 +173,4 @@ const ViewTournamentOrganizedByHca = ({
   );
 };
 
-export default ViewTournamentOrganizedByHca;
+export default ViewTournamentHcaHelpIn;

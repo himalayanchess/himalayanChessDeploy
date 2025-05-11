@@ -33,6 +33,12 @@ const TournamentsComponent = () => {
       >
         tournaments organized by hca
       </Link>
+      <Link
+        className="underline"
+        href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin`}
+      >
+        tournaments hca help in
+      </Link>
       TournamentsComponent
     </div>
   );

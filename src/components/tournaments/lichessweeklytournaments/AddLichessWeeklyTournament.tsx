@@ -150,8 +150,10 @@ const AddLichessWeeklyTournaments = () => {
   const confirmDeleteWinner = () => {
     if (winnerToDelete !== null) {
       removeWinner(winnerToDelete);
+      notify("Winner Deleted", 200);
+
+      setConfirmDeleteOpen(false);
     }
-    setConfirmDeleteOpen(false);
   };
 
   const onSubmit = async (data: any) => {

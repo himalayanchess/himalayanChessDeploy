@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const reqBody = await request.json();
     const { email, password } = reqBody;
-    console.log("login req body", reqBody);
+    // console.log("login req body", reqBody);
 
     const fetchedUser = await User.findOne({ email });
 
