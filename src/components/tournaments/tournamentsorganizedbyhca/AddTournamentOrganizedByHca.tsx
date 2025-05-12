@@ -138,6 +138,7 @@ const AddTournamentOrganizedByHca = () => {
     appendParticipant({
       studentId: "",
       studentName: "",
+      fideId: "",
       rank: "",
       performanceUrl: "",
       prize: {
@@ -804,6 +805,10 @@ const AddTournamentOrganizedByHca = () => {
                           setValue(
                             `participants.${index}.studentId`,
                             selectedStudent?._id
+                          );
+                          setValue(
+                            `participants.${index}.fideId`,
+                            selectedStudent?.fideId
                           );
                         }}
                         error={

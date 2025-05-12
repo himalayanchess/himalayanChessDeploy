@@ -31,6 +31,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import BasicLichessTournamentInfo from "./viewlichesstournamentdetails/BasicLichessTournamentInfo";
 import LichessTournamentWinners from "./viewlichesstournamentdetails/LichessTournamentWinners";
+import { exportLichessTournamentRecordToExcel } from "@/helpers/exportToExcel/singletorunamentrecord/exportLichessTournamentRecordToExcel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -51,6 +52,11 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
 
   const handleMenuClick = (menuValue: any) => {
     setSelectedMenu(menuValue); // Update the selected menu
+  };
+
+  //export to excel
+  const exportToExcel = () => {
+    exportLichessTournamentRecordToExcel(lichessTournamentRecord);
   };
 
   const menuItems = [
@@ -144,19 +150,30 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
       </div>
 
       {/* menu buttons */}
-      <div className="w-full menuButtons mt-2 flex  gap-2">
-        {menuItems.map((item) => (
-          <Button
-            key={item.value}
-            variant={selectedMenu === item.value ? "contained" : "outlined"}
-            size="medium"
-            onClick={() => handleMenuClick(item.value)}
-            sx={{ padding: "0.3rem 0.7rem" }}
-          >
-            {item.icon}
-            <span className="ml-1.5">{item.label}</span>
-          </Button>
-        ))}
+      <div className="w-full menuButtons mt-2 flex justify-between">
+        <div className="buttons flex gap-2">
+          {menuItems.map((item) => (
+            <Button
+              key={item.value}
+              variant={selectedMenu === item.value ? "contained" : "outlined"}
+              size="medium"
+              onClick={() => handleMenuClick(item.value)}
+              sx={{ padding: "0.3rem 0.7rem" }}
+            >
+              {item.icon}
+              <span className="ml-1.5">{item.label}</span>
+            </Button>
+          ))}
+        </div>
+
+        <Button
+          onClick={exportToExcel}
+          variant="contained"
+          color="success"
+          startIcon={<DownloadIcon />}
+        >
+          Export to Excel
+        </Button>
       </div>
 
       {/* divider */}

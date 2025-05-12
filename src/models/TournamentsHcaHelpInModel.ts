@@ -31,6 +31,7 @@ const ParticipantsSchema = new mongoose.Schema(
       ref: "HcaAffiliatedStudent",
     },
     studentName: { type: String, default: "" },
+    fideId: { type: Number, default: 0 },
     rank: { type: Number, default: 0 },
     performanceUrl: { type: String, default: "" },
     prize: { type: PrizeSchema, default: null },

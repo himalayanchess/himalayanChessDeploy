@@ -8,10 +8,10 @@ dayjs.extend(timezone);
 
 const timeZone = "Asia/Kathmandu";
 
-export function exportOtherTournamentListToExcel(tournaments: any[]) {
+export function exportTournamentsHcaHelpInListToExcel(tournaments: any[]) {
   const wb = XLSX.utils.book_new();
 
-  // Sheet 1: Tournament Basic Details (unchanged)
+  // Sheet 1: Tournament Basic Details
   const basicDetailsRows = tournaments.map((t, index) => ({
     "SN.": index + 1,
     "Tournament Name": t.tournamentName || "-",
@@ -39,7 +39,7 @@ export function exportOtherTournamentListToExcel(tournaments: any[]) {
   const basicDetailsSheet = XLSX.utils.json_to_sheet(basicDetailsRows);
   XLSX.utils.book_append_sheet(wb, basicDetailsSheet, "Tournament Details");
 
-  // Sheet 2: Tournament Participants (updated with Participant No.)
+  // Sheet 2: Participants
   const participantRows: any[] = [];
 
   tournaments.forEach((t, tIndex) => {
@@ -60,7 +60,7 @@ export function exportOtherTournamentListToExcel(tournaments: any[]) {
       ).length,
     });
 
-    // Participants header (updated column name)
+    // Participants header
     participantRows.push({
       "Participant No.": "Participant No.",
       Rank: "Rank",
@@ -73,7 +73,6 @@ export function exportOtherTournamentListToExcel(tournaments: any[]) {
       "Performance Link": "Performance Link",
     });
 
-    // Participants data (updated column name)
     const activeParticipants = (t.participants || [])
       .filter((p: any) => p.activeStatus)
       .sort((a: any, b: any) => (a.rank || 0) - (b.rank || 0));
@@ -93,14 +92,13 @@ export function exportOtherTournamentListToExcel(tournaments: any[]) {
       });
     });
 
-    // Empty row between tournaments
-    participantRows.push({});
+    participantRows.push({}); // Empty row between tournaments
   });
 
   const participantSheet = XLSX.utils.json_to_sheet(participantRows);
   XLSX.utils.book_append_sheet(wb, participantSheet, "Participants");
 
-  // Set column widths (updated for new column name)
+  // Set column widths
   basicDetailsSheet["!cols"] = [
     { wch: 5 }, // SN.
     { wch: 30 }, // Tournament Name
@@ -121,7 +119,7 @@ export function exportOtherTournamentListToExcel(tournaments: any[]) {
   ];
 
   participantSheet["!cols"] = [
-    { wch: 15 }, // Participant No. (wider for new label)
+    { wch: 15 }, // Participant No.
     { wch: 25 }, // Player Name
     { wch: 8 }, // Rank
     { wch: 8 }, // Points
@@ -133,6 +131,8 @@ export function exportOtherTournamentListToExcel(tournaments: any[]) {
 
   XLSX.writeFile(
     wb,
-    `Other_Tournament_Details_${dayjs().tz(timeZone).format("YYYY-MM-DD")}.xlsx`
+    `Tournament_HCA_HelpIn_Details_${dayjs()
+      .tz(timeZone)
+      .format("YYYY-MM-DD")}.xlsx`
   );
 }

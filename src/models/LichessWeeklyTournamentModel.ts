@@ -15,6 +15,7 @@ const winnerSchema = new mongoose.Schema(
       ref: "HcaAffiliatedStudent",
     },
     studentName: { type: String, default: "" },
+    fideId: { type: Number, default: 0 },
     lichessUrl: { type: String, default: "" },
     lichessUsername: { type: String, default: "" },
     medalPoints: { type: Number, default: 0 },

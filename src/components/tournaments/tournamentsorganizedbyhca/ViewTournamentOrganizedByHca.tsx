@@ -33,6 +33,7 @@ import BasicOtherTournamentInfo from "../othertournaments/viewthertournamentdeta
 import OtherTournamentWinners from "../othertournaments/viewthertournamentdetails/OtherTournamentWinners";
 import BasicTournamentOrganizedByHcaInfo from "./viewtournamentsorganizedbyhcadetails/BasicTournamentOrganizedByHcaInfo";
 import TournamentOrganizedByHcaWinners from "./viewtournamentsorganizedbyhcadetails/TournamentOrganizedByHcaWinners";
+import { exportTournamentOrganizedByHcaRecordToExcel } from "@/helpers/exportToExcel/singletorunamentrecord/exportTournamentOrganizedByHcaRecordToExcel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -55,6 +56,11 @@ const ViewTournamentOrganizedByHca = ({
 
   const handleMenuClick = (menuValue: any) => {
     setSelectedMenu(menuValue); // Update the selected menu
+  };
+
+  //export to excel
+  const exportToExcel = () => {
+    exportTournamentOrganizedByHcaRecordToExcel(tournamentOrganizedByHcaRecord);
   };
 
   const menuItems = [
@@ -150,19 +156,30 @@ const ViewTournamentOrganizedByHca = ({
       </div>
 
       {/* menu buttons */}
-      <div className="w-full menuButtons mt-2 flex  gap-2">
-        {menuItems.map((item) => (
-          <Button
-            key={item.value}
-            variant={selectedMenu === item.value ? "contained" : "outlined"}
-            size="medium"
-            onClick={() => handleMenuClick(item.value)}
-            sx={{ padding: "0.3rem 0.7rem" }}
-          >
-            {item.icon}
-            <span className="ml-1.5">{item.label}</span>
-          </Button>
-        ))}
+      <div className="w-full menuButtons mt-2 flex justify-between  gap-2">
+        <div className="flex gap-2">
+          {menuItems.map((item) => (
+            <Button
+              key={item.value}
+              variant={selectedMenu === item.value ? "contained" : "outlined"}
+              size="medium"
+              onClick={() => handleMenuClick(item.value)}
+              sx={{ padding: "0.3rem 0.7rem" }}
+            >
+              {item.icon}
+              <span className="ml-1.5">{item.label}</span>
+            </Button>
+          ))}
+        </div>
+
+        <Button
+          onClick={exportToExcel}
+          variant="contained"
+          color="success"
+          startIcon={<DownloadIcon />}
+        >
+          Export to Excel
+        </Button>
       </div>
 
       {/* divider */}

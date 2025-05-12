@@ -46,6 +46,7 @@ export function exportLichessLeaderboardToExcel(
   const leaderboardRows = leaderboard.map((item, index) => ({
     Rank: index + 1,
     "Student Name": item.studentName || "N/A",
+    "FIDE ID": item.fideId || "N/A",
     "Lichess Username": item.lichessUsername || "N/A",
     "Lichess Points": item.lichessPoints ?? "N/A",
     "Medal Points": item.medalPoints ?? "N/A",

@@ -108,6 +108,7 @@ const AddLichessWeeklyTournaments = () => {
     appendWinner({
       studentId: "",
       studentName: "",
+      fideId: "",
       lichessUsername: "",
       lichessUrl: "",
       // calculate medal points based on rank
@@ -589,6 +590,10 @@ const AddLichessWeeklyTournaments = () => {
                           setValue(
                             `lichessWeeklyWinners.${index}.lichessUsername`,
                             selectedStudent?.lichessUsername
+                          );
+                          setValue(
+                            `lichessWeeklyWinners.${index}.fideId`,
+                            selectedStudent?.fideId || 0
                           );
                           setValue(
                             `lichessWeeklyWinners.${index}.lichessUrl`,

@@ -106,6 +106,7 @@ const UpdateLichessWeeklyTournament = ({ lichessTournamentRecord }: any) => {
     appendWinner({
       studentId: "",
       studentName: "",
+      fideId: "",
       lichessUsername: "",
       lichessUrl: "",
       rank: "",
@@ -602,6 +603,10 @@ const UpdateLichessWeeklyTournament = ({ lichessTournamentRecord }: any) => {
                           setValue(
                             `lichessWeeklyWinners.${index}.lichessUsername`,
                             selectedStudent?.lichessUsername
+                          );
+                          setValue(
+                            `lichessWeeklyWinners.${index}.fideId`,
+                            selectedStudent?.fideId || 0
                           );
                           setValue(
                             `lichessWeeklyWinners.${index}.lichessUrl`,

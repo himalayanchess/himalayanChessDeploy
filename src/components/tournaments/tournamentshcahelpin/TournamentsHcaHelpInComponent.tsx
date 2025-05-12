@@ -38,8 +38,8 @@ import {
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-// import { exportTournamentsOrganizedByHcaListToExcel } from "@/helpers/exportToExcel/exportTournamentsOrganizedByHcaListToExcel";
 import TournamentsHcaHelpInList from "./TournamentsHcaHelpInList";
+import { exportTournamentsHcaHelpInListToExcel } from "@/helpers/exportToExcel/exportTournamentsHcaHelpInListToExcel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -105,9 +105,9 @@ const TournamentsHcaHelpInComponent = () => {
 
   //export to excel
   const exportToExcel = () => {
-    // exportTournamentsOrganizedByHcaListToExcel(
-    //   allFilteredActiveTournamentsHcaHelpInList
-    // );
+    exportTournamentsHcaHelpInListToExcel(
+      allFilteredActiveTournamentsHcaHelpInList
+    );
   };
 
   // Reset current page to 1 and search text when selectedStatus changes

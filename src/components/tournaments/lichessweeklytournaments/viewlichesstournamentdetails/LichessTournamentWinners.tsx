@@ -27,12 +27,15 @@ const LichessTournamentWinners = ({
 
       <div className="overflow-y-auto mt-3 h-max  border flex flex-col bg-white rounded-lg">
         {/* Table Headings */}
-        <div className="table-headings  mb-2 grid grid-cols-[50px,repeat(8,1fr)] gap-1 w-full bg-gray-200">
+        <div className="table-headings  mb-2 grid grid-cols-[50px,repeat(9,1fr)] gap-1 w-full bg-gray-200">
           <span className="py-3 text-center text-sm font-bold text-gray-600">
             SN
           </span>
           <span className="py-3 text-left col-span-2 text-sm font-bold text-gray-600">
             Winner Name
+          </span>
+          <span className="py-3 text-left text-sm font-bold text-gray-600">
+            FIDE ID
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Rank
@@ -70,7 +73,7 @@ const LichessTournamentWinners = ({
                 return (
                   <div
                     key={`${winner?.studentName}_${index}`}
-                    className="grid grid-cols-[50px,repeat(8,1fr)] gap-1 py-3 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                    className="grid grid-cols-[50px,repeat(9,1fr)] gap-1 py-3 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                   >
                     <span className="text-sm text-center font-medium text-gray-600">
                       {serialNumber}
@@ -85,6 +88,10 @@ const LichessTournamentWinners = ({
                     >
                       {winner?.studentName}
                     </Link>
+                    {/* Fide id */}
+                    <span className=" text-sm text-gray-700">
+                      {winner?.fideId || "N/A"}
+                    </span>
                     {/* rank */}
                     <span className=" text-sm text-gray-700">
                       #{winner?.rank || "N/A"}

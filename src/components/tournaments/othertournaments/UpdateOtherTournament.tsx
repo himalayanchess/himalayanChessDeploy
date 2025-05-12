@@ -139,6 +139,7 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
     appendParticipant({
       studentId: "",
       studentName: "",
+      fideId: "",
       rank: "",
       performanceUrl: "",
       prize: {
@@ -840,6 +841,10 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
                           setValue(
                             `participants.${index}.studentId`,
                             selectedStudent?._id
+                          );
+                          setValue(
+                            `participants.${index}.fideId`,
+                            selectedStudent?.fideId
                           );
                         }}
                         error={

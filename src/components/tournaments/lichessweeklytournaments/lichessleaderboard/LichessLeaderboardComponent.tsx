@@ -27,6 +27,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
       {
         studentName: string;
         studentId: string;
+        fideId: number;
         lichessUsername: string;
         lichessPoints: number | any;
         branchName: string;
@@ -48,6 +49,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
             medalMap.set(key, {
               studentName: winner.studentName,
               studentId: winner.studentId,
+              fideId: winner.fideId || 0,
               lichessUsername: winner.lichessUsername,
               lichessPoints: winner.lichessPoints,
               branchName: tournament.branchName,
@@ -117,12 +119,15 @@ const LichessLeaderboardComponent: React.FC<any> = ({
       {/* table */}
       <div className="overflow-y-auto h-full flex-1 border flex flex-col bg-white rounded-lg">
         {/* heading */}
-        <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] gap-1 w-full bg-gray-200">
+        <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] gap-1 w-full bg-gray-200">
           <span className="py-3 text-center text-sm font-bold text-gray-600">
             Rank
           </span>
           <span className="py-3 text-left col-span-2 text-sm font-bold text-gray-600">
             Student Name
+          </span>
+          <span className="py-3 text-left text-sm font-bold text-gray-600">
+            FIDE ID
           </span>
           <span className="py-3 text-left text-sm  font-bold text-gray-600">
             Branch
@@ -151,7 +156,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
             ?.map((student: any, index: any) => (
               <div
                 key={student?.studentId}
-                className="grid grid-cols-[70px,repeat(5,1fr)] gap-1 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                className="grid grid-cols-[70px,repeat(6,1fr)] gap-1 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
               >
                 <span className="py-3 text-center  text-sm  text-gray-600">
                   #{index + 1}
@@ -164,6 +169,9 @@ const LichessLeaderboardComponent: React.FC<any> = ({
                 >
                   {student.studentName || "N/A"}
                 </Link>
+                <span className="py-3 text-left  text-sm  text-gray-600">
+                  {student.fideId || "N/A"}
+                </span>
                 <span className="py-3 text-left  text-sm  text-gray-600">
                   {student.branchName || "N/A"}
                 </span>

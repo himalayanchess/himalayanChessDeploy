@@ -33,6 +33,7 @@ import BasicOtherTournamentInfo from "../othertournaments/viewthertournamentdeta
 import OtherTournamentWinners from "../othertournaments/viewthertournamentdetails/OtherTournamentWinners";
 import BasicTournamentHcaHelpInInfo from "./viewtournamentshcahelpindetails/BasicTournamentHcaHelpInInfo";
 import TournamentHcaHelpInWinners from "./viewtournamentshcahelpindetails/TournamentHcaHelpInWinners";
+import { exportTournamentHcaHelpInRecordToExcel } from "@/helpers/exportToExcel/singletorunamentrecord/exportTournamentHcaHelpInRecordToExcel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -53,6 +54,11 @@ const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
 
   const handleMenuClick = (menuValue: any) => {
     setSelectedMenu(menuValue); // Update the selected menu
+  };
+
+  //export to excel
+  const exportToExcel = () => {
+    exportTournamentHcaHelpInRecordToExcel(tournamentHcaHelpInRecord);
   };
 
   const menuItems = [
@@ -109,9 +115,7 @@ const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
         <div className="title-name flex flex-col">
           <h1 className="text-2xl font-bold flex items-center">
             <Trophy />
-            <span className="ml-2 mr-3">
-              Tournament Organized by HCA Detail
-            </span>
+            <span className="ml-2 mr-3">Tournament HCA Help In Detail</span>
             {/* {session?.data?.user?.role?.toLowerCase() == "superadmin" && ( */}
             <Link
               href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin/updatetournamentshcahelpin/${
@@ -133,7 +137,7 @@ const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
         <div className="buttons flex gap-4">
           {/* home button */}
           <Link
-            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`}
+            href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin`}
           >
             <Button
               className="homebutton"
@@ -148,19 +152,29 @@ const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
       </div>
 
       {/* menu buttons */}
-      <div className="w-full menuButtons mt-2 flex  gap-2">
-        {menuItems.map((item) => (
-          <Button
-            key={item.value}
-            variant={selectedMenu === item.value ? "contained" : "outlined"}
-            size="medium"
-            onClick={() => handleMenuClick(item.value)}
-            sx={{ padding: "0.3rem 0.7rem" }}
-          >
-            {item.icon}
-            <span className="ml-1.5">{item.label}</span>
-          </Button>
-        ))}
+      <div className="w-full menuButtons mt-2 flex justify-between gap-2">
+        <div className="flex gap-2">
+          {menuItems.map((item) => (
+            <Button
+              key={item.value}
+              variant={selectedMenu === item.value ? "contained" : "outlined"}
+              size="medium"
+              onClick={() => handleMenuClick(item.value)}
+              sx={{ padding: "0.3rem 0.7rem" }}
+            >
+              {item.icon}
+              <span className="ml-1.5">{item.label}</span>
+            </Button>
+          ))}
+        </div>
+        <Button
+          onClick={exportToExcel}
+          variant="contained"
+          color="success"
+          startIcon={<DownloadIcon />}
+        >
+          Export to Excel
+        </Button>
       </div>
 
       {/* divider */}

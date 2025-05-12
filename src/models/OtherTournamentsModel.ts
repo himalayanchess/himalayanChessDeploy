@@ -1,80 +1,81 @@
-  import mongoose from "mongoose";
+import mongoose from "mongoose";
 
-  const clockTimeSchema = new mongoose.Schema(
-    {
-      initialTime: { type: Number }, // in minutes
-      increment: { type: Number }, // in seconds
+const clockTimeSchema = new mongoose.Schema(
+  {
+    initialTime: { type: Number }, // in minutes
+    increment: { type: Number }, // in seconds
+  },
+  { _id: false }
+);
+
+const ChiefArbiterSchema = new mongoose.Schema(
+  {
+    chiefArbiterName: { type: String, default: "" },
+    chiefArbiterPhone: { type: Number, default: "" },
+    chiefArbiterEmail: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
+const PrizeSchema = new mongoose.Schema({
+  title: { type: String, default: "" },
+  position: { type: String, default: "" },
+  otherTitleStatus: { type: Boolean, default: false },
+  otherTitle: { type: String, default: "" },
+});
+
+const ParticipantsSchema = new mongoose.Schema(
+  {
+    studentId: {
+      type: mongoose.Schema.Types.Mixed,
+      ref: "HcaAffiliatedStudent",
     },
-    { _id: false }
-  );
+    studentName: { type: String, default: "" },
+    fideId: { type: Number, default: 0 },
+    rank: { type: Number, default: 0 },
+    performanceUrl: { type: String, default: "" },
+    prize: { type: PrizeSchema, default: null },
+    totalPoints: { type: Number, default: "" },
+    activeStatus: { type: Boolean, default: true },
+  },
+  { _id: false }
+);
 
-  const ChiefArbiterSchema = new mongoose.Schema(
-    {
-      chiefArbiterName: { type: String, default: "" },
-      chiefArbiterPhone: { type: Number, default: "" },
-      chiefArbiterEmail: { type: String, default: "" },
+const OtherTournamentSchema = new mongoose.Schema(
+  {
+    tournamentName: { type: String, default: "" },
+    tournamentUrl: { type: String, default: "" },
+    tag: { type: String, default: "othertournaments" },
+
+    startDate: { type: Date, default: null },
+    endDate: { type: Date, default: null },
+    branchName: { type: String, default: "" },
+    branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
+    tournamentType: {
+      type: String,
+      enum: ["Standard", "Rapid", "Blitz"],
+      default: "",
     },
-    { _id: false }
-  );
 
-  const PrizeSchema = new mongoose.Schema({
-    title: { type: String, default: "" },
-    position: { type: String, default: "" },
-    otherTitleStatus: { type: Boolean, default: false },
-    otherTitle: { type: String, default: "" },
-  });
+    clockTime: { type: clockTimeSchema },
 
-  const ParticipantsSchema = new mongoose.Schema(
-    {
-      studentId: {
-        type: mongoose.Schema.Types.Mixed,
-        ref: "HcaAffiliatedStudent",
-      },
-      studentName: { type: String, default: "" },
-      rank: { type: Number, default: 0 },
-      performanceUrl: { type: String, default: "" },
-      prize: { type: PrizeSchema, default: null },
-      totalPoints: { type: Number, default: "" },
-      activeStatus: { type: Boolean, default: true },
-    },
-    { _id: false }
-  );
+    totalRounds: { type: Number, default: 0 },
+    totalParticipants: { type: Number, default: 0 },
 
-  const OtherTournamentSchema = new mongoose.Schema(
-    {
-      tournamentName: { type: String, default: "" },
-      tournamentUrl: { type: String, default: "" },
-      tag: { type: String, default: "othertournaments" },
+    chiefArbiter: { type: ChiefArbiterSchema },
 
-      startDate: { type: Date, default: null },
-      endDate: { type: Date, default: null },
-      branchName: { type: String, default: "" },
-      branchId: { type: mongoose.Schema.Types.Mixed, ref: "Branch" },
-      tournamentType: {
-        type: String,
-        enum: ["Standard", "Rapid", "Blitz"],
-        default: "",
-      },
+    isRated: { type: Boolean, default: false },
+    fideUrl: { type: String, default: "" },
+    chessResultsUrl: { type: String, default: "" },
 
-      clockTime: { type: clockTimeSchema },
+    participants: { type: [ParticipantsSchema], default: [] },
+    activeStatus: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
 
-      totalRounds: { type: Number, default: 0 },
-      totalParticipants: { type: Number, default: 0 },
+const OtherTournament =
+  mongoose.models.OtherTournament ||
+  mongoose.model("OtherTournament", OtherTournamentSchema);
 
-      chiefArbiter: { type: ChiefArbiterSchema },
-
-      isRated: { type: Boolean, default: false },
-      fideUrl: { type: String, default: "" },
-      chessResultsUrl: { type: String, default: "" },
-
-      participants: { type: [ParticipantsSchema], default: [] },
-      activeStatus: { type: Boolean, default: true },
-    },
-    { timestamps: true }
-  );
-
-  const OtherTournament =
-    mongoose.models.OtherTournament ||
-    mongoose.model("OtherTournament", OtherTournamentSchema);
-
-  export default OtherTournament;
+export default OtherTournament;
