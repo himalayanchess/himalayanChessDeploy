@@ -7,6 +7,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { Medal } from "lucide-react";
 
 const LichessLeaderboardComponent: React.FC<any> = ({
   allFilteredActiveLichessTournamentsList,
@@ -33,6 +34,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
         branchName: string;
         lichessUrl: string;
         medalPoints: number;
+        tournamentCount: number; // ✅ Renamed to tournamentCount
       }
     >();
 
@@ -45,6 +47,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
 
           if (existing) {
             existing.medalPoints += winner.medalPoints;
+            existing.tournamentCount += 1; // ✅ Increment tournament count
           } else {
             medalMap.set(key, {
               studentName: winner.studentName,
@@ -55,6 +58,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
               branchName: tournament.branchName,
               lichessUrl: winner.lichessUrl,
               medalPoints: winner.medalPoints,
+              tournamentCount: 1, // ✅ Initialize tournament count
             });
           }
         });
@@ -119,7 +123,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
       {/* table */}
       <div className="overflow-y-auto h-full flex-1 border flex flex-col bg-white rounded-lg">
         {/* heading */}
-        <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] gap-1 w-full bg-gray-200">
+        <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(7,1fr)] gap-1 w-full bg-gray-200">
           <span className="py-3 text-center text-sm font-bold text-gray-600">
             Rank
           </span>
@@ -134,6 +138,9 @@ const LichessLeaderboardComponent: React.FC<any> = ({
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Lichess Points
+          </span>
+          <span className="py-3 text-left text-sm font-bold text-gray-600">
+            Tournaments Played
           </span>
           <span className="py-3 text-left text-sm font-bold text-gray-600">
             Medal Points
@@ -156,7 +163,7 @@ const LichessLeaderboardComponent: React.FC<any> = ({
             ?.map((student: any, index: any) => (
               <div
                 key={student?.studentId}
-                className="grid grid-cols-[70px,repeat(6,1fr)] gap-1 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                className="grid grid-cols-[70px,repeat(7,1fr)] gap-1 border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
               >
                 <span className="py-3 text-center  text-sm  text-gray-600">
                   #{index + 1}
@@ -179,7 +186,11 @@ const LichessLeaderboardComponent: React.FC<any> = ({
                   {student.lichessPoints || "N/A"}
                 </span>
                 <span className="py-3 text-left  text-sm  text-gray-600">
-                  {student.medalPoints || "N/A"}
+                  {student.tournamentCount || "N/A"}
+                </span>
+                <span className="py-3 text-left  text-sm  text-gray-600 flex items-center">
+                  <Medal size={15} />
+                  <span className="ml-1">{student.medalPoints || "N/A"}</span>
                 </span>
               </div>
             ))}

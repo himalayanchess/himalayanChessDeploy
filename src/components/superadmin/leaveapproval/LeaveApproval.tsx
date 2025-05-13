@@ -135,7 +135,7 @@ const LeaveApproval = () => {
   return (
     <div className="flex w-full ">
       <div className="requestForm flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
-        <p className="text-2xl font-bold flex items-center">
+        <p className="text-3xl  flex items-center">
           <LuggageOutlinedIcon sx={{ fontSize: "2rem" }} />
           <span className="ml-1">Leave Approval</span>
         </p>

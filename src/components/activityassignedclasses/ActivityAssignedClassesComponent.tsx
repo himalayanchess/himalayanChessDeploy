@@ -17,7 +17,7 @@ import {
   Stack,
 } from "@mui/material";
 import Dropdown from "../Dropdown";
-import { File, LayoutList } from "lucide-react";
+import { CalendarRange, File, LayoutList } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllActivityRecords,
@@ -324,8 +324,8 @@ const ActivityAssignedClassesComponent = () => {
 
   return (
     <div className="flex-1 flex flex-col py-3 px-10 border bg-white rounded-lg">
-      <h2 className="text-3xl font-medium text-gray-700 flex items-center mb-2">
-        <File />
+      <h2 className="text-3xl  text-gray-700 flex items-center mb-2">
+        <CalendarRange />
         <span className="ml-2">Assigned Classes</span>
       </h2>
       <div className="activityrecord-header mb-3 w-full flex items-end justify-between">

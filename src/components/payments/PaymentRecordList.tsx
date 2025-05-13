@@ -220,7 +220,8 @@ const PaymentRecordList = ({
                     Rs. {paymentRecord?.totalAmount}
                   </span>
 
-                  {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
+                  {session?.data?.user?.session?.data?.user?.role?.toLowerCase() !=
+                  "trainer" ? (
                     <div className=" text-left px-1 text-xs font-medium text-gray-600">
                       <>
                         {/* edit */}
@@ -229,7 +230,7 @@ const PaymentRecordList = ({
                             paymentRecord?._id
                           }`}
                           title="Edit"
-                          className="edit  px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
+                          className="edit  px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-gray-500 hover:text-white"
                         >
                           <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
                         </Link>

@@ -29,7 +29,6 @@ const LichessTournamentsList = ({
   currentPage,
   lichessTournamentsPerPage,
   allLichessTournamentsLoading,
-  role,
 }: any) => {
   const session = useSession();
   // dispatch
@@ -187,7 +186,7 @@ const LichessTournamentsList = ({
                       ? lichessTournament.branchName
                       : "N/A"}
                   </span>
-                  {role?.toLowerCase() != "trainer" ? (
+                  {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
                     <div className=" text-sm text-gray-500">
                       <>
                         {/* edit */}
@@ -196,7 +195,7 @@ const LichessTournamentsList = ({
                             lichessTournament?._id
                           }`}
                           title="Edit"
-                          className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
+                          className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-gray-500 hover:text-white"
                         >
                           <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
                         </Link>

@@ -45,6 +45,7 @@ import {
   fetchAllSelectedStudentsTournamentsHcaHelpIn,
   fetchAllSelectedStudentsTournamentsOrganizedByHca,
 } from "@/redux/allTournamentSlice";
+import { fetchallselectedstudentshcacircuitseriestournaments } from "@/redux/allHcaCircuitTournamentSlice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -84,6 +85,12 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     allSelectedStudentsTournamentsHcaHelpInLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
+  const {
+    //selected students tournaments hca circuit series
+    allActiveSelectedStudentsHcaCircuitSeriesTournamentsList,
+    allSelectedStudentsHcaCircuitSeriesTournamentsLoading,
+  } = useSelector((state: any) => state.allHcaCircuitTournamentReducer);
+
   // use use selectro for students test history
   const { allActiveStudentsTestHistory, allStudentsTestHistoryLoading } =
     useSelector((state: any) => state.testHistoryReducer);
@@ -113,15 +120,15 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
     {
       label: "Batches",
       value: "batches",
-      icon: <Component />,
+      icon: <Component size={20} />,
     },
-    { label: "Courses", value: "courses", icon: <BookOpenCheck /> },
+    { label: "Courses", value: "courses", icon: <BookOpenCheck size={20} /> },
     {
       label: "Test History",
       value: "testhistory",
       icon: <HistoryOutlinedIcon />,
     },
-    { label: "Records", value: "activity", icon: <LayoutList /> },
+    { label: "Records", value: "activity", icon: <LayoutList size={20} /> },
     ...(session?.data?.user?.role?.toLowerCase() === "superadmin"
       ? [
           {
@@ -214,6 +221,13 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
               studentsTournamentsHcaHelpInLoading={
                 allSelectedStudentsTournamentsHcaHelpInLoading
               }
+              // students  tournaments hca circuit series tournaments
+              studentsHcaCircuitSeriesTournamentList={
+                allActiveSelectedStudentsHcaCircuitSeriesTournamentsList
+              }
+              studentsHcaCircuitSeriesTournamentLoading={
+                allSelectedStudentsHcaCircuitSeriesTournamentsLoading
+              }
             />
           );
         default:
@@ -286,6 +300,9 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
       );
       dispatch(
         fetchAllSelectedStudentsTournamentsHcaHelpIn(studentRecord?._id)
+      );
+      dispatch(
+        fetchallselectedstudentshcacircuitseriestournaments(studentRecord?._id)
       );
     }
   }, [studentRecord]);
@@ -382,7 +399,7 @@ const ViewStudent = ({ studentRecord, loading }: any) => {
         </div>
       )}
       {/* user attendance chart right side*/}
-      <div className="userattendancechart w-[35%]  h-full flex flex-col justify-between ">
+      <div className="userattendancechart w-[30%]  h-full flex flex-col justify-between ">
         <StudentAttendance studentRecord={studentRecord} />
       </div>
     </div>

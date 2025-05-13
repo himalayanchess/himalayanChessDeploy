@@ -171,7 +171,7 @@ const StudentAttendance = ({ studentRecord }: { studentRecord: any }) => {
           />
         </div>
 
-        <div className="flex justify-center w-[67%]">
+        <div className="flex justify-center w-[75%]">
           <div className="w-full max-w-md bg-white rounded-lg">
             <div className="grid grid-cols-7 gap-2 text-center text-gray-700 font-medium text-xs">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (

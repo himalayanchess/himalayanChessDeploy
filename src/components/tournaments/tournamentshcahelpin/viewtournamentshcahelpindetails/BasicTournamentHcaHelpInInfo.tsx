@@ -44,7 +44,7 @@ const BasicTournamentHcaHelpInInfo = ({ tournamentHcaHelpInRecord }: any) => {
     <div className=" grid grid-cols-2 auto-rows-max w-full gap-4">
       <div className="bg-gray-50 rounded-xl  p-4 ">
         <div className="">
-          <p className="text-sm text-gray-500">Other Tournament Name</p>
+          <p className="text-sm text-gray-500">Tournament HCA Help In Name</p>
           <div className="flex items-center">
             {/* <School className="text-gray-500" /> */}
             <p className="font-bold text-2xl ml-1 ">

@@ -1,10 +1,11 @@
 import { Button } from "@mui/material";
-import { Laptop, Trophy } from "lucide-react";
+import { HandHelping, Laptop, Medal, Star, Trophy } from "lucide-react";
 import React, { useState } from "react";
 import StudentsLichessTournamentsList from "./studentstournaments/StudentsLichessTournamentsList";
 import StudentsOtherTournamentsList from "./studentstournaments/StudentsOtherTournamentsList";
 import StudentsTournamentsOrganizedByHcaList from "./studentstournaments/StudentsTournamentsOrganizedByHcaList";
 import StudentsTournamentsHcaHelpInList from "./studentstournaments/StudentsTournamentsHcaHelpInList";
+import StudentsHcaCircuitSeriesTournamentList from "./studentstournaments/StudentsHcaCircuitSeriesTournamentList";
 
 const StudentEventInfo = ({
   studentRecord,
@@ -23,6 +24,10 @@ const StudentEventInfo = ({
   // students tournaments hca help in
   studentsTournamentsHcaHelpInList,
   studentsTournamentsHcaHelpInLoading,
+
+  // students hca circuit series tournaments
+  studentsHcaCircuitSeriesTournamentList,
+  studentsHcaCircuitSeriesTournamentLoading,
 }: any) => {
   const [selectedMenu, setSelectedMenu] = useState("lichess");
 
@@ -31,22 +36,26 @@ const StudentEventInfo = ({
   };
 
   const menuItems = [
-    { label: "Lichess", value: "lichess", icon: <Laptop /> },
-    { label: "Other Tournaments", value: "othertournaments", icon: <Trophy /> },
+    { label: "Lichess", value: "lichess", icon: <Laptop size={17} /> },
+    {
+      label: "Other Tournaments",
+      value: "othertournaments",
+      icon: <Star size={17} />,
+    },
     {
       label: "Organized by HCA",
       value: "tournamentsorganizedbyhca",
-      icon: <Trophy />,
+      icon: <Trophy size={17} />,
     },
     {
       label: "HCA Help In",
       value: "tournamentshcahelpin",
-      icon: <Trophy />,
+      icon: <HandHelping size={17} />,
     },
     {
-      label: "Extra",
-      value: "extra",
-      icon: <Trophy />,
+      label: "HCA Circuit",
+      value: "hcacircuit",
+      icon: <Medal size={17} />,
     },
   ];
 
@@ -89,13 +98,13 @@ const StudentEventInfo = ({
             loading={studentsTournamentsHcaHelpInLoading}
           />
         );
-      case "extra":
+      case "hcacircuit":
         return (
-          <StudentsLichessTournamentsList
+          <StudentsHcaCircuitSeriesTournamentList
             studentId={studentRecord?._id}
             studentName={studentRecord?.name}
-            tournamentList={studentsLichessTournamentsList}
-            loading={studentsLichessTournamentsLoading}
+            tournamentList={studentsHcaCircuitSeriesTournamentList}
+            loading={studentsHcaCircuitSeriesTournamentLoading}
           />
         );
       default:

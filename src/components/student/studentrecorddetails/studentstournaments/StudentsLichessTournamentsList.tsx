@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { exportStudentsLichessTournamentsToExcel } from "@/helpers/exportToExcel/studenttournaments/exportStudentsLichessTournamentsToExcel";
+import { Medal } from "lucide-react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -146,8 +147,11 @@ const StudentsLichessTournamentsList = ({
                   <span className="py-3 text-left  text-xs  text-gray-600">
                     {selectedStudent?.lichessPoints || "N/A"}
                   </span>
-                  <span className="py-3 text-left  text-xs  text-gray-600">
-                    {selectedStudent?.medalPoints || "N/A"}
+                  <span className="py-3 text-left  text-xs  text-gray-600 flex items-center">
+                    <Medal size={15} />
+                    <span className="ml-1">
+                      {selectedStudent?.medalPoints || "N/A"}
+                    </span>
                   </span>
                   <span className="py-3 text-left  text-xs  text-gray-600">
                     #{selectedStudent?.rank || "N/A"}

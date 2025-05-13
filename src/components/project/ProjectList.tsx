@@ -173,7 +173,7 @@ const ProjectList = ({
                       <Link
                         href={`/superadmin/projects/updateproject/${project?._id}`}
                         title="Edit"
-                        className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
+                        className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-gray-500 hover:text-white"
                       >
                         <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
                       </Link>

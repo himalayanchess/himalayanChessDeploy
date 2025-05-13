@@ -179,7 +179,7 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
               disabled={
                 role?.toLowerCase() != "superadmin" ||
                 (leaveRequestRecord?.isResponded &&
-                  (role?.toLowerCase() != "trainer" ||
+                  (session?.data?.user?.role?.toLowerCase() != "trainer" ||
                     role?.toLowerCase() != "admin"))
               }
             >

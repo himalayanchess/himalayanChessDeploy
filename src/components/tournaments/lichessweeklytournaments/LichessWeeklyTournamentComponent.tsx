@@ -65,10 +65,6 @@ const LichessWeeklyTournamentComponent = () => {
     allActiveLichessTournamentsList,
     allFilteredActiveLichessTournamentsList,
     allLichessTournamentsLoading,
-
-    //selected students lichess tournaments
-    allActiveSelectedStudentsLichessTournamentsList,
-    allSelectedStudentsLichessTournamentsLoading,
   } = useSelector((state: any) => state.allTournamentReducer);
 
   // const affilatedToOptions = ["All", "HCA", "School"];
@@ -337,7 +333,8 @@ const LichessWeeklyTournamentComponent = () => {
           />
 
           {/* add batch button */}
-          {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
+          {session?.data?.user?.session?.data?.user?.role?.toLowerCase() !=
+          "trainer" ? (
             <Link
               href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/lichessweeklytournament/addlichessweeklytournament`}
             >

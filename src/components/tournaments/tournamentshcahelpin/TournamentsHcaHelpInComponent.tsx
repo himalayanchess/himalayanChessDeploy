@@ -312,7 +312,8 @@ const TournamentsHcaHelpInComponent = () => {
           />
 
           {/* add batch button */}
-          {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
+          {session?.data?.user?.session?.data?.user?.role?.toLowerCase() !=
+          "trainer" ? (
             <Link
               href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentshcahelpin/addtournamentshcahelpin`}
             >

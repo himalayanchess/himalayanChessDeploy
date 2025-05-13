@@ -154,9 +154,9 @@ const UsersComponent = ({ role = "" }: any) => {
   }, []);
   return (
     <div className="flex w-full">
-      <div className=" flex-1 flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
+      <div className=" flex-1 flex flex-col mr-4 py-4 px-10 rounded-md shadow-md bg-white ">
         <div className="main-header flex justify-between">
-          <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+          <h2 className="text-3xl mb-2  text-gray-700 flex items-center">
             <CircleUser />
             <span className="ml-2">Users List</span>
           </h2>

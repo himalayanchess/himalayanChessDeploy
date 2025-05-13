@@ -13,6 +13,7 @@ import AddStudent from "./AddStudent";
 import { notify } from "@/helpers/notify";
 import { useDispatch } from "react-redux";
 import { deleteStudent } from "@/redux/allListSlice";
+import { useSession } from "next-auth/react";
 
 const StudentList = ({
   allFilteredActiveStudents,
@@ -21,6 +22,7 @@ const StudentList = ({
   allStudentsLoading,
   role,
 }: any) => {
+  const session = useSession();
   //dispatch
   const dispatch = useDispatch();
 
@@ -179,13 +181,13 @@ const StudentList = ({
                         student?._id
                       }`}
                       title="Edit"
-                      className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-green-500 hover:text-white"
+                      className="edit mx-3 px-1.5 py-2 rounded-full transition-all ease duration-200  hover:bg-gray-500 hover:text-white"
                     >
                       <ModeEditIcon sx={{ fontSize: "1.3rem" }} />
                     </Link>
 
                     {/* delete modal */}
-                    {role?.toLowerCase() != "trainer" && (
+                    {session?.data?.user?.role?.toLowerCase() != "trainer" && (
                       <>
                         {student?.activeStatus == true && (
                           <button

@@ -196,9 +196,9 @@ const BatchComponent = ({ role = "" }: any) => {
     dispatch(getAllBranches());
   }, []);
   return (
-    <div className="flex-1 flex flex-col py-6 px-10 border bg-white rounded-lg">
+    <div className="flex-1 flex flex-col py-4 px-10 border bg-white rounded-lg">
       <div className="main-header flex justify-between">
-        <h2 className="text-3xl mb-2 font-medium text-gray-700 flex items-center">
+        <h2 className="text-3xl mb-2  text-gray-700 flex items-center">
           <Component />
           <span className="ml-1">Batch List</span>
         </h2>
@@ -278,7 +278,7 @@ const BatchComponent = ({ role = "" }: any) => {
           />
 
           {/* add batch button */}
-          {role?.toLowerCase() != "trainer" ? (
+          {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
             <Link
               href={`/${session?.data?.user?.role?.toLowerCase()}/batches/addbatch`}
             >

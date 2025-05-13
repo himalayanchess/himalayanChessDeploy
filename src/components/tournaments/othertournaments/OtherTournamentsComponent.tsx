@@ -303,7 +303,8 @@ const OtherTournamentsComponent = () => {
           />
 
           {/* add batch button */}
-          {session?.data?.user?.role?.toLowerCase() != "trainer" ? (
+          {session?.data?.user?.session?.data?.user?.role?.toLowerCase() !=
+          "trainer" ? (
             <Link
               href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments/addothertournament`}
             >

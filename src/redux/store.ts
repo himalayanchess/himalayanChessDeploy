@@ -9,6 +9,7 @@ import activityRecordReducer from "@/redux/activityRecordSlice";
 import attendanceReducer from "@/redux/attendanceSlice";
 import testHistoryReducer from "@/redux/testHistorySlice";
 import allTournamentReducer from "@/redux/allTournamentSlice";
+import allHcaCircuitTournamentReducer from "@/redux/allHcaCircuitTournamentSlice";
 
 export const myStore = configureStore({
   reducer: {
@@ -22,5 +23,6 @@ export const myStore = configureStore({
     attendanceReducer,
     testHistoryReducer,
     allTournamentReducer,
+    allHcaCircuitTournamentReducer,
   },
 });
