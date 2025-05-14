@@ -56,7 +56,6 @@ const ClassesHeader = ({
   }, [selectedTodaysClass]);
 
   async function onSubmit(data: any) {
-    console.log(data);
     setapplyToAllClicked(true);
     setapplyTopic(data?.selectedStudyTopic);
   }

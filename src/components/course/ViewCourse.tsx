@@ -19,7 +19,6 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewCourse = ({ courseRecord }: any) => {
-  // console.log(courseRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||

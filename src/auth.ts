@@ -22,8 +22,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       },
       authorize: async ({ email, password }, req: any): Promise<any> => {
-        console.log("starting authorize in auth (req)", req);
-
         const { data: resData } = await axios.post(
           `${process.env.NEXTAUTH_URL}/api/users/login`,
           {
@@ -31,8 +29,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             password,
           }
         );
-
-        // console.log("authorzie resdata of login", resData);
         if (resData?.statusCode != 200) {
           throw new Error(resData?.msg);
         }
@@ -49,7 +45,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
 
         // user for token now
-        // console.log("authorzie user final", user);
         return user;
       },
     }),

@@ -204,7 +204,6 @@ const LichessWeeklyTournamentComponent = () => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     // let affiliatedTo = "All";
     if (!isSuperOrGlobalAdmin) {

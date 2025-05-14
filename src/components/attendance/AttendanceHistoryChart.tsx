@@ -56,7 +56,7 @@ const AttendanceHistoryChart = ({ attendanceRecords }: any) => {
           { present: 0, absent: 0, leave: 0, holiday: 0 }
         );
         setattendanceStatCount(statusCount);
-        console.log("Status Count ➜", statusCount); // or dispatch to store if needed
+        // or dispatch to store if needed
 
         dispatch(setattendanceUpdatedByData(lastUpdatedBy));
         dispatch(setselectedDatesAttendanceRecord(record));

@@ -41,7 +41,6 @@ const timeZone = "Asia/Kathmandu";
 const ViewHcaCircuitSeriesTournament = ({
   hcaCircuitSeriesTournamentRecord,
 }: any) => {
-  // console.log(hcaCircuitSeriesTournamentRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -74,8 +73,6 @@ const ViewHcaCircuitSeriesTournament = ({
 
   const showComponent = () => {
     if (hcaCircuitSeriesTournamentRecord) {
-      console.log("show comp", selectedMenu);
-
       switch (selectedMenu) {
         case "basic":
           return (

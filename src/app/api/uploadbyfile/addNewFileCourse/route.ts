@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await req.formData();
-    console.log(reqBody);
+
     const file = reqBody.get("file") as File;
     // Read the file content using Buffer
     const fileBuffer = await file.arrayBuffer(); // Convert the file to ArrayBuffer
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Parse the content as JSON
     const parsedCourseData = JSON.parse(fileContent);
-    console.log("parsed", parsedCourseData);
+
     const {
       affiliatedTo = "",
       name = "",
@@ -67,8 +67,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new course",
     });
   } catch (error) {
-    console.log("Internal error in addcourse route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addcourse route",

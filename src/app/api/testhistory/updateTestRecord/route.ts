@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Recalculate resultStatus if obtainedScore and passMarks are provided
     let resultStatus = "";
-    resultStatus = obtainedScore >= passMarks ? "Pass" : "Below Pass Marks";    
+    resultStatus = obtainedScore >= passMarks ? "Pass" : "Below Pass Marks";
 
     // Build update fields
     const updateFields: any = {
@@ -81,7 +81,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateTestRecord route", error);
     return NextResponse.json({
       msg: "Internal error in updateTestRecord route",
       statusCode: 204,

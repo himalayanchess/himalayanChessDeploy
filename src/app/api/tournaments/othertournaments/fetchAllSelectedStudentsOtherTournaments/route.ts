@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
         allSelectedStudentsOtherTournaments,
       });
     }
-    // console.log(allSelectedStudentsOtherTournaments);
 
     return NextResponse.json({
       msg: "Selected students other tournaments not found",

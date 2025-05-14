@@ -5,8 +5,6 @@ export const fetchAssignedClasses = createAsyncThunk(
   "classes/getAllAssignedClasses",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("thunkkkkkkkkkk");
-
       const response = await fetch("/api/classes/getAllAssignedClasses");
       const resData = await response.json();
       return resData.allAssignedClasses;
@@ -30,8 +28,6 @@ const assignedClassesSlice = createSlice({
   reducers: {
     // append new assigned class
     addActiveAssignedClass: (state, action) => {
-      console.log("assignedddddddddddddddddddd", action.payload);
-
       state.allActiveAssignedClasses.push(action.payload);
       // Sort by createdAt after adding
       state.allActiveAssignedClasses.sort(
@@ -41,7 +37,7 @@ const assignedClassesSlice = createSlice({
     },
 
     // remove class from active assigned class
-  removeActiveAssignedClass: (state, action) => {
+    removeActiveAssignedClass: (state, action) => {
       const classId = action.payload._id;
       state.allActiveAssignedClasses = state.allActiveAssignedClasses
         .filter((assignedClass: any) => assignedClass?._id !== classId)

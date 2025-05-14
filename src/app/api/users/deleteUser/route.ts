@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in deleteUser route", error);
     return NextResponse.json({
       msg: "Internal error in deleteUser route",
       statusCode: 204,

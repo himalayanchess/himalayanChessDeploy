@@ -15,14 +15,12 @@ export async function POST(request: NextRequest) {
         projectRecord,
       });
     }
-    console.log(projectRecord);
 
     return NextResponse.json({
       msg: "Project not found",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getProject route", error);
     return NextResponse.json({
       msg: "Internal error in getProject",
       statusCode: 204,

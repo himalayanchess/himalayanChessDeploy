@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
         hcaCircuitSeriesTournamentRecord,
       });
     }
-   
 
     return NextResponse.json({
       msg: "hca Circuit series  Tournament not found",

@@ -71,8 +71,6 @@ const AddProject = () => {
   function handleUpdateContratPaperModalOpen() {
     setupdateContractPaperModalOpen(true);
   }
-
-  // console.log("inside add user", mode, initialData);
   const {
     register,
     handleSubmit,
@@ -210,9 +208,9 @@ const AddProject = () => {
             "/api/projects/updateProject",
             tempsavednewProject
           );
-          console.log(
-            "Project updated (just created) by adding contractpaper url "
-          );
+          // console.log(
+          //   "Project updated (just created) by adding contractpaper url "
+          // );
         }
       }
       handleconfirmModalClose();

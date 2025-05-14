@@ -89,7 +89,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateBranch route", error);
     return NextResponse.json({
       msg: "Internal error in updateBranch route",
       statusCode: 500,

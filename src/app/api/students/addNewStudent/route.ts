@@ -71,7 +71,6 @@ export async function POST(req: NextRequest) {
         ? dayjs(course.endDate).tz(timeZone).startOf("day").utc()
         : "",
     }));
-    console.log("onverted coursees", utcconvertedEnrolledCourses);
 
     // Check if user with the same name exists (case-insensitive)
     const nonAffiliatedStudentExists = await NonAffiliatedStudent.findOne({
@@ -90,8 +89,6 @@ export async function POST(req: NextRequest) {
 
     // add student accoring to selectedAffiliatedTo (hca)
     if (selectedAffiliatedTo?.toLowerCase() == "hca") {
-      console.log(reqBody);
-
       const newStudent = new HcaAffiliatedStudent({
         affiliatedTo,
         name,
@@ -155,8 +152,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new user",
     });
   } catch (error) {
-    console.log("Internal error in addnewSchoolStudent route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addnewSchoolStudent route",

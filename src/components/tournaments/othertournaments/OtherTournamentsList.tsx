@@ -34,7 +34,6 @@ const OtherTournamentsList = ({
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside otherTournamentlist", allFilteredActiveOtherTournamentsList);
 
   const [loaded, setloaded] = useState(false);
   const [selectedOtherTournamentId, setSelectedOtherTournamentId] =
@@ -72,9 +71,7 @@ const OtherTournamentsList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleOtherTournamentDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

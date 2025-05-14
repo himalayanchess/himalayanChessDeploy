@@ -33,7 +33,6 @@ const LichessTournamentsList = ({
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside lichessTournamentlist", allFilteredActiveLichessTournamentsList);
 
   const [loaded, setloaded] = useState(false);
   const [selectedLichessTournamentId, setSelectedLichessTournamentId] =
@@ -71,9 +70,7 @@ const LichessTournamentsList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleLichessTournamentDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

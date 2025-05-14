@@ -247,7 +247,6 @@ const UpdateBatch = ({ batchRecord }: any) => {
                     const selectedProject: any = allActiveProjects.find(
                       (project: any) => project.name == value
                     );
-                    console.log(selectedProject);
 
                     setValue("projectId", selectedProject?._id);
                   }}

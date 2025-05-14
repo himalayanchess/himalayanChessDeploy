@@ -69,8 +69,6 @@ const StudentsAttendanceList = () => {
       }
     );
 
-    console.log(resData);
-
     if (resData?.statusCode === 200) {
       const studentRecords =
         resData?.studentsAttendanceRecord?.studentRecords || [];
@@ -127,7 +125,6 @@ const StudentsAttendanceList = () => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     let affiliatedTo = "All";
     if (!isSuperOrGlobalAdmin) {

@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const timeZone = "Asia/Kathmandu";
     const reqBody = await request.json();
-    console.log("inside attendannce", reqBody);
 
     const utcDate = dayjs().tz(timeZone).startOf("day").utc();
     const nepaliDate = dayjs().startOf("day").tz(timeZone);
@@ -48,15 +47,11 @@ export async function POST(request: NextRequest) {
         userAttendance: reqBody?.userAttendance,
         updatedBy: [{ ...reqBody?.updatedByUser }],
       });
-
-      console.log("new attendance created");
     }
     // Update existing record
     else {
       attendanceRecord.userAttendance = reqBody?.userAttendance;
       attendanceRecord.updatedBy.push({ ...reqBody?.updatedByUser });
-
-      console.log("Updated previous attendance ");
     }
 
     const savedAttendance = await attendanceRecord.save();

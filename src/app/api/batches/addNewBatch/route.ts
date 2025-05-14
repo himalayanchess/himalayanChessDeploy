@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     await dbconnect();
     const reqBody = await req.json();
     const timeZone = "Asia/Kathmandu";
-    console.log(reqBody);
+
     const utcBatchStartDate = reqBody?.batchStartDate
       ? dayjs(reqBody?.batchStartDate).tz(timeZone).startOf("day").utc()
       : "";
@@ -61,8 +61,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new batch",
     });
   } catch (error) {
-    console.log("Internal error in addNewBatch route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addNewBatch route",

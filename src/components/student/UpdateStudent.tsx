@@ -42,7 +42,6 @@ const UpdateStudent = ({ studentRecord }: any) => {
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
     (session?.data?.user?.role?.toLowerCase() === "admin" &&
       session?.data?.user?.isGlobalAdmin);
-  console.log("updateStudent", studentRecord);
 
   const affiliatedToOptions = ["HCA", "School"];
   const genderOptions = ["Male", "Female", "Others"];
@@ -228,11 +227,8 @@ const UpdateStudent = ({ studentRecord }: any) => {
         "/api/students/updateStudent",
         data
       );
-      console.log("previous student", data);
-      console.log("updated student", resData);
 
       if (resData.statusCode == 200) {
-        // console.log("ass student", resData);
         notify(resData.msg, resData.statusCode);
         handleconfirmModalClose();
         setTimeout(() => {
@@ -244,9 +240,7 @@ const UpdateStudent = ({ studentRecord }: any) => {
       setupdateStudentLoading(false);
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in updateStudent component (onSubmit)", error);
-    }
+    } catch (error) {}
   };
 
   //filter batches
@@ -271,7 +265,6 @@ const UpdateStudent = ({ studentRecord }: any) => {
                   selectedProject?.toLowerCase()
             )
             .map((batch: any) => batch);
-    // console.log("filtered bat", filtered);
 
     setFilteredBatches(filtered); // Update filteredBatches state
   }, [allActiveBatches, selectedAffiliatedTo, selectedBranch, selectedProject]);

@@ -6,7 +6,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const reqBody = await request.json();
     const { studentId, editedProfilePhotoUrl } = reqBody;
-    console.log("update profile photo ", reqBody);
 
     const updatedStudent = await HcaAffiliatedStudent.findOneAndUpdate(
       { _id: studentId },
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateStudentsProfilePhoto route", error);
     return NextResponse.json({
       msg: "Internal error in updateStudentsProfilePhoto route",
       statusCode: 204,

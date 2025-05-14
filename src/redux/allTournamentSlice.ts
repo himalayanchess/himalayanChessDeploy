@@ -18,7 +18,6 @@ export const fetchAllLichessTournaments = createAsyncThunk(
         "/api/tournaments/lichess/getAllLichessTournaments"
       );
       const resData = await response.json();
-      // console.log("das fjhakdf hlhsf", resData);
 
       return resData.allLichessTournaments;
     } catch (error: any) {
@@ -36,7 +35,6 @@ export const fetchAllSelectedStudentsLichessTournaments = createAsyncThunk(
         "/api/tournaments/lichess/fetchAllSelectedStudentsLichessTournaments",
         { studentId }
       );
-      console.log("fetchAllSelectedStudentsLichessTournaments", resData);
 
       return resData.allSelectedStudentsLichessTournaments;
     } catch (error: any) {
@@ -54,7 +52,6 @@ export const fetchAllOtherTournaments = createAsyncThunk(
         "/api/tournaments/othertournaments/getAllOtherTournaments"
       );
       const resData = await response.json();
-      // console.log("das fjhakdf hlhsf", resData);
 
       return resData.allOtherTournaments;
     } catch (error: any) {
@@ -72,7 +69,6 @@ export const fetchAllSelectedStudentsOtherTournaments = createAsyncThunk(
         "/api/tournaments/othertournaments/fetchAllSelectedStudentsOtherTournaments",
         { studentId }
       );
-      console.log("fetchAllSelectedStudentsOtherTournaments", resData);
 
       return resData.allSelectedStudentsOtherTournaments;
     } catch (error: any) {
@@ -90,7 +86,6 @@ export const fetchAllTournamentsOrganizedByHca = createAsyncThunk(
         "/api/tournaments/tournamentsorganizedbyhca/fetchAllTournamentsOrganizedByHca"
       );
       const resData = await response.json();
-      // console.log("das fjhakdf hlhsf", resData);
 
       return resData.allTournamentsOrganizedByHca;
     } catch (error: any) {
@@ -109,10 +104,10 @@ export const fetchAllSelectedStudentsTournamentsOrganizedByHca =
           "/api/tournaments/tournamentsorganizedbyhca/fetchAllSelectedStudentsTournamentsOrganizedByHca",
           { studentId }
         );
-        console.log(
-          "fetchAllSelectedStudentsTournamentsOrganizedByHca",
-          resData
-        );
+        // console.log(
+        //   "fetchAllSelectedStudentsTournamentsOrganizedByHca",
+        //   resData
+        // );
 
         return resData.allSelectedStudentsTournamentsOrganizedByHca;
       } catch (error: any) {
@@ -130,7 +125,6 @@ export const fetchAllTournamentsHcaHelpIn = createAsyncThunk(
         "/api/tournaments/tournamentshcahelpin/fetchalltournamentshcahelpin"
       );
       const resData = await response.json();
-      // console.log("das fjhakdf hlhsf", resData);
 
       return resData.allTournamentsHcaHelpIn;
     } catch (error: any) {
@@ -148,7 +142,6 @@ export const fetchAllSelectedStudentsTournamentsHcaHelpIn = createAsyncThunk(
         "/api/tournaments/tournamentshcahelpin/fetchallselectedstudentstournamentshcahelpin",
         { studentId }
       );
-      console.log("fetchAllSelectedStudentsTournamentsHcaHelpIn", resData);
 
       return resData.allSelectedStudentsTournamentsHcaHelpIn;
     } catch (error: any) {
@@ -277,8 +270,6 @@ const allTournamentSlice = createSlice({
         state.allLichessTournamentsLoading = true;
       })
       .addCase(fetchAllLichessTournaments.fulfilled, (state, action) => {
-        console.log("after all lichess tournaments", action.payload);
-
         state.allLichessTournamentsList = action.payload?.sort(
           (a: any, b: any) =>
             dayjs.tz(b.date, "Asia/Kathmandu").valueOf() -
@@ -311,10 +302,10 @@ const allTournamentSlice = createSlice({
       .addCase(
         fetchAllSelectedStudentsLichessTournaments.fulfilled,
         (state, action) => {
-          console.log(
-            "after all selected students lichess tournaments",
-            action.payload
-          );
+          // console.log(
+          //   "after all selected students lichess tournaments",
+          //   action.payload
+          // );
 
           state.allSelectedStudentsLichessTournamentsList =
             action.payload?.sort(
@@ -346,8 +337,6 @@ const allTournamentSlice = createSlice({
         state.allOtherTournamentsLoading = true;
       })
       .addCase(fetchAllOtherTournaments.fulfilled, (state, action) => {
-        console.log("after all other tournaments", action.payload);
-
         state.allOtherTournamentsList = action.payload?.sort(
           (a: any, b: any) =>
             dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
@@ -379,10 +368,10 @@ const allTournamentSlice = createSlice({
       .addCase(
         fetchAllSelectedStudentsOtherTournaments.fulfilled,
         (state, action) => {
-          console.log(
-            "after all selected students other tournaments",
-            action.payload
-          );
+          // console.log(
+          //   "after all selected students other tournaments",
+          //   action.payload
+          // );
 
           state.allSelectedStudentsOtherTournamentsList = action.payload?.sort(
             (a: any, b: any) =>
@@ -413,8 +402,6 @@ const allTournamentSlice = createSlice({
         state.allTournamentsOrganizedByHcaLoading = true;
       })
       .addCase(fetchAllTournamentsOrganizedByHca.fulfilled, (state, action) => {
-        console.log("after all tournaments organized by hca", action.payload);
-
         state.allTournamentsOrganizedByHcaList = action.payload?.sort(
           (a: any, b: any) =>
             dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
@@ -451,10 +438,10 @@ const allTournamentSlice = createSlice({
       .addCase(
         fetchAllSelectedStudentsTournamentsOrganizedByHca.fulfilled,
         (state, action) => {
-          console.log(
-            "after all selected students tournaments org by hca",
-            action.payload
-          );
+          // console.log(
+          //   "after all selected students tournaments org by hca",
+          //   action.payload
+          // );
 
           state.allSelectedStudentsTournamentsOrganizedByHcaList =
             action.payload?.sort(
@@ -486,8 +473,6 @@ const allTournamentSlice = createSlice({
         state.allTournamentsHcaHelpInLoading = true;
       })
       .addCase(fetchAllTournamentsHcaHelpIn.fulfilled, (state, action) => {
-        console.log("after all tournaments hca help in", action.payload);
-
         state.allTournamentsHcaHelpInList = action.payload?.sort(
           (a: any, b: any) =>
             dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
@@ -523,10 +508,10 @@ const allTournamentSlice = createSlice({
       .addCase(
         fetchAllSelectedStudentsTournamentsHcaHelpIn.fulfilled,
         (state, action) => {
-          console.log(
-            "after all selected students tournaments hca help in",
-            action.payload
-          );
+          // console.log(
+          //   "after all selected students tournaments hca help in",
+          //   action.payload
+          // );
 
           state.allSelectedStudentsTournamentsHcaHelpInList =
             action.payload?.sort(

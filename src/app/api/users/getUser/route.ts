@@ -15,14 +15,12 @@ export async function POST(request: NextRequest) {
         userRecord,
       });
     }
-    console.log(userRecord);
 
     return NextResponse.json({
       msg: "User not found",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getUser route", error);
     return NextResponse.json({
       msg: "Internal error in getUser",
       statusCode: 204,

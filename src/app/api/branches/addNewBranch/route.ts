@@ -79,8 +79,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new Branch",
     });
   } catch (error) {
-    console.log("Internal error in addNewBranch route", error);
-
     return NextResponse.json({
       statusCode: 500,
       msg: "Internal server error",

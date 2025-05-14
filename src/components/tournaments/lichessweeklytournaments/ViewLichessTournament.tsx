@@ -39,7 +39,6 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
-  // console.log(lichessTournamentRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -70,8 +69,6 @@ const ViewLichessTournament = ({ lichessTournamentRecord }: any) => {
 
   const showComponent = () => {
     if (lichessTournamentRecord) {
-      console.log("show comp", selectedMenu);
-
       switch (selectedMenu) {
         case "basic":
           return (

@@ -122,8 +122,6 @@ export default AddTournament;
 //       hcaEventCode,
 //       createdAt: new Date().toISOString(),
 //     };
-
-//     console.log("Submitting:", tournamentData);
 //     // Here you would typically make an API call to save the tournament
 //     setTournaments([...tournaments, tournamentData]);
 //     reset();

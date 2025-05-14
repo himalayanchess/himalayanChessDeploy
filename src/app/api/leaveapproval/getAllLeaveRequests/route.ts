@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     await dbconnect();
-    console.log("inside get all leave request");
 
     const allLeaveRequests = await LeaveRequest.find({});
     if (allLeaveRequests) {
@@ -20,7 +19,6 @@ export async function GET(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getallLeaveRequests route", error);
     return NextResponse.json({
       msg: "Internal error in getallLeaveRequests",
       statusCode: 204,

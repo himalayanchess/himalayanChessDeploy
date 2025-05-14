@@ -20,9 +20,7 @@ export async function POST(request: NextRequest) {
       nepaliDate: convertedNepaliDate,
       batchName: reqBody?.selectedBatch,
     });
-
-    // console.log(
-    //   "resut getStudentsAttendance",
+    // console.log("resut getStudentsAttendance",
     //   convertedNepaliDate,
     //   studentsAttendanceRecord
     // );
@@ -39,7 +37,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getStudentsAttendance route", error);
     return NextResponse.json({
       msg: "Internal error in getStudentsAttendance",
       statusCode: 204,

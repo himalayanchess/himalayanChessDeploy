@@ -58,7 +58,6 @@ const StudentsAttendanceChart = () => {
 
   // update seleted date for student attendance
   useEffect(() => {
-    // console.log("seledted day is", selectedDay.tz(timeZone).format());
     if (selectedDay) {
       dispatch(
         setstudentsAttendanceSelectedDay(selectedDay.tz(timeZone).format())

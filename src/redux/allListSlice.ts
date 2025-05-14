@@ -8,7 +8,6 @@ export const fetchAllTrainers = createAsyncThunk(
     try {
       const response = await fetch("/api/users/getTrainersList");
       const resData = await response.json();
-      // console.log("das fjhakdf hlhsf", resData);
 
       return resData.trainersList;
     } catch (error: any) {
@@ -383,8 +382,6 @@ const allListSlice = createSlice({
     },
     // add new study material
     addNewStudyMaterial: (state, action) => {
-      console.log("new file", action.payload);
-
       state.allActiveStudyMaterialsList = [
         ...state.allActiveStudyMaterialsList,
         action.payload,
@@ -410,8 +407,6 @@ const allListSlice = createSlice({
     },
     // delete test history
     deleteTestHistory: (state, action) => {
-      console.log("inside deleteTestHistory redux", action.payload);
-
       const testHistoryId = action.payload;
 
       let tempAllActiveTestHistoriesList =
@@ -428,8 +423,6 @@ const allListSlice = createSlice({
     },
     // delete payment record
     deletePaymentRecord: (state, action) => {
-      console.log("inside delete payment record redux", action.payload);
-
       const paymentRecordId = action.payload;
 
       let tempAllActivePaymentRecordsList =
@@ -463,7 +456,6 @@ const allListSlice = createSlice({
       })
       .addCase(fetchAllTrainers.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all trainers", action.payload);
 
         // Sorting trainers by createdAt (latest first)
         const sortedTrainers = action.payload?.sort(
@@ -491,7 +483,6 @@ const allListSlice = createSlice({
       })
       .addCase(fetchAllBatches.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all batches", action.payload);
 
         state.allBatches = action.payload?.sort(
           (a: any, b: any) =>
@@ -516,7 +507,6 @@ const allListSlice = createSlice({
       })
       .addCase(fetchAllProjects.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all Projects", action.payload);
 
         // Sorting Projects by createdAt (assuming createdAt is a valid date string or timestamp)
         state.allProjects = action.payload?.sort(
@@ -544,7 +534,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllStudents.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all students", action.payload);
 
         state.allStudentsList = action.payload?.sort(
           (a, b) =>
@@ -582,7 +571,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all users", action.payload);
 
         state.allUsersList = action.payload?.sort(
           (a: any, b: any) =>
@@ -608,7 +596,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllCourses.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all courses", action.payload);
 
         state.allCoursesList = action.payload?.sort(
           (a: any, b: any) =>
@@ -633,7 +620,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllBranches.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all Branches", action.payload);
 
         state.allBranchesList = action.payload?.sort(
           (a: any, b: any) =>
@@ -659,7 +645,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllStudyMaterials.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all study materials", action.payload);
 
         state.allStudyMaterialsList = action.payload?.sort(
           (a: any, b: any) =>
@@ -684,7 +669,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllTestHistories.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all test histories", action.payload);
 
         state.allTestHistoryList = action.payload?.sort(
           (a: any, b: any) =>
@@ -709,7 +693,6 @@ const allListSlice = createSlice({
       })
       .addCase(getAllPaymentRecords.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all payment records", action.payload);
 
         state.allPaymentRecordsList = action.payload?.sort(
           (a: any, b: any) =>
@@ -736,10 +719,10 @@ const allListSlice = createSlice({
         getAllSelectedStudentsPaymentRecords.fulfilled,
         (state, action) => {
           state.status = "succeeded";
-          console.log(
-            "after all getAllSelectedStudentsPaymentRecords records",
-            action.payload
-          );
+          // console.log(
+          //   "after all getAllSelectedStudentsPaymentRecords records",
+          //   action.payload
+          // );
 
           state.allSelectedStudentsPaymentRecordsList = action.payload?.sort(
             (a: any, b: any) =>
@@ -768,10 +751,10 @@ const allListSlice = createSlice({
       })
       .addCase(getAllSelectedUsersPaymentRecords.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(
-          "after all getAllSelectedUsersPaymentRecords records",
-          action.payload
-        );
+        // console.log(
+        //   "after all getAllSelectedUsersPaymentRecords records",
+        //   action.payload
+        // );
 
         state.allSelectedUsersPaymentRecordsList = action.payload?.sort(
           (a: any, b: any) =>
@@ -800,10 +783,10 @@ const allListSlice = createSlice({
         getAllSelectedProjectsPaymentRecords.fulfilled,
         (state, action) => {
           state.status = "succeeded";
-          console.log(
-            "after all getAllSelectedProjectsPaymentRecords records",
-            action.payload
-          );
+          // console.log(
+          //   "after all getAllSelectedProjectsPaymentRecords records",
+          //   action.payload
+          // );
 
           state.allSelectedProjectsPaymentRecordsList = action.payload?.sort(
             (a: any, b: any) =>

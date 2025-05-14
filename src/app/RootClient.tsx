@@ -30,27 +30,26 @@ export default function RootClient({
 
   return (
     <>
-      {isPageLoading ||
-        (false && (
-          <div className="h-[100dvh] w-[100dvw] absolute top-0 left-0 flex flex-col items-center justify-center bg-white z-50">
-            {/* PNG Image with Stroke Animation */}
-            <div className="relative mt-6 flex flex-col items-center">
-              <Image
-                src={myImage}
-                alt="Image with stroke animation"
-                height={130}
-                width={130}
-                className="relative z-10"
-              />
-              <div className="threedots-loading mt-3">
-                <ThreeDots fill="black" height="2rem" width="4rem" />
-              </div>
-              <p className="mt-3 text-lg font-semibold text-gray-700">
-                {loadingMessage}
-              </p>
+      {isPageLoading && (
+        <div className="h-[100dvh] w-[100dvw] absolute top-0 left-0 flex flex-col items-center justify-center bg-white z-50">
+          {/* PNG Image with Stroke Animation */}
+          <div className="relative mt-6 flex flex-col items-center">
+            <Image
+              src={myImage}
+              alt="Image with stroke animation"
+              height={130}
+              width={130}
+              className="relative z-10"
+            />
+            <div className="threedots-loading mt-3">
+              <ThreeDots fill="black" height="2rem" width="4rem" />
             </div>
+            <p className="mt-3 text-lg font-semibold text-gray-700">
+              {loadingMessage}
+            </p>
           </div>
-        ))}
+        </div>
+      )}
       {children}
     </>
   );

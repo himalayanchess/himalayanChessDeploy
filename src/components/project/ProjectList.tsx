@@ -52,13 +52,10 @@ const ProjectList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleProjectDelete", error);
-    }
+    } catch (error) {}
   }
   // view modal open
   function handleViewModalOpen(project: any) {
-    console.log(project);
     setselectedViewProject(project);
     setViewModalOpen(true);
   }

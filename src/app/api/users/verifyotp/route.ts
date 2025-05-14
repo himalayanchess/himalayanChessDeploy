@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
       statusCode: 200,
     });
   } catch (error) {
-    console.log("Internal error in getUser route", error);
     return NextResponse.json({
       msg: "Internal error in getUser",
       statusCode: 204,

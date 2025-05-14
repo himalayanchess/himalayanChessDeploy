@@ -201,7 +201,6 @@ const UpdateHcaCircuitSeriesTournament = ({
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      console.log("update hca circuit series tournamentdata", data);
       const { data: response } = await axios.post(
         "/api/tournaments/hcacircuit/hcacircuitseries/updatehcacircuitseriestournament",
         {

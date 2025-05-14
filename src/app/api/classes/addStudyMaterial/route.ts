@@ -27,7 +27,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in addStudyMaterial route", error);
     return NextResponse.json({
       msg: "Internal error in addStudyMaterial route",
       statusCode: 204,

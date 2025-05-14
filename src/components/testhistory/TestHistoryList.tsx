@@ -58,9 +58,7 @@ const TestHistoryList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleTestHistoryDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

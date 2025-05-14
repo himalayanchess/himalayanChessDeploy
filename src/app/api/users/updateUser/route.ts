@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
         statusCode: 409, // Conflict status
       });
     }
-    // console.log("updateuser route", reqBody);
     const { password, ...updateFields } = reqBody;
 
     const updatedUser = await User.findOneAndUpdate(
@@ -69,7 +68,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateUser route", error);
     return NextResponse.json({
       msg: "Internal error in updateUser route",
       statusCode: 204,

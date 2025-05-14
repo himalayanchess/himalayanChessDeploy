@@ -72,9 +72,7 @@ const PaymentRecordList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handlepayment record Delete", error);
-    }
+    } catch (error) {}
   }
 
   // session

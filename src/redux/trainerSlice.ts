@@ -6,8 +6,6 @@ export const fetchTrainersTodayClasses = createAsyncThunk(
   "trainer/getTrainersTodaysClasses",
   async ({ trainerId, todaysDate }: any, { rejectWithValue }) => {
     try {
-      console.log("teacher slice fetchTrainersTodayClasses slice");
-
       // Use axios to make the POST request
       const response = await axios.post(
         "/api/classes/getTrainersTodaysClasses",
@@ -142,7 +140,6 @@ const trainerSlice = createSlice({
 
     // update todays classes record when trainer updates the student record
     updateTodaysClassRecord: (state, action) => {
-      // console.log(" inside updateTodaysClassRecord reducer ", action.payload);
       const updatedRecord = action.payload;
       const tempTrainersTodaysClasses = state.trainersTodaysClasses?.map(
         (todaysClass: any) => {
@@ -159,7 +156,6 @@ const trainerSlice = createSlice({
     // update attendanceStudentRecordsList for analysis
     updateAttendanceStudentRecordsList: (state, action) => {
       // const tempStudents = JSON.stringify(action.payload);
-      // console.log(tempStudents);
 
       state.attendanceStudentRecordsList = action.payload.attendanceStudents;
     },
@@ -204,7 +200,6 @@ const trainerSlice = createSlice({
       .addCase(getAllCourses.fulfilled, (state, action: any) => {
         state.status = "succeeded";
         state.allCourseList = action.payload;
-        // console.log("alactive courses", JSON.stringify(action.payload));
 
         const sortedCourses = action.payload
           ?.filter((course: any) => course.activeStatus)

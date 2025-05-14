@@ -29,9 +29,7 @@ const page = ({ params }: any) => {
         setinvalidId(true);
       }
       setLoading(false);
-    } catch (error) {
-      console.log("error in updatestudent : [id], getuserRecord api", error);
-    }
+    } catch (error) {}
   }
   // initial fecth of selected activity record
   useEffect(() => {

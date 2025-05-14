@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
     const timeZone = "Asia/Kathmandu";
     await dbconnect();
     const reqBody = await req.json();
-    console.log("inside adding new leave request", reqBody);
 
     const passedNepaliDate = dayjs(reqBody?.date).tz(timeZone).startOf("day");
     const convertedUtcDate = dayjs(passedNepaliDate)
@@ -79,12 +78,12 @@ export async function POST(req: NextRequest) {
     // ##################
     // this just creats a new leave request by adds upload file afterthis
     // so it is updated again after file upload add this send mail there so that it contains supportReasonFileUrl
-    // if (savedNewLeaveRequest) {
-    //   await sendLeaveRequestMail({
-    //     subject: "Request for leave",
-    //     leaveRequest: savedNewLeaveRequest,
-    //   });
-    // }
+    if (savedNewLeaveRequest) {
+      await sendLeaveRequestMail({
+        subject: "Request for leave",
+        leaveRequest: savedNewLeaveRequest,
+      });
+    }
 
     if (savedNewLeaveRequest) {
       return NextResponse.json({
@@ -99,8 +98,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add leave request",
     });
   } catch (error) {
-    console.log("Internal error in addNewLeaveRequest route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addNewLeaveRequest route",

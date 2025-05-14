@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
 
     const reqBody = await request.json();
-    // console.log("updating hca serues tournamte", reqBody);
 
     const {
       _id,
@@ -114,8 +113,6 @@ export async function POST(request: NextRequest) {
         };
       }
     );
-
-    console.log("finalWinnersWithCircuitPoints", reqBody);
 
     const updatedTournament =
       await HcaCircuitSeriesTournament.findByIdAndUpdate(

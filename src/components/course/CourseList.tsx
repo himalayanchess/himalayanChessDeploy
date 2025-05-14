@@ -50,9 +50,7 @@ const CourseList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleUserDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

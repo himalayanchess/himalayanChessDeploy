@@ -23,8 +23,6 @@ const StudentActivityRecords = ({
   allActiveStudentsActivityRecords,
   allStudentsActivityRecordsLoading,
 }: any) => {
-  // console.log("inside student activity records", studentRecord);
-
   // dispatch
   const dispatch = useDispatch<any>();
 

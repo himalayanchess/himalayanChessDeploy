@@ -193,7 +193,6 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
         "/api/tournaments/othertournaments/updateothertournament",
         {

@@ -34,8 +34,6 @@ import Link from "next/link";
 import { exportUsersListToExcel } from "@/helpers/exportToExcel/exportUsersListToExcel";
 
 const UsersComponent = ({ role = "" }: any) => {
-  console.log("role inside users comp", role);
-
   // dispatch
   const dispatch = useDispatch<any>();
 
@@ -139,7 +137,6 @@ const UsersComponent = ({ role = "" }: any) => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     if (!isSuperOrGlobalAdmin) {
       branchName = user?.branchName;

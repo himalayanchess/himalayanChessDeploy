@@ -55,8 +55,6 @@ export async function POST(request: NextRequest) {
       cloudinaryFileType = "otherFiles";
     }
 
-    console.log("fileee", file);
-
     if (!file) {
       return NextResponse.json({
         msg: "File not found",
@@ -93,7 +91,6 @@ export async function POST(request: NextRequest) {
       );
       uploadStream.end(buffer);
     });
-    console.log("file upload response ", res);
 
     return NextResponse.json({
       msg: "File uploaded",
@@ -101,7 +98,6 @@ export async function POST(request: NextRequest) {
       statusCode: 200,
     });
   } catch (error) {
-    console.log("cloudinary error in route", error);
     return NextResponse.json({
       msg: "Cloudinary error route",
       statusCode: 204,

@@ -43,11 +43,10 @@ export async function POST(request: NextRequest) {
       holidayDescription,
       userPresentStatus,
     } = reqBody;
-    console.log("assinged class", reqBody);
 
     // first convert date to nepali time format (understanding)
     const passedNepaliDate = dayjs(date).tz(timeZone).startOf("day");
-    console.log("passed nepali date", passedNepaliDate.format());
+
     const convertedUtcDate = dayjs(date).tz(timeZone).startOf("day").utc();
 
     // 3 fields from dayjs
@@ -75,7 +74,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (classExists) {
-      console.log(`Class exists for ${batchId} on ${date}`);
       return NextResponse.json({
         msg: `Record for this batchId already exists on this date`,
         statusCode: 204,
@@ -93,10 +91,10 @@ export async function POST(request: NextRequest) {
     const savedNewAssignClass = await newAssignClass.save();
 
     if (savedNewAssignClass) {
-      // await sendAssignClassMail({
-      //   subject: "Class assignment to trainer",
-      //   assignedClass: reqBody,
-      // });
+      await sendAssignClassMail({
+        subject: "Class assignment to trainer",
+        assignedClass: reqBody,
+      });
 
       // update batch by setting totalClassesTaken to reqBody.currentClassNumber
       const batchTotalTakenClassesUpdated = await Batch.findByIdAndUpdate(
@@ -124,7 +122,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in assignClass route", error);
     return NextResponse.json({
       msg: "Internal error in assignClass route",
       statusCode: 204,

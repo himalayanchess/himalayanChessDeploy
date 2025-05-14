@@ -8,11 +8,8 @@ import {
 } from "./emailTemplates";
 import User from "@/models/UserModel";
 
-// array of superadmin and admin emails
-const superadminAndAdminRecepients: any = [
-  // process.env.SUPERADMIN_GMAIL_ADDRESS!,
-  "cyruz.mhr09@gmail.com",
-];
+// array of test emails
+const testMails: any = [process.env.SUPERADMIN_GMAIL_ADDRESS!];
 
 // done
 export async function sendOtpMail({ otp, email, subject }: any) {
@@ -31,11 +28,9 @@ export async function sendOtpMail({ otp, email, subject }: any) {
       html: getOTPEmailContent(otp),
     };
     const info = await transporter.sendMail(options);
-    console.log("OTP email sent successfully");
+
     return info;
-  } catch (error) {
-    console.log("Error sending otp email", error);
-  }
+  } catch (error) {}
 }
 
 //done
@@ -68,20 +63,16 @@ export async function sendLeaveRequestMail({ subject, leaveRequest }: any) {
     }).select("name role isGlobalAdmin email _id");
     const recepientsUserEmails = users.map((user: any) => user.email);
 
-    console.log("send leaverequest recepients", recepientsUserEmails);
-
     const options = {
       from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
-      to: superadminAndAdminRecepients,
+      to: recepientsUserEmails,
       subject,
       html: getLeaveRequestEmailContent(leaveRequest),
     };
     const info = await transporter.sendMail(options);
-    console.log("Leave request email sent successfully");
+
     return info;
-  } catch (error) {
-    console.log("Error sending leave request email", error);
-  }
+  } catch (error) {}
 }
 
 // done
@@ -90,8 +81,6 @@ export async function sendLeaveRequestResponseMail({
   leaveRequest,
 }: any) {
   try {
-    console.log("leave request in sendLeaveRequestResponseMail", leaveRequest);
-
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -114,23 +103,19 @@ export async function sendLeaveRequestResponseMail({
     }).select("name role isGlobalAdmin email _id");
     const recepientsUserEmails = users.map((user: any) => user.email);
 
-    console.log("send leaverequest APPROVAL recepients", recepientsUserEmails);
-
     const leaveStatus =
       leaveRequest.approvalStatus === "approved" ? "approved" : "rejected";
 
     const options = {
       from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
-      to: superadminAndAdminRecepients,
+      to: recepientsUserEmails,
       subject,
       html: getLeaveRequestResponseEmailContent(leaveRequest, leaveStatus),
     };
     const info = await transporter.sendMail(options);
-    console.log("Leave request response email sent successfully");
+
     return info;
-  } catch (error) {
-    console.log("Error sending leave request response email", error);
-  }
+  } catch (error) {}
 }
 
 // done
@@ -144,8 +129,6 @@ export async function sendAssignClassMail({ subject, assignedClass }: any) {
         pass: process.env.GMAIL_APP_PASSWORD,
       },
     });
-
-    console.log("Assinged class in send mail", assignedClass);
 
     const users = await User.find({
       activeStatus: true,
@@ -166,23 +149,20 @@ export async function sendAssignClassMail({ subject, assignedClass }: any) {
     }).select("name role isGlobalAdmin email _id");
 
     const recepientsUserEmails = users.map((user: any) => user.email);
-    console.log(
-      "indise send assign class mail function recepientsUserEmails",
-      recepientsUserEmails
-    );
+    // console.log("indise send assign class mail function recepientsUserEmails",
+    //   recepientsUserEmails
+    // );
 
     const options = {
       from: process.env.GMAIL_EMAIL_ADDRESS, // sender address
-      to: superadminAndAdminRecepients,
+      to: recepientsUserEmails,
       subject,
       html: getClassAssignedEmailContent(assignedClass),
     };
     const info = await transporter.sendMail(options);
-    console.log("Assign class email sent successfully");
+
     return info;
-  } catch (error) {
-    console.log("Error sending assign class email", error);
-  }
+  } catch (error) {}
 }
 
 // done
@@ -210,7 +190,7 @@ export async function sendBirthdayMail({
       activeStatus: true,
       $or: [
         { isGlobalAdmin: true },
-        // { role: { $regex: /^superadmin$/i } },
+        { role: { $regex: /^superadmin$/i } },
         { role: { $regex: /^admin$/i } },
       ],
     }).select("name role isGlobalAdmin email _id branchName");
@@ -221,8 +201,6 @@ export async function sendBirthdayMail({
       );
       return;
     }
-
-    console.log(`Sending birthday emails to ${users.length} users`, users);
 
     // 3. Loop through each user and send personalized email
     for (const user of users) {
@@ -244,13 +222,10 @@ export async function sendBirthdayMail({
 
       try {
         const info = await transporter.sendMail(mailOptions);
-        console.log(`✅ Email sent to ${user.email}: ${info.response}`);
       } catch (sendError) {
         console.error(`❌ Failed to send email to ${user.email}:`, sendError);
       }
     }
-
-    console.log("🎉 Birthday emails process completed.");
   } catch (error) {
     console.error("❌ Error in sendBirthdayMail function:", error);
   }

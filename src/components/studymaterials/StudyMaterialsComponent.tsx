@@ -69,7 +69,6 @@ const StudyMaterialsComponent = ({ role = "" }: any) => {
   //handle file change
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
-    console.log(file);
 
     if (file) {
       setstudyMaterialFile(file);

@@ -64,7 +64,6 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
     setdeleteModalOpen(false);
   }
 
-  console.log(assignedClass);
   //   react hook from
   const {
     register,
@@ -113,9 +112,7 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
         dis(removeActiveAssignedClass(assignedClass));
       }
       notify(resData.msg, resData.statusCode);
-    } catch (error) {
-      console.log("Error in view assigned class (deleteClass route)");
-    }
+    } catch (error) {}
   }
 
   //onSubmit
@@ -132,7 +129,6 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
       }
       notify(resData?.msg, resData?.statusCode);
     } catch (error) {
-      console.log("Error in ViewAssignedClass component (editclass)", error);
     } finally {
       setupdateClassLoading(false);
     }
@@ -241,8 +237,6 @@ const ViewAssignedClass = ({ assignedClass, handleClose }: any) => {
                     variant="contained"
                     color="info"
                     onClick={() => {
-                      console.log("clicked");
-
                       document.getElementById("hiddenSubmit1")?.click();
 
                       if (!isValid) {

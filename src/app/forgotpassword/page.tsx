@@ -140,9 +140,7 @@ export default function ForgotPassword() {
       }
       notify(resData?.msg, resData?.statusCode);
       return;
-    } catch (error) {
-      console.log("Error in handleResendOtp function");
-    }
+    } catch (error) {}
   };
 
   const onSubmitPassword = async (data: any) => {

@@ -47,7 +47,6 @@ const trainersHistorySlice = createSlice({
       })
       .addCase(fetchAllTrainersActivityRecords.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("after all trainers", action.payload);
 
         // Sorting trainers by createdAt (latest first)
         const sortedTrainersActivityRecrds = action.payload?.sort(

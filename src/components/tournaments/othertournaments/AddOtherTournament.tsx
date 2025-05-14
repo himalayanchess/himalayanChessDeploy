@@ -191,7 +191,6 @@ const AddOtherTournament = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      console.log("add other tournamentdata", data);
       const { data: response } = await axios.post(
         "/api/tournaments/othertournaments/addothertournament",
         {
@@ -223,8 +222,6 @@ const AddOtherTournament = () => {
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
-
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "";
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);

@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in deleteProject route", error);
     return NextResponse.json({
       msg: "Internal error in deleteProject route",
       statusCode: 204,

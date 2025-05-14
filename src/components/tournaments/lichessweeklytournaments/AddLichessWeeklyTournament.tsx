@@ -160,8 +160,6 @@ const AddLichessWeeklyTournaments = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // console.log("add tournamentdata", data);
-
       const { data: response } = await axios.post(
         "/api/tournaments/lichess/addlichesstournament",
         {
@@ -194,8 +192,6 @@ const AddLichessWeeklyTournaments = () => {
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
-
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "";
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);

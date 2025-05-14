@@ -1,4 +1,4 @@
-                        import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Divider } from "@mui/material";
 import {
   LayoutDashboard,
@@ -41,8 +41,6 @@ const ViewBatch = ({ batchRecord }: any) => {
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
     (session?.data?.user?.role?.toLowerCase() === "admin" &&
       session?.data?.user?.isGlobalAdmin);
-
-  // console.log(batchRecord);
   const { allActiveStudentsList } = useSelector(
     (state: any) => state.allListReducer
   );
@@ -73,8 +71,6 @@ const ViewBatch = ({ batchRecord }: any) => {
 
   const showComponent = () => {
     if (batchRecord) {
-      console.log("show comp", selectedMenu);
-
       switch (selectedMenu) {
         case "basic":
           return <BasicBatchInfo batchRecord={batchRecord} />;

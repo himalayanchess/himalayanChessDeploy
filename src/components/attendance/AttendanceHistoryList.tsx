@@ -28,11 +28,10 @@ const AttendanceHistoryList = () => {
   const { allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
-
-  console.log(
-    "selcted dates attendance record ",
-    selectedDatesAttendanceRecord
-  );
+  // console.log(
+  //   "selcted dates attendance record ",
+  //   selectedDatesAttendanceRecord
+  // );
   const session = useSession();
 
   const isSuperOrGlobalAdmin =
@@ -96,7 +95,6 @@ const AttendanceHistoryList = () => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     if (!isSuperOrGlobalAdmin) {
       branchName = user?.branchName;

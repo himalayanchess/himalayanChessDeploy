@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
         allSelectedStudentsLichessTournaments,
       });
     }
-    console.log(allSelectedStudentsLichessTournaments);
 
     return NextResponse.json({
       msg: "Selected students lichess tournaments not found",

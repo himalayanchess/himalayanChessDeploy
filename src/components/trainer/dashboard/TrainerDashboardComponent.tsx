@@ -145,7 +145,6 @@ const TrainerDashboardComponent = () => {
       });
 
       // todaysAssignedClasses
-      console.log("trainers dashboard", resData);
 
       settodaysAssignedClasses(resData?.todaysTrainersAssignedClasses || []);
       setupcomingTrainersClasses(resData?.upcomingTrainersClasses || []);
@@ -160,10 +159,7 @@ const TrainerDashboardComponent = () => {
           pendingLeaveRequests: resData?.pendingLeaveRequests,
         };
       });
-
-      console.log("dash resData", resData);
     } catch (error: any) {
-      console.log("Error in getDashboardData", error);
     } finally {
       setdashboardDataLoading(false);
     }

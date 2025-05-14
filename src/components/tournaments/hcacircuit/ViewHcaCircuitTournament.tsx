@@ -54,7 +54,6 @@ const ViewHcaCircuitTournament = ({ hcaCircuitTournamentRecord }: any) => {
     allActiveMainHcaCircuitSeriesTournamentsList,
     allMainHcaCircuitSeriesTournamentsLoading,
   } = useSelector((state: any) => state.allHcaCircuitTournamentReducer);
-  // console.log(hcaCircuitTournamentRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -137,8 +136,6 @@ const ViewHcaCircuitTournament = ({ hcaCircuitTournamentRecord }: any) => {
 
   const showComponent = () => {
     if (hcaCircuitTournamentRecord) {
-      console.log("show comp", selectedMenu);
-
       switch (selectedMenu) {
         case "basic":
           return (

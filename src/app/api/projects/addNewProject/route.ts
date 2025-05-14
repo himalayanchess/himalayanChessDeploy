@@ -81,8 +81,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new project",
     });
   } catch (error) {
-    console.log("Internal error in addNewProject route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addNewProject route",

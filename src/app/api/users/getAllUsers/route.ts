@@ -14,8 +14,6 @@ export async function GET(request: NextRequest) {
     // }
     allUsers = await User.find({}).select("-password ");
 
-    // console.log("all users", allUsers);
-
     if (allUsers) {
       return NextResponse.json({
         msg: "All users found",
@@ -28,7 +26,6 @@ export async function GET(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getAllUsers", error);
     return NextResponse.json({
       msg: "Internal error in getAllUsers route",
       error,

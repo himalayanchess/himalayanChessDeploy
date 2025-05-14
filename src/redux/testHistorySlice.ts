@@ -6,8 +6,6 @@ export const fetchAllStudentsTestHistory = createAsyncThunk(
   "testhistory/fetchAllStudentsTestHistory",
   async (studentId: any, { rejectWithValue }) => {
     try {
-      console.log("fetchAllStudentsTestHistory thunk", studentId);
-
       const response = await axios.post(
         "/api/testhistory/fetchAllStudentsTestHistory",
         {
@@ -15,7 +13,6 @@ export const fetchAllStudentsTestHistory = createAsyncThunk(
         }
       );
       // Return the data from the response
-      //   console.log("all students test history", response);
 
       return response.data.allStudentsTestHistory;
     } catch (error: any) {

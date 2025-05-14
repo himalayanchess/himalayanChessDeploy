@@ -43,8 +43,6 @@ const AssignedClasses = ({ selectedDate }: any) => {
   useEffect(() => {
     const user = session?.data?.user;
 
-    console.log("selected date passed from above", selectedDate);
-
     const selectedNepaliDateOnly = dayjs(selectedDate)
       .tz(timeZone)
       .startOf("day")
@@ -70,7 +68,7 @@ const AssignedClasses = ({ selectedDate }: any) => {
       );
     }
 
-    console.log(tempFilteredAssignedClasses); // Log filtered classes for debugging
+    // Log filtered classes for debugging
     setFilteredAssignedClasses(tempFilteredAssignedClasses);
   }, [selectedDate, allActiveAssignedClasses, session?.data?.user]);
 

@@ -11,8 +11,6 @@ export async function POST(req: NextRequest) {
     await dbconnect();
     const reqBody = await req.json();
 
-    console.log("Received Study Material Data:", reqBody);
-
     // Check if file with same name already exists (optional)
     const fileExists = await StudyMaterial.findOne({
       fileName: {

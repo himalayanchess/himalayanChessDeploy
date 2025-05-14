@@ -95,7 +95,6 @@ const ViewAllAssignedClasses = ({
   //default dropdown filter
   const setUserDefaultFilters = () => {
     const user = session?.data?.user;
-    console.log("user", user);
 
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||

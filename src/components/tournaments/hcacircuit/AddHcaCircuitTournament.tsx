@@ -90,7 +90,6 @@ const AddHcaCircuitTournament = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      console.log("add hca circuit tournamentdata", data);
       const { data: response } = await axios.post(
         "/api/tournaments/hcacircuit/addhcacircuittournament",
         {
@@ -122,8 +121,6 @@ const AddHcaCircuitTournament = () => {
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
-
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "";
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);

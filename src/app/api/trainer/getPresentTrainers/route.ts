@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const reqBody = await request.json();
     const { todaysDate } = reqBody; // Nepali date string passed from the client (ISO format)
-    console.log("get present trainers", reqBody);
+
     const passedNepaliDate = dayjs(todaysDate)?.tz(timeZone)?.startOf("day");
     const startOfDay = dayjs(passedNepaliDate)
       .tz(timeZone)
@@ -29,8 +29,6 @@ export async function POST(request: NextRequest) {
       .endOf("day")
       .utc()
       .toDate();
-
-    console.log("my main nepli date check in server", startOfDay, endOfDay);
 
     // Query to find records where nepaliDate matches exactly
     const presentTrainers = await Attendance.aggregate([

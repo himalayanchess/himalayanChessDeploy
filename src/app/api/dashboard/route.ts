@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    console.log("Logging dashboard data:", reqBody);
 
     const { passedRole, branchName, isGlobalAdmin } = reqBody;
 

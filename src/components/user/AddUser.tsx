@@ -121,9 +121,8 @@ const AddUser = () => {
   });
 
   const { errors, isValid } = formState;
-  console.log(errors);
+
   const onSubmit = async (data: any) => {
-    console.log("Form Submitted Successfully:", data);
     // add mode api call
     setaddUserLoading(true);
     const { data: resData } = await axios.post("/api/users/addNewUser", {

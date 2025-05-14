@@ -124,8 +124,6 @@ const ViewUserDetail = ({ userRecord, loading }: any) => {
     }
   };
 
-  // console.log("all activeprojects ", allActiveProjects);
-
   // state vars
 
   const [loaded, setLoaded] = useState(false);

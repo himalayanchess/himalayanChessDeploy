@@ -23,9 +23,6 @@ export async function POST(request: NextRequest) {
     const fileUploadDomain = formData.get("fileUploadDomain") as string;
     const fileType = file?.type.startsWith("image/") ? "image" : "raw";
 
-    console.log("fileee", file);
-    console.log("fileUploadDomain", fileUploadDomain);
-
     if (!file) {
       return NextResponse.json({
         msg: "File not found",
@@ -47,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
       uploadStream.end(buffer);
     });
-    console.log("file upload response ", res);
 
     return NextResponse.json({
       msg: "File uploaded",
@@ -55,7 +51,6 @@ export async function POST(request: NextRequest) {
       statusCode: 200,
     });
   } catch (error) {
-    console.log("cloudinary error in route", error);
     return NextResponse.json({
       msg: "Cloudinary error route",
       statusCode: 204,

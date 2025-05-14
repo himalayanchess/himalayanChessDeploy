@@ -14,7 +14,6 @@ const page = ({ params }: any) => {
   const [invalidId, setinvalidId] = useState(false);
 
   const [userRecord, setuserRecord] = useState<any>(null);
-  // console.log("ac record", userRecord);
 
   async function getuserRecord() {
     try {
@@ -27,9 +26,7 @@ const page = ({ params }: any) => {
         setinvalidId(true);
       }
       setLoading(false);
-    } catch (error) {
-      console.log("error in traierhistory : [id], getuserRecord api", error);
-    }
+    } catch (error) {}
   }
   // initial fecth of selected activity record
   useEffect(() => {

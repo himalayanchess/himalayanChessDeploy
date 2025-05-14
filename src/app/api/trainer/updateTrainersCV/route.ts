@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateTrainersCv route", error);
     return NextResponse.json({
       msg: "Internal error in updateTrainersCv route",
       statusCode: 204,

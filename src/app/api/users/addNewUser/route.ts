@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
     const timeZone = "Asia/Kathmandu";
 
     const reqBody = await req.json();
-    console.log("add new student", reqBody);
 
     const utcJoinedDate = reqBody?.joinedDate
       ? dayjs(reqBody?.joinedDate).tz(timeZone).startOf("day").utc()
@@ -68,8 +67,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new user",
     });
   } catch (error) {
-    console.log("Internal error in addNewUser route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addNewUser route",

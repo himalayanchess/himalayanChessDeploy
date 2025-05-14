@@ -19,15 +19,12 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { trainerId, todaysDate } = reqBody;
 
-    console.log("inside trainerclass route");
     const passedNepaliDate = dayjs(todaysDate).startOf("day").tz(timeZone);
-    // console.log("passed nepali date", passedNepaliDate.format());
     const convertedUtcDate = dayjs(passedNepaliDate)
       .tz(timeZone)
       .startOf("day")
       .utc()
       .format();
-    // console.log("converted utc date", convertedUtcDate);
 
     if (!trainerId || !todaysDate) {
       return NextResponse.json({

@@ -58,9 +58,7 @@ const StudyMaterialModal = ({
         dispatch(updateTodaysClassRecord(resData?.updatedRecord));
       }
       notify(resData?.msg, resData?.statusCode);
-    } catch (error) {
-      console.log("error in handleDeleteStudyMaterial ", error);
-    }
+    } catch (error) {}
   }
 
   return (
@@ -313,7 +311,6 @@ export const UploadStudyMaterialModal = ({
   //handle file change
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
-    console.log(file);
 
     if (file) {
       setstudyMaterialFile(file);

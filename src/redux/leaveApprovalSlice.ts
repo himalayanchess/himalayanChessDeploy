@@ -6,8 +6,6 @@ export const fetchAllLeaveRequests = createAsyncThunk(
   "leaverequest/fetchAllLeaveRequests",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("fetchAllLeaveRequests thunk");
-
       const response = await axios.get(
         "/api/leaveapproval/getAllLeaveRequests"
       );
@@ -46,7 +44,6 @@ const leaveApprovalSlice = createSlice({
     },
     // fileter all leave request based on mode and trainer
     filterLeaveRequests: (state, action) => {
-      // console.log("filterleave requests reuducer ", action.payload);
       state.allFilteredLeaveRequests = action.payload;
     },
   },

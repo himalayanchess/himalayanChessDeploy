@@ -32,5 +32,3 @@ function calculateUnique() {
   }
   return true;
 }
-
-console.log(calculateUnique());

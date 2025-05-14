@@ -59,5 +59,3 @@ finalBatches = finalBatches.map((batch) => {
   }
   return batch;
 });
-
-console.log(finalBatches);

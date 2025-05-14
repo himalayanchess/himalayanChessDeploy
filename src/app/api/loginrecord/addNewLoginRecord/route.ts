@@ -9,7 +9,6 @@ export async function POST(req: NextRequest) {
 
     // Parse the request body
     const reqBody = await req.json();
-    console.log("inside add new login record", reqBody);
 
     // Create a new login record using the request body
     const newLoginRecord = new LoginRecord({
@@ -45,8 +44,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add login record",
     });
   } catch (error) {
-    console.log("Error while saving login record in db", error);
-
     return NextResponse.json({
       statusCode: 500,
       msg: "Internal error while saving login record",

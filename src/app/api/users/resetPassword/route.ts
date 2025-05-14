@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in resetPassword route", error);
     return NextResponse.json({
       msg: "Internal error in resetPassword route",
       statusCode: 204,

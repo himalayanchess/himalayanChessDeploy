@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getallAssignedClasses route", error);
     return NextResponse.json({
       msg: "Internal error in getallAssignedClasses",
       statusCode: 204,

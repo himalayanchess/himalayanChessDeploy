@@ -6,8 +6,6 @@ export const fetchAllTrainersLeaveRequests = createAsyncThunk(
   "leaverequest/fetchAllTrainersLeaveRequests",
   async ({ userId }: any, { rejectWithValue }) => {
     try {
-      console.log("fetchAllTrainersLeaveRequests thunk");
-
       const response = await axios.post(
         "/api/leaverequest/getAllTrainersLeaveRequests",
         {
@@ -15,7 +13,6 @@ export const fetchAllTrainersLeaveRequests = createAsyncThunk(
         }
       );
       // Return the data from the response
-      console.log("all trainers requets", response);
 
       return response.data.allTrainersLeaveRequests;
     } catch (error: any) {

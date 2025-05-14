@@ -6,7 +6,6 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    console.log("getting leave data", reqBody);
 
     const allTrainersLeaveRequests = await LeaveRequest.find({
       userId: reqBody?.userId,
@@ -23,7 +22,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getallTrainersLeaveRequests route", error);
     return NextResponse.json({
       msg: "Internal error in getallTrainersLeaveRequests",
       statusCode: 204,

@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getallTrainersActivityRecords route", error);
     return NextResponse.json({
       msg: "Internal error in getallTrainersActivityRecords",
       statusCode: 204,

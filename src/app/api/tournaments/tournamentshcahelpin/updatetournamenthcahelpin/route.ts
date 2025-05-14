@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
     const timeZone = "Asia/Kathmandu";
 
     const reqBody = await request.json();
-    // console.log("Updating  Tournament hca help in:", reqBody);
 
     const {
       _id,

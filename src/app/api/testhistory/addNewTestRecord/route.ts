@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
     const timeZone = "Asia/Kathmandu";
     await dbconnect();
     const reqBody = await request.json();
-    console.log("addnew test record api", reqBody);
 
     const {
       affiliatedTo,
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // first convert date to nepali time format (understanding)
     const passedNepaliDate = dayjs(examDate).tz(timeZone).startOf("day");
-    console.log("passed nepali date", passedNepaliDate.format());
+
     const convertedUtcDate = dayjs(examDate).tz(timeZone).startOf("day").utc();
 
     // calculate resultStatus
@@ -72,7 +71,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in add new test record route", error);
     return NextResponse.json({
       msg: "Internal error in add new test record route",
       statusCode: 204,

@@ -97,9 +97,7 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("Error in view assigned class (deleteClass route)");
-    }
+    } catch (error) {}
   };
 
   const handleApproveLeaveRequest = async () => {

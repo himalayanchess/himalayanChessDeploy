@@ -28,7 +28,6 @@ const HcaCircuitSeriesTournamentList = ({ tournamentList, loading }: any) => {
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside hcaCircuitSeriesTournamentlist", tournamentList);
 
   const [loaded, setloaded] = useState(false);
   const [
@@ -70,9 +69,7 @@ const HcaCircuitSeriesTournamentList = ({ tournamentList, loading }: any) => {
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handlehcaCircuitSeriesTournamentDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

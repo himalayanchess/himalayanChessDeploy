@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
       trainerId,
       userPresentStatus,
     } = reqBody;
-    console.log("update reqBody", reqBody);
 
     // const selectedDateOnly = dayjs(date).startOf("day"); // Strip time for comparison
     // const selectedStartTime = dayjs(startTime).startOf("day"); // Strip time
@@ -74,7 +73,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateClass route", error);
     return NextResponse.json({
       msg: "Internal error in updateClass route",
       statusCode: 204,

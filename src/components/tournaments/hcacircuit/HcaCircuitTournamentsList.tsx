@@ -34,7 +34,6 @@ const HcaCircuitTournamentsList = ({
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside hcaCircuitTournamentlist", allFilteredActiveHcaCircuitTournamentsList);
 
   const [loaded, setloaded] = useState(false);
   const [selectedHcaCircuitTournamentId, setSelectedHcaCircuitTournamentId] =
@@ -74,9 +73,7 @@ const HcaCircuitTournamentsList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleOtherTournamentDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

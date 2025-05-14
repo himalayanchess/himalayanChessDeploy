@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
     const timeZone = "Asia/Kathmandu";
 
     const reqBody = await request.json();
-    console.log("Updating Lichess Tournament:", reqBody);
 
     // _id availabe becase of replace in frontend useEffect
     const {

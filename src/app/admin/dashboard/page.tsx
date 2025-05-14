@@ -11,7 +11,6 @@ import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 const page = () => {
   const router = useRouter();
   const session = useSession();
-  console.log(session);
 
   return (
     <div>

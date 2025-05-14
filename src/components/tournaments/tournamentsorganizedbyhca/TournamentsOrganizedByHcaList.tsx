@@ -34,7 +34,6 @@ const TournamentsOrganizedByHcaList = ({
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside tournamentlist", allFilteredActiveTournamentsOrganizedByHcaList);
 
   const [loaded, setloaded] = useState(false);
   const [selectedTournamentId, setSelectedTournamentId] = useState(null);
@@ -67,9 +66,7 @@ const TournamentsOrganizedByHcaList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleTournamentDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

@@ -77,7 +77,6 @@ const AddCourse = () => {
   // handle course file change
   function handleCourseFileChange(e: any) {
     const file = e.target.files[0];
-    console.log(file);
 
     if (file) {
       setcourseFile(file);
@@ -140,7 +139,6 @@ const AddCourse = () => {
       return;
     } catch (error) {
       notify("Invaid data inside JSON file", 204);
-      console.log("Error in handleaddCourseByFile function", error);
     }
   }
 

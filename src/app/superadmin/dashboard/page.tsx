@@ -11,7 +11,6 @@ import DashboardComponent from "@/components/dashboard/DashboardComponent";
 const page = () => {
   const router = useRouter();
   const session = useSession();
-  console.log(session);
 
   return (
     <div>

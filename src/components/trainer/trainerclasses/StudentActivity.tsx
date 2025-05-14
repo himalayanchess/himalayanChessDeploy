@@ -67,11 +67,9 @@ const StudentActivity = ({
     },
   });
   const students = watch("students");
-  // console.log(students);
 
   // update redux state for evry attendance change for analysis
   useEffect(() => {
-    // console.log("studentsattencande cnahgedddddd", students);
     if (students) {
       const tempStudents = JSON.stringify(students);
 
@@ -156,7 +154,6 @@ const StudentActivity = ({
 
   // Function to add study topic
   const handleAddStudyTopic = () => {
-    console.log("submit:", selectedTopic);
     if (!selectedTopic || !selectedTopic.trim()) {
       notify("Select study topic", 204);
       return;
@@ -194,7 +191,7 @@ const StudentActivity = ({
   // Handle form submission
   const onSubmit = async (data: any) => {
     try {
-      console.log(data); // This will contain all student records
+      // This will contain all student records
       setupdateRecordsLoading(true);
       const { data: resData } = await axios.post(
         "/api/classes/updateStudentRecords",
@@ -211,7 +208,6 @@ const StudentActivity = ({
       }
       notify(resData.msg, resData.statusCode);
     } catch (error) {
-      console.log("studentactivity.tsx updatestudentsrecord", error);
     } finally {
       setupdateRecordsLoading(false);
     }

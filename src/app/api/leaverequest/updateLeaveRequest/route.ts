@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await request.json();
-    console.log("update leave request ", reqBody);
 
     const updatedLeaveRequest = await LeaveRequest.findOneAndUpdate(
       { _id: reqBody._id },
@@ -43,7 +42,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateLeaveRequest route", error);
     return NextResponse.json({
       msg: "Internal error in updateLeaveRequest route",
       statusCode: 204,

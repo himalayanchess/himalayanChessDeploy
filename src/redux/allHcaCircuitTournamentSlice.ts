@@ -17,7 +17,6 @@ export const fetchAllHcaCircuitTournaments = createAsyncThunk(
       const { data: resData } = await axios.get(
         "/api/tournaments/hcacircuit/fetchAllHcaCircuitTournaments"
       );
-      //   console.log("fetchAllHcaCircuitTournaments", resData);
 
       return resData.allHcaCircuitTournaments;
     } catch (error: any) {
@@ -37,7 +36,6 @@ export const fetchallmainhcacircuitseriestournaments = createAsyncThunk(
           mainHcaCircuitTournamentId,
         }
       );
-      //   console.log("fetchallmainhcacircuitseriestournaments", resData);
 
       return resData.allMainHcaCircuitSeriesTournaments;
     } catch (error: any) {
@@ -56,10 +54,10 @@ export const fetchallselectedstudentshcacircuitseriestournaments =
           "/api/tournaments/hcacircuit/hcacircuitseries/fetchallselectedstudentshcacircuitseriestournaments",
           { studentId }
         );
-        console.log(
-          "fetchallselectedstudentshcacircuitseriestournaments",
-          resData
-        );
+        // console.log(
+        //   "fetchallselectedstudentshcacircuitseriestournaments",
+        //   resData
+        // );
 
         return resData.allSelectedStudentsHcaCircuitSeriesTournaments;
       } catch (error: any) {
@@ -128,8 +126,6 @@ const allHcaCircutTournamentSlice = createSlice({
         state.allHcaCircuitTournamentsLoading = true;
       })
       .addCase(fetchAllHcaCircuitTournaments.fulfilled, (state, action) => {
-        console.log("after all hca circuit tournaments", action.payload);
-
         state.allHcaCircuitTournamentsList = action.payload?.sort(
           (a: any, b: any) =>
             dayjs.tz(b.startDate, "Asia/Kathmandu").valueOf() -
@@ -161,10 +157,10 @@ const allHcaCircutTournamentSlice = createSlice({
       .addCase(
         fetchallmainhcacircuitseriestournaments.fulfilled,
         (state, action) => {
-          console.log(
-            "after all main hca circuit series tournaments",
-            action.payload
-          );
+          // console.log(
+          //   "after all main hca circuit series tournaments",
+          //   action.payload
+          // );
 
           state.allMainHcaCircuitSeriesTournamentsList = action.payload?.sort(
             (a: any, b: any) =>
@@ -203,10 +199,10 @@ const allHcaCircutTournamentSlice = createSlice({
       .addCase(
         fetchallselectedstudentshcacircuitseriestournaments.fulfilled,
         (state, action) => {
-          console.log(
-            "after all selected students hca circuit series tournaments",
-            action.payload
-          );
+          // console.log(
+          //   "after all selected students hca circuit series tournaments",
+          //   action.payload
+          // );
 
           state.allSelectedStudentsHcaCircuitSeriesTournamentsList =
             action.payload?.sort(

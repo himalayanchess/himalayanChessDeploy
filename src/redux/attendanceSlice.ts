@@ -43,8 +43,6 @@ const attendaceSlice = createSlice({
   reducers: {
     // attendace chart data
     updateAttendanceChartData: (state, action) => {
-      console.log("char data red", action.payload);
-
       state.attendanceChartData = action.payload;
     },
     // set attendanceUpdatedByData
@@ -54,22 +52,19 @@ const attendaceSlice = createSlice({
 
     //selectedDatesAttendanceRecord
     setselectedDatesAttendanceRecord: (state, action) => {
-      console.log("attendance reord in redux ", action.payload);
-
       state.selectedDatesAttendanceRecord = action.payload;
     },
 
     // students attendance
     setstudentsAttendanceSelectedDay: (state, action) => {
-      console.log("student attendance attendace record redux ", action.payload);
       state.studentsAttendanceSelectedDay = action.payload;
     },
 
     setselectedDatesStudentsAttendanceRecord: (state, action) => {
-      console.log(
-        "selectedDatesStudentsAttendanceRecord reord in redux ",
-        action.payload
-      );
+      // console.log(
+      //   "selectedDatesStudentsAttendanceRecord reord in redux ",
+      //   action.payload
+      // );
 
       state.selectedDatesStudentsAttendanceRecord = action.payload;
     },
@@ -86,8 +81,6 @@ const attendaceSlice = createSlice({
         state.allAttedanceRecordsListLoading = false;
       })
       .addCase(getAllAttendanceRecords.fulfilled, (state, action) => {
-        console.log("after all attendance records", action.payload);
-
         state.allAttedanceRecordsList = action.payload?.sort(
           (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

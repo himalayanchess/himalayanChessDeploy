@@ -65,8 +65,6 @@ const UpdatePayment = ({ paymentRecord }: any) => {
     (session?.data?.user?.role?.toLowerCase() === "admin" &&
       session?.data?.user?.isGlobalAdmin);
 
-  //   console.log("updatePayment", paymentRecord);
-
   // selectors
   const {
     allActiveProjects,
@@ -286,10 +284,7 @@ const UpdatePayment = ({ paymentRecord }: any) => {
       notify(resData?.msg, resData?.statusCode);
       return;
       // else
-
-      console.log("res dta deletePaymentFile", resData);
     } catch (error: any) {
-      console.log("error in handleDeletePaymentFile ", error);
     } finally {
       setdeletePaymentFileLoading(false);
     }
@@ -435,22 +430,20 @@ const UpdatePayment = ({ paymentRecord }: any) => {
     }
   };
 
-  // console.log("watch paymetfiles", paymentFiles);
-
   // On submit function
   const onSubmit = async (data: any) => {
     setUpdatePaymentLoading(true);
     try {
-      console.log(
-        "submit payment",
-        JSON.stringify({
-          ...data,
-          otherPaymentPurpose,
-          otherPaymentSource,
-          updatedBy: session?.data?.user,
-          paymentId: paymentRecord._id,
-        })
-      );
+      // console.log(
+      //   "submit payment",
+      //   JSON.stringify({
+      //     ...data,
+      //     otherPaymentPurpose,
+      //     otherPaymentSource,
+      //     updatedBy: session?.data?.user,
+      //     paymentId: paymentRecord._id,
+      //   })
+      // );
 
       const { data: resData } = await axios.put("/api/payments/updatePayment", {
         ...data,

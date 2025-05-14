@@ -294,7 +294,6 @@ const UpdateProject = ({ projectRecord }: any) => {
       setUpdateProjectLoading(false);
       notify(resData.msg, resData.statusCode);
     } catch (error) {
-      console.log("error in updateProject component (onSubmit)", error);
       setUpdateProjectLoading(false);
     }
   };

@@ -31,9 +31,7 @@ const page = ({ params }: any) => {
         setinvalidId(true);
       }
       setLoading(false);
-    } catch (error) {
-      console.log("error in updateProject : [id], getcourseRecord api", error);
-    }
+    } catch (error) {}
   }
   // initial fecth of selected activity record
   useEffect(() => {

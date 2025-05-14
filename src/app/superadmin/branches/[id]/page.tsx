@@ -21,7 +21,9 @@ const page = ({ params }: any) => {
   // dispatch
   const dispath = useDispatch<any>();
   // selector
-  const { allActiveBatches } = useSelector((state: any) => state.allListReducer);
+  const { allActiveBatches } = useSelector(
+    (state: any) => state.allListReducer
+  );
 
   const [loading, setLoading] = useState(false);
   const [invalidId, setinvalidId] = useState(false);
@@ -39,9 +41,7 @@ const page = ({ params }: any) => {
         setinvalidId(true);
       }
       setLoading(false);
-    } catch (error) {
-      console.log("error in viewbranch : [id], getbranchRecord api", error);
-    }
+    } catch (error) {}
   }
   // initial fecth of selected activity record
   useEffect(() => {

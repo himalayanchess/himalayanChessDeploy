@@ -39,7 +39,6 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewProjectDetail = ({ projectRecord }: any) => {
-  // console.log(projectRecord);
   // selector
   const { allActiveActivityRecords, allActivityRecordsLoading } = useSelector(
     (state: any) => state.activityRecordReducer
@@ -63,8 +62,6 @@ const ViewProjectDetail = ({ projectRecord }: any) => {
   const [selectedMenu, setSelectedMenu] = useState("basic");
 
   const handleMenuClick = (menuValue: any) => {
-    console.log("menu", menuValue);
-
     setSelectedMenu(menuValue); // Update the selected menu
   };
   // menu items

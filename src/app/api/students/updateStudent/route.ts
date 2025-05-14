@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const timeZone = "Asia/Kathmandu";
     const reqBody = await request.json();
-    console.log("update student ", reqBody);
 
     const {
       _id,
@@ -206,7 +205,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateStudent route", error);
     return NextResponse.json({
       msg: "Internal error in updateStudent route",
       statusCode: 500,

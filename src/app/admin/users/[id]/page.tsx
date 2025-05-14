@@ -17,7 +17,6 @@ const page = ({ params }: any) => {
 
   const [loading, setLoading] = useState(true);
   const [userRecord, setuserRecord] = useState<any>(null);
-  console.log("ac record", userRecord);
 
   async function getuserRecord() {
     try {
@@ -26,10 +25,9 @@ const page = ({ params }: any) => {
         userId,
       });
       setuserRecord(resData.userRecord);
-      console.log(resData);
+
       setLoading(false);
     } catch (error) {
-      console.log("error in traierhistory : [id], getuserRecord api", error);
       setLoading(false); // Ensure loading is set to false in case of an error.
     }
   }

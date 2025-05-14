@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
         allSelectedStudentsHcaCircuitSeriesTournaments,
       });
     }
-    // console.log(allSelectedStudentsHcaCircuitSeriesTournaments);
 
     return NextResponse.json({
       msg: "Selected students hca circuit series tournaments not found",

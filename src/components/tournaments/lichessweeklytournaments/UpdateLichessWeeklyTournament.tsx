@@ -154,8 +154,6 @@ const UpdateLichessWeeklyTournament = ({ lichessTournamentRecord }: any) => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      console.log(data);
-
       const { data: response } = await axios.post(
         `/api/tournaments/lichess/updatelichesstournament`,
         {

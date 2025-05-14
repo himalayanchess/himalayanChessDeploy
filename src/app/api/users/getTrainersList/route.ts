@@ -22,8 +22,6 @@ export async function GET(req: NextRequest) {
       msg: "Failed to get trainers list",
     });
   } catch (error) {
-    console.log("Internal error in getTrainersList route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in getTrainersList route",

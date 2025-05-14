@@ -41,7 +41,6 @@ const timeZone = "Asia/Kathmandu";
 const UpdateUser = ({ userRecord }: any) => {
   const router = useRouter();
   const session = useSession();
-  console.log("update ", userRecord);
 
   // dispatch
   const dispatch = useDispatch<any>();
@@ -169,9 +168,8 @@ const UpdateUser = ({ userRecord }: any) => {
   });
 
   const { errors, isValid } = formState;
-  console.log(errors);
+
   const onSubmit = async (data: any) => {
-    console.log("Form Submitted Successfully:", data);
     setupdateUserLoading(true);
     // add mode api call
     const { data: resData } = await axios.post("/api/users/updateUser", {

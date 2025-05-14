@@ -157,7 +157,7 @@ const Header = () => {
                             color="error"
                             onClick={async (e) => {
                               e.preventDefault();
-                              console.log("logout");
+
                               setlogoutLoading(true);
                               await signOut({ redirect: false });
                               router.push("/login");

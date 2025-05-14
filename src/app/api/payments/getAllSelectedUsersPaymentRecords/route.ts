@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     const allSelectedUsersPaymentRecords = await Payment.find({
       "recipient.userId": userId,
     });
-
     console.log(
       "server getAllSelectedUsersPaymentRecords",
       userId,

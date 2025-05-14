@@ -15,14 +15,12 @@ export async function POST(request: NextRequest) {
         courseRecord,
       });
     }
-    console.log(courseRecord);
 
     return NextResponse.json({
       msg: "Course not found",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getCourse route", error);
     return NextResponse.json({
       msg: "Internal error in getCourse",
       statusCode: 204,

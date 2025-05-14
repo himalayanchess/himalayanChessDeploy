@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
 
     const reqBody = await request.json();
-    // console.log("adding tournamtent org by hca", reqBody);
 
     const {
       tournamentName,

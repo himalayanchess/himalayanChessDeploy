@@ -15,14 +15,12 @@ export async function POST(request: NextRequest) {
         paymentRecord,
       });
     }
-    console.log(paymentRecord);
 
     return NextResponse.json({
       msg: "Payment record not found",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getPayment record route", error);
     return NextResponse.json({
       msg: "Internal error in getPayment record",
       statusCode: 204,

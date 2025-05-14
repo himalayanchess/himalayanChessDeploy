@@ -12,7 +12,6 @@ import ChangePasswordComponent from "@/components/changepassword/ChangePasswordC
 const page = () => {
   const router = useRouter();
   const session = useSession();
-  console.log(session);
 
   return (
     <div>

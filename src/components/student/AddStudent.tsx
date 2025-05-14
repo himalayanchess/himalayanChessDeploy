@@ -115,7 +115,6 @@ const AddStudent = () => {
   // handle student file change
   function handleStudentFileChange(e: any) {
     const file = e.target.files[0];
-    console.log(file);
 
     if (file) {
       setstudentFile(file);
@@ -177,7 +176,6 @@ const AddStudent = () => {
       return;
     } catch (error) {
       notify("Invaid data inside JSON file", 204);
-      console.log("Error in handleAddStudentByFile function", error);
     }
   }
 
@@ -233,7 +231,6 @@ const AddStudent = () => {
     control,
     name: "batches",
   });
-  console.log("batchesFields", batchesFields);
 
   // Handle enrolledCourses dynamically
   const { fields, append, remove } = useFieldArray({
@@ -289,7 +286,6 @@ const AddStudent = () => {
         }
       );
       if (resData.statusCode == 200) {
-        // console.log("ass student", resData);
         notify(resData.msg, resData.statusCode);
         handleconfirmModalClose();
         setTimeout(() => {
@@ -301,9 +297,7 @@ const AddStudent = () => {
       setaddStudentLoading(false);
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in addsudent component (onSubmit)", error);
-    }
+    } catch (error) {}
   }
 
   //filter batches
@@ -327,7 +321,6 @@ const AddStudent = () => {
                   selectedProject?.toLowerCase()
             )
             .map((batch: any) => batch);
-    // console.log("filtered bat", filtered);
 
     setFilteredBatches(filtered); // Update filteredBatches state
   }, [allActiveBatches, selectedAffiliatedTo, selectedBranch, selectedProject]);
@@ -343,8 +336,6 @@ const AddStudent = () => {
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
-
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
 
     let affiliatedTo = "HCA";
     if (!isSuperOrGlobalAdmin) {

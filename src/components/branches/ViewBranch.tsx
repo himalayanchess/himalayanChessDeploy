@@ -37,7 +37,6 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewBranch = ({ branchRecord, allActiveBatches }: any) => {
-  // console.log(branchRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -63,8 +62,6 @@ const ViewBranch = ({ branchRecord, allActiveBatches }: any) => {
 
   const showComponent = () => {
     if (branchRecord) {
-      console.log("show comp", selectedMenu);
-
       switch (selectedMenu) {
         case "basic":
           return <BasicBranchInfo branchRecord={branchRecord} />;

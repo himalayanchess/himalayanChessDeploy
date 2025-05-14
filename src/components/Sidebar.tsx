@@ -168,7 +168,7 @@ const Sidebar = ({ menuItems, role, activeMenu }: any) => {
                       size="medium"
                       color="error"
                       onClick={async () => {
-                        console.log("logout");
+
                         setlogoutLoading(true);
                         await signOut({ redirect: false });
                         router.push("/login");

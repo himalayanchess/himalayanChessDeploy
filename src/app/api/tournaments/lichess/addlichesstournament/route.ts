@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
 
     const body = await request.json();
-    console.log("adding lichess tournamte", body);
 
     const {
       tournamentName,

@@ -18,8 +18,6 @@ export async function POST(request: NextRequest) {
     const timeZone = "Asia/Kathmandu";
     const reqBody = await request.json();
 
-    console.log("update project ", reqBody);
-
     // Convert project-level startDate and endDate to UTC
     const utcStartDate = reqBody?.startDate
       ? dayjs(reqBody?.startDate).tz(timeZone).startOf("day").utc().toDate()
@@ -87,7 +85,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in updateProject route", error);
     return NextResponse.json({
       msg: "Internal error in updateProject route",
       statusCode: 204,

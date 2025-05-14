@@ -6,8 +6,6 @@ export const fetchAllActivityRecords = createAsyncThunk(
   "activityrecords/fetchAllActivityRecords",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("thunkkkkkkkkkk all activity records");
-
       const { data: resData } = await axios.get(
         "/api/activityrecord/getAllActivityRecords"
       );
@@ -23,13 +21,10 @@ export const fetchAllStudentsActivityRecords = createAsyncThunk(
   "activityrecords/fetchAllStudentsActivityRecords",
   async (studentId: any, { rejectWithValue }) => {
     try {
-      console.log("thunkkkkkkkkkk student id", studentId);
-
       const { data: resData } = await axios.post(
         "/api/activityrecord/getAllStudentsActivityRecords",
         { studentId }
       );
-      // console.log("getAllStudentsActivityRecords", resData);
 
       return resData.allStudentsActivityRecords;
     } catch (error: any) {

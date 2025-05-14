@@ -109,7 +109,6 @@ const TestHistoryComponent = ({ role }: any) => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     if (!isSuperOrGlobalAdmin) {
       branchName = user?.branchName;

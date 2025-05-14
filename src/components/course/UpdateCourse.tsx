@@ -67,7 +67,6 @@ const UpdateCourse = ({ courseRecord }: any) => {
   // handle course file change
   function handleCourseFileChange(e: any) {
     const file = e.target.files[0];
-    console.log(file);
 
     if (file) {
       setcourseFile(file);

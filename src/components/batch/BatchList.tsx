@@ -23,7 +23,6 @@ const BatchList = ({
   const session = useSession();
   // dispatch
   const dispatch = useDispatch<any>();
-  // console.log("inside batchlist", allFilteredActiveBatches);
 
   const [loaded, setloaded] = useState(false);
   const [selectedBatchId, setSelectedBatchId] = useState(null);
@@ -53,9 +52,7 @@ const BatchList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleBatchDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

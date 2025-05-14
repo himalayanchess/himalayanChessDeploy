@@ -14,7 +14,6 @@ const page = ({ params }: any) => {
 
   const [loading, setLoading] = useState(true);
   const [activityRecord, setactivityRecord] = useState<any>(null);
-  console.log("ac record", activityRecord);
 
   async function getActivityRecord() {
     try {
@@ -24,7 +23,7 @@ const page = ({ params }: any) => {
         { activityRecordId }
       );
       setactivityRecord(resData.activityRecord);
-      console.log(resData);
+
       setLoading(false);
     } catch (error) {
       console.log(

@@ -47,7 +47,6 @@ const AssignClass = () => {
   const today = dayjs().tz(timeZone).startOf("day");
   const [currentDate, setCurrentDate] = useState<any>(today);
   const [selectedDate, setSelectedDate] = useState<any>(today);
-  // console.log("tpdayssssssssssss date", today);
 
   const nextMonth = () => setCurrentDate(currentDate.add(1, "month"));
   const prevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));

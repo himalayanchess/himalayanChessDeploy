@@ -31,9 +31,7 @@ const page = ({ params }: any) => {
         setInvalidId(true);
       }
       setLoading(false);
-    } catch (error) {
-      console.log("Error in test history [id] page, getTestRecord api", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

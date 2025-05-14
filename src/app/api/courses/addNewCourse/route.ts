@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     await dbconnect();
     const reqBody = await req.json();
-    console.log(reqBody);
+
     const courseExists = await Course.findOne({
       name: { $regex: new RegExp(`^${reqBody.name}$`, "i") },
     });
@@ -32,8 +32,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new course",
     });
   } catch (error) {
-    console.log("Internal error in addcourse route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addcourse route",

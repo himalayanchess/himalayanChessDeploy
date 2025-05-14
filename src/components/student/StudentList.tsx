@@ -61,9 +61,7 @@ const StudentList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleStudentDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

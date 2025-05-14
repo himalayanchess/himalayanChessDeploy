@@ -197,10 +197,7 @@ const DashboardComponent = () => {
           totalStudyMaterials: resData?.totalStudyMaterials,
         };
       });
-
-      console.log("dash resData", resData);
     } catch (error: any) {
-      console.log("Error in getDashboardData", error);
     } finally {
       setdashboardDataLoading(false);
     }

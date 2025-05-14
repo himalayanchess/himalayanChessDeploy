@@ -58,9 +58,7 @@ const StudyMaterialsList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handlestudyMaterialDelete", error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {

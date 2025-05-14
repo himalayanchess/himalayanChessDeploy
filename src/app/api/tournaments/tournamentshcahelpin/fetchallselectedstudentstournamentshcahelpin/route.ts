@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
         allSelectedStudentsTournamentsHcaHelpIn,
       });
     }
-    // console.log(allSelectedStudentsTournamentsHcaHelpIn);
 
     return NextResponse.json({
       msg: "Selected students  tournaments hca help in not found",

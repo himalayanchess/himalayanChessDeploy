@@ -283,7 +283,6 @@ const ActivityAssignedClassesComponent = () => {
       },
     };
 
-    console.log("Activity Stats:", activityStats);
     setRecordStats(activityStats);
   }, [
     allActiveActivityRecords,
@@ -304,7 +303,6 @@ const ActivityAssignedClassesComponent = () => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     let affiliatedTo = "All";
     if (!isSuperOrGlobalAdmin) {

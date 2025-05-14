@@ -49,9 +49,7 @@ export default function ChangePasswordComponent() {
         return;
       }
       notify(resData?.msg, resData?.statusCode);
-    } catch (error) {
-      console.log("Error in change password onsubmit function", error);
-    }
+    } catch (error) {}
   };
 
   return (

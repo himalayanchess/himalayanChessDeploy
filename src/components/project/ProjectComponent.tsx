@@ -61,7 +61,6 @@ const ProjectComponent = ({ role }: any) => {
   // filter
   useEffect(() => {
     // filter users
-    console.log(allActiveProjects);
 
     let tempFilteredProjectsList =
       selectedStatus.toLowerCase() == "all"

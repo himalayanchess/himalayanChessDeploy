@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
     const timeZone = "Asia/Kathmandu";
     const reqBody = await req.json();
     const { installments = [], totalAmount = 0 } = reqBody;
-    console.log(reqBody);
 
     const totalPaid = installments.reduce(
       (acc: number, curr: any) => acc + Number(curr.amount || 0),
@@ -68,8 +67,6 @@ export async function POST(req: NextRequest) {
       msg: "Failed to add new payment",
     });
   } catch (error) {
-    console.log("Internal error in addnewPayment route", error);
-
     return NextResponse.json({
       statusCode: 204,
       msg: "Internal error in addnewPayment route",

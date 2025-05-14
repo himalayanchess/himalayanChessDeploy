@@ -29,8 +29,6 @@ export async function POST(request: NextRequest) {
       subject: "OTP for Forgot Password",
     });
 
-    // console.log("generated otp", generatedOtp);
-
     // hash otp
     const salt = await bcrypt.genSalt(10);
     const hashedOTP = await bcrypt.hash(generatedOtp.toString(), salt);
@@ -53,7 +51,6 @@ export async function POST(request: NextRequest) {
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getUser route", error);
     return NextResponse.json({
       msg: "Internal error in getUser",
       statusCode: 204,

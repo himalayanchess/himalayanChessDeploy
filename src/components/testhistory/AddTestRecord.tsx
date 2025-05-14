@@ -149,9 +149,7 @@ const AddTestHistory = () => {
           else {
             testMaterialUrl = uploadresData.res.secure_url;
           }
-        } catch (error) {
-          console.log("Failed to upload test material in cloudinary");
-        }
+        } catch (error) {}
       }
 
       const { data: resData } = await axios.post(

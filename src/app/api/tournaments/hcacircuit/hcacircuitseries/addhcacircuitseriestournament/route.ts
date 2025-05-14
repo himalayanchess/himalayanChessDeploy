@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
 
     const reqBody = await request.json();
-    console.log("adding hca serues tournamte", reqBody);
 
     const {
       mainHcaCircuitTournamentId,

@@ -17,14 +17,12 @@ export async function POST(request: NextRequest) {
         leaveRequestRecord,
       });
     }
-    console.log(leaveRequestRecord);
 
     return NextResponse.json({
       msg: "Batch not found",
       statusCode: 204,
     });
   } catch (error) {
-    console.log("Internal error in getBatch route", error);
     return NextResponse.json({
       msg: "Internal error in getBatch",
       statusCode: 204,

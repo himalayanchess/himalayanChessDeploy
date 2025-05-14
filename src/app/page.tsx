@@ -8,7 +8,6 @@ export default function Home() {
   async function checkAuthorization() {
     const session = await getSession();
     const role = session?.user.role;
-    console.log("session role ", session);
 
     let redirectRoute = "/login";
     switch (session?.user?.role?.toLowerCase()) {
@@ -24,7 +23,7 @@ export default function Home() {
       default:
         break;
     }
-    console.log(redirectRoute);
+
     router.push(redirectRoute);
   }
   useEffect(() => {

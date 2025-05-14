@@ -56,8 +56,6 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ManageClass = ({ selectedDate }: any) => {
-  // console.log("selectedDate in manage class", selectedDate);
-
   const dis = useDispatch<any>();
   const session = useSession();
   const isSuperOrGlobalAdmin =
@@ -168,11 +166,8 @@ const ManageClass = ({ selectedDate }: any) => {
   // form submit function (assign class)
   const onSubmit = async (data: any) => {
     try {
-      // console.log("final api passing selectedDate", selectedDate);
       // const passedNepaliDate = dayjs(selectedDate).tz(timeZone).startOf("day");
-      // console.log("db nepalid ate", passedNepaliDate.format());
       // const convertedUtcDate = dayjs().startOf("day").utc();
-      // console.log("db converted utc  date", convertedUtcDate.format());
       setassignClassLoading(true);
       const { data: resData } = await axios.post("/api/classes/assignClass", {
         ...data,
@@ -198,7 +193,6 @@ const ManageClass = ({ selectedDate }: any) => {
         notify(resData.msg, resData.statusCode);
       }
     } catch (error) {
-      console.log("Internal error in manageclass (assignclassroute)");
     } finally {
       setassignClassLoading(false);
     }
@@ -275,8 +269,6 @@ const ManageClass = ({ selectedDate }: any) => {
 
   // fitler selected batch students
   useEffect(() => {
-    console.log("selected branch", selectedBranch);
-
     if (isPlayDay) {
       // Filter all HCA students in active, non-ended batches
       const hcaStudents = allActiveStudentsList.filter(
@@ -293,7 +285,6 @@ const ManageClass = ({ selectedDate }: any) => {
         new Map(hcaStudents.map((s: any) => [s._id, s])).values()
       );
 
-      console.log("Playday HCA students:", uniqueStudents);
       setselectedBatchStudents(uniqueStudents);
     } else if (batchId !== "") {
       const tempAllStudents = allActiveStudentsList.filter((student: any) =>
@@ -302,7 +293,7 @@ const ManageClass = ({ selectedDate }: any) => {
             batch.batchId == batchId && batch.activeStatus && !batch.endDate
         )
       );
-      console.log("Batch-specific students:", tempAllStudents);
+
       setselectedBatchStudents(tempAllStudents);
     } else {
       setselectedBatchStudents([]);
@@ -312,7 +303,6 @@ const ManageClass = ({ selectedDate }: any) => {
   // Filter batches based on affiliatedTo and projectId
   useEffect(() => {
     let tempFilteredBatches;
-    console.log("selected bran ", selectedBranch);
 
     if (affiliatedTo.toLowerCase() === "hca") {
       tempFilteredBatches = allActiveBatches.filter(
@@ -349,10 +339,10 @@ const ManageClass = ({ selectedDate }: any) => {
           todaysDate: dayjs().tz(timeZone).startOf("day").format(),
         }
       );
-      console.log(
-        "presetnt trainers resdataaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        presentTrainersResData
-      );
+      // console.log(
+      //   "presetnt trainers resdataaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      //   presentTrainersResData
+      // );
 
       // not used as we can assign the class to different days
       // and this shows trainers of todays present only
@@ -366,12 +356,9 @@ const ManageClass = ({ selectedDate }: any) => {
       const { data: projectResData } = await axios.get(
         "/api/projects/getAllProjects"
       );
-      console.log("projet listtttttttt", projectResData.allProjects);
 
       setProjectList(projectResData.allProjects);
-    } catch (error) {
-      console.log("Error in ManageClass component", error);
-    }
+    } catch (error) {}
   };
 
   // initial data

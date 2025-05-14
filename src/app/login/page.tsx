@@ -31,18 +31,14 @@ const page = () => {
     });
 
     if (resData.statusCode == 200) {
-      console.log("after login check success");
       const signInResData = await signIn("credentials", {
         redirect: false,
         email: data?.email,
         password: data?.password,
       });
-      console.log("after authorize in nextauth ", signInResData);
 
       if (signInResData?.status == 200) {
         const session = await getSession();
-
-        console.log("after success overl login session is", session);
 
         setTimeout(() => {
           let redirectRoute = "/login";
@@ -63,7 +59,7 @@ const page = () => {
             default:
               break;
           }
-          console.log(redirectRoute);
+
           notify(resData?.msg, resData?.statusCode);
           router.push(redirectRoute);
           // setLoading(false);

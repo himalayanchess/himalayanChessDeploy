@@ -99,8 +99,6 @@ const AddBatch = () => {
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
-
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
       setValue("branchId", user?.branchId);
@@ -247,7 +245,6 @@ const AddBatch = () => {
                     const selectedProject: any = allActiveProjects.find(
                       (project: any) => project.name == value
                     );
-                    console.log(selectedProject);
 
                     setValue("projectId", selectedProject?._id);
                     setValue("currentCourseId", "");

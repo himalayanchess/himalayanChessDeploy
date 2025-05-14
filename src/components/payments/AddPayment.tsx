@@ -250,12 +250,12 @@ const AddPayment = () => {
   const onSubmit = async (data: any) => {
     setAddPaymentLoading(true);
     try {
-      console.log("submit payment", {
-        ...data,
-        otherPaymentPurpose,
-        otherPaymentSource,
-        createdBy: session?.data?.user,
-      });
+      // console.log("submit payment", {
+      //   ...data,
+      //   otherPaymentPurpose,
+      //   otherPaymentSource,
+      //   createdBy: session?.data?.user,
+      // });
 
       const { data: resData } = await axios.post(
         "/api/payments/addNewPayment",
@@ -289,8 +289,6 @@ const AddPayment = () => {
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
-
-    // console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "";
     if (!isSuperOrGlobalAdmin) {
       setValue("branchName", user?.branchName);
@@ -352,8 +350,6 @@ const AddPayment = () => {
   useEffect(() => {
     setValue("paymentPurpose", "");
   }, [otherPaymentPurpose]);
-
-  // console.log("installments feid", installmentFields);
 
   // get initial data
   useEffect(() => {

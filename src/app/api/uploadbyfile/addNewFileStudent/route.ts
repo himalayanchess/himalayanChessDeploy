@@ -117,7 +117,6 @@ export async function POST(request: NextRequest) {
         ? dayjs(course.endDate).tz(timeZone).startOf("day").utc()
         : "",
     }));
-    console.log("onverted coursees", utcconvertedEnrolledCourses);
 
     // Check if user with the same name exists (case-insensitive)
     const nonAffiliatedStudentExists = await NonAffiliatedStudent.findOne({
@@ -136,8 +135,6 @@ export async function POST(request: NextRequest) {
 
     // add student accoring to selectedAffiliatedTo (hca)
     if (affiliatedTo?.toLowerCase() == "hca") {
-      console.log(reqBody);
-
       const newStudent = new HcaAffiliatedStudent({
         affiliatedTo,
         name,
@@ -199,7 +196,6 @@ export async function POST(request: NextRequest) {
       msg: "Failed to add new user",
     });
   } catch (error) {
-    console.log("Internal error in getallBatches route", error);
     return NextResponse.json({
       msg: "Internal error in getallBatches",
       statusCode: 204,

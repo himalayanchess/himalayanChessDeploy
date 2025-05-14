@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     await dbconnect();
     const reqBody = await request.json();
     const { email, password } = reqBody;
-    // console.log("login req body", reqBody);
 
     const fetchedUser = await User.findOne({ email });
 
@@ -74,7 +73,6 @@ export async function POST(request: NextRequest) {
     //   );
     //   ispOrg = geoResponse.data.org || null;
     // } catch (geoError) {
-    //   console.log("Error fetching geolocation", geoError);
     // }
 
     // // Record the login
@@ -101,7 +99,6 @@ export async function POST(request: NextRequest) {
       fetchedUser,
     });
   } catch (error) {
-    console.log("Internal error in login route", error);
     return NextResponse.json({
       msg: "Internal error in login route",
       statusCode: 204,

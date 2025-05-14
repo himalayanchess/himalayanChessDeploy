@@ -6,8 +6,6 @@ import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 
 const StudyMaterialListComponent = ({ studyMaterials }: any) => {
-  console.log("study material", studyMaterials);
-
   return (
     <div className="">
       <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(5,1fr)] w-full bg-gray-200">

@@ -47,9 +47,7 @@ const UserList = ({
       }
       notify(resData.msg, resData.statusCode);
       return;
-    } catch (error) {
-      console.log("error in handleUserDelete", error);
-    }
+    } catch (error) {}
   }
 
   function handleDeleteModalOpen(userId: any, userName: any) {

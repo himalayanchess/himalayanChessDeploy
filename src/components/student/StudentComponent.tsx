@@ -99,7 +99,6 @@ const StudentComponent = ({ role }: any) => {
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     let affiliatedTo = "All";
     if (!isSuperOrGlobalAdmin) {
@@ -131,7 +130,6 @@ const StudentComponent = ({ role }: any) => {
               student.branchName?.toLowerCase() == selectedBranch?.toLowerCase()
           );
 
-    console.log("affiliated to", tempFilteredStudentsList);
     // Apply search filter if searchText is provided
     if (searchText.trim() !== "") {
       tempFilteredStudentsList = tempFilteredStudentsList.filter(

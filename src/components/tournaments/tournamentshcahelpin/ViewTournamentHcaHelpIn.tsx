@@ -41,7 +41,6 @@ dayjs.extend(timezone);
 const timeZone = "Asia/Kathmandu";
 
 const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
-  // console.log(tournamentHcaHelpInRecord);
   const session = useSession();
   const isSuperOrGlobalAdmin =
     session?.data?.user?.role?.toLowerCase() === "superadmin" ||
@@ -72,8 +71,6 @@ const ViewTournamentHcaHelpIn = ({ tournamentHcaHelpInRecord }: any) => {
 
   const showComponent = () => {
     if (tournamentHcaHelpInRecord) {
-      console.log("show comp", selectedMenu);
-
       switch (selectedMenu) {
         case "basic":
           return (
