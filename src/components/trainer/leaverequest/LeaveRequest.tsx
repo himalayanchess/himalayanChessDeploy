@@ -334,8 +334,8 @@ const LeaveRequest = ({ role = "" }: any) => {
   return (
     <div className="flex w-full ">
       {/* request form */}
-      <div className="requestForm flex-[0.7] flex flex-col mr-4 py-5 px-10 rounded-md shadow-md bg-white ">
-        <h1 className="text-2xl font-bold flex items-center">
+      <div className="requestForm flex-[0.7] flex flex-col mr-4 py-4 px-10 rounded-md shadow-md bg-white ">
+        <h1 className="text-3xl  flex items-center">
           <CircleFadingArrowUp />
           <span className="ml-2">Request for leave</span>
         </h1>

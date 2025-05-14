@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
+import { titlePositionMap } from "@/options/titlePositionMap";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -62,12 +63,6 @@ const AddTournamentOrganizedByHca = () => {
   const { allActiveHcaStudentsList, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
-
-  // prize options
-  const titlePositionMap: any = {
-    "Boys Winner": ["U11", "U13", "U15"],
-    "Girls Winner": ["13", "U13435", "U15465"],
-  };
 
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredStudentsListOptions, setfilteredStudentsListOptions] =

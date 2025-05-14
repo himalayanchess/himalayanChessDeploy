@@ -109,7 +109,7 @@ const ViewOtherTournament = ({ otherTournamentRecord }: any) => {
 
   return (
     <div className="bg-white rounded-md shadow-md flex-1 h-full flex flex-col w-full px-7 py-5">
-      <div className="header flex items-end justify-between">
+      <div className="header flex items-start justify-between">
         <div className="title-name flex flex-col">
           <h1 className="text-2xl font-bold flex items-center">
             <Trophy />

@@ -30,6 +30,8 @@ import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
 import Input from "@/components/Input";
 import Dropdown from "@/components/Dropdown";
+import { titlePositionMap } from "@/options/titlePositionMap";
+
 import {
   Clock,
   Medal,
@@ -62,12 +64,6 @@ const UpdateOtherTournament = ({ otherTournamentRecord }: any) => {
   const { allActiveHcaStudentsList, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
-
-  // prize options
-  const titlePositionMap: any = {
-    "Boys Winner": ["U11", "U13", "U15"],
-    "Girls Winner": ["13", "U13435", "U15465"],
-  };
 
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredStudentsListOptions, setfilteredStudentsListOptions] =

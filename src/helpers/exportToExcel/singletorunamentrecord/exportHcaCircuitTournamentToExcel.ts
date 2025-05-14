@@ -60,14 +60,16 @@ export function exportHcaCircuitTournamentToExcel(
     participantRows.push({
       "Participant No.": "Participant No.",
       Rank: "Rank",
-      "Player Name": "Player Name",
+      "Student Name": "Student Name",
+      "Participant Type": "Participant Type",
       "FIDE ID": "FIDE ID",
-      "Total Points": "Total Points",
       "Circuit Points": "Circuit Points",
+      "Total Points": "Total Points",
+      "Performance URL": "Performance URL",
       "Prize Title": "Prize Title",
-      Position: "Position",
-      "Other Prize": "Other Prize",
-      "Performance Link": "Performance Link",
+      "Prize Position": "Prize Position",
+      "Other Title": "Other Title",
+      Description: "Description",
     });
 
     // Participant Data
@@ -80,14 +82,16 @@ export function exportHcaCircuitTournamentToExcel(
       participantRows.push({
         "Participant No.": pIndex + 1,
         Rank: p.rank || "-",
-        "Player Name": p.studentName || "-",
+        "Student Name": p.studentName || "-",
+        "Participant Type": p.participantType || "-",
         "FIDE ID": p.fideId || "-",
-        "Total Points": p.totalPoints || "-",
         "Circuit Points": p.circuitPoints || "-",
+        "Total Points": p.totalPoints || "-",
+        "Performance URL": p.performanceUrl || "-",
         "Prize Title": prize.title || "-",
-        Position: prize.position || "-",
-        "Other Prize": prize.otherTitleStatus ? prize.otherTitle : "-",
-        "Performance Link": p.performanceUrl || "-",
+        "Prize Position": prize.position || "-",
+        "Other Title": prize.otherTitleStatus ? prize.otherTitle : "-",
+        Description: p.description || "",
       });
     });
 
@@ -121,6 +125,7 @@ export function exportHcaCircuitTournamentToExcel(
     { wch: 10 }, // Status
   ];
 
+  // name of columns and widths are mismatches
   participantSheet["!cols"] = [
     { wch: 5 }, // SN.
     { wch: 30 }, // Tournament Name
@@ -132,12 +137,14 @@ export function exportHcaCircuitTournamentToExcel(
     { wch: 15 }, // Participant No.
     { wch: 8 }, // Rank
     { wch: 25 }, // Player Name
+    { wch: 25 }, // participant type
     { wch: 15 }, // FIDE ID
-    { wch: 8 }, // Points
+    { wch: 10 }, // Points
     { wch: 20 }, // Prize Title
     { wch: 15 }, // Position
     { wch: 15 }, // Other Prize
-    { wch: 30 }, // Performance Link
+    { wch: 10 }, // Performance Link
+    { wch: 30 }, // Description
   ];
 
   leaderboardSheet["!cols"] = [

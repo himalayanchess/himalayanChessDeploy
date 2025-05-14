@@ -35,7 +35,13 @@ const ParticipantsSchema = new mongoose.Schema(
     rank: { type: Number, default: 0 },
     circuitPoints: { type: Number, default: 0 },
 
+    participantType: {
+      type: String,
+      enum: ["Top 10 Rank", "Category Winner", "Regular Participant"],
+      default: "Regular Participant",
+    },
     performanceUrl: { type: String, default: "" },
+    description: { type: String, default: "" },
     prize: { type: PrizeSchema, default: null },
     totalPoints: { type: Number, default: "" },
     activeStatus: { type: Boolean, default: true },

@@ -11,7 +11,7 @@ import {
 import HistoryIcon from "@mui/icons-material/History";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import { SquareX, Luggage, MapPinHouse } from "lucide-react";
+import { SquareX, Luggage, MapPinHouse, File } from "lucide-react";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { User, Calendar } from "lucide-react";
 
@@ -352,9 +352,9 @@ const ViewLeaveRequest = ({ leaveRequestRecord, role }: any) => {
             <Link
               href={leaveRequestRecord?.supportReasonFileUrl}
               target="_blank"
-              className="underline hover:text-blue-500"
+              className="underline flex items-center hover:text-blue-500"
             >
-              <InsertDriveFileIcon />
+              <File />
               <span className="ml-2">View File</span>
             </Link>
           ) : (

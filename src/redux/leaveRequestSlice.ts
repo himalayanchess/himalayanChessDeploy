@@ -58,7 +58,7 @@ const leaveRequestSlice = createSlice({
     builder
       .addCase(fetchAllTrainersLeaveRequests.pending, (state) => {
         state.status = "loading";
-        state.allTrainersLeaveRequestsLoading = false;
+        state.allTrainersLeaveRequestsLoading = true;
       })
       .addCase(fetchAllTrainersLeaveRequests.fulfilled, (state, action) => {
         state.status = "succeeded";

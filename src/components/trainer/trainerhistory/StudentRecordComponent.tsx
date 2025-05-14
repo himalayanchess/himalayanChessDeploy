@@ -1,3 +1,4 @@
+import { Divider } from "@mui/material";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -58,32 +59,11 @@ const StudentRecordComponent = ({ studentRecords }: any) => {
   }, [studentRecords]);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col   lg:flex-row gap-2">
       {/* Left: Table */}
-      <div className="flex-1">
-        {/* <div className="mt-2 mb-3 flex gap-4 text-sm">
-          <p>
-            Total Students{" "}
-            <span className="bg-gray-500 py-1 px-2 rounded-md text-xs text-white font-bold">
-              {attendanceStats.totalStudents}
-            </span>
-          </p>
-          <p>
-            Present{" "}
-            <span className="bg-gray-500 py-1 px-2 rounded-md text-xs text-white font-bold">
-              {attendanceStats.presentStudents}
-            </span>
-          </p>
-          <p>
-            Absent{" "}
-            <span className="bg-gray-500 py-1 px-2 rounded-md text-xs text-white font-bold">
-              {attendanceStats.absentStudents}
-            </span>
-          </p>
-        </div> */}
-
+      <div className="flex-1 border-r pr-4">
         <div className="overflow-x-auto border rounded-md">
-          <div className="grid grid-cols-[60px,repeat(5,1fr)] py-1 text-xs bg-gray-200 font-bold">
+          <div className="grid grid-cols-[60px,repeat(5,1fr)] py-1 text-sm bg-gray-200 text-gray-500 font-bold">
             <span className="py-2 px-4  text-left">SN</span>
             <span className="py-2 px-4  text-left">Name</span>
             <span className="py-2 px-4  text-left">Study Topics</span>
@@ -139,7 +119,7 @@ const StudentRecordComponent = ({ studentRecords }: any) => {
       </div>
 
       {/* Right: Graph */}
-      <div className="right-container w-[20%]">
+      <div className="right-container  w-[20%]">
         <div className="w-full h-[200px]">
           <h1 className="text-center font-bold text-lg mb-2">
             Attendance Chart

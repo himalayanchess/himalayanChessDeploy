@@ -5,7 +5,7 @@ import React from "react";
 const ActivityRecordStudyMaterials = ({ activityRecord }: any) => {
   return (
     <div className="w-full mt-2">
-      <p className="font-bold text-xs text-gray-500">Study Materials:</p>
+      <p className="font-bold text-md text-gray-500">Study Materials:</p>
       {activityRecord?.classStudyMaterials?.length == 0 ? (
         <p className="w-full py-4 flex items-center justify-center">
           <Ban />

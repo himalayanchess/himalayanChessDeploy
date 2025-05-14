@@ -56,6 +56,7 @@ export function exportHcaCircuitSeriesTournamentRecordToExcel(tournament: any) {
   participantRows.push({
     Rank: "Rank",
     "Student Name": "Student Name",
+    "Participant Type": "Participant Type",
     "FIDE ID": "FIDE ID",
     "Circuit Points": "Circuit Points",
     "Total Points": "Total Points",
@@ -63,13 +64,14 @@ export function exportHcaCircuitSeriesTournamentRecordToExcel(tournament: any) {
     "Prize Title": "Prize Title",
     "Prize Position": "Prize Position",
     "Other Title": "Other Title",
-    Active: "Active",
+    Description: "Description",
   });
 
   participants.forEach((p: any) => {
     participantRows.push({
       Rank: p.rank ?? "-",
       "Student Name": p.studentName || "-",
+      "Participant Type": p.participantType || "-",
       "FIDE ID": p.fideId ?? "-",
       "Circuit Points": p.circuitPoints ?? "-",
       "Total Points": p.totalPoints ?? "-",
@@ -77,7 +79,7 @@ export function exportHcaCircuitSeriesTournamentRecordToExcel(tournament: any) {
       "Prize Title": p.prize?.title || "-",
       "Prize Position": p.prize?.position || "-",
       "Other Title": p.prize?.otherTitleStatus ? p.prize.otherTitle : "-",
-      Active: p.activeStatus ? "Yes" : "No",
+      Description: p.description || "",
     });
   });
 

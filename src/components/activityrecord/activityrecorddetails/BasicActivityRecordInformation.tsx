@@ -124,14 +124,20 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
             <p className="text-sm text-gray-500">Trainer</p>
             <div className="flex items-center">
               <PersonOutlineOutlinedIcon sx={{ color: "gray" }} />
-              <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
-                  activityRecord?.trainerId
-                }`}
-                className="font-medium ml-1 text-xl underline  hover:text-blue-500"
-              >
-                {activityRecord.trainerName}
-              </Link>
+              {session?.data?.user?.role?.toLowerCase() !== "trainer" ? (
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/users/${
+                    activityRecord?.trainerId
+                  }`}
+                  className="font-medium ml-1 text-xl underline hover:text-blue-500"
+                >
+                  {activityRecord.trainerName}
+                </Link>
+              ) : (
+                <span className="font-medium ml-1 text-xl">
+                  {activityRecord.trainerName}
+                </span>
+              )}
             </div>
           </div>
 
@@ -148,14 +154,20 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
             <div className="flex items-center">
               <Component className="text-gray-500" />
               {activityRecord?.batchId ? (
-                <Link
-                  href={`/${session?.data?.user?.role?.toLowerCase()}/batches/${
-                    activityRecord.batchId
-                  }`}
-                  className="font-medium  ml-1 text-md underline hover:text-blue-500"
-                >
-                  {activityRecord.batchName}
-                </Link>
+                session?.data?.user?.role?.toLowerCase() !== "trainer" ? (
+                  <Link
+                    href={`/${session?.data?.user?.role?.toLowerCase()}/batches/${
+                      activityRecord?.batchId
+                    }`}
+                    className="font-medium ml-1 text-md underline hover:text-blue-500"
+                  >
+                    {activityRecord?.batchName}
+                  </Link>
+                ) : (
+                  <span className="font-medium ml-1 text-md">
+                    {activityRecord?.batchName}
+                  </span>
+                )
               ) : (
                 <p className="font-medium ml-1 text-md ">
                   {activityRecord.batchName}
@@ -211,14 +223,21 @@ const BasicActivityRecordInformation = ({ activityRecord }: any) => {
           <div className="flex items-center">
             <BookOpenText className="text-gray-500" />
             {activityRecord?.courseId ? (
-              <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/courses/${
-                  activityRecord?.courseId
-                }`}
-                className="font-medium ml-1 text-md underline hover:text-blue-500"
-              >
-                {activityRecord?.courseName || "N/A"}
-              </Link>
+              session?.data?.user?.role?.toLowerCase() !== "trainer" ? (
+                <Link
+                  href={`/${session?.data?.user?.role?.toLowerCase()}/courses/${
+                    activityRecord?.courseId
+                  }`}
+                  className="font-medium ml-1 text-md underline hover:text-blue-500"
+                >
+                  {activityRecord?.courseName || "N/A"}
+                </Link>
+              ) : (
+                // Optional: Show something else or nothing if role is 'trainer'
+                <span className="font-medium ml-1 text-md">
+                  {activityRecord?.courseName || "N/A"}
+                </span>
+              )
             ) : (
               <p className="font-medium ml-1 text-md text-gray-700">N/A</p>
             )}

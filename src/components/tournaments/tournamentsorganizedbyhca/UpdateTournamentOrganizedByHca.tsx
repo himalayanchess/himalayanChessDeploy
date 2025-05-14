@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
+import { titlePositionMap } from "@/options/titlePositionMap";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -64,12 +65,6 @@ const UpdateTournamentOrganizedByHca = ({
   const { allActiveHcaStudentsList, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
-
-  // prize options
-  const titlePositionMap: any = {
-    "Boys Winner": ["U11", "U13", "U15"],
-    "Girls Winner": ["13", "U13435", "U15465"],
-  };
 
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredStudentsListOptions, setfilteredStudentsListOptions] =
@@ -314,11 +309,11 @@ const UpdateTournamentOrganizedByHca = ({
           <div className="header w-full flex items-end justify-between">
             <h1 className="w-max mr-auto text-2xl flex items-center font-bold">
               <Trophy />
-              <span className="ml-2">Update Other Tournament</span>
+              <span className="ml-2">Update Tournament Organized by HCA</span>
             </h1>
             <div className="buttons flex gap-4">
               <Link
-                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/othertournaments`}
+                href={`/${session?.data?.user?.role?.toLowerCase()}/tournaments/tournamentsorganizedbyhca`}
               >
                 <Button color="inherit" sx={{ color: "gray" }}>
                   <HomeOutlinedIcon />

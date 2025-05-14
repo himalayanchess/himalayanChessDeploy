@@ -74,10 +74,27 @@ export async function POST(request: NextRequest) {
     };
 
     // update circuitPoints form its rank
-    const updatedParticipants = participants.map((participant: any) => ({
-      ...participant,
-      circuitPoints: Math.max(11 - participant.rank, 0) + 10, // Rank-based points + 10 participation points
-    }));
+    const updatedParticipants = participants.map((participant: any) => {
+      let circuitPoints = 10; // Base participation points for everyone
+
+      // Add points based on participant type
+      if (
+        participant.participantType?.toLowerCase() === "top 10 rank" &&
+        participant.rank <= 10
+      ) {
+        circuitPoints += 11 - participant.rank; // 1st=10, 10th=1
+      } else if (
+        participant.participantType?.toLowerCase() === "category winner"
+      ) {
+        circuitPoints += 0.5; // Additional 0.5 points for category winners
+      }
+      // Regular participants just get the base 10 points
+
+      return {
+        ...participant,
+        circuitPoints,
+      };
+    });
 
     const newTournament = await HcaCircuitSeriesTournament.create({
       ...reqBody,

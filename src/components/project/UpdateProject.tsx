@@ -301,9 +301,20 @@ const UpdateProject = ({ projectRecord }: any) => {
 
   useEffect(() => {
     if (projectRecord) {
+      const formattedTrainers = (projectRecord.assignedTrainers || []).map(
+        (trainer: any) => ({
+          ...trainer,
+          startDate: trainer.startDate
+            ? dayjs(trainer.startDate).format("YYYY-MM-DD")
+            : "",
+          endDate: trainer.endDate
+            ? dayjs(trainer.endDate).format("YYYY-MM-DD")
+            : "",
+        })
+      );
       reset({
         ...projectRecord,
-        assignedTrainers: projectRecord.assignedTrainers || [],
+        assignedTrainers: formattedTrainers,
         timeSlots: projectRecord.timeSlots || [],
       });
       setLoaded(true);

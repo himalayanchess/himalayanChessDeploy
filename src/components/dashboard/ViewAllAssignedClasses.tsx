@@ -92,22 +92,32 @@ const ViewAllAssignedClasses = ({
   // showing text
   const showingText = `Showing ${filteredTodaysAssignedClasses?.length} records`;
 
-  // branch access
-  useEffect(() => {
+  //default dropdown filter
+  const setUserDefaultFilters = () => {
     const user = session?.data?.user;
+    console.log("user", user);
+
     const isSuperOrGlobalAdmin =
       user?.role?.toLowerCase() === "superadmin" ||
       (user?.role?.toLowerCase() === "admin" && user?.isGlobalAdmin);
 
-    console.log("isSuperOrGlobalAdmin", isSuperOrGlobalAdmin, user);
     let branchName = "All";
     let affiliatedTo = "All";
+
     if (!isSuperOrGlobalAdmin) {
       branchName = user?.branchName;
       affiliatedTo = "HCA";
     }
+
     setselectedAffiliatedTo(affiliatedTo);
     setselectedBranch(branchName);
+  };
+
+  // branch access
+  useEffect(() => {
+    if (session?.data?.user) {
+      setUserDefaultFilters();
+    }
   }, [session?.data?.user]);
 
   // fetch initla data
@@ -121,8 +131,8 @@ const ViewAllAssignedClasses = ({
         open={modalOpen}
         onClose={() => {
           handleClose();
-          setselectedAffiliatedTo("All");
-          setselectedBranch("All");
+          // reset dropdown according to branch access
+          setUserDefaultFilters();
           setselectedClassStatus("All");
         }}
         aria-labelledby="todays-classes-modal-title"
@@ -144,8 +154,8 @@ const ViewAllAssignedClasses = ({
             <Button
               onClick={() => {
                 handleClose();
-                setselectedAffiliatedTo("All");
-                setselectedBranch("All");
+                // reset dropdown according to branch access
+                setUserDefaultFilters();
                 setselectedClassStatus("All");
               }}
               className="text-gray-500"
@@ -162,24 +172,33 @@ const ViewAllAssignedClasses = ({
               selected={selectedAffiliatedTo}
               onChange={setselectedAffiliatedTo}
               width="full"
-              disabled={!isSuperOrGlobalAdmin}
-            />
-            <Dropdown
-              label="Branch"
-              options={[
-                "All",
-                ...(allActiveBranchesList?.map(
-                  (branch: any) => branch.branchName
-                ) || []),
-              ]}
+              // disabled for branchadmin
+              //superadmin,global admin and trainer has access to affiliated to
               disabled={
-                selectedAffiliatedTo?.toLowerCase() != "hca" ||
-                !isSuperOrGlobalAdmin
+                session?.data?.user?.role?.toLowerCase() == "admin" &&
+                !session?.data?.user?.role?.isGlobalAdmin
               }
-              selected={selectedBranch}
-              onChange={setselectedBranch}
-              width="full"
             />
+            {session?.data?.user?.role?.toLowerCase() != "trainer" && (
+              <>
+                <Dropdown
+                  label="Branch"
+                  options={[
+                    "All",
+                    ...(allActiveBranchesList?.map(
+                      (branch: any) => branch.branchName
+                    ) || []),
+                  ]}
+                  disabled={
+                    selectedAffiliatedTo?.toLowerCase() != "hca" ||
+                    !isSuperOrGlobalAdmin
+                  }
+                  selected={selectedBranch}
+                  onChange={setselectedBranch}
+                  width="full"
+                />
+              </>
+            )}
             <Dropdown
               label="Class Status"
               options={statusOptions}
@@ -237,17 +256,19 @@ const ViewAllAssignedClasses = ({
 
                     return (
                       <Link
-                        href={`/${session?.data?.user?.role?.toLowerCase()}/activityrecords/${
-                          activityRecord?._id
-                        }`}
+                        href={`/${
+                          session?.data?.user?.role?.toLowerCase() === "trainer"
+                            ? "trainer/trainerhistory"
+                            : `${session?.data?.user?.role?.toLowerCase()}/activityrecords`
+                        }/${activityRecord?._id}`}
                         key={activityRecord?._id}
-                        className={` grid grid-cols-[50px,repeat(7,1fr)] gap-1 py-3 border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150
-                  ${
-                    activityRecord?.isPlayDay ||
-                    activityRecord?.mainStudyTopic?.toLowerCase() === "play"
-                      ? "bg-green-100"
-                      : "hover:bg-gray-100"
-                  }`}
+                        className={`grid grid-cols-[50px,repeat(7,1fr)] gap-1 py-3 border-b border-gray-200 items-center cursor-pointer transition-all ease duration-150 ${
+                          activityRecord?.isPlayDay ||
+                          activityRecord?.mainStudyTopic?.toLowerCase() ===
+                            "play"
+                            ? "bg-green-100"
+                            : "hover:bg-gray-100"
+                        }`}
                       >
                         <span className="text-xs text-center font-medium text-gray-600">
                           {serialNumber}

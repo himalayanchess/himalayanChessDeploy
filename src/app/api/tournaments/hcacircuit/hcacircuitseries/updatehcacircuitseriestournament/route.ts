@@ -90,12 +90,29 @@ export async function POST(request: NextRequest) {
       participants
     );
 
-    // update circuitPoints form updated participants its rank
+    // Update circuitPoints based on participant type and rank
     const finalWinnersWithCircuitPoints = finalUpdatedParticipants.map(
-      (participant: any) => ({
-        ...participant,
-        circuitPoints: Math.max(11 - participant.rank, 0) + 10, // Rank-based points + 10 participation points
-      })
+      (participant: any) => {
+        let circuitPoints = 10; // Base participation points for everyone
+
+        // Add points based on participant type
+        if (
+          participant.participantType?.toLowerCase() === "top 10 rank" &&
+          participant.rank <= 10
+        ) {
+          circuitPoints += 11 - participant.rank; // 1st=10, 10th=1
+        } else if (
+          participant.participantType?.toLowerCase() === "category winner"
+        ) {
+          circuitPoints += 0.5; // Additional 0.5 points for category winners
+        }
+        // Regular participants just get the base 10 points
+
+        return {
+          ...participant,
+          circuitPoints,
+        };
+      }
     );
 
     console.log("finalWinnersWithCircuitPoints", reqBody);

@@ -217,7 +217,7 @@ const HcaCircuitSeriesTournamentList = ({ tournamentList, loading }: any) => {
                         className="flex items-center justify-center"
                         BackdropProps={{
                           style: {
-                            backgroundColor: "rgba(0,0,0,0.4)", // Make the backdrop transparent
+                            backgroundColor: "rgba(0,0,0,0.2)", // Make the backdrop transparent
                           },
                         }}
                       >

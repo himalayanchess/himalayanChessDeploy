@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBranches, getAllStudents } from "@/redux/allListSlice";
+import { titlePositionMap } from "@/options/titlePositionMap";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -64,12 +65,6 @@ const AddHcaCircuitSeriesTournament = ({
   const { allActiveHcaStudentsList, allActiveBranchesList } = useSelector(
     (state: any) => state.allListReducer
   );
-
-  // prize options
-  const titlePositionMap: any = {
-    "Boys Winner": ["U11", "U13", "U15"],
-    "Girls Winner": ["13", "U13435", "U15465"],
-  };
 
   const [selectedBranch, setselectedBranch] = useState("");
   const [filteredStudentsListOptions, setfilteredStudentsListOptions] =
@@ -147,7 +142,9 @@ const AddHcaCircuitSeriesTournament = ({
       rank: "",
       // calculate circuit points based on rank
       // circuitPoints: 0,
+      participantType: "Top 10 Rank",
       performanceUrl: "",
+      description: "",
       prize: {
         title: "",
         position: "",
@@ -805,6 +802,58 @@ const AddHcaCircuitSeriesTournament = ({
                   </IconButton>
                 </div>
 
+                <Controller
+                  name={`participants.${index}.participantType`}
+                  control={control}
+                  rules={{ required: "Participant type is required" }}
+                  render={({ field }) => (
+                    <Dropdown
+                      label="Participant Type"
+                      options={[
+                        "Top 10 Rank",
+                        "Category Winner",
+                        "Regular Participant",
+                      ]}
+                      selected={field.value || ""} // Default to "top10"
+                      onChange={(value: any) => {
+                        field.onChange(value);
+
+                        // Reset fields based on selection
+                        if (value?.toLowerCase() === "top 10 rank") {
+                          setValue(`participants.${index}.prize`, {
+                            title: "",
+                            position: "",
+                            otherTitleStatus: false,
+                            otherTitle: "",
+                          });
+                          setValue(`participants.${index}.rank`, 1); // Default to rank 1
+                        } else if (value?.toLowerCase() === "category winner") {
+                          setValue(`participants.${index}.rank`, 11); // Default to rank 11
+                        } else if (
+                          value?.toLowerCase() === "regular participant"
+                        ) {
+                          setValue(`participants.${index}.prize`, {
+                            title: "",
+                            position: "",
+                            otherTitleStatus: false,
+                            otherTitle: "",
+                          });
+                          setValue(`participants.${index}.rank`, 11); // Default to rank 11
+                        }
+                      }}
+                      error={
+                        !!(errors.participants as any)?.[index]?.participantType
+                      }
+                      helperText={
+                        (errors.participants as any)?.[index]?.participantType
+                          ?.message
+                      }
+                      required
+                      width="full"
+                    />
+                  )}
+                />
+
                 <div className="grid grid-cols-2 gap-4">
                   {/* studentName */}
                   <Controller
@@ -866,23 +915,38 @@ const AddHcaCircuitSeriesTournament = ({
                           !isDuplicateRank(value, index) ||
                           "Duplicate rank selected",
                       }}
-                      render={({ field }) => (
-                        <Dropdown
-                          label="Rank"
-                          options={[
-                            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                            16, 17, 18, 19, 20,
-                          ]}
-                          selected={field.value || ""}
-                          onChange={field.onChange}
-                          error={!!(errors.participants as any)?.[index]?.rank}
-                          helperText={
-                            (errors.participants as any)?.[index]?.rank?.message
-                          }
-                          required
-                          width="full"
-                        />
-                      )}
+                      render={({ field }) => {
+                        const participantType = watch(
+                          `participants.${index}.participantType`
+                        );
+                        const rankOptions =
+                          participantType?.toLowerCase() === "top 10 rank"
+                            ? Array.from({ length: 10 }, (_, i) => i + 1) // 1-10
+                            : Array.from({ length: 140 }, (_, i) => i + 11); // 11-150
+
+                        return (
+                          <Dropdown
+                            label="Rank"
+                            options={rankOptions}
+                            selected={
+                              field.value ||
+                              (participantType === "top10" ? 1 : 11)
+                            }
+                            onChange={(value: any) => {
+                              field.onChange(value);
+                            }}
+                            error={
+                              !!(errors.participants as any)?.[index]?.rank
+                            }
+                            helperText={
+                              (errors.participants as any)?.[index]?.rank
+                                ?.message
+                            }
+                            required
+                            width="full"
+                          />
+                        );
+                      }}
                     />
 
                     {/* Total points */}
@@ -912,192 +976,226 @@ const AddHcaCircuitSeriesTournament = ({
                     />
                   </div>
 
-                  {/* participant prize */}
+                  {/* performanceurl-description */}
+                  <div className="performanceurl-description col-span-2 grid grid-cols-2 gap-4">
+                    {/* performanceUrl */}
+                    <div className="col-span-1">
+                      <Controller
+                        name={`participants.${index}.performanceUrl`}
+                        control={control}
+                        // rules={{ required: "Hca series URL is required" }}
+                        render={({ field }) => (
+                          <Input
+                            label="Performance URL"
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            type="text"
+                            error={
+                              !!(errors.participants as any)?.[index]
+                                ?.performanceUrl
+                            }
+                            helperText={
+                              (errors.participants as any)?.[index]
+                                ?.performanceUrl?.message
+                            }
+                            // required
+                            width="full"
+                          />
+                        )}
+                      />
+                    </div>
 
-                  {/* performanceUrl */}
-                  <div className="col-span-2">
-                    <Controller
-                      name={`participants.${index}.performanceUrl`}
-                      control={control}
-                      // rules={{ required: "Hca series URL is required" }}
-                      render={({ field }) => (
-                        <Input
-                          label="Performance URL"
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          type="text"
-                          error={
-                            !!(errors.participants as any)?.[index]
-                              ?.performanceUrl
-                          }
-                          helperText={
-                            (errors.participants as any)?.[index]
-                              ?.performanceUrl?.message
-                          }
-                          // required
-                          width="full"
-                        />
-                      )}
-                    />
+                    {/* description */}
+                    <div className="col-span-1">
+                      <Controller
+                        name={`participants.${index}.description`}
+                        control={control}
+                        // rules={{ required: "Hca series URL is required" }}
+                        render={({ field }) => (
+                          <Input
+                            label="Description"
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            type="text"
+                            error={
+                              !!(errors.participants as any)?.[index]
+                                ?.description
+                            }
+                            helperText={
+                              (errors.participants as any)?.[index]?.description
+                                ?.message
+                            }
+                            // required
+                            width="full"
+                          />
+                        )}
+                      />
+                    </div>
                   </div>
 
+                  {/* participant prize */}
                   {/* prize */}
-                  <div className="col-span-2 grid grid-cols-4 gap-4 items-start">
-                    {/* checkbox-title */}
-                    <div className="checkbox-title">
-                      {/* Prize Title */}
+                  {watch(
+                    `participants.${index}.participantType`
+                  )?.toLowerCase() === "category winner" && (
+                    <div className="col-span-2 grid grid-cols-4 gap-4 items-start">
+                      {/* checkbox-title */}
+                      <div className="checkbox-title">
+                        {/* Prize Title */}
+                        <Controller
+                          name={`participants.${index}.prize.title`}
+                          control={control}
+                          rules={{
+                            required: {
+                              value: !watch(
+                                `participants.${index}.prize.otherTitleStatus`
+                              ),
+                              message: "Prize Title is required",
+                            },
+                          }}
+                          render={({ field }) => (
+                            <Dropdown
+                              label="Prize Title"
+                              options={Object.keys(titlePositionMap)}
+                              selected={field.value || ""}
+                              onChange={(val: any) => {
+                                field.onChange(val);
+                                setValue(
+                                  `participants.${index}.prize.position`,
+                                  ""
+                                ); // Reset position
+                              }}
+                              disabled={watch(
+                                `participants.${index}.prize.otherTitleStatus`
+                              )}
+                              required
+                              error={
+                                !!(errors.participants as any)?.[index]?.prize
+                                  ?.title
+                              }
+                              helperText={
+                                (errors.participants as any)?.[index]?.prize
+                                  ?.title?.message
+                              }
+                              width="full"
+                            />
+                          )}
+                        />
+                        {/* Checkbox for Custom Prize (Other) */}
+                        <Controller
+                          name={`participants.${index}.prize.otherTitleStatus`}
+                          control={control}
+                          render={({ field }) => (
+                            <div className="flex items-center mt-2">
+                              <input
+                                type="checkbox"
+                                id={`otherTitleStatus-${index}`} // ✅ Make ID unique per participant
+                                checked={field.value || false}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  field.onChange(checked);
+
+                                  // Reset prize fields
+                                  setValue(
+                                    `participants.${index}.prize.title`,
+                                    ""
+                                  );
+                                  setValue(
+                                    `participants.${index}.prize.position`,
+                                    ""
+                                  );
+                                  setValue(
+                                    `participants.${index}.prize.otherTitle`,
+                                    ""
+                                  );
+                                }}
+                              />
+                              <label
+                                htmlFor={`otherTitleStatus-${index}`} // ✅ Match the dynamic ID
+                                className="text-md ml-2 cursor-pointer text-gray-800"
+                              >
+                                Other title
+                              </label>
+                            </div>
+                          )}
+                        />
+                      </div>
+                      {/* Prize Position */}
                       <Controller
-                        name={`participants.${index}.prize.title`}
+                        name={`participants.${index}.prize.position`}
                         control={control}
                         rules={{
                           required: {
                             value: !watch(
                               `participants.${index}.prize.otherTitleStatus`
                             ),
-                            message: "Prize Title is required",
+                            message: "Prize position is required",
                           },
                         }}
-                        render={({ field }) => (
-                          <Dropdown
-                            label="Prize Title"
-                            options={Object.keys(titlePositionMap)}
-                            selected={field.value || ""}
-                            onChange={(val: any) => {
-                              field.onChange(val);
-                              setValue(
-                                `participants.${index}.prize.position`,
-                                ""
-                              ); // Reset position
-                            }}
-                            disabled={watch(
-                              `participants.${index}.prize.otherTitleStatus`
-                            )}
-                            required
-                            error={
-                              !!(errors.participants as any)?.[index]?.prize
-                                ?.title
-                            }
-                            helperText={
-                              (errors.participants as any)?.[index]?.prize
-                                ?.title?.message
-                            }
-                            width="full"
-                          />
-                        )}
-                      />
-                      {/* Checkbox for Custom Prize (Other) */}
-                      <Controller
-                        name={`participants.${index}.prize.otherTitleStatus`}
-                        control={control}
-                        render={({ field }) => (
-                          <div className="flex items-center mt-2">
-                            <input
-                              type="checkbox"
-                              id={`otherTitleStatus-${index}`} // ✅ Make ID unique per participant
-                              checked={field.value || false}
-                              onChange={(e) => {
-                                const checked = e.target.checked;
-                                field.onChange(checked);
+                        render={({ field }) => {
+                          const selectedTitle = watch(
+                            `participants.${index}.prize.title`
+                          );
+                          const positionOptions =
+                            titlePositionMap[selectedTitle] || [];
 
-                                // Reset prize fields
-                                setValue(
-                                  `participants.${index}.prize.title`,
-                                  ""
-                                );
-                                setValue(
-                                  `participants.${index}.prize.position`,
-                                  ""
-                                );
-                                setValue(
-                                  `participants.${index}.prize.otherTitle`,
-                                  ""
-                                );
-                              }}
+                          return (
+                            <Dropdown
+                              label="Prize Position"
+                              options={positionOptions}
+                              selected={field.value || ""}
+                              onChange={field.onChange}
+                              disabled={watch(
+                                `participants.${index}.prize.otherTitleStatus`
+                              )}
+                              required
+                              error={
+                                !!(errors.participants as any)?.[index]?.prize
+                                  ?.position
+                              }
+                              helperText={
+                                (errors.participants as any)?.[index]?.prize
+                                  ?.position?.message
+                              }
+                              width="full"
                             />
-                            <label
-                              htmlFor={`otherTitleStatus-${index}`} // ✅ Match the dynamic ID
-                              className="text-md ml-2 cursor-pointer text-gray-800"
-                            >
-                              Other title
-                            </label>
-                          </div>
-                        )}
-                      />
-                    </div>
-                    {/* Prize Position */}
-                    <Controller
-                      name={`participants.${index}.prize.position`}
-                      control={control}
-                      rules={{
-                        required: {
-                          value: !watch(
-                            `participants.${index}.prize.otherTitleStatus`
-                          ),
-                          message: "Prize position is required",
-                        },
-                      }}
-                      render={({ field }) => {
-                        const selectedTitle = watch(
-                          `participants.${index}.prize.title`
-                        );
-                        const positionOptions =
-                          titlePositionMap[selectedTitle] || [];
-
-                        return (
-                          <Dropdown
-                            label="Prize Position"
-                            options={positionOptions}
-                            selected={field.value || ""}
-                            onChange={field.onChange}
-                            disabled={watch(
-                              `participants.${index}.prize.otherTitleStatus`
-                            )}
-                            required
-                            error={
-                              !!(errors.participants as any)?.[index]?.prize
-                                ?.position
-                            }
-                            helperText={
-                              (errors.participants as any)?.[index]?.prize
-                                ?.position?.message
-                            }
-                            width="full"
-                          />
-                        );
-                      }}
-                    />
-
-                    {/* Custom Prize Title Input */}
-                    {watch(`participants.${index}.prize.otherTitleStatus`) ? (
-                      <Controller
-                        name={`participants.${index}.prize.otherTitle`}
-                        control={control}
-                        rules={{
-                          required: "Custom title is required in 'Other' mode",
+                          );
                         }}
-                        render={({ field }) => (
-                          <Input
-                            label="Other Prize Title"
-                            value={field.value || ""}
-                            onChange={field.onChange}
-                            required
-                            error={
-                              !!(errors.participants as any)?.[index]?.prize
-                                ?.otherTitle
-                            }
-                            helperText={
-                              (errors.participants as any)?.[index]?.prize
-                                ?.otherTitle?.message
-                            }
-                            width="full"
-                          />
-                        )}
                       />
-                    ) : (
-                      // Leave one column empty
-                      <div />
-                    )}
-                  </div>
+
+                      {/* Custom Prize Title Input */}
+                      {watch(`participants.${index}.prize.otherTitleStatus`) ? (
+                        <Controller
+                          name={`participants.${index}.prize.otherTitle`}
+                          control={control}
+                          rules={{
+                            required:
+                              "Custom title is required in 'Other' mode",
+                          }}
+                          render={({ field }) => (
+                            <Input
+                              label="Other Prize Title"
+                              value={field.value || ""}
+                              onChange={field.onChange}
+                              required
+                              error={
+                                !!(errors.participants as any)?.[index]?.prize
+                                  ?.otherTitle
+                              }
+                              helperText={
+                                (errors.participants as any)?.[index]?.prize
+                                  ?.otherTitle?.message
+                              }
+                              width="full"
+                            />
+                          )}
+                        />
+                      ) : (
+                        // Leave one column empty
+                        <div />
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

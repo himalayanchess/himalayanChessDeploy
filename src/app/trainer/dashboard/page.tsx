@@ -6,7 +6,10 @@ import Sidebar from "@/components/Sidebar";
 import AddUser from "@/components/user/AddUserPageBased";
 import AddCourse from "@/components/course/AddCourse";
 import Header from "@/components/Header";
+import DashboardComponent from "@/components/dashboard/DashboardComponent";
+import { adminMenuItems } from "@/sidebarMenuItems/adminMenuItems";
 import { trainerMenuItems } from "@/sidebarMenuItems/trainerMenuItems";
+import TrainerDashboardComponent from "@/components/trainer/dashboard/TrainerDashboardComponent";
 const page = () => {
   const router = useRouter();
   const session = useSession();
@@ -22,7 +25,7 @@ const page = () => {
       />
       <div className="ml-[3.4dvw] w-[96.6dvw] ">
         <Header />
-        <div className="dashboard-container py-6 px-14">Trainer Dashboard</div>
+        <TrainerDashboardComponent />
       </div>
     </div>
   );

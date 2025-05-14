@@ -48,7 +48,7 @@ const TrainersLeaveRequestList = ({ role }: any) => {
           <span className="ml-1 text-xl font-bold">Leave History</span>
         </p>
         <span className="text-sm ml-2">
-          Showing {allTrainersLeaveRequests?.length} records
+          Showing {allTrainersLeaveRequests?.length || 0} records
         </span>
       </div>
       {allTrainersLeaveRequestsLoading ? (
