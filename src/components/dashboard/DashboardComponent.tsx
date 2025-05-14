@@ -975,14 +975,14 @@ const DashboardComponent = () => {
         </div>
 
         {/* right side */}
-        <div className="userattendancechart w-[27%] p-4 bg-white rounded-md shadow-md h-full flex flex-col gap-4">
+        <div className="rightside w-[27%] p-3 bg-white rounded-md shadow-md h-full flex flex-col gap-0">
           {/* Top: User Info */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center p-2 rounded-md">
+          <div className="flex-1 flex flex-col justify-center items-center text-center p-0 rounded-md">
             <Avatar
               src={session?.data?.user?.imageUrl || undefined}
               sx={{ width: 200, height: 200 }}
             />
-            <h2 className="mt-3 text-xl  flex items-center text-gray-700">
+            <h2 className="mt-3 text-md  text-gray-700">
               <span className="font-medium">Hi,</span>
               <span className="ml-1 font-bold">
                 {session?.data?.user?.name || "User"}
