@@ -10,7 +10,7 @@ cloudinary.config({
 
 // Map config for each upload type
 const cloudinaryConfigs = {
-  // cyrz.mhr09
+  // it.himalayanchess@gmail.com
   studyMaterials: {
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
