@@ -197,7 +197,12 @@ const PaymentComponent = () => {
             .includes(searchText.toLowerCase()) ||
           record.prePaymentDescription
             .toLowerCase()
-            .includes(searchText.toLowerCase())
+            .includes(searchText.toLowerCase()) ||
+          // added later after deployment to also search via user recipient name
+          (record.recipient?.userName &&
+            record.recipient.userName
+              .toLowerCase()
+              .includes(searchText.toLowerCase()))
       );
     }
 

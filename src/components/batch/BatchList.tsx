@@ -64,11 +64,11 @@ const BatchList = ({
   return (
     <div className="overflow-y-auto mt-3 flex-1 border flex flex-col bg-white rounded-lg">
       {/* Table Headings */}
-      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(6,1fr)] w-full bg-gray-200">
+      <div className="table-headings  mb-2 grid grid-cols-[70px,repeat(7,1fr)] w-full bg-gray-200">
         <span className="py-3 text-center text-sm font-bold text-gray-600">
           SN
         </span>
-        <span className="py-3 text-left text-sm font-bold text-gray-600">
+        <span className="py-3 col-span-2 text-left text-sm font-bold text-gray-600">
           Batch Name
         </span>
         <span className="py-3 text-left text-sm font-bold text-gray-600">
@@ -113,7 +113,7 @@ const BatchList = ({
               return (
                 <div
                   key={batch?._id}
-                  className="grid grid-cols-[70px,repeat(6,1fr)] border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
+                  className="grid grid-cols-[70px,repeat(7,1fr)] border-b  border-gray-200  items-center cursor-pointer transition-all ease duration-150 hover:bg-gray-100"
                 >
                   <span className="text-sm text-center font-medium text-gray-600">
                     {serialNumber}
@@ -122,7 +122,7 @@ const BatchList = ({
                   <Link
                     title="View"
                     href={`batches/${batch?._id}`}
-                    className="text-left text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
+                    className="text-left col-span-2 text-sm font-medium text-gray-600 hover:underline hover:text-blue-500"
                   >
                     {batch?.batchName}
                   </Link>

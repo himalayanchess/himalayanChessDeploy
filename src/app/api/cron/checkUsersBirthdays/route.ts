@@ -10,6 +10,7 @@ import type { NextRequest } from "next/server";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+const timeZone = "Asia/Kathmandu";
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -31,37 +32,57 @@ export async function GET(request: NextRequest) {
       weekDates.push({ day: date.date(), month: date.month() }); // month is 0-indexed
     }
 
-    // Only get HCA-affiliated students
-    const students = await HcaAffiliatedStudent.find();
+    // Fetch students and users
+    const [students, users] = await Promise.all([
+      HcaAffiliatedStudent.find().select(
+        "_id name dob role branchName branchId imageUrl"
+      ),
+      User.find({ isActive: true }).select(
+        "_id name dob role branchName branchId imageUrl"
+      ),
+    ]);
 
-    const birthdayPeople = students.filter((student: any) => {
-      if (!student.dob) return false;
+    // Combine all people, with extractedRole set accordingly
+    const allPeople = [
+      ...students.map((s: any) => ({
+        ...s.toObject(),
+        extractedRole: "Student",
+      })),
+      ...users.map((u: any) => ({ ...u.toObject(), extractedRole: "User" })),
+    ];
 
-      const dob = dayjs(student.dob).tz("Asia/Kathmandu");
-      const dobDay = dob.date();
-      const dobMonth = dob.month();
-
+    // Filter those with birthdays this week (by day/month only)
+    const birthdayThisWeek = allPeople.filter((person) => {
+      if (!person.dob) return false;
+      const dob = dayjs(person.dob).tz(timeZone);
       return weekDates.some(
-        (d: any) => d.day === dobDay && d.month === dobMonth
+        (d: any) => d.day === dob.date() && d.month === dob.month()
       );
     });
 
-    if (birthdayPeople.length === 0) {
-      return Response.json({ msg: "No birthdays this week.", statusCode: 200 });
+    if (birthdayThisWeek?.length === 0) {
+      return new Response(
+        JSON.stringify({ msg: "No birthdays this week.", statusCode: 200 }),
+        { status: 200 }
+      );
     }
 
+    // Optionally send birthday email
     await sendBirthdayMail({
-      subject: "🎉 HCA Students with Birthdays This Week!",
-      birthdayPeople,
+      subject: "🎉 Birthdays This Week!",
+      birthdayPeople: birthdayThisWeek,
       weekRange: `${startOfWeek.format("MMMM D")} - ${endOfWeek.format(
         "MMMM D"
       )}`,
     });
 
-    return Response.json({
-      msg: `Sent birthday email for ${birthdayPeople.length} student(s).`,
-      statusCode: 200,
-    });
+    return new Response(
+      JSON.stringify({
+        msg: `Sent birthday email for ${birthdayThisWeek.length} person(s).`,
+        statusCode: 200,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Weekly birthday check failed:", error);
     return Response.json({
